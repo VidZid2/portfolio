@@ -1,0 +1,6 @@
+AI_RetryError: Failed after 3 attempts. Last error: AI_APICallError: Cannot connect to API: getaddrinfo ENOTFOUND api.openzen.ai
+AI_RetryError: Failed after 3 attempts. Last error: AI_APICallError: Cannot connect to API: getaddrinfo ENOTFOUND api.openzen.ai
+    at _retryWithExponentialBackoff (C:\Users\JOSIAH DE JESUS\Documents\Portfolio - Not Yet Complete\PORTFOLIO\.next\dev\server\chunks\0qvj_ai_dist_index_1194r4c.js:2817:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async streamStep (C:\Users\JOSIAH DE JESUS\Documents\Portfolio - Not Yet Complete\PORTFOLIO\.next\dev\server\chunks\0qvj_ai_dist_index_1194r4c.js:9060:80)
+    at async C:\Users\JOSIAH DE JESUS\Documents\Portfolio - Not Yet Complete\PORTFOLIO\.next\dev\server\chunks\0qvj_ai_dist_index_1194r4c.js:9390:13

@@ -1,0 +1,453 @@
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "next-themes";
+import { goalMilestones } from "@/data/goalMilestonesData";
+
+import { AsciiText } from "@/components/ui/ascii-text";
+import { GlyphMatrix } from "@/components/ui/glyph-matrix";
+import { JapaneseAsciiText } from "@/components/ui/japanese-ascii-text";
+import { cn } from "@/lib/utils";
+import { useInView } from "framer-motion";
+
+function ProjectSyncBackground() {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { amount: 0.1 });
+  const [isMobile, setIsMobile] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+    const checkMobile = () => setIsMobile(window.matchMedia("(hover: none)").matches);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  if (!hasMounted) return null;
+
+  const shouldShow = isMobile ? isInView : true;
+
+  return (
+    <div 
+      ref={ref} 
+      className={cn(
+        "absolute inset-0 z-0 pointer-events-none transition-opacity duration-1000",
+        isMobile 
+          ? (isInView ? "opacity-100" : "opacity-0")
+          : "opacity-0 group-hover/item:opacity-100"
+      )}
+    >
+      {shouldShow && (
+        <GlyphMatrix
+          glyphs="01·•+*/\<>="
+          cellSize={14}
+          mutationRate={0.04}
+          interval={90}
+          fadeBottom={0}
+          color="#6495ED"
+        />
+      )}
+      <div className="absolute inset-0 bg-white/70 dark:bg-[#111111]/70" />
+    </div>
+  );
+}
+
+type PlaceholderImageOptions = {
+  title: string
+  startColor: string
+  endColor: string
+  accentColor: string
+}
+
+const createPlaceholderImage = ({ title, startColor, endColor, accentColor }: PlaceholderImageOptions) => {
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="${startColor}" />
+      <stop offset="1" stop-color="${endColor}" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="720" rx="40" fill="url(#bg)" />
+  <rect x="96" y="96" width="1008" height="528" rx="30" fill="${accentColor}" fill-opacity="0.18" />
+  <circle cx="270" cy="220" r="54" fill="${accentColor}" fill-opacity="0.7" />
+  <rect x="352" y="184" width="552" height="72" rx="20" fill="${accentColor}" fill-opacity="0.68" />
+  <rect x="196" y="350" width="404" height="36" rx="18" fill="${accentColor}" fill-opacity="0.62" />
+  <rect x="196" y="410" width="620" height="30" rx="15" fill="${accentColor}" fill-opacity="0.56" />
+  <rect x="196" y="456" width="720" height="30" rx="15" fill="${accentColor}" fill-opacity="0.46" />
+  <text x="196" y="565" fill="${accentColor}" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="700">${title}</text>
+</svg>`
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
+}
+
+function StatusBadge({ dates }: { dates: string }) {
+  const percentText = dates.split(" ")[0]; // "100%", "89%", "58%", "0%"
+  
+  let statusText = "PLANNED";
+  if (percentText === "100%") statusText = "COMPLETE";
+  else if (percentText === "89%") statusText = "ALMOST";
+  else if (percentText === "58%") statusText = "MIDWAY";
+
+  const isCompleted = percentText === "100%";
+
+  return (
+    <div className="relative group/badge whitespace-nowrap shrink-0 pointer-events-none select-none">
+      {/* Outer border wrapper matching View All / Ask AI style */}
+      <div 
+        className={cn(
+          "absolute -inset-[4px] border rounded-[8px] pointer-events-none transition-colors duration-300",
+          isCompleted 
+            ? "border-black dark:border-white group-hover/badge:border-black dark:group-hover/badge:border-white"
+            : "border-black/5 dark:border-white/5 group-hover/badge:border-black/10 dark:group-hover/badge:border-white/10"
+        )} 
+      />
+      
+      <div 
+        className={cn(
+          "relative flex items-center justify-center min-w-[72px] h-[26px] px-2 rounded-[4px] text-[10px] sm:text-[11px] font-medium transition-all duration-300 border shadow-sm font-mono",
+          isCompleted 
+            ? "bg-black dark:bg-white border-black dark:border-white shadow-black/50 dark:shadow-white/50" 
+            : "bg-zinc-50 dark:bg-[#09090b] group-hover/badge:bg-zinc-100 dark:group-hover/badge:bg-[#121214] border-black/5 dark:border-white/5 shadow-black/20 dark:shadow-lg dark:shadow-black/80"
+        )}
+      >
+        <span
+          className="flex items-center justify-center text-[#6495ED]"
+        >
+          <AsciiText text={statusText} duration={500} className="font-mono" />
+        </span>
+      </div>
+    </div>
+  );
+}
+
+export function GoalMilestoneList() {
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const [overrideDisabled, setOverrideDisabled] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Prevent running this on mobile natively, though key events without inputs are rare on mobile
+      if (e.key === '*') {
+        setOverrideDisabled(prev => !prev);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  if (!mounted) return <div className="h-[600px]" />;
+
+  const isDark = resolvedTheme === "dark";
+  const startColor = isDark ? "#09090b" : "#ffffff";
+  const endColor = isDark ? "#18181b" : "#f4f4f5";
+  const accentColor = "#6495ED";
+
+  const handleItemClick = (idx: number) => {
+    setOpenIdx((prev) => (prev === idx ? null : idx));
+  };
+
+  return (
+    <div className="block w-full">
+      {/* Accordion List */}
+      <div className="block">
+        {goalMilestones.map((item, idx) => {
+          const isOpen = openIdx === idx;
+          const isEffectivelyDisabled = item.isDisabled && !overrideDisabled;
+          const itemImage = createPlaceholderImage({ 
+            title: `0${idx + 1} / ${item.title}`, 
+            startColor, 
+            endColor, 
+            accentColor 
+          });
+
+          return (
+            <motion.div 
+              key={idx} 
+              className="group relative"
+              variants={{
+                hidden: { opacity: 0, scale: 0.95, y: 15 },
+                visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", bounce: 0.4 } }
+              }}
+            >
+              {/* Dashed bottom border for all items */}
+              <div
+                className="absolute bottom-0 left-[-16px] right-[-16px] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
+                style={{
+                  maskImage:
+                    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                  WebkitMaskImage:
+                    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                }}
+              />
+
+              <div
+                className={cn(
+                  "group/item flex flex-row items-center justify-between gap-2 sm:gap-4 py-3.5 px-4 -mx-4 transition-colors relative z-20 rounded-lg sm:py-4 overflow-hidden",
+                  isEffectivelyDisabled 
+                    ? "opacity-40 grayscale pointer-events-none" 
+                    : "hover:bg-zinc-50 dark:hover:bg-zinc-900/20 cursor-pointer"
+                )}
+                onClick={() => !isEffectivelyDisabled && handleItemClick(idx)}
+              >
+                {/* GlyphMatrix Background (Only for Project SYNC) */}
+                {item.title === "Project SYNC" && <ProjectSyncBackground />}
+
+                <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 relative z-10">
+                  {/* Logo Container styled like Experience Section */}
+                  {item.src.includes("github.com") || item.src.includes("Avatar") ? (
+                    <div className="size-10 shrink-0 rounded-[10px] border border-black/10 bg-zinc-50 shadow-sm shadow-black/15 dark:border-zinc-800 dark:bg-[#111111] dark:shadow-md dark:shadow-black/50 overflow-hidden relative">
+                      <Image
+                        src={item.src}
+                        alt={item.title}
+                        width={40}
+                        height={40}
+                        sizes="40px"
+                        quality={60}
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                  ) : (
+                    <div className="size-10 shrink-0 rounded-[10px] border border-black/10 bg-zinc-50 p-[2px] shadow-sm shadow-black/15 dark:border-zinc-800 dark:bg-[#111111] dark:shadow-md dark:shadow-black/50">
+                      <div className="w-full h-full rounded-[7px] border border-black/5 dark:border-black/20 bg-white dark:bg-[#111111] flex items-center justify-center overflow-hidden relative">
+                        <Image
+                          src={item.src}
+                          alt={item.title}
+                          width={40}
+                          height={40}
+                          sizes="40px"
+                          quality={60}
+                          style={item.imageZoom ? { transform: `scale(${item.imageZoom})` } : undefined}
+                          className={`${item.imageFit === "contain" ? "object-contain" : "object-cover"} w-full h-full`}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-0.5 min-w-0 pr-2 sm:pr-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={`text-[14px] font-bold leading-tight sm:text-[17px] ${isOpen ? "text-[#6495ED]" : "text-zinc-900 dark:text-zinc-100"} truncate`}>
+                        {item.title === "Project SYNC" ? (
+                          <JapaneseAsciiText text={item.title} duration={3000} idleScramble={true} />
+                        ) : (
+                          item.title
+                        )}
+                      </span>
+                    </div>
+                    <span className="text-[13px] sm:text-[15px] text-zinc-600 dark:text-zinc-400 truncate">
+                      {item.title === "Project SYNC" ? (
+                        <JapaneseAsciiText text={item.role} delay={1000} duration={3000} idleScramble={true} />
+                      ) : (
+                        item.role
+                      )}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 sm:gap-6 shrink-0 relative z-10">
+                  <div className="hidden sm:flex flex-col items-end">
+                    <span className="text-[13px] sm:text-[14px] text-zinc-500 dark:text-zinc-400">
+                      {item.location}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <StatusBadge dates={item.dates} />
+                    <div className="w-4 h-4 flex items-center justify-center relative">
+                      <svg
+                        viewBox="0 0 24 24"
+                        className={`w-3.5 h-3.5 text-zinc-500 transition-transform duration-300 ${isOpen ? "rotate-180 text-[#6495ED]" : ""}`}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                      >
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Expandable Details Section */}
+              <div
+                className={`-mx-4 grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.33,1,0.68,1)] ${isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+              >
+                <div className="overflow-hidden">
+                  <div
+                    className={`pb-4 transition-all duration-500 ease-[cubic-bezier(0.33,1,0.68,1)] pl-4 pr-4 sm:pl-6 sm:pr-8 text-[14px] text-zinc-600 dark:text-zinc-400 ${
+                      isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+                    }`}
+                  >
+                    {item.metrics && (
+                      <div className="relative -ml-4 -mr-4 sm:-ml-6 sm:-mr-8 mb-6 mt-0">
+                        {item.title === "Project SYNC" && (
+                          <div className="mb-0 pt-6 pb-6 px-4 sm:px-6 flex flex-col items-center justify-center text-center gap-2 relative">
+                            <h4 className="text-[12px] font-bold tracking-[0.2em] uppercase text-zinc-900 dark:text-zinc-100 flex items-center justify-center gap-2.5 w-full">
+                              <JapaneseAsciiText text="TECHNICAL ARCHITECTURE" duration={3000} idleScramble={true} />
+                            </h4>
+                            <p className="text-[13px] text-zinc-500 dark:text-zinc-400 max-w-lg mx-auto">
+                              Comprehensive breakdown of the core technologies and systems powering this portfolio.
+                            </p>
+                            {/* Bottom Dashed Line */}
+                            <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15]" style={{ maskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)", WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)" }} />
+                            
+                            {/* Corner Dots for the bottom line */}
+                            <span className="pointer-events-none absolute left-0 bottom-0 h-[2px] w-[2px] -translate-x-1/2 translate-y-1/2 bg-[#808080] dark:bg-[#404040] z-10" />
+                            <span className="pointer-events-none absolute right-0 bottom-0 h-[2px] w-[2px] translate-x-1/2 translate-y-1/2 bg-[#808080] dark:bg-[#404040] z-10" />
+                          </div>
+                        )}
+                        {item.title === "PRIMA" && (
+                          <div className="mb-0 pt-6 pb-6 px-4 sm:px-6 flex flex-col items-center justify-center text-center gap-2 relative">
+                            <h4 className="text-[12px] font-bold tracking-[0.2em] uppercase text-zinc-900 dark:text-zinc-100 flex items-center justify-center gap-2.5 w-full">
+                              <JapaneseAsciiText text="PROJECT STATISTICS" duration={3000} idleScramble={true} />
+                            </h4>
+                            {/* Bottom Dashed Line */}
+                            <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15]" style={{ maskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)", WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)" }} />
+                            
+                            {/* Corner Dots for the bottom line */}
+                            <span className="pointer-events-none absolute left-0 bottom-0 h-[2px] w-[2px] -translate-x-1/2 translate-y-1/2 bg-[#808080] dark:bg-[#404040] z-10" />
+                            <span className="pointer-events-none absolute right-0 bottom-0 h-[2px] w-[2px] translate-x-1/2 translate-y-1/2 bg-[#808080] dark:bg-[#404040] z-10" />
+                          </div>
+                        )}
+                        {/* Outer Borders */}
+                        <span className="pointer-events-none absolute top-0 left-0 right-0 h-0 border-t border-black/30 dark:border-white/[0.15]" style={{ maskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)", WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)" }} />
+                        <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15]" style={{ maskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)", WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)" }} />
+                        <span className="pointer-events-none absolute top-0 bottom-0 left-0 w-0 border-l border-black/30 dark:border-white/[0.15]" style={{ maskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)", WebkitMaskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)" }} />
+                        <span className="pointer-events-none absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15]" style={{ maskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)", WebkitMaskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)" }} />
+
+                        {/* Outer Container Corner Dots */}
+                        <span className="pointer-events-none absolute left-0 top-0 h-[2px] w-[2px] -translate-x-1/2 -translate-y-1/2 bg-[#808080] dark:bg-[#404040] z-10" />
+                        <span className="pointer-events-none absolute right-0 top-0 h-[2px] w-[2px] translate-x-1/2 -translate-y-1/2 bg-[#808080] dark:bg-[#404040] z-10" />
+                        <span className="pointer-events-none absolute left-0 bottom-0 h-[2px] w-[2px] -translate-x-1/2 translate-y-1/2 bg-[#808080] dark:bg-[#404040] z-10" />
+                        <span className="pointer-events-none absolute right-0 bottom-0 h-[2px] w-[2px] translate-x-1/2 translate-y-1/2 bg-[#808080] dark:bg-[#404040] z-10" />
+
+                        <div className="grid max-w-full grid-cols-2 md:grid-cols-3">
+                          {item.metrics.map((metric, i, arr) => {
+                            const isMobileLeftEdge = i % 2 === 0;
+                            const isMobileRightEdge = (i + 1) % 2 === 0;
+                            const isDesktopLeftEdge = i % 3 === 0;
+                            const isDesktopRightEdge = (i + 1) % 3 === 0;
+                            const isMobileBottom = i >= Math.floor((arr.length - 1) / 2) * 2;
+                            const isDesktopBottom = i >= Math.floor((arr.length - 1) / 3) * 3;
+
+                            const rightClass = 
+                              isMobileRightEdge && isDesktopRightEdge ? "hidden" :
+                              isMobileRightEdge && !isDesktopRightEdge ? "hidden md:block" :
+                              !isMobileRightEdge && isDesktopRightEdge ? "block md:hidden" :
+                              "block";
+
+                            const bottomClass = 
+                              isMobileBottom && isDesktopBottom ? "hidden" :
+                              isMobileBottom && !isDesktopBottom ? "hidden md:block" :
+                              !isMobileBottom && isDesktopBottom ? "block md:hidden" :
+                              "block";
+
+                            const mobilePad = isMobileLeftEdge ? "pl-4 sm:pl-6 pr-3" : "pr-4 sm:pr-8 pl-3";
+                            const desktopPad = isDesktopLeftEdge ? "md:pl-6 md:pr-4" : isDesktopRightEdge ? "md:pr-8 md:pl-4" : "md:px-4";
+
+                            return (
+                              <div
+                                key={metric.label}
+                                className={`relative min-w-0 py-2 ${mobilePad} ${desktopPad}`}
+                              >
+                                {/* Cell Corner Dots */}
+                                <span className="pointer-events-none absolute left-0 top-0 h-[2px] w-[2px] -translate-x-1/2 -translate-y-1/2 bg-[#808080] dark:bg-[#404040] z-10" />
+                                <span className="pointer-events-none absolute right-0 top-0 h-[2px] w-[2px] translate-x-1/2 -translate-y-1/2 bg-[#808080] dark:bg-[#404040] z-10" />
+                                <span className="pointer-events-none absolute left-0 bottom-0 h-[2px] w-[2px] -translate-x-1/2 translate-y-1/2 bg-[#808080] dark:bg-[#404040] z-10" />
+                                <span className="pointer-events-none absolute right-0 bottom-0 h-[2px] w-[2px] translate-x-1/2 translate-y-1/2 bg-[#808080] dark:bg-[#404040] z-10" />
+
+                                {/* Inner Right Border */}
+                                <span 
+                                  className={`pointer-events-none absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] ${rightClass}`}
+                                  style={{ maskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)", WebkitMaskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)" }} 
+                                />
+                                {/* Inner Bottom Border */}
+                                <span 
+                                  className={`pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] ${bottomClass}`}
+                                  style={{ maskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)", WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)" }} 
+                                />
+
+                                <p className="text-[14px] sm:text-[15px] font-bold leading-tight text-zinc-900 dark:text-zinc-100 break-words">
+                                  {metric.value}
+                                </p>
+                                <p className="mt-1.5 text-[10px] font-medium uppercase text-zinc-400 dark:text-zinc-600">
+                                  {metric.label}
+                                </p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {isOpen && !item.hidePlaceholder && (
+                      <div className="relative mb-4 overflow-hidden rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 bg-black/5 dark:bg-white/5 w-full aspect-video">
+                        {item.placeholderVideo ? (
+                          <video
+                            src={item.placeholderVideo}
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="h-full w-full object-cover scale-[1.01]"
+                          />
+                        ) : (
+                          <Image
+                            src={itemImage}
+                            alt={`${item.title} image`}
+                            fill
+                            sizes="(min-width: 768px) 40vw, calc(100vw - 3rem)"
+                            quality={70}
+                            className="h-auto w-full object-cover"
+                          />
+                        )}
+                      </div>
+                    )}
+
+                    <ul className="mb-4 space-y-2 text-[14px] leading-relaxed">
+                      {item.description
+                        .split("\n")
+                        .filter((line) => line.trim() !== "")
+                        .map((point, i) => {
+                          return (
+                            <li key={i} className="flex items-start gap-2">
+                              <span className="text-zinc-400 dark:text-zinc-500 mt-[2px] text-[15px] leading-none">•</span>
+                              <span className="text-zinc-600 dark:text-zinc-400">
+                                {point
+                                  .trim()
+                                  .split(/(\*\*.*?\*\*)/)
+                                  .map((part, partIndex) => {
+                                    if (part.startsWith("**") && part.endsWith("**")) {
+                                      return (
+                                        <strong
+                                          key={partIndex}
+                                          className="font-semibold text-zinc-800 dark:text-zinc-200"
+                                        >
+                                          {part.slice(2, -2)}
+                                        </strong>
+                                      );
+                                    }
+                                    return part;
+                                  })}
+                              </span>
+                            </li>
+                          );
+                        })}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

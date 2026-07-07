@@ -1,0 +1,32 @@
+data: {"type":"start"}
+
+data: {"type":"start-step"}
+
+data: {"type":"reasoning-start","id":"reasoning-0"}
+
+data: {"type":"reasoning-delta","id":"reasoning-0","delta":"The user wants to"}
+
+data: {"type":"reasoning-delta","id":"reasoning-0","delta":" see the PRIMA"}
+
+data: {"type":"reasoning-delta","id":"reasoning-0","delta":" project. Let"}
+
+data: {"type":"reasoning-delta","id":"reasoning-0","delta":" me scroll to it"}
+
+data: {"type":"reasoning-delta","id":"reasoning-0","delta":"."}
+
+data: {"type":"reasoning-end","id":"reasoning-0"}
+
+data: {"type":"tool-input-start","toolCallId":"call_e2ad378c536f441e859ac73c","toolName":"scrollToProject"}
+
+data: {"type":"tool-input-delta","toolCallId":"call_e2ad378c536f441e859ac73c","inputTextDelta":""}
+
+data: {"type":"tool-input-delta","toolCallId":"call_e2ad378c536f441e859ac73c","inputTextDelta":"{}"}
+
+data: {"type":"tool-input-available","toolCallId":"call_e2ad378c536f441e859ac73c","toolName":"scrollToProject","input":{}}
+
+data: {"type":"finish-step"}
+
+data: {"type":"finish","finishReason":"tool-calls"}
+
+data: [DONE]
+

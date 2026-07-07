@@ -1,0 +1,61 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { NumberTicker } from "@/components/ui/number-ticker";
+
+function TwoDots() {
+  return (
+    <div className="mx-0.5 sm:mx-1 flex flex-col gap-2 -translate-x-[2px] sm:-translate-x-[3px] drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+      <div className="w-[2px] h-[2px] bg-zinc-200 dark:bg-zinc-300"></div>
+      <div className="w-[2px] h-[2px] bg-zinc-200 dark:bg-zinc-300"></div>
+    </div>
+  );
+}
+
+export function CurrentTime() {
+  const [time, setTime] = useState<Date | null>(null);
+
+  useEffect(() => {
+    const initialTimer = window.setTimeout(() => setTime(new Date()), 0);
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => {
+      window.clearTimeout(initialTimer);
+      clearInterval(timer);
+    };
+  }, []);
+
+  if (!time) {
+    return (
+      <div className="flex items-center opacity-0">
+        <div 
+          className="text-[20px] sm:text-[24px] tracking-[0.15em] text-zinc-200 dark:text-zinc-300" 
+          style={{ fontFamily: '"Doto", monospace', fontWeight: 700 }}
+        >
+          00.00.00
+        </div>
+      </div>
+    );
+  }
+
+  const hoursRaw = time.getHours();
+  const ampm = hoursRaw >= 12 ? 'PM' : 'AM';
+  const hours12 = hoursRaw % 12 || 12;
+  const minutes = time.getMinutes();
+  const seconds = time.getSeconds();
+
+  return (
+    <div className="flex items-center h-[24px]">
+      <div 
+        className="text-[20px] sm:text-[24px] tracking-[0.15em] flex items-center text-zinc-200 dark:text-zinc-300 h-full drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" 
+        style={{ fontFamily: '"Doto", monospace', fontWeight: 700 }}
+      >
+        <NumberTicker value={hours12} pad={2} />
+        <TwoDots />
+        <NumberTicker value={minutes} pad={2} />
+        <TwoDots />
+        <NumberTicker value={seconds} pad={2} />
+        <span className="ml-1.5 text-[12px] sm:text-[14px] tracking-normal opacity-80">{ampm}</span>
+      </div>
+    </div>
+  );
+}
