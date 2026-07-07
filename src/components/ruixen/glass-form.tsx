@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { motion } from "motion/react";
+import { Check } from "lucide-react";
 
 /* ── sound ─────────────────────────────────────────────── */
 let _a: AudioContext, _b: AudioBuffer;
@@ -556,6 +557,7 @@ interface FormButtonProps {
   type?: "submit" | "button";
   onClick?: () => void;
   disabled?: boolean;
+  holdDuration?: number;
 }
 
 function FormButton({
@@ -564,54 +566,188 @@ function FormButton({
   type = "submit",
   onClick,
   disabled,
+  holdDuration = 1200,
 }: FormButtonProps) {
   const { sound } = React.useContext(FormCtx);
   const [hover, setHover] = React.useState(false);
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
+  
+  const [state, setState] = React.useState<"idle" | "holding" | "publishing" | "published">("idle");
+  const [progress, setProgress] = React.useState(0);
+  const [animKey, setAnimKey] = React.useState(0);
 
-  const isPrimary = variant === "primary";
+  const isPrimary = variant === "primary" || state === "published";
   const isText = variant === "text";
+
+  const holdTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const progressIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+  const startTimeRef = React.useRef<number>(0);
+
+  const startHolding = (e: any) => {
+    if (disabled || state !== "idle") return;
+    
+    if (e.type === "mousedown") e.preventDefault();
+
+    setState("holding");
+    setProgress(0);
+    setAnimKey((k) => k + 1);
+    startTimeRef.current = Date.now();
+
+    progressIntervalRef.current = setInterval(() => {
+      const elapsed = Date.now() - startTimeRef.current;
+      const pct = Math.min((elapsed / holdDuration) * 100, 100);
+      setProgress(pct);
+      if (pct >= 100) {
+        clearInterval(progressIntervalRef.current!);
+      }
+    }, 30);
+
+    holdTimerRef.current = setTimeout(() => {
+      confirmPublish();
+    }, holdDuration);
+  };
+
+  const cancelHolding = () => {
+    if (state !== "holding") return;
+    if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+    setProgress(0);
+    setState("idle");
+    setAnimKey((k) => k + 1);
+  };
+
+  const confirmPublish = () => {
+    setState("publishing");
+    setAnimKey((k) => k + 1);
+    setProgress(100);
+    if (sound) tick();
+    
+    if (onClick) {
+      onClick();
+    } else if (type === "submit" && buttonRef.current) {
+      const form = buttonRef.current.closest('form');
+      if (form) {
+        form.requestSubmit();
+      }
+    }
+
+    setTimeout(() => {
+      setState("published");
+      setAnimKey((k) => k + 1);
+      if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+        navigator.vibrate?.(60);
+      }
+      setTimeout(() => setState("idle"), 3000);
+    }, 600);
+  };
+
+  React.useEffect(() => {
+    return () => {
+      if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+    };
+  }, []);
+
+  const getLabel = () => {
+    switch (state) {
+      case "holding":
+        return "Sure?";
+      case "publishing":
+        return "Sending...";
+      case "published":
+        return "Sent!";
+      default:
+        return children;
+    }
+  };
 
   return (
     <motion.button
-      type={type}
-      whileTap={{ scale: disabled ? 1 : 0.98 }}
-      onClick={() => {
-        if (disabled) return;
-        if (sound) tick();
-        onClick?.();
+      ref={buttonRef}
+      type="button"
+      onMouseDown={startHolding}
+      onMouseUp={cancelHolding}
+      onMouseLeave={() => {
+        setHover(false);
+        cancelHolding();
       }}
+      onTouchStart={startHolding}
+      onTouchEnd={cancelHolding}
+      whileTap={{ scale: disabled ? 1 : (state === "holding" ? 0.98 : 1) }}
       onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      disabled={disabled}
+      disabled={disabled || state === "publishing"}
       style={{
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "8px",
         width: "100%",
         padding: isText ? "8px 0" : "12px 0",
         fontSize: 15,
         fontWeight: isPrimary ? 600 : 500,
         letterSpacing: isPrimary ? "-0.01em" : undefined,
-        color: isPrimary ? P.accentFg : isText ? P.accent : P.hi,
-        background: isPrimary
-          ? P.accent
-          : isText
-            ? "transparent"
-            : hover
-              ? P.ghostHover
-              : P.ghost,
-        filter: isPrimary && hover ? "brightness(1.1)" : undefined,
-        border: isPrimary || isText ? "none" : `1px solid ${P.glassBorder}`,
+        color: state === "published" ? "#10b981" : (isPrimary ? P.accentFg : isText ? P.accent : P.hi),
+        background: state === "published" 
+          ? "rgba(16, 185, 129, 0.1)" 
+          : (isPrimary ? P.accent : isText ? "transparent" : hover ? P.ghostHover : P.ghost),
+        filter: isPrimary && hover && state === "idle" ? "brightness(1.1)" : undefined,
+        border: state === "published" ? "1px solid rgba(16,185,129,0.3)" : (isPrimary || isText ? "none" : `1px solid ${P.glassBorder}`),
         borderRadius: isText ? 0 : 14,
-        cursor: disabled ? "default" : "pointer",
+        cursor: (disabled || state === "publishing") ? "default" : (state === "holding" ? "grabbing" : "pointer"),
         fontFamily: "inherit",
         transition: "all 150ms",
-        opacity: disabled ? 0.35 : 1,
+        opacity: disabled && state !== "published" ? 0.35 : 1,
         boxShadow: isPrimary
           ? "0 1px 3px rgba(0,0,0,0.12)"
           : isText
             ? "none"
             : P.glassShadow,
+        overflow: "hidden"
       }}
     >
-      {children}
+      {state === "holding" && (
+        <svg
+          key={`progress-${animKey}`}
+          style={{ position: "absolute", right: "16px", top: "50%", transform: "translateY(-50%)", width: "20px", height: "20px" }}
+          viewBox="0 0 36 36"
+        >
+          <path
+            strokeWidth="3"
+            fill="none"
+            strokeLinecap="round"
+            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+            style={{
+              stroke: "currentColor",
+              opacity: 0.2,
+              transition: "stroke 0.2s ease"
+            }}
+          />
+          <path
+            strokeWidth="3"
+            fill="none"
+            strokeLinecap="round"
+            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+            style={{
+              stroke: "currentColor",
+              strokeDasharray: `${progress}, 100`,
+              transition: "stroke-dasharray 0.08s linear, stroke 0.3s ease"
+            }}
+          />
+        </svg>
+      )}
+      
+      {state === "published" && (
+        <Check
+          key={`check-${animKey}`}
+          size={18}
+          color="#10b981"
+        />
+      )}
+
+      <span key={`label-${animKey}`} style={{ display: "inline-block" }}>
+        {getLabel()}
+      </span>
     </motion.button>
   );
 }

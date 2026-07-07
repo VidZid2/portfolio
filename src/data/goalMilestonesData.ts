@@ -3,6 +3,7 @@ export interface GoalMilestoneData {
   role: string;
   dates: string;
   location: string;
+  timeframe?: string;
   src: string;
   metrics?: { label: string; value: string }[];
   description: string;
@@ -10,67 +11,88 @@ export interface GoalMilestoneData {
   imageFit?: "cover" | "contain";
   hidePlaceholder?: boolean;
   placeholderVideo?: string;
+  placeholderImage?: string;
   isDisabled?: boolean;
 }
 
 export const goalMilestones: GoalMilestoneData[] = [
   {
     title: "PRIMA",
-    role: "Full-Stack Application",
+    role: "AI-Powered Landing Page",
     dates: "100% Complete",
-    location: "Project Goal",
+    location: "B2B Client Project",
+    timeframe: "2026 (Completed in 4 Days)",
     src: "/PRIMA.png",
     imageFit: "cover",
-    isDisabled: true,
+    placeholderImage: "/PRIMA Landing Page.png",
     metrics: [
-      { label: "Status", value: "Completed" },
-      { label: "Scale", value: "21k+ Lines of Code" },
+      { label: "Core Architecture", value: "Next.js 16 (App Router), React 19, & TypeScript" },
+      { label: "Build Engine", value: "Turbopack (~4s Build Time)" },
+      { label: "Styling & Utility", value: "Tailwind CSS 4.0, clsx, tailwind-merge" },
+      { label: "Iconography", value: "Lucide React" },
+      { label: "Scale", value: "21,687 Lines of Code (100 Source Files)" },
+      { label: "Physics & Motion", value: "Framer Motion 12" },
+      { label: "Scroll Mechanics", value: "Lenis Smooth Scrolling" },
+      { label: "AI Integration", value: "Google Gemini SDK" },
+      { label: "Performance", value: "Custom Hook for RAM/CPU Detection" },
+      { label: "Graphics", value: "Three.js & WebGL Shaders" },
     ],
-    description: "**The Ultimate Testing Ground**\nSuccessfully launched my flagship web application. Built entirely from scratch, it served as my proving ground for mastering Next.js, implementing complex Framer Motion animations, and understanding scalable UI component architecture.",
+    description: "**The Concept & Vision:** PRIMA started as a promise to my teacher, Sir David. I volunteered to build a landing page for his growing digital agency for free to help him establish an online presence. It ended up becoming my first real freelance project. My goal was to see if I could build a high-quality, professional site from scratch in just a 4-day sprint.\n**The Gemini AI Integration:** Instead of a standard contact form, I wanted to try something different, so I integrated the **Google Gemini SDK**. I built an \"Ask AI Helper\" that can answer client questions. I had to learn how to handle live token streaming and figure out how to manage API rate limits so the chat wouldn't break if a user spammed it. It was a huge learning curve but really fun to build!\n**Architecting the Codebase:** Building this in 4 days pushed my limits as a student developer. I used Next.js 16 and Turbopack to keep my code organized. The hardest part for me was learning the difference between React Server Components and Client Components, making sure my animations didn't slow down the initial page load. I used `clsx` and `tailwind-merge` to keep my styling code clean.\n**Design & UI Details:** I wanted the design to feel premium, so I built a dark-mode theme with custom typography and 3D-looking badges. I even experimented with `Three.js` and custom shaders to add some cool interactive graphics that follow the cursor. I also learned how to use React Portals to create booking popups that lock the background scrolling.\n**Mobile Performance:** The biggest challenge was making sure these animations didn't lag on mobile phones. I used Framer Motion for smooth transitions, but when I tested it on older Androids, it was struggling. I had to go back and replace heavy CSS blurs with lighter gradient masks. I even figured out how to write a custom React hook that detects the user's device performance and turns off heavy animations if they're on a weaker phone!",
   },
   {
     title: "eLMS 2.0 Overhaul",
-    role: "Modernized Platform",
+    role: "Full-Stack Application",
     dates: "58% Complete",
-    location: "Project Goal",
+    location: "Case Study Project",
+    timeframe: "2025 - 2026",
     src: "/STI.png",
     imageFit: "cover",
-    isDisabled: true,
+    placeholderImage: "/STI Landing Page.png",
     metrics: [
-      { label: "Status", value: "In Progress" },
-      { label: "Focus", value: "Security (RLS & AES)" },
+      { label: "Core Architecture", value: "React 19, TypeScript & Vite 7 (SPA)" },
+      { label: "State & Routing", value: "React Router v7 & Global Contexts" },
+      { label: "Database & Auth", value: "Supabase (PostgreSQL) & Google reCAPTCHA" },
+      { label: "Local Data Sync", value: "Dexie.js (IndexedDB)" },
+      { label: "Security", value: "AES-256 Client-Side Encryption" },
+      { label: "Styling & UI", value: "Tailwind CSS v3, Radix UI & HeroUI" },
+      { label: "Physics & Motion", value: "Framer Motion v12 & Vaul Drawers" },
+      { label: "Performance", value: "React Virtuoso Virtualization" },
+      { label: "Graphics", value: "Three.js & React Three Fiber (R3F)" },
+      { label: "Academic Utilities", value: "Tesseract.js OCR, Compromise.js & GenAI" },
+      { label: "Development Status", value: "Active WIP (58% Complete)" },
+      { label: "Future Roadmap", value: "Still learning & adding new features!" },
     ],
-    description: "**Re-imagining EdTech**\nA complete, modernized overhaul of the STI eLMS system. My goal here is to prove that school software doesn't have to be clunky, integrating fluid page transitions while actively learning advanced database security and data encryption.",
+    description: "**The Legacy Problem:** Our school's original eLMS is a bit outdated—it breaks on mobile devices, navigation can be confusing, and it loads slowly. Important features like task submissions take too many clicks to find, and students often have to use external sites with ads just to scan or edit their documents.\n**The Modernized Solution:** For my case study, I wanted to see if I could build a better version of it from scratch as a Single Page Application (SPA). Using React 19 and Vite, I designed a responsive, glassmorphic UI. Since I wanted to include features like OCR text scanning and 3D graphics, I had to learn how to process all of that directly in the browser so it wouldn't crash the server.\n**Offline-First Approach:** One of my favorite features I added is offline support. I used Dexie.js to save data (like study streaks) locally in the browser so the app feels instantly responsive. Then, when the student connects back to the internet, it quietly syncs their progress to a Supabase PostgreSQL database in the background so they never lose their work.\n**Security & Performance:** To keep student data safe, I learned how to use crypto-js to encrypt sensitive information before it's sent to the database. I also set up Supabase Auth and reCAPTCHA to prevent spam. Since the dashboard needs to handle a lot of data, I learned how to use React Virtuoso to only render the items currently visible on the screen, keeping the app running fast without freezing the browser.",
   },
   {
     title: "Project SYNC",
     role: "Portfolio",
     dates: "89% Complete",
-    location: "Project Goal",
+    location: "Personal Portfolio",
     src: "https://github.com/VidZid2.png?v=1",
     imageFit: "cover",
     metrics: [
       { label: "Core Architecture", value: "Next.js 16 & React 19" },
-      { label: "Type Safety", value: "Strict TypeScript" },
+      { label: "Type Safety", value: "TypeScript" },
       { label: "Styling System", value: "Tailwind CSS & Shadcn UI" },
-      { label: "AI Capabilities", value: "Vercel AI SDK & Prompts" },
+      { label: "AI Capabilities", value: "Vercel AI SDK & Custom Prompts" },
       { label: "Fluid Animations", value: "Framer Motion & GSAP" },
-      { label: "3D & Graphics", value: "Three.js / WebGL Canvas" },
+      { label: "3D & Graphics", value: "Three.js & WebGL Canvas" },
       { label: "Interactivity", value: "Drag & Drop (dnd-kit)" },
-      { label: "Dark Mode", value: "Advanced Theme Switching" },
+      { label: "Dark Mode", value: "Custom Theme Switching" },
       { label: "Code Parsing", value: "Shiki & Streamdown" },
       { label: "Command Palette", value: "CMDK Search & Navigation" },
-      { label: "Visual FX", value: "Particle Engines & Scramble" },
-      { label: "Data Viz", value: "GitHub Graph Integration" },
-      { label: "Accessible Primitives", value: "Radix UI & Base UI" },
-      { label: "Slider Architecture", value: "Embla Carousel React" },
-      { label: "Vector Iconography", value: "Lucide & Phosphor Icons" },
-      { label: "Performance Insights", value: "Vercel Analytics & Speed" },
-      { label: "Mathematical Markdown", value: "Streamdown Math/Mermaid" },
-      { label: "Code Difference Viz", value: "Pierre Diffs Integration" },
+      { label: "Visual FX", value: "Particles & Text Scramble" },
+      { label: "Data Viz", value: "GitHub Graph API" },
+      { label: "Accessible Primitives", value: "Radix UI Components" },
+      { label: "Slider Components", value: "Embla Carousel" },
+      { label: "Vector Icons", value: "Lucide & Phosphor" },
+      { label: "Performance", value: "Vercel Analytics & Speed Insights" },
+      { label: "Mathematical Text", value: "Streamdown Math/Mermaid" },
+      { label: "Code Comparisons", value: "Pierre Diffs Integration" },
     ],
     placeholderVideo: "/Video's/PROJECT SYNC - Portfolio/SYNC.mp4",
-    description: "**Building from Scratch:** Project SYNC represents a complete, ground-up rebuild of my portfolio. As a student, I wanted to push my limits and understand exactly how modern web applications work under the hood. To achieve this, I built the entire foundation on Next.js 16 and React 19, focusing heavily on strict type safety with TypeScript and ensuring lightning-fast load times. The core architecture relies on custom server-side rendering strategies and optimized static generation to keep the initial payload extremely lightweight while maintaining a robust interactive state.\n**Customizing the Design:** The overall aesthetic is driven by a bespoke, utility-first design system. I leveraged Tailwind CSS and integrated Shadcn UI, but I didn't just use the components out of the box. Instead, I carefully customized and tweaked them to perfectly align with my own personal style, aiming for a premium glassmorphism and modern brutalist look. I achieved this by overriding default theme tokens and constructing a proprietary layer of CSS variables that dynamically compute colors, opacities, and blur filters based on the user's active theme.\n**Fluid Animations:** I wanted the experience to feel alive and provide continuous tactile feedback. Therefore, I integrated Framer Motion and GSAP to orchestrate everything from fluid page transitions to dynamic layout morphing and complex micro-interactions. The underlying animation engine utilizes advanced spring physics and staggered delay coordinates, which I carefully tuned mathematically to ensure transitions feel entirely organic without relying on heavy, generic preset libraries.\n**Advanced Visual Effects:** Pushing the visual boundaries further, the site features custom WebGL and Three.js elements. For instance, I implemented advanced Canvas-based particle engines for both the cursor and the top banner, alongside highly technical text displacement and profile scrambling effects that react to user interactions. To maintain strict performance, these effects run on isolated animation frames and utilize custom shader logic that offloads rendering calculations directly to the GPU, keeping the main thread free.\n**Integrating Artificial Intelligence:** A major milestone for this project was deeply integrating AI directly into the user experience. By leveraging the Vercel AI SDK, I built a custom Command Menu (CMDK) that features a dedicated 'Ask AI' tool. Furthermore, this allows users to seamlessly switch between AI models, input prompts, and receive real-time, context-aware responses right in the UI. The architecture isolates the prompt processing pipeline through secure serverless edge functions, ensuring that my proprietary system prompts and core logic remain strictly confidential and completely inaccessible from the client side.\n**Code & Data Presentation:** To make sure the AI's code snippets are perfectly readable, I utilized Streamdown and Shiki highlighting. Additionally, data visualization is handled through a custom GitHub Graph integration that tracks my open-source contributions. I built a custom data fetching layer that securely aggregates and caches this information via private API endpoints, parsing the raw syntax structures before rendering them into the stylized DOM elements you see.\n**Interactive UI Elements:** Beyond just animations, the UI features complex, highly interactive layers. For example, I built an advanced Dark/Light Mode theme switching system, a highly customized Figma highlight component to seamlessly integrate and showcase my design videos, and intuitive drag-and-drop components using dnd-kit. The state management for these interactions is completely decoupled from the view layer, utilizing custom React hooks that track interaction states efficiently without triggering unnecessary re-renders across the application tree.\n**Pixel-Perfect Layouts:** Finally, I engineered complex data presentations entirely from scratch. A great example is the responsive, fully-bordered tech stack grids, where I precisely calculated and placed intersection dots to ensure perfect alignment across all devices and screen sizes. This was accomplished by developing a highly dynamic layout framework that programmatically computes bounds and DOM positions, ensuring absolute pixel accuracy regardless of the viewport dimensions or device scaling ratios.",
+    description: "**Building from Scratch:** Project SYNC is a complete, ground-up rebuild of my portfolio. As a student, I wanted to push my limits and see if I could build a site that feels just as premium as the tools I use every day. I built the entire foundation on Next.js 16 and React 19. I also forced myself to strictly use TypeScript—it was tough at first, but it completely changed how I write code by catching bugs before they even happen. I learned how to use Next.js's server-side rendering to make sure the site loads incredibly fast, even with all the heavy animations.\n**Customizing the Design:** I used Tailwind CSS and Shadcn UI as my starting point, but I didn't want it to look like a generic template. I spent a lot of time digging into the code to customize the components, aiming for a modern brutalist and glassmorphic vibe. I actually figured out how to write custom CSS variables that automatically recalculate colors and blur filters depending on whether the user is in light or dark mode, which was a huge breakthrough for me!\n**Fluid Animations:** I wanted the portfolio to feel alive. I integrated Framer Motion and GSAP to handle everything from page transitions to tiny micro-interactions (like hovering over buttons). Instead of just using basic fade-ins, I spent hours tweaking the spring physics and staggered delays. I even mapped out the timing mathematically so the animations feel organic and satisfying instead of stiff.\n**Advanced Visual Effects:** I really wanted to challenge myself visually, so I started experimenting with WebGL and Three.js. I built a custom canvas-based particle engine that reacts to the cursor, and I learned how to create text-scrambling effects for titles. To make sure these crazy effects didn't lag the site, I had to learn about rendering performance. I figured out how to move the heavy math calculations over to the GPU using custom shaders, keeping the main website running at a buttery smooth 60fps!\n**Integrating Artificial Intelligence:** One of the coolest parts of this project was integrating AI! I used the Vercel AI SDK to build a custom Command Menu (CMDK) that has a built-in 'Ask AI' tool. You can literally ask my portfolio questions, and it streams real-time answers right into the UI. I had to learn how to write secure backend edge functions so that my secret system prompts and API keys stay completely hidden from the browser.\n**Code & Data Presentation:** Since my AI sometimes outputs code, I learned how to use Streamdown and Shiki to make the code blocks look beautiful with syntax highlighting. I also wanted to show off my coding activity, so I built a feature that pulls my live GitHub contribution graph. I wrote custom API routes that safely fetch and cache my GitHub data, and then I wrote the logic to draw those little green contribution squares perfectly on the screen.\n**Interactive UI Elements:** Beyond just looks, I wanted the site to be fun to use. I built a custom Figma highlight section where you can actually drag and drop things around using `dnd-kit`. Learning how to manage all these different interactions without breaking the site was hard, so I had to learn how to write custom React hooks. This helped me keep my code clean and prevented the website from freezing up when too many things were happening at once.\n**Pixel-Perfect Layouts:** I engineered the layout grids entirely from scratch. A great example is the tech stack section where the borders have tiny intersection dots at the corners. I had to write a script that mathematically calculates the exact width and height of the boxes and perfectly places the dots on the corners, no matter if you're on a giant monitor or a tiny phone screen. Seeing it all line up perfectly was one of the most rewarding parts of the build!",
   },
   {
     title: "System Admin Dashboards",

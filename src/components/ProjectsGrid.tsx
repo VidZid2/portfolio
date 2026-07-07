@@ -77,7 +77,13 @@ export const ProjectCard = ({
     >
       {/* Outer Wrapper exactly like screenshot */}
       <motion.div
-        className="relative w-full aspect-[1.25] rounded-xl border border-black/5 dark:border-white/5 bg-zinc-50/80 dark:bg-[#09090b]/80 shadow-sm p-3.5 pb-0 flex flex-col overflow-hidden transition-all duration-300 hover:shadow-md hover:border-black/10 dark:hover:border-white/10 sm:aspect-[1.4] sm:p-4 sm:pb-0"
+        className={`relative w-full aspect-[1.25] rounded-xl border ${
+          project.live && project.live !== "#" 
+            ? project.isDown 
+              ? "border-2 border-rose-500/50 shadow-[0_0_15px_rgba(244,63,94,0.3)] bg-zinc-50/80 dark:bg-[#09090b]/80"
+              : "border-2 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] bg-zinc-50/80 dark:bg-[#09090b]/80" 
+            : "border-black/5 dark:border-white/5 bg-zinc-50/80 dark:bg-[#09090b]/80 shadow-sm hover:border-black/10 dark:hover:border-white/10"
+        } p-3.5 pb-0 flex flex-col overflow-hidden transition-all duration-500 hover:shadow-md sm:aspect-[1.4] sm:p-4 sm:pb-0`}
         initial={isMobile ? "hover" : "rest"}
         animate={isMobile ? "hover" : "rest"}
         whileHover={!isMobile ? "hover" : undefined}
@@ -195,11 +201,6 @@ export const ProjectCard = ({
       <div className="mt-4 flex flex-col px-0.5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
           <h3 className="text-[15px] font-bold text-zinc-900 dark:text-zinc-100 leading-tight">{project.title}</h3>
-
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-zinc-200/50 dark:border-zinc-800/50 bg-white dark:bg-zinc-900/50 w-fit shrink-0">
-            <div className={`w-1.5 h-1.5 rounded-full ${statusColor}`} />
-            <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">{statusLabel}</span>
-          </div>
         </div>
 
         <p className="mt-2 sm:mt-1.5 text-[13px] text-zinc-500 dark:text-zinc-400 leading-relaxed pr-2">

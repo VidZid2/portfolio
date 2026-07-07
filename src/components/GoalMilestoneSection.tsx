@@ -61,7 +61,7 @@ export function GoalMilestoneSection({ hasSeenScrollAnimations = false }: { hasS
         <div className="absolute bottom-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
       </motion.div>
 
-      <div className="block mt-4 relative">
+      <div className="block relative">
         <GoalMilestoneList />
       </div>
 

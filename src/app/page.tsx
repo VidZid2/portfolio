@@ -88,13 +88,13 @@ export default async function Home() {
               <h1 className="whitespace-nowrap text-[20px] sm:text-[24px] font-bold text-zinc-800 dark:text-zinc-100 tracking-tight leading-none mb-0.5 [text-shadow:-1px_0_0_rgba(0,200,255,0.15),1px_0_0_rgba(255,80,0,0.15)] dark:[text-shadow:-1.5px_0_0_rgba(0,200,255,0.6),1.5px_0_0_rgba(255,80,0,0.6)]">
                 Josiah De Asis
               </h1>
-              <div className="flex flex-wrap items-center gap-2 mt-0.5">
-                <p className="text-[13px] sm:text-[14px] text-zinc-500 dark:text-zinc-400 mr-0.5">20</p>
+              <div className="flex flex-nowrap items-center gap-1 sm:gap-2 mt-0.5">
+                <p className="text-[13px] sm:text-[14px] text-zinc-500 dark:text-zinc-400 shrink-0">20</p>
               </div>
             </div>
           </div>
 
-          <div className="flex items-start justify-end gap-1.5 sm:gap-3 h-20 sm:h-24 py-1 pointer-events-auto shrink-0">
+          <div className="flex items-start justify-end gap-1.5 sm:gap-3 h-24 py-1 pointer-events-auto shrink-0">
             <CommandMenu />
             <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300 shrink-0" />
           </div>

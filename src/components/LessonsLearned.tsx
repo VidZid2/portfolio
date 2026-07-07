@@ -22,7 +22,7 @@ const lessons: LessonData[] = [
     subtitle: "Supabase Architecture",
     date: "Late 2025",
     impact: "Total Outage",
-    description: "During my 1st year as a BSIT student, I realized I needed to go beyond the standard curriculum. What started as a basic HTML/CSS site became my ultimate testing ground. I dedicated countless hours after class learning React and TypeScript, completely re-architecting PRIMA into a robust 21,000+ line Next.js web app. I challenged myself to learn Supabase for the backend, but early on, a recursive query took down my instance—a terrifying crash that forced me to deeply understand database architecture. I used AI coding assistants not to write code for me, but as a mentor to explain these complex concepts and help me debug faster.",
+    description: "During my 1st year as a BSIT student, I realized I needed to go beyond the standard curriculum. What started as a basic HTML/CSS site became my ultimate testing ground. I dedicated countless hours after class learning React and TypeScript, completely re-architecting PRIMA into a robust 21,000+ line Next.js web app. I challenged myself to learn Supabase for the backend, but early on, a recursive query took down my instance, a terrifying crash that forced me to deeply understand database architecture. I used AI coding assistants not to write code for me, but as a mentor to explain these complex concepts and help me debug faster.",
   },
   {
     title: "Animation Overkill",
@@ -38,7 +38,7 @@ const lessons: LessonData[] = [
     subtitle: "PostgreSQL RLS",
     date: "Mid 2026",
     impact: "Data Vulnerability",
-    description: "I poured my energy into eLMS 2.0—a complete, modernized overhaul of the STI eLMS system. I wanted to prove school software doesn't have to be clunky, focusing on a clean, component-driven architecture with dark mode support. However, on the backend, I realized my initial Supabase setup lacked Row Level Security (RLS). Recognizing the importance of security, I researched and implemented strict Postgres RLS policies and AES encryption to protect sensitive student data. It was a true journey of breaking things and building them back better.",
+    description: "I poured my energy into eLMS 2.0, a complete, modernized overhaul of the STI eLMS system. I wanted to prove school software doesn't have to be clunky, focusing on a clean, component-driven architecture with dark mode support. However, on the backend, I realized my initial Supabase setup lacked Row Level Security (RLS). Recognizing the importance of security, I researched and implemented strict Postgres RLS policies and AES encryption to protect sensitive student data. It was a true journey of breaking things and building them back better.",
   }
 ];
 

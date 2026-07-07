@@ -12,6 +12,7 @@ interface SocialItem {
   name: string;
   href: string;
   icon: React.ReactNode;
+  disabled?: boolean;
 }
 
 export function MorphingSocials({ socials, children, className }: { socials: SocialItem[]; children?: React.ReactNode; className?: string }) {
@@ -63,15 +64,15 @@ export function MorphingSocials({ socials, children, className }: { socials: Soc
             key={social.name}
             ref={(el) => { itemRefs.current[social.name] = el; }}
             className="relative"
-            onMouseEnter={() => handleMouseEnter(social.name, index)}
+            onMouseEnter={() => !social.disabled && handleMouseEnter(social.name, index)}
           >
             <SoftPillButton
               as="a"
-              href={social.href}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={social.disabled ? undefined : social.href}
+              target={social.disabled ? undefined : "_blank"}
+              rel={social.disabled ? undefined : "noopener noreferrer"}
               variant="secondary"
-              className="w-full justify-center px-3 py-2 !text-[12px] group"
+              className={cn("w-full justify-center px-3 py-2 !text-[12px] group", social.disabled && "opacity-50 pointer-events-none grayscale")}
             >
               <div className="flex items-center justify-center gap-1.5 opacity-70 group-hover:opacity-100 transition-opacity duration-300">
                 <svg viewBox="0 0 24 24" className="w-3.5 h-3.5">

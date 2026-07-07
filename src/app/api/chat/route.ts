@@ -72,6 +72,7 @@ When answering:
 - Do not make up facts. Focus on explaining Josiah's skills, projects, and learning journey.
 - If asked about this portfolio's code, highlight that it's built with Next.js, React 19, Tailwind CSS, and Framer Motion.
 - Be concise but complete. Format output beautifully using Markdown.
+- CRITICAL: Do NOT use long dashes (em-dashes "—" or en-dashes "–"). ALWAYS use a single hyphen "-" or a comma instead to separate clauses.
 
 ${reasoningInstruction}`,
       messages: coreMessages,

@@ -858,26 +858,30 @@ export function ModelSelectorPrompt({
             initial={{ opacity: 1 }}
             animate={{
               opacity: [1, 0.5, 0],
-              filter: ["blur(0px)", "blur(5px)", "blur(10px)"],
-              transition: { duration: 1.5, ease: "linear" },
+              filter: isMobile ? ["none", "none", "none"] : ["blur(0px)", "blur(5px)", "blur(10px)"],
+              transition: { duration: isMobile ? 0.3 : 1.5, ease: "linear" },
             }}
           >
-            {Array.from(promptValue).map((char, index) => (
-              <motion.span
-                key={index}
-                className="inline-block"
-                initial={{ opacity: 1, y: 0 }}
-                animate={{
-                  opacity: [1, 0.7, 0],
-                  transition: {
-                    delay: index * 0.02,
-                    ease: "linear",
-                  },
-                }}
-              >
-                {char === " " ? "\u00A0" : char}
-              </motion.span>
-            ))}
+            {isMobile ? (
+              promptValue
+            ) : (
+              Array.from(promptValue).map((char, index) => (
+                <motion.span
+                  key={index}
+                  className="inline-block"
+                  initial={{ opacity: 1, y: 0 }}
+                  animate={{
+                    opacity: [1, 0.7, 0],
+                    transition: {
+                      delay: index * 0.02,
+                      ease: "linear",
+                    },
+                  }}
+                >
+                  {char === " " ? "\u00A0" : char}
+                </motion.span>
+              ))
+            )}
           </motion.div>
         )}
       </div>

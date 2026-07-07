@@ -571,8 +571,8 @@ export const GithubCalendar = memo(function GithubCalendar({
 
   // ── Dimensions ────────────────────────────────────────────────────────
   const step = cellSize + cellGap;
-  const monthLabelHeight = showMonthLabels && !gameActive ? 20 : 0;
-  const leftMargin = showMonthLabels && !gameActive ? 28 : 0;
+  const monthLabelHeight = showMonthLabels ? 20 : 0;
+  const leftMargin = showMonthLabels ? 28 : 0;
   const svgWidth = leftMargin + weeks.length * step - cellGap;
   const svgHeight = monthLabelHeight + 7 * step - cellGap;
   // Auto-scroll to the right end (most recent months) — must be before early returns
@@ -774,8 +774,8 @@ export const GithubCalendar = memo(function GithubCalendar({
       let minX = 0;
       let maxX = logicalWidth - player.width;
       if (minWi !== -1 && maxWi !== -1) {
-        const activeLeft = minWi * step;
-        const activeRight = maxWi * step + cellSize;
+        const activeLeft = leftMargin + minWi * step;
+        const activeRight = leftMargin + maxWi * step + cellSize;
         minX = Math.max(0, activeLeft - 40);
         maxX = Math.min(logicalWidth - player.width, activeRight + 40 - player.width);
         if (minX > maxX) {
@@ -876,7 +876,7 @@ export const GithubCalendar = memo(function GithubCalendar({
             const currentLevel = cellLevels.get(date) ?? 0;
             if (currentLevel === 0) return; // Already finished / level 0
 
-            const cellX = wi * step;
+            const cellX = leftMargin + wi * step;
             const cellY = monthLabelHeight + di * step;
 
             // Simple box-overlap collision check
@@ -1040,21 +1040,18 @@ export const GithubCalendar = memo(function GithubCalendar({
         >
         <div
           ref={scrollRef}
-          className={cn(
-            "relative w-full max-w-full min-w-0 overflow-x-auto overflow-y-hidden transition-all duration-500 scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]",
-            gameActive ? "pb-[80px]" : "",
-          )}
+          className="relative w-full max-w-full min-w-0 overflow-x-auto overflow-y-hidden transition-all duration-500 scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         >
-          <svg
-            width={svgWidth + 48}
-            height={svgHeight + 8}
-            viewBox={`-24 -4 ${svgWidth + 48} ${svgHeight + 8}`}
-            className={cn("overflow-visible block", (!gameActive || deviceType !== "desktop") && "w-full h-auto max-w-full")}
-            style={(gameActive && deviceType === "desktop") ? { minWidth: svgWidth + 48 } : {}}
-          >
+          <div className="grid">
+            <svg
+              width={svgWidth + 48}
+              height={svgHeight + 8}
+              viewBox={`-24 -4 ${svgWidth + 48} ${svgHeight + 8}`}
+              className="col-start-1 row-start-1 overflow-visible block w-full h-auto max-w-full"
+              style={deviceType === "desktop" ? { minWidth: svgWidth + 48 } : {}}
+            >
             {/* month labels */}
             {showMonthLabels &&
-              !gameActive &&
               (() => {
                 const byWeek = new Map<number, string>();
                 monthLabels.forEach(({ label, weekIndex }) =>
@@ -1093,6 +1090,8 @@ export const GithubCalendar = memo(function GithubCalendar({
                       fontSize={deviceType !== "desktop" ? 14 : 12}
                       fill={isDark ? "#fafafa" : "#0a0a0a"}
                       fontFamily="inherit"
+                      className="transition-opacity duration-1000 ease-in-out"
+                      style={{ opacity: gameActive ? 0 : 1 }}
                     >
                       {label}
                     </text>
@@ -1102,7 +1101,6 @@ export const GithubCalendar = memo(function GithubCalendar({
 
             {/* weekday labels */}
             {showMonthLabels &&
-              !gameActive &&
               (() => {
                 const labels = startsOnSunday
                   ? [{ di: 1, label: "M" }, { di: 3, label: "W" }, { di: 5, label: "F" }]
@@ -1116,6 +1114,8 @@ export const GithubCalendar = memo(function GithubCalendar({
                     fontSize={deviceType !== "desktop" ? 14 : 12}
                     fill={isDark ? "#fafafa" : "#0a0a0a"}
                     fontFamily="inherit"
+                    className="transition-opacity duration-1000 ease-in-out"
+                    style={{ opacity: gameActive ? 0 : 1 }}
                   >
                     {label}
                   </text>
@@ -1150,7 +1150,9 @@ export const GithubCalendar = memo(function GithubCalendar({
                       !gameActive && date && "cursor-pointer hover:stroke-black/40 dark:hover:stroke-white/40 stroke-transparent stroke-[1.5px] origin-center hover:scale-[1.15]"
                     )}
                     style={{
-                      transition: "opacity 0.1s, stroke 0.3s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                      transition: gameActive 
+                        ? "opacity 0.1s, fill 0.1s, stroke 0.3s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)"
+                        : "opacity 1s ease-in-out, fill 1s ease-in-out, stroke 0.3s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
                       opacity: gameActive ? (level === 0 || !date ? 0 : 1) : 1,
                       pointerEvents: gameActive ? (level === 0 || !date ? "none" : "auto") : "auto",
                       transformBox: "fill-box",
@@ -1232,15 +1234,15 @@ export const GithubCalendar = memo(function GithubCalendar({
           <canvas
             ref={canvasRef}
             className={cn(
-              "absolute inset-0 z-10 cursor-crosshair transition-opacity duration-1000",
+              "col-start-1 row-start-1 block w-full h-auto max-w-full z-10 cursor-crosshair transition-all duration-1000 ease-in-out",
               gameActive ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
             )}
             style={{ 
-              width: deviceType !== "desktop" ? '100%' : svgWidth + 48, 
-              height: deviceType !== "desktop" ? '100%' : svgHeight + 8 + 80 
+              minWidth: deviceType === "desktop" ? svgWidth + 48 : undefined,
+              aspectRatio: `${svgWidth + 48} / ${svgHeight + 8 + (gameActive ? 80 : 0)}` 
             }}
           />
-
+          </div>
         </div>
         </div>
 

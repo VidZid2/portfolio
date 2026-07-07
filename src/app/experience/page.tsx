@@ -69,7 +69,7 @@ export default function AllExperiencePage() {
           </div>
 
           {/* Right: Controls */}
-          <div className="flex items-start justify-end gap-2 sm:gap-3 h-20 sm:h-24 py-1">
+          <div className="flex items-start justify-end gap-2 sm:gap-3 h-24 py-1">
             <CommandMenu />
             <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300" />
           </div>

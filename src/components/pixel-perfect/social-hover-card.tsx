@@ -5,6 +5,7 @@ import * as HoverCard from "@radix-ui/react-hover-card";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { JapaneseAsciiText } from "@/components/ui/japanese-ascii-text";
 
 const defaultBanner = "default";
 
@@ -23,14 +24,14 @@ export interface SocialProfile {
 
 export const socialProfiles: Record<string, SocialProfile> = {
   GitHub: {
-    name: "Josiah De Asis",
+    name: "JOSIAH DE ASIS",
     handle: "VidZid2",
     avatar: "https://github.com/VidZid2.png?v=1",
-    bio: "20 • Full-Stack Engineer / UI Architect",
-    location: "Earth",
+    bio: "I like to code and create projects",
+    location: "",
     stats: [
-      { value: "50+", label: "Repositories" },
-      { value: "100+", label: "Followers" },
+      { value: "4", label: "Repositories" },
+      { value: "0", label: "Followers" },
     ],
   },
   Twitter: {
@@ -68,8 +69,8 @@ export const socialProfiles: Record<string, SocialProfile> = {
     ],
   },
   Discord: {
-    name: "Josiah De Asis",
-    handle: "josiahdejesus",
+    name: "シーシュ",
+    handle: "emptyyourmind231",
     avatar: "/discord-avatar.png",
     bio: "Building enterprise-scale web applications.",
     location: "",
@@ -129,9 +130,13 @@ export function SocialProfileContent({ socialName, profile }: { socialName: stri
 
           {/* Bio Section */}
           <div className="mt-3">
-            <p className="text-[12px] leading-relaxed text-zinc-800 dark:text-zinc-300">
-              {profile.bio}
-            </p>
+            <div className="text-[12px] leading-relaxed text-zinc-800 dark:text-zinc-300">
+              {socialName === "Discord" ? (
+                <JapaneseAsciiText text="Discipline. Lift. Code. Sleep. Repeat." duration={3000} idleScramble={false} />
+              ) : (
+                <p>{profile.bio}</p>
+              )}
+            </div>
           </div>
 
           {/* Discord Status Footer */}

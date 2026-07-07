@@ -99,7 +99,7 @@ export default async function HowItsMadePage({ params }: { params: Promise<{ slu
             </div>
 
             {/* Right: Controls */}
-            <div className="absolute top-4 right-4 sm:static sm:top-auto sm:right-auto flex items-center justify-end gap-2 sm:gap-3 shrink-0">
+            <div className="flex items-start justify-end gap-2 sm:gap-3 h-24 py-1 shrink-0">
               <CommandMenu />
               <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300" />
             </div>
@@ -120,10 +120,10 @@ export default async function HowItsMadePage({ params }: { params: Promise<{ slu
                     <AsciiText text="Part 1: The Genesis, The Teacher, and The Pivot" delay={0} />
                   </h2>
                   <p className="mb-4">
-                    <strong>PRIMA — Digital Technology Solutions</strong> started as my very first foundational project—a basic HTML and CSS site designed merely to grasp the fundamentals of how websites work. 
+                    <strong>PRIMA</strong> started as my very first foundational project, a basic HTML and CSS site designed merely to grasp the fundamentals of how websites work. 
                   </p>
                   <p className="mb-4">
-                    But as I entered my second year as an IT student, the project took on a completely new meaning. PRIMA isn't just a fictional sandbox; it is a very real, growing digital business founded by my teacher, <strong>Sir David</strong>. I decided to take the initiative and build this premium landing page as a gift to help his agency scale. In return, when PRIMA secures clients who require full-stack web development, Sir David's agency will recommend me. The stakes were no longer just academic; this was my first true B2B (Business-to-Business) client project.
+                    But as I entered my second year as an IT student, the project took on a completely new meaning. PRIMA isn't just a fictional sandbox; it is a real, growing digital agency founded by an industry mentor. I decided to take the initiative and build this premium landing page to help elevate their professional portfolio. This collaboration evolved into my first true B2B (Business-to-Business) project, establishing a professional partnership where I am trusted to develop full-stack applications for the agency's future clients.
                   </p>
                   <p className="mb-6">
                     With only about two years of coding fundamentals and a lot of "vibe coding" (relying on intuition, AI assistance, and rapid prototyping), I dove into a rigorous development sprint. Through a lot of trial, error, and late nights, I managed to re-architect the platform from the ground up, evolving it from a basic static HTML folder into a massive, production-ready web application.

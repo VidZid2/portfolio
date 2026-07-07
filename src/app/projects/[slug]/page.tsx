@@ -108,7 +108,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </div>
 
           {/* Right: Controls */}
-          <div className="absolute top-4 right-4 sm:static sm:top-auto sm:right-auto flex items-center justify-end gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-start justify-end gap-2 sm:gap-3 h-24 py-1 shrink-0">
             <CommandMenu />
             <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300" />
           </div>
@@ -119,7 +119,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       <div className="ml-0 mr-0 md:ml-[26%] md:mr-[26%] pt-[calc(22vh+112px)] pb-16 px-4 flex flex-col z-10 relative">
 
         {/* Media (Video or Image) right at the top */}
-        <div className="w-full aspect-video relative mt-8 rounded-lg overflow-hidden border border-black/10 dark:border-white/[0.15] shadow-sm bg-black z-20">
+        <div className={`w-full aspect-video relative mt-8 rounded-lg overflow-hidden transition-all duration-500 z-20 ${
+          project.live && project.live !== "#" 
+            ? project.isDown 
+              ? "border-2 border-rose-500/80 shadow-[0_0_25px_rgba(244,63,94,0.35)] bg-black" 
+              : "border-2 border-emerald-500/80 shadow-[0_0_25px_rgba(16,185,129,0.35)] bg-black"
+            : "border border-black/10 dark:border-white/[0.15] shadow-sm bg-black"
+        }`}>
           {project.video ? (
             project.video.includes('youtube') ? (
               <iframe
@@ -213,17 +219,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         </div>
 
         {/* Title and Status */}
-        <div className="flex items-center justify-between w-full mb-4">
-          <h1 className="text-[24px] sm:text-[28px] font-bold text-zinc-900 dark:text-zinc-50 tracking-tight leading-none">
+        <div className="w-full mb-4">
+          <h1 className="text-[24px] sm:text-[28px] font-bold text-zinc-900 dark:text-zinc-50 tracking-tight leading-tight sm:leading-none">
             {project.title}
           </h1>
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span className="text-[13px] font-medium text-emerald-600 dark:text-emerald-400">Live</span>
-          </div>
         </div>
 
         {/* Description */}
@@ -241,16 +240,16 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         {/* Tech Stack */}
         <div>
           <h2 className="text-[16px] font-bold text-zinc-900 dark:text-zinc-50 tracking-tight mb-4">Stack used</h2>
-          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+          <div className="flex flex-wrap gap-2 w-full">
             {project.tech.map((t: TechItem, i: number) => {
               const isKey = typeof t === "string";
               const label = isKey ? techNames[t as TechKey] : t.label;
               const Icon = isKey ? iconMap[t as TechKey] : null;
 
               return (
-                <div key={i} className="flex shrink-0 whitespace-nowrap items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 bg-zinc-100 dark:bg-zinc-900 border border-black/10 dark:border-white/5 rounded-md text-[11px] sm:text-[12px] font-medium text-zinc-700 dark:text-zinc-300">
-                  {Icon && <Icon className="w-3.5 h-3.5 shrink-0" />}
-                  <span>{label}</span>
+                <div key={i} className="grow flex whitespace-nowrap items-center justify-center gap-2 px-3 py-1.5 bg-zinc-50 hover:bg-zinc-100 dark:bg-[#0a0a0a] dark:hover:bg-[#121214] border border-black/30 dark:border-white/[0.15] rounded-[6px] transition-colors duration-200 cursor-default">
+                  {Icon && <Icon className="w-3.5 h-3.5 shrink-0 opacity-80 text-zinc-500 dark:text-zinc-400" />}
+                  <span className="text-[13px] font-medium text-zinc-600 dark:text-zinc-400">{label}</span>
                 </div>
               );
             })}

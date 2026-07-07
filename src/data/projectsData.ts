@@ -51,6 +51,7 @@ export interface Project {
   tech: TechItem[];
   github: string;
   live: string;
+  isDown?: boolean;
   starsText?: string;
   backgroundImage?: string;
   darkBackgroundImage?: string;
@@ -78,13 +79,13 @@ export const techNames: Record<TechKey, string> = {
 export const projectsData: Project[] = [
   {
     slug: "prima-digital-agency",
-    title: "PRIMA — Digital Technology Solutions",
+    title: "PRIMA | Digital Technology Solutions",
     mobileTitle: "PRIMA",
     imageTitle: "Landing Page",
     src: "/PRIMA Landing Page.png",
     lightModeSrc: "/PRIMA Landing Page.png",
     video: "",
-    description: "My ultimate testing ground. Evolved from a basic HTML/CSS site into a robust 21,000+ line Next.js web application. Features complex Framer Motion animations, clean custom UI components, and extensive mobile performance optimization for lower-end devices.",
+    description: "As I entered my second year as an IT student, the project took on a completely new meaning. PRIMA isn't just a fictional sandbox; it is a real, growing digital agency founded by an industry mentor. I decided to take the initiative and build this premium landing page to help elevate their professional portfolio. This collaboration evolved into my first true B2B (Business-to-Business) project, establishing a professional partnership where I am trusted to develop full-stack applications for the agency's future clients.",
     tech: [
       "html5", 
       "css3", 
@@ -107,13 +108,13 @@ export const projectsData: Project[] = [
   },
   {
     slug: "sti-elms",
-    title: "STI eLMS — Next-Gen LMS",
+    title: "STI eLMS | Next-Gen LMS",
     mobileTitle: "eLMS Overhaul",
     imageTitle: "App Interface",
     src: "/STI Landing Page DARKMODE.png",
     lightModeSrc: "/STI Landing Page.png",
     video: "",
-    description: "A complete, modernized overhaul of the STI eLMS system proving school software doesn't have to be clunky. Features a highly interactive interface with fluid transitions, powered by Supabase with Row Level Security (RLS) and AES encryption to protect student data.",
+    description: "A complete, modernized overhaul of the STI eLMS system to prove that school software doesn't have to be clunky. I focused on building a highly interactive interface with fluid page transitions, dark mode support, and a clean, component-driven architecture. On the backend, I challenged myself to learn Supabase for database management and user authentication, and implemented Row Level Security (RLS) and AES encryption to protect sensitive student data.",
     tech: [
       "html5", 
       "css3", 

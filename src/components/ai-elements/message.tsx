@@ -14,7 +14,8 @@ import {
 import { cn } from "@/lib/utils";
 import { cjk } from "@streamdown/cjk";
 import { code } from "@streamdown/code";
-import { math } from "@streamdown/math";
+import { math, createMathPlugin } from "@streamdown/math";
+import "katex/dist/katex.min.css";
 import { mermaid } from "@streamdown/mermaid";
 import type { UIMessage } from "ai";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
@@ -321,7 +322,8 @@ export const MessageBranchPage = ({
 
 export type MessageResponseProps = ComponentProps<typeof Streamdown>;
 
-const streamdownPlugins = { cjk, code, math, mermaid };
+const mathPlugin = createMathPlugin({ singleDollarTextMath: true });
+const streamdownPlugins = { cjk, code, math: mathPlugin, mermaid };
 
 export const MessageResponse = memo(
   ({ className, ...props }: MessageResponseProps) => (
@@ -331,11 +333,13 @@ export const MessageResponse = memo(
         "[&_table]:w-full [&_table]:border-collapse [&_table]:my-4 [&_table]:bg-transparent dark:[&_table]:bg-transparent",
         "[&_th]:border [&_th]:border-border [&_td]:border [&_td]:border-border [&_th]:p-2 [&_td]:p-2",
         "dark:[&_th]:border-white/10 dark:[&_td]:border-white/10 dark:[&_th]:bg-white/5 dark:[&_td]:bg-transparent",
-        "[&_[data-streamdown='code-block']]:bg-zinc-100 dark:[&_[data-streamdown='code-block']]:bg-zinc-900 [&_[data-streamdown='code-block']]:border-zinc-200 dark:[&_[data-streamdown='code-block']]:border-white/10",
-        "[&_[data-streamdown='code-block-header']]:hidden",
-        "[&_[data-streamdown='code-block-body']]:bg-transparent [&_[data-streamdown='code-block-body']]:border-none [&_[data-streamdown='code-block-body']]:p-2",
-        "[&_pre]:!bg-transparent [&_pre]:text-[15px] [&_pre]:leading-[1.7] [&_pre]:py-2 [&_pre]:px-2",
+        "[&_[data-streamdown='code-block']]:bg-zinc-100 dark:[&_[data-streamdown='code-block']]:bg-[#0d0d0d] [&_[data-streamdown='code-block']]:border-zinc-200 dark:[&_[data-streamdown='code-block']]:border-white/10 [&_[data-streamdown='code-block']]:rounded-lg [&_[data-streamdown='code-block']]:overflow-hidden [&_[data-streamdown='code-block']]:!p-0 [&_[data-streamdown='code-block']]:w-full",
+        "[&_[data-streamdown='code-block-header']]:flex [&_[data-streamdown='code-block-header']]:items-center [&_[data-streamdown='code-block-header']]:justify-between [&_[data-streamdown='code-block-header']]:bg-zinc-200/80 dark:[&_[data-streamdown='code-block-header']]:bg-[#1a1a1a] [&_[data-streamdown='code-block-header']]:px-4 [&_[data-streamdown='code-block-header']]:py-2.5 [&_[data-streamdown='code-block-header']]:border-b [&_[data-streamdown='code-block-header']]:border-zinc-300 dark:[&_[data-streamdown='code-block-header']]:border-white/5 [&_[data-streamdown='code-block-header']]:w-full [&_[data-streamdown='code-block-header']]:!m-0",
+        "[&_[data-streamdown='code-block-title']]:text-[13px] [&_[data-streamdown='code-block-title']]:text-zinc-600 dark:[&_[data-streamdown='code-block-title']]:text-zinc-400 [&_[data-streamdown='code-block-title']]:font-mono",
+        "[&_[data-streamdown='code-block-body']]:bg-transparent [&_[data-streamdown='code-block-body']]:border-none [&_[data-streamdown='code-block-body']]:p-4",
+        "[&_pre]:!bg-transparent [&_pre]:text-[13.5px] [&_pre]:leading-[1.7] [&_pre]:!p-0",
         "dark:[&_[data-streamdown='code-block']_.pointer-events-auto]:!border-white/10 dark:[&_[data-streamdown='code-block']_.pointer-events-auto]:!bg-black/20",
+        "[&_.katex-display]:!flex [&_.katex-display]:justify-center [&_.katex-display]:my-6 [&_.katex-display]:w-full [&_.katex-display]:overflow-x-auto",
         className
       )}
       plugins={streamdownPlugins}

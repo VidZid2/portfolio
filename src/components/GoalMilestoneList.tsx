@@ -7,6 +7,7 @@ import { useTheme } from "next-themes";
 import { goalMilestones } from "@/data/goalMilestonesData";
 
 import { AsciiText } from "@/components/ui/ascii-text";
+import { AsciiGlitchBlock } from "@/components/ui/ascii-glitch-block";
 import { GlyphMatrix } from "@/components/ui/glyph-matrix";
 import { JapaneseAsciiText } from "@/components/ui/japanese-ascii-text";
 import { cn } from "@/lib/utils";
@@ -85,6 +86,7 @@ function StatusBadge({ dates }: { dates: string }) {
   if (percentText === "100%") statusText = "COMPLETE";
   else if (percentText === "89%") statusText = "ALMOST";
   else if (percentText === "58%") statusText = "MIDWAY";
+  else if (percentText === "0%") statusText = "NOT STARTED YET";
 
   const isCompleted = percentText === "100%";
 
@@ -200,7 +202,19 @@ export function GoalMilestoneList() {
 
                 <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 relative z-10">
                   {/* Logo Container styled like Experience Section */}
-                  {item.src.includes("github.com") || item.src.includes("Avatar") ? (
+                  {item.title === "Project SYNC" ? (
+                    <div className="size-10 shrink-0 rounded-[10px] border border-black/10 bg-zinc-50 shadow-sm shadow-black/15 dark:border-zinc-800 dark:bg-[#111111] dark:shadow-md dark:shadow-black/50 overflow-hidden relative flex items-center justify-center">
+                      <AsciiGlitchBlock className="text-[#6495ED]" />
+                    </div>
+                  ) : item.title === "System Admin Dashboards" ? (
+                    <div className="size-10 shrink-0 rounded-[10px] border border-black/10 bg-zinc-50 shadow-sm shadow-black/15 dark:border-zinc-800 dark:bg-[#111111] dark:shadow-md dark:shadow-black/50 overflow-hidden relative flex flex-col items-center justify-center gap-0.5">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-zinc-400 dark:text-zinc-500">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      <span className="text-[7px] font-bold tracking-[0.15em] text-zinc-400 dark:text-zinc-500 uppercase">Soon</span>
+                    </div>
+                  ) : item.src.includes("github.com") || item.src.includes("Avatar") ? (
                     <div className="size-10 shrink-0 rounded-[10px] border border-black/10 bg-zinc-50 shadow-sm shadow-black/15 dark:border-zinc-800 dark:bg-[#111111] dark:shadow-md dark:shadow-black/50 overflow-hidden relative">
                       <Image
                         src={item.src}
@@ -254,6 +268,11 @@ export function GoalMilestoneList() {
                     <span className="text-[13px] sm:text-[14px] text-zinc-500 dark:text-zinc-400">
                       {item.location}
                     </span>
+                    {item.timeframe && (
+                      <span className="text-[11px] sm:text-[12px] text-zinc-400 dark:text-zinc-500 mt-0.5 font-mono">
+                        {item.timeframe}
+                      </span>
+                    )}
                   </div>
                   
                   <div className="flex items-center gap-3">
@@ -301,11 +320,14 @@ export function GoalMilestoneList() {
                             <span className="pointer-events-none absolute right-0 bottom-0 h-[2px] w-[2px] translate-x-1/2 translate-y-1/2 bg-[#808080] dark:bg-[#404040] z-10" />
                           </div>
                         )}
-                        {item.title === "PRIMA" && (
+                        {(item.title === "PRIMA" || item.title === "eLMS 2.0 Overhaul") && (
                           <div className="mb-0 pt-6 pb-6 px-4 sm:px-6 flex flex-col items-center justify-center text-center gap-2 relative">
                             <h4 className="text-[12px] font-bold tracking-[0.2em] uppercase text-zinc-900 dark:text-zinc-100 flex items-center justify-center gap-2.5 w-full">
-                              <JapaneseAsciiText text="PROJECT STATISTICS" duration={3000} idleScramble={true} />
+                              <JapaneseAsciiText text="TECHNICAL ARCHITECTURE" duration={3000} idleScramble={true} />
                             </h4>
+                            <p className="text-[13px] text-zinc-500 dark:text-zinc-400 max-w-lg mx-auto">
+                              Comprehensive breakdown of the core technologies and systems powering this platform.
+                            </p>
                             {/* Bottom Dashed Line */}
                             <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15]" style={{ maskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)", WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)" }} />
                             
@@ -395,6 +417,15 @@ export function GoalMilestoneList() {
                             muted
                             playsInline
                             className="h-full w-full object-cover scale-[1.01]"
+                          />
+                        ) : item.placeholderImage ? (
+                          <Image
+                            src={item.placeholderImage}
+                            alt={`${item.title} image`}
+                            fill
+                            sizes="(min-width: 768px) 40vw, calc(100vw - 3rem)"
+                            quality={85}
+                            className="h-auto w-full object-cover"
                           />
                         ) : (
                           <Image
