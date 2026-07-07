@@ -12,6 +12,7 @@ import { type CarouselApi } from "@/components/ui/carousel";
 
 export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string; carouselApi?: CarouselApi }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const { resolvedTheme } = useTheme();
@@ -55,6 +56,8 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
           <motion.div 
             key={idx} 
             className="group relative"
+            onMouseEnter={() => setHoveredIdx(idx)}
+            onMouseLeave={() => setHoveredIdx(null)}
             variants={{
               hidden: { opacity: 0, scale: 0.95, y: 15 },
               visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", bounce: 0.4 } }
@@ -77,8 +80,8 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
               className="group/item flex flex-row items-center justify-between gap-2 sm:gap-4 py-3.5 px-4 -mx-4 hover:bg-zinc-50 dark:hover:bg-zinc-900/20 transition-colors cursor-pointer relative z-20 rounded-lg sm:py-4 overflow-hidden"
               onClick={() => setOpenIdx(isOpen ? null : idx)}
             >
-              {item.title === "STI eLMS 2.0" && (
-                <div className="absolute inset-0 z-0 opacity-0 group-hover/item:opacity-100 transition-opacity duration-500 pointer-events-none">
+              {item.title === "STI eLMS 2.0" && (hoveredIdx === idx || isOpen) && (
+                <div className="absolute inset-0 z-0 opacity-100 transition-opacity duration-500 pointer-events-none animate-in fade-in">
                   <FlickeringGrid
                     className="size-full"
                     squareSize={4}

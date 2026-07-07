@@ -148,17 +148,15 @@ export function JapaneseAsciiText({
   return (
     <span ref={containerRef} className={cn("inline-flex flex-wrap", className)}>
       {chars.map((c, i) => (
-        <motion.span
+        <span
           key={i}
-          layout
-          transition={{ type: "spring", damping: 20, stiffness: 300 }}
           className={cn(
             "inline-block whitespace-pre transition-colors duration-200",
             !c.resolved ? "text-[#6495ED]" : ""
           )}
         >
           {c.char}
-        </motion.span>
+        </span>
       ))}
     </span>
   );

@@ -12,9 +12,7 @@ import { JapaneseAsciiText } from "@/components/ui/japanese-ascii-text";
 import { cn } from "@/lib/utils";
 import { useInView } from "framer-motion";
 
-function ProjectSyncBackground() {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { amount: 0.1 });
+function ProjectSyncBackground({ isHovered, isOpen }: { isHovered: boolean; isOpen: boolean }) {
   const [isMobile, setIsMobile] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
 
@@ -28,16 +26,13 @@ function ProjectSyncBackground() {
 
   if (!hasMounted) return null;
 
-  const shouldShow = isMobile ? isInView : true;
+  const shouldShow = isMobile ? isOpen : (isHovered || isOpen);
 
   return (
     <div 
-      ref={ref} 
       className={cn(
         "absolute inset-0 z-0 pointer-events-none transition-opacity duration-1000",
-        isMobile 
-          ? (isInView ? "opacity-100" : "opacity-0")
-          : "opacity-0 group-hover/item:opacity-100"
+        shouldShow ? "opacity-100" : "opacity-0"
       )}
     >
       {shouldShow && (
@@ -125,6 +120,7 @@ function StatusBadge({ dates }: { dates: string }) {
 
 export function GoalMilestoneList() {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [overrideDisabled, setOverrideDisabled] = useState(false);
@@ -172,6 +168,8 @@ export function GoalMilestoneList() {
             <motion.div 
               key={idx} 
               className="group relative"
+              onMouseEnter={() => setHoveredIdx(idx)}
+              onMouseLeave={() => setHoveredIdx(null)}
               variants={{
                 hidden: { opacity: 0, scale: 0.95, y: 15 },
                 visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", bounce: 0.4 } }
@@ -198,7 +196,7 @@ export function GoalMilestoneList() {
                 onClick={() => !isEffectivelyDisabled && handleItemClick(idx)}
               >
                 {/* GlyphMatrix Background (Only for Project SYNC) */}
-                {item.title === "Project SYNC" && <ProjectSyncBackground />}
+                {item.title === "Project SYNC" && <ProjectSyncBackground isHovered={hoveredIdx === idx} isOpen={isOpen} />}
 
                 <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 relative z-10">
                   {/* Logo Container styled like Experience Section */}
