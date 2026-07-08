@@ -2753,7 +2753,30 @@ export const PDFViewer = React.forwardRef<PDFViewerHandle, PDFViewerProps>(
       uploadedPdfFile.src === src ? uploadedPdfFile.url : null
     const pdfFile = uploadedPdfUrl ?? src ?? ""
 
-    const [showNotification, setShowNotification] = React.useState(!notificationDismissed)
+    const [showNotification, setShowNotification] = React.useState(false)
+
+    React.useEffect(() => {
+      const isLocal = window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")
+      const isMobile = window.innerWidth <= 640
+
+      if (!notificationDismissed) {
+        if (isLocal || isMobile) {
+          setShowNotification(true)
+        }
+      }
+
+      if (!isLocal) {
+        console.log(
+          "%cSTOP! %cNo fiddling in the inspect! 😉",
+          "color: #ff3333; font-size: 32px; font-weight: bold; font-family: sans-serif; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);",
+          "color: #888888; font-size: 16px; font-family: sans-serif;"
+        )
+        console.log(
+          "%cThis is a production environment. If you are looking for bugs or code structure, feel free to inspect the open-source repository at https://github.com/VidZid2/portfolio instead.",
+          "color: #a1a1aa; font-size: 13px; font-family: sans-serif; line-height: 1.5;"
+        )
+      }
+    }, [])
 
     React.useEffect(
       () => () => {
