@@ -535,7 +535,9 @@ function ToolbarTooltip({
       <TooltipTrigger asChild>
         <span className="inline-flex">{children}</span>
       </TooltipTrigger>
-      <TooltipContent side="bottom">{label}</TooltipContent>
+      <TooltipContent side="bottom" className="hidden md:flex">
+        {label}
+      </TooltipContent>
     </Tooltip>
   )
 }
