@@ -8,6 +8,7 @@ import { HardwareProvider } from "@/components/providers/hardware-provider";
 import { SoundProvider } from "@/components/providers/sound-provider";
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { GlobalConsoleWarning } from "@/components/ui/global-console-warning";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -68,6 +69,7 @@ export default function RootLayout({
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />
+        <GlobalConsoleWarning />
       </body>
     </html>
   );
