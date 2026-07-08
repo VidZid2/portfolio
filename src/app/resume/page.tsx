@@ -8,7 +8,7 @@ import SoftPillButton from "@/components/pixel-perfect/soft-pill-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { TransitionLink } from "@/components/TransitionLink";
 
-const resumePath = "/Josiah-De-Jesus-Resume.pdf";
+const resumePath = "/Josiah-De-Asis-Resume.pdf";
 
 export const metadata: Metadata = {
   title: "Resume | Josiah De Asis",
@@ -138,7 +138,7 @@ export default function ResumePage() {
             </a>
             <a
               href={resumePath}
-              download="Josiah-De-Jesus-Resume.pdf"
+              download="Josiah-De-Asis-Resume.pdf"
               aria-label="Download resume"
               title="Download resume"
             >
@@ -158,7 +158,7 @@ export default function ResumePage() {
 
         <div className="relative aspect-[8.5/11] w-full overflow-hidden rounded-[6px] border border-black/10 bg-white shadow-sm dark:border-white/10">
           <Image
-            src="/Josiah-De-Jesus-Resume.png"
+            src="/Josiah-De-Asis-Resume.png"
             alt="Josiah De Asis resume"
             fill
             preload
