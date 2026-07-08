@@ -62,8 +62,11 @@ function SelectContent({
   children,
   position = "item-aligned",
   align = "center",
+  alignItemWithTrigger,
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Content>) {
+}: React.ComponentProps<typeof SelectPrimitive.Content> & {
+  alignItemWithTrigger?: boolean
+}) {
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content

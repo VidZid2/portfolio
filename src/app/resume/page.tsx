@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { ArrowLeft, Download, ExternalLink, FileText } from "lucide-react";
 import { CommandMenu } from "@/components/command-menu";
+import { PDFViewer } from "@/components/ui/pdf-viewer";
 import { TopBanner } from "@/components/TopBanner";
 import SoftPillButton from "@/components/pixel-perfect/soft-pill-button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -120,16 +121,7 @@ export default function ResumePage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <a
-              href={resumePath}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Open resume in a new tab"
-              title="Open in new tab"
-              className="flex h-8 w-8 items-center justify-center rounded-[6px] border border-black/10 bg-zinc-50 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-zinc-400 dark:hover:bg-[#121214] dark:hover:text-zinc-100"
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
+
             <a
               href={resumePath}
               download="Josiah-De-Asis-Resume.pdf"
@@ -150,16 +142,8 @@ export default function ResumePage() {
           </div>
         </div>
 
-        <div className="relative aspect-[8.5/11] w-full overflow-hidden rounded-[6px] border border-black/10 bg-white shadow-sm dark:border-white/10">
-          <Image
-            src="/Josiah-De-Asis-Resume.png"
-            alt="Josiah De Asis resume"
-            fill
-            preload
-            sizes="(min-width: 768px) 40vw, 100vw"
-            quality={75}
-            className="object-contain"
-          />
+        <div className="relative flex h-[calc(100vh-200px)] min-h-[600px] w-full flex-col overflow-hidden rounded-[6px] border border-black/10 bg-background shadow-sm dark:border-white/10">
+          <PDFViewer src={resumePath} className="flex-1" />
         </div>
 
         <div className="relative mt-8">
