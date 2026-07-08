@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { ArrowLeft, Download, ExternalLink, FileText } from "lucide-react";
 import { CommandMenu } from "@/components/command-menu";
-import { CurrentTime } from "@/components/CurrentTime";
-import { FooterBackground } from "@/components/FooterBackground";
+import { TopBanner } from "@/components/TopBanner";
 import SoftPillButton from "@/components/pixel-perfect/soft-pill-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { TransitionLink } from "@/components/TransitionLink";
@@ -74,12 +73,7 @@ export default function ResumePage() {
         />
       ))}
 
-      <div className="pointer-events-auto absolute left-0 right-0 top-0 h-[22vh] md:left-[26%] md:right-[26%]">
-        <FooterBackground />
-        <div className="pointer-events-auto absolute bottom-3 right-2 z-10">
-          <CurrentTime />
-        </div>
-      </div>
+      <TopBanner />
 
       <header className="absolute left-0 right-0 top-[22vh] z-50 flex h-[112px] items-center px-4 md:left-[26%] md:right-[26%]">
         <div className="flex w-full items-center justify-between gap-3">
