@@ -1277,6 +1277,7 @@ function PDFViewerScrollAreaViewport({
   const isGated = useIsViewportGated(documentId)
   const viewportGap = viewport?.getViewportGap() ?? 0
 
+  const [isTextSelectionActive, setIsTextSelectionActive] = React.useState(false)
   const isDragging = React.useRef(false)
   const startPos = React.useRef({ x: 0, y: 0 })
   const startScroll = React.useRef({ left: 0, top: 0 })
@@ -1289,10 +1290,17 @@ function PDFViewerScrollAreaViewport({
     const now = Date.now()
     if (now - lastTapTime.current < 300) {
       // Double tap! Re-enable text selection and let native browser handle it
+      setIsTextSelectionActive(true)
       if (viewportRef.current) {
         viewportRef.current.classList.remove("select-none")
       }
       return
+    }
+
+    // If we were in selection mode, exit it on a single tap
+    if (isTextSelectionActive) {
+      setIsTextSelectionActive(false)
+      window.getSelection()?.removeAllRanges()
     }
     lastTapTime.current = now
 
@@ -1300,29 +1308,41 @@ function PDFViewerScrollAreaViewport({
     if (viewportRef.current) {
       viewportRef.current.classList.add("select-none")
     }
-    window.getSelection()?.removeAllRanges()
 
-    // For touch events, we rely on native browser scrolling so it retains momentum and pinch-zoom!
-    if (e.pointerType === "touch") return
+    // For touch events, if selection is not active, stop propagation to prevent selection plugin from hijacking the scroll gesture
+    if (e.pointerType === "touch") {
+      if (!isTextSelectionActive) {
+        e.stopPropagation()
+      }
+      return
+    }
 
     // For mouse, we implement JS dragging for a map-like drag experience
-    e.preventDefault() 
-    e.stopPropagation() 
+    if (!isTextSelectionActive) {
+      e.preventDefault() 
+      e.stopPropagation() 
 
-    isDragging.current = true
-    startPos.current = { x: e.clientX, y: e.clientY }
-    if (viewportRef.current) {
-      startScroll.current = {
-        left: viewportRef.current.scrollLeft,
-        top: viewportRef.current.scrollTop,
+      isDragging.current = true
+      startPos.current = { x: e.clientX, y: e.clientY }
+      if (viewportRef.current) {
+        startScroll.current = {
+          left: viewportRef.current.scrollLeft,
+          top: viewportRef.current.scrollTop,
+        }
+        viewportRef.current.setPointerCapture(e.pointerId)
+        viewportRef.current.classList.add("cursor-grabbing")
       }
-      viewportRef.current.setPointerCapture(e.pointerId)
-      viewportRef.current.classList.add("cursor-grabbing")
     }
   }
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDragging.current || !viewportRef.current || e.pointerType === "touch") return
+    if (e.pointerType === "touch") {
+      if (!isTextSelectionActive) {
+        e.stopPropagation()
+      }
+      return
+    }
+    if (!isDragging.current || !viewportRef.current) return
     const dx = e.clientX - startPos.current.x
     const dy = e.clientY - startPos.current.y
     viewportRef.current.scrollLeft = startScroll.current.left - dx
@@ -1330,6 +1350,12 @@ function PDFViewerScrollAreaViewport({
   }
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "touch") {
+      if (!isTextSelectionActive) {
+        e.stopPropagation()
+      }
+      return
+    }
     isDragging.current = false
     if (viewportRef.current) {
       viewportRef.current.classList.remove("cursor-grabbing")
