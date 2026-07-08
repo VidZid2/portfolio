@@ -146,7 +146,7 @@ export function JapaneseAsciiText({
   }
 
   return (
-    <span ref={containerRef} className={cn("inline-flex flex-wrap", className)}>
+    <span ref={containerRef} className={cn("inline-flex flex-nowrap", className)}>
       {chars.map((c, i) => (
         <span
           key={i}

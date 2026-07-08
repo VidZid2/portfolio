@@ -357,3 +357,43 @@ body {
     stroke-dashoffset: -1;
   }
 }
+
+@property --scrollbar-thumb-bg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgba(0, 0, 0, 0);
+}
+
+/* Custom Scrollbar for Prompt Box */
+textarea.prompt-scrollbar {
+  scrollbar-width: auto !important; /* Restore standard scrollbar for Firefox/Chrome 121+ */
+  -ms-overflow-style: auto !important; /* Restore for Edge */
+  --scrollbar-thumb-bg: rgba(161, 161, 170, 0) !important;
+  transition: --scrollbar-thumb-bg 0.4s ease-out !important;
+}
+.dark textarea.prompt-scrollbar {
+  --scrollbar-thumb-bg: rgba(82, 82, 91, 0) !important;
+}
+textarea.prompt-scrollbar.is-scrolling {
+  --scrollbar-thumb-bg: rgba(161, 161, 170, 0.5) !important;
+}
+.dark textarea.prompt-scrollbar.is-scrolling {
+  --scrollbar-thumb-bg: rgba(82, 82, 91, 0.5) !important;
+}
+
+textarea.prompt-scrollbar::-webkit-scrollbar,
+.scrollbar-hide textarea.prompt-scrollbar::-webkit-scrollbar {
+  display: block !important;
+  width: 14px !important;
+}
+textarea.prompt-scrollbar::-webkit-scrollbar-track,
+.scrollbar-hide textarea.prompt-scrollbar::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+textarea.prompt-scrollbar::-webkit-scrollbar-thumb,
+.scrollbar-hide textarea.prompt-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb-bg) !important;
+  border-radius: 9999px !important;
+  border: 4px solid transparent !important;
+  background-clip: padding-box !important;
+}

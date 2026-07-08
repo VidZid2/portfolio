@@ -10,6 +10,7 @@ import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { GlobalConsoleWarning } from "@/components/ui/global-console-warning";
 import { GlobalContextMenu } from "@/components/global-context-menu";
+import { TextSelectionMenu } from "@/components/text-selection-menu";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -65,6 +66,7 @@ export default function RootLayout({
                   <GlobalContextMenu>
                     {children}
                   </GlobalContextMenu>
+                  <TextSelectionMenu />
                 </TransitionProvider>
               </TooltipProvider>
             </SoundProvider>

@@ -109,7 +109,7 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
                 </div>
                 <div className="flex flex-col gap-0.5 min-w-0 pr-2 sm:pr-4">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`text-[14px] font-bold leading-tight sm:text-[17px] truncate ${item.title === "STI eLMS 2.0" ? "text-[#6495ED]" : "text-zinc-900 dark:text-zinc-100"}`}>
+                    <span className="text-[14px] font-bold leading-tight sm:text-[17px] truncate text-zinc-900 dark:text-zinc-100">
                       {item.title === "STI eLMS 2.0" ? (
                         <>
                           <span className="sm:hidden truncate">STI eLMS 2.0 x PRIMA</span>

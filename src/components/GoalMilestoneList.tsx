@@ -27,7 +27,7 @@ function ProjectSyncBackground({ isHovered, isOpen }: { isHovered: boolean; isOp
 
   if (!hasMounted) return null;
 
-  const shouldShow = isMobile ? isOpen : (isHovered || isOpen);
+  const shouldShow = isMobile ? true : (isHovered || isOpen);
 
   return (
     <div 
@@ -120,7 +120,7 @@ function StatusBadge({ dates }: { dates: string }) {
   );
 }
 
-export function GoalMilestoneList() {
+export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const { resolvedTheme } = useTheme();
@@ -152,11 +152,15 @@ export function GoalMilestoneList() {
     setOpenIdx((prev) => (prev === idx ? null : idx));
   };
 
+  const filteredMilestones = showAll 
+    ? goalMilestones 
+    : goalMilestones.filter(item => item.title !== "System Admin Dashboards");
+
   return (
     <div className="block w-full">
       {/* Accordion List */}
       <div className="block">
-        {goalMilestones.map((item, idx) => {
+        {filteredMilestones.map((item, idx) => {
           const isOpen = openIdx === idx;
           const isEffectivelyDisabled = item.isDisabled && !overrideDisabled;
           const itemImage = createPlaceholderImage({ 
@@ -247,7 +251,37 @@ export function GoalMilestoneList() {
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`text-[14px] font-bold leading-tight sm:text-[17px] ${isOpen ? "text-[#6495ED]" : "text-zinc-900 dark:text-zinc-100"} truncate`}>
                         {item.title === "Project SYNC" ? (
-                          <JapaneseAsciiText text={item.title} duration={3000} idleScramble={true} />
+                          <>
+                            <span className="sm:hidden inline-block">
+                              <JapaneseAsciiText text="Project SYNC x Portfolio" duration={3000} idleScramble={true} />
+                            </span>
+                            <span className="hidden flex-nowrap items-center gap-x-2 align-middle sm:inline-flex">
+                              <span className="inline-flex h-10 items-center">
+                                <JapaneseAsciiText text="Project SYNC" duration={3000} idleScramble={true} />
+                              </span>
+                              <span className="inline-flex h-10 items-center text-[13px] font-semibold leading-none text-zinc-500 dark:text-zinc-500">
+                                x
+                              </span>
+                              <span className="inline-flex h-10 items-center gap-2 leading-none">
+                                <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-[10px] border border-black/10 bg-zinc-50 p-[2px] shadow-sm shadow-black/15 dark:border-zinc-800 dark:bg-[#111111] dark:shadow-md dark:shadow-black/50">
+                                  <span className="inline-flex size-full items-center justify-center overflow-hidden rounded-[7px] border border-black/5 bg-white dark:bg-black dark:border-black/20">
+                                    <Image
+                                      src="https://github.com/VidZid2.png?v=1"
+                                      alt="Portfolio"
+                                      width={40}
+                                      height={40}
+                                      sizes="40px"
+                                      quality={60}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </span>
+                                </span>
+                                <span className="inline-flex h-10 items-center">
+                                  <JapaneseAsciiText text="Portfolio" duration={3000} idleScramble={true} />
+                                </span>
+                              </span>
+                            </span>
+                          </>
                         ) : (
                           item.title
                         )}

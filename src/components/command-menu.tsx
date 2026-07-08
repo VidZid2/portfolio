@@ -36,8 +36,22 @@ import { JapaneseAsciiText } from "@/components/ui/japanese-ascii-text"
 export function CommandMenu() {
     const [open, setOpen] = React.useState(false)
     const [aiOpen, setAiOpen] = React.useState(false)
+    const [initialAiQuery, setInitialAiQuery] = React.useState("")
     const [showTooltip, setShowTooltip] = React.useState(false)
     const phase = useArcReveal()
+
+    React.useEffect(() => {
+        const handleOpenAi = (e: CustomEvent) => {
+            if (e.detail?.initialQuery) {
+                setInitialAiQuery(e.detail.initialQuery);
+            } else {
+                setInitialAiQuery("");
+            }
+            setAiOpen(true);
+        };
+        window.addEventListener("open-ai" as any, handleOpenAi);
+        return () => window.removeEventListener("open-ai" as any, handleOpenAi);
+    }, []);
 
     React.useEffect(() => {
         if (phase !== "done") return
@@ -319,7 +333,7 @@ export function CommandMenu() {
             </CommandDialog>
 
             <AnimatePresence>
-                {aiOpen && <PromptBoxPreview onClose={() => setAiOpen(false)} />}
+                {aiOpen && <PromptBoxPreview onClose={() => setAiOpen(false)} initialQuery={initialAiQuery} />}
             </AnimatePresence>
         </div>
     )

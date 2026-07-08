@@ -130,7 +130,7 @@ export default function AllExperiencePage() {
                       </div>
                       <div className="flex min-w-0 flex-col gap-0.5 pr-2 sm:pr-4">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className={`text-[14px] font-bold leading-tight sm:text-[17px] ${item.title === "STI eLMS 2.0" ? "text-[#6495ED]" : "text-zinc-900 dark:text-zinc-100"} truncate`}>
+                          <span className="text-[14px] font-bold leading-tight sm:text-[17px] text-zinc-900 dark:text-zinc-100 truncate">
                             {item.title === "STI eLMS 2.0" ? (
                               <>
                                 <span className="sm:hidden">STI eLMS 2.0 x PRIMA</span>

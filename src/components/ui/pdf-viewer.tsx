@@ -1311,14 +1311,15 @@ function PDFViewerScrollAreaViewport({
     }
     lastTapTime.current = now
 
-    // Disable text selection on single tap/drag for a clean "swipe to pan" experience
-    if (viewportRef.current) {
-      viewportRef.current.classList.add("select-none")
-    }
+    // Disable text selection unconditionally was here, we moved it to touch and middle-click logic
 
     // For touch events, if selection is not active, implement free 2D drag panning (preventing browser scroll locking)
     // We only drag if there is exactly 1 pointer active (to preserve native pinch-zoom gestures)
     if (e.pointerType === "touch") {
+      // Disable text selection on single tap/drag for a clean "swipe to pan" experience
+      if (viewportRef.current) {
+        viewportRef.current.classList.add("select-none")
+      }
       if (!isTextSelectionActive) {
         e.stopPropagation()
         if (activePointers.current.size === 1) {
@@ -1344,8 +1345,12 @@ function PDFViewerScrollAreaViewport({
       return
     }
 
-    // For mouse, we implement JS dragging for a map-like drag experience
-    if (!isTextSelectionActive) {
+    // For mouse, we ONLY implement JS dragging if middle mouse is pressed (e.button === 1)
+    // Left click (e.button === 0) will act naturally for text selection
+    if (e.pointerType === "mouse" && e.button === 1) {
+      if (viewportRef.current) {
+        viewportRef.current.classList.add("select-none")
+      }
       e.preventDefault() 
       e.stopPropagation() 
 
@@ -1418,6 +1423,9 @@ function PDFViewerScrollAreaViewport({
     isDragging.current = false
     if (viewportRef.current) {
       viewportRef.current.classList.remove("cursor-grabbing")
+      if (e.pointerType === "mouse") {
+        viewportRef.current.classList.remove("select-none")
+      }
       if (viewportRef.current.hasPointerCapture(e.pointerId)) {
         viewportRef.current.releasePointerCapture(e.pointerId)
       }

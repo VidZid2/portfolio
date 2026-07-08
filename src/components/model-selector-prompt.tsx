@@ -15,6 +15,7 @@ import { Loader2 } from "lucide-react";
 import {
   type ReactNode,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -744,6 +745,35 @@ export function ModelSelectorPrompt({
   const [isSending, setIsSending] = useState(false);
   const isSendingRef = useRef(false);
 
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleScroll = () => {
+    setIsScrolling(true);
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = setTimeout(() => {
+      setIsScrolling(false);
+    }, 800);
+  };
+
+  const [textareaHeight, setTextareaHeight] = useState(64);
+
+  useLayoutEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    textarea.style.height = "auto";
+    const scrollHeight = textarea.scrollHeight;
+    textarea.style.height = ""; // Reset to let framer-motion animate it
+
+    const minHeight = isExpanded ? 64 : 44;
+    const maxHeight = 200;
+    const nextHeight = Math.min(maxHeight, Math.max(minHeight, scrollHeight));
+
+    setTextareaHeight(nextHeight);
+  }, [promptValue, isExpanded]);
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       // Intentionally left blank so it never collapses
@@ -751,6 +781,25 @@ export function ModelSelectorPrompt({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Trigger a brief scrollbar visibility indicator when the text overflows (load/type)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+
+      const hasOverflow = textarea.scrollHeight > textarea.clientHeight;
+      if (hasOverflow) {
+        setIsScrolling(true);
+        if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+        scrollTimeoutRef.current = setTimeout(() => {
+          setIsScrolling(false);
+        }, 1500);
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [promptValue]);
 
   const showToolbar = isExpanded || promptValue.length > 0;
 
@@ -824,22 +873,24 @@ export function ModelSelectorPrompt({
       ref={containerRef}
       onClick={() => setIsExpanded(true)}
       className={cn(
-        "relative mx-auto flex w-full max-w-md flex-col rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 pointer-events-auto",
-        className,
+        "relative mx-auto flex w-full flex-col rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 pointer-events-auto",
+        className || "max-w-md",
       )}
     >
 
       <div className="relative w-full">
         <motion.textarea
-          layout
           rows={1}
+          ref={textareaRef}
+          onScroll={handleScroll}
           onFocus={() => setIsExpanded(true)}
           className={cn(
-            "w-full resize-none bg-transparent px-3 py-3 pr-10 font-medium text-sm outline-none placeholder:text-neutral-400 disabled:cursor-not-allowed disabled:opacity-60 dark:placeholder:text-neutral-500",
+            "w-full resize-none bg-transparent pl-5 pr-14 py-4 font-medium text-sm outline-none placeholder:text-neutral-400 disabled:cursor-not-allowed disabled:opacity-60 dark:placeholder:text-neutral-500 prompt-scrollbar overflow-auto",
+            isScrolling && "is-scrolling",
             isSending ? "text-transparent dark:text-transparent" : "text-neutral-900 dark:text-neutral-100"
           )}
           initial={false}
-          animate={{ minHeight: isExpanded ? 64 : 44 }}
+          animate={{ height: textareaHeight }}
           transition={{ duration: 0.3, type: "spring", stiffness: 350, damping: 25 }}
           disabled={disabled || isSending}
           onChange={(event) => updatePrompt(event.target.value)}

@@ -1,18 +1,8 @@
 "use client";
 
 import * as React from "react";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuShortcut,
-  ContextMenuSub,
-  ContextMenuSubContent,
-  ContextMenuSubTrigger,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft,
   ChevronRight,
@@ -23,106 +13,226 @@ import {
   Code,
   Wrench,
   BookOpen,
+  ChevronRight as ChevronRightIcon
 } from "lucide-react";
 
 export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [position, setPosition] = React.useState({ x: 0, y: 0 });
+  const menuRef = React.useRef<HTMLDivElement>(null);
 
   const handleBack = () => {
     if (typeof window !== "undefined") window.history.back();
+    setIsOpen(false);
   };
 
   const handleForward = () => {
     if (typeof window !== "undefined") window.history.forward();
+    setIsOpen(false);
   };
 
   const handleReload = () => {
     if (typeof window !== "undefined") window.location.reload();
+    setIsOpen(false);
   };
 
   const navigateTo = (path: string) => {
     router.push(path);
+    setIsOpen(false);
   };
 
-  // Note: The context menu will trigger on right click on PC and long press on Mobile automatically via Radix UI.
+  React.useEffect(() => {
+    const handleGlobalContextMenu = (e: MouseEvent) => {
+      // Allow default browser context menu on input fields
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable ||
+        target.closest("input") ||
+        target.closest("textarea")
+      ) {
+        return;
+      }
+
+      e.preventDefault();
+      
+      // Calculate position to prevent overflowing the screen
+      let x = e.clientX;
+      let y = e.clientY;
+      const menuWidth = 256; // w-64 is 256px
+      const estimatedHeight = 360; // Better estimate for the flattened menu
+      
+      if (x + menuWidth > window.innerWidth) x = window.innerWidth - menuWidth - 10;
+      if (y + estimatedHeight > window.innerHeight) y = window.innerHeight - estimatedHeight - 10;
+
+      setPosition({ x, y });
+      setIsOpen(true);
+    };
+
+    // Close menu on any click outside or left click
+    const handlePointerDown = (e: PointerEvent) => {
+      if (!isOpen) return;
+      if (menuRef.current && menuRef.current.contains(e.target as Node)) {
+        return; // Clicked inside the menu
+      }
+      // If it's a right click, we let contextmenu handler deal with it
+      if (e.button === 2) return;
+      
+      setIsOpen(false);
+    };
+
+    const handleScroll = () => {
+      if (isOpen) setIsOpen(false);
+    };
+
+    // Use capture phase for contextmenu to bypass ANY stopPropagation() from other components!
+    window.addEventListener("contextmenu", handleGlobalContextMenu, true);
+    window.addEventListener("pointerdown", handlePointerDown, true);
+    window.addEventListener("scroll", handleScroll, true);
+
+    return () => {
+      window.removeEventListener("contextmenu", handleGlobalContextMenu, true);
+      window.removeEventListener("pointerdown", handlePointerDown, true);
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  }, [isOpen]);
+
+  // Pixel-perfect auto-correction after the menu renders its true height
+  React.useEffect(() => {
+    if (isOpen && menuRef.current) {
+      const rect = menuRef.current.getBoundingClientRect();
+      if (position.y + rect.height > window.innerHeight) {
+        // If it still overflows after our estimate, smoothly slide it up!
+        setPosition(prev => ({
+          ...prev,
+          y: window.innerHeight - rect.height - 10
+        }));
+      }
+    }
+  }, [isOpen]);
+
   return (
-    <ContextMenu>
-      <ContextMenuTrigger asChild>
-        <div className="min-h-full h-full w-full">{children}</div>
-      </ContextMenuTrigger>
-      <ContextMenuContent className="w-64 z-[9999] bg-white/70 dark:bg-[#0a0a0a]/70 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-2xl rounded-xl p-1.5 overflow-hidden">
-        
-        {/* Browser Controls */}
-        <ContextMenuItem
-          onClick={handleBack}
-          className="flex items-center gap-2 rounded-md focus:bg-black/5 dark:focus:bg-white/10 py-1.5 cursor-default"
-        >
-          <ChevronLeft className="h-4 w-4 text-zinc-500" />
-          <span>Back</span>
-          <ContextMenuShortcut className="text-zinc-400">⌘[</ContextMenuShortcut>
-        </ContextMenuItem>
-        <ContextMenuItem
-          onClick={handleForward}
-          className="flex items-center gap-2 rounded-md focus:bg-black/5 dark:focus:bg-white/10 py-1.5 cursor-default"
-        >
-          <ChevronRight className="h-4 w-4 text-zinc-500" />
-          <span>Forward</span>
-          <ContextMenuShortcut className="text-zinc-400">⌘]</ContextMenuShortcut>
-        </ContextMenuItem>
-        <ContextMenuItem
-          onClick={handleReload}
-          className="flex items-center gap-2 rounded-md focus:bg-black/5 dark:focus:bg-white/10 py-1.5 cursor-default"
-        >
-          <RotateCw className="h-4 w-4 text-zinc-500" />
-          <span>Reload</span>
-          <ContextMenuShortcut className="text-zinc-400">⌘R</ContextMenuShortcut>
-        </ContextMenuItem>
-        
-        <ContextMenuSeparator className="bg-black/5 dark:bg-white/5 my-1" />
+    <>
+      {children}
 
-        {/* Index Navigation */}
-        <ContextMenuSub>
-          <ContextMenuSubTrigger className="flex items-center gap-2 rounded-md focus:bg-black/5 dark:focus:bg-white/10 py-1.5 cursor-default">
-            <span className="flex h-4 w-4 items-center justify-center">
-              <div className="h-1.5 w-1.5 rounded-full bg-blue-500"></div>
-            </span>
-            <span className="font-medium text-blue-600 dark:text-blue-400">Navigation Index</span>
-          </ContextMenuSubTrigger>
-          <ContextMenuSubContent className="w-48 bg-white/70 dark:bg-[#0a0a0a]/70 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-2xl rounded-xl p-1.5">
-            <ContextMenuItem onClick={() => navigateTo("/experience")} className="flex items-center gap-2 rounded-md focus:bg-black/5 dark:focus:bg-white/10 py-1.5 cursor-default">
-              <Briefcase className="h-4 w-4 text-zinc-500" />
-              <span>Experience</span>
-            </ContextMenuItem>
-            <ContextMenuItem onClick={() => navigateTo("/projects")} className="flex items-center gap-2 rounded-md focus:bg-black/5 dark:focus:bg-white/10 py-1.5 cursor-default">
-              <FolderOpen className="h-4 w-4 text-zinc-500" />
-              <span>Projects</span>
-            </ContextMenuItem>
-            <ContextMenuItem onClick={() => navigateTo("/open-source")} className="flex items-center gap-2 rounded-md focus:bg-black/5 dark:focus:bg-white/10 py-1.5 cursor-default">
-              <Code className="h-4 w-4 text-zinc-500" />
-              <span>Open Source</span>
-            </ContextMenuItem>
-            <ContextMenuItem onClick={() => navigateTo("/skills")} className="flex items-center gap-2 rounded-md focus:bg-black/5 dark:focus:bg-white/10 py-1.5 cursor-default">
-              <Wrench className="h-4 w-4 text-zinc-500" />
-              <span>Skills</span>
-            </ContextMenuItem>
-            <ContextMenuItem onClick={() => navigateTo("/blog")} className="flex items-center gap-2 rounded-md focus:bg-black/5 dark:focus:bg-white/10 py-1.5 cursor-default">
-              <BookOpen className="h-4 w-4 text-zinc-500" />
-              <span>Blog</span>
-            </ContextMenuItem>
-          </ContextMenuSubContent>
-        </ContextMenuSub>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            ref={menuRef}
+            initial={{ opacity: 0, scale: 0.95, left: position.x, top: position.y }}
+            animate={{ 
+              opacity: 1, 
+              scale: 1, 
+              left: position.x, 
+              top: position.y 
+            }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{
+              duration: 0.15,
+              ease: "easeOut",
+              left: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+              top: { duration: 0.5, ease: [0.16, 1, 0.3, 1] }
+            }}
+            className="fixed z-[9999] w-64 bg-white dark:bg-[#111111] border border-black/10 dark:border-white/10 shadow-2xl rounded-xl p-1.5"
+            onContextMenu={(e) => e.preventDefault()}
+          >
+          {/* Browser Controls */}
+          <button
+            onClick={handleBack}
+            className="w-full flex items-center justify-between rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <ChevronLeft className="h-4 w-4 text-zinc-500" />
+              <span>Back</span>
+            </div>
+            <span className="text-xs tracking-widest text-zinc-400">⌘[</span>
+          </button>
+          
+          <button
+            onClick={handleForward}
+            className="w-full flex items-center justify-between rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <ChevronRight className="h-4 w-4 text-zinc-500" />
+              <span>Forward</span>
+            </div>
+            <span className="text-xs tracking-widest text-zinc-400">⌘]</span>
+          </button>
+          
+          <button
+            onClick={handleReload}
+            className="w-full flex items-center justify-between rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <RotateCw className="h-4 w-4 text-zinc-500" />
+              <span>Reload</span>
+            </div>
+            <span className="text-xs tracking-widest text-zinc-400">⌘R</span>
+          </button>
 
-        <ContextMenuSeparator className="bg-black/5 dark:bg-white/5 my-1" />
+          <div className="h-px bg-black/5 dark:bg-white/5 my-1" />
 
-        {/* AI Action */}
-        <ContextMenuItem
-          className="flex items-center gap-2 rounded-md focus:bg-purple-500/10 dark:focus:bg-purple-500/20 py-1.5 text-purple-600 dark:text-purple-400 font-medium cursor-default"
-        >
-          <Sparkles className="h-4 w-4" />
-          <span>Ask AI</span>
-        </ContextMenuItem>
-        
-      </ContextMenuContent>
-    </ContextMenu>
+          {/* Index Navigation */}
+          {pathname !== "/" && pathname !== "/projects/prima-digital-agency/how-its-made" && (
+            <>
+              <div className="px-2 py-1.5 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+                Navigation Index
+              </div>
+              <button onClick={() => navigateTo("/experience")} className="w-full flex items-center gap-2 rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors">
+                <Briefcase className="h-4 w-4 text-zinc-500" />
+                <span>Experience</span>
+              </button>
+              <button onClick={() => navigateTo("/projects")} className="w-full flex items-center gap-2 rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors">
+                <FolderOpen className="h-4 w-4 text-zinc-500" />
+                <span>Projects</span>
+              </button>
+              <button onClick={() => navigateTo("/open-source")} className="w-full flex items-center gap-2 rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors">
+                <Code className="h-4 w-4 text-zinc-500" />
+                <span>Open Source</span>
+              </button>
+              <button onClick={() => navigateTo("/skills")} className="w-full flex items-center gap-2 rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors">
+                <Wrench className="h-4 w-4 text-zinc-500" />
+                <span>Skills</span>
+              </button>
+              <button onClick={() => navigateTo("/blog")} className="w-full flex items-center gap-2 rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors">
+                <BookOpen className="h-4 w-4 text-zinc-500" />
+                <span>Blog</span>
+              </button>
+
+              <div className="h-px bg-black/5 dark:bg-white/5 my-1" />
+            </>
+          )}
+
+          {/* AI Action */}
+          <style>{`
+            @keyframes shimmer-text {
+              0% { background-position: 200% 0; }
+              100% { background-position: -200% 0; }
+            }
+            .animate-shimmer-text {
+              background: linear-gradient(90deg, #6495ED 0%, #C4D7FF 50%, #6495ED 100%);
+              background-size: 200% auto;
+              -webkit-background-clip: text;
+              -webkit-text-fill-color: transparent;
+              animation: shimmer-text 3s infinite linear;
+            }
+          `}</style>
+          <button
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent("open-ai"));
+              setIsOpen(false);
+            }}
+            className="w-full flex items-center gap-2 rounded-md hover:bg-[#6495ED]/10 dark:hover:bg-[#6495ED]/20 py-1.5 px-2 text-sm outline-none transition-colors font-medium group"
+          >
+            <Sparkles className="h-4 w-4 text-[#6495ED]" />
+            <span className="animate-shimmer-text">Ask AI</span>
+          </button>
+        </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

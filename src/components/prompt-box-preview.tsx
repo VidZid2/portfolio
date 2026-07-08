@@ -130,14 +130,14 @@ const SUGGESTIONS = [
   { label: "Why Front-End?", prompt: "Why are you so passionate about front-end engineering instead of other fields?" },
 ];
 
-export function PromptBoxPreview({ onClose }: { onClose?: () => void }) {
+export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () => void, initialQuery?: string }) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [isHovered, setIsHovered] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [sessionActive, setSessionActive] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(initialQuery);
   const [effort, setEffort] = useState("high");
   const [modelValue, setModelValue] = useState("ai-helper");
   const [configurations, setConfigurations] = useState<Record<string, ModelConfiguration>>({});
@@ -494,7 +494,7 @@ export function PromptBoxPreview({ onClose }: { onClose?: () => void }) {
               introClassName="text-white dark:text-zinc-950"
               greetingClassName="text-[#6495ED] dark:text-[#6495ED]"
             >
-              <div className="relative h-full w-full p-4 scrollbar-hide">
+              <div className="relative h-full w-full px-3 py-3 scrollbar-hide">
                 {/* Debug Panel toggled by Numpad minus */}
                 {showDebug && (
                   <div className="absolute top-16 right-4 z-[999] bg-black/80 text-green-400 p-2 rounded text-[10px] font-mono pointer-events-auto max-w-xs overflow-auto max-h-40">
@@ -509,8 +509,8 @@ export function PromptBoxPreview({ onClose }: { onClose?: () => void }) {
                 )}
 
                 {/* Chat room messages */}
-                <div className="absolute inset-0 flex flex-col overflow-hidden px-4">
-          <div className="flex-1 overflow-y-auto space-y-4 pt-4 pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                <div className="absolute inset-0 flex flex-col overflow-hidden px-3">
+          <div className="flex-1 overflow-y-auto space-y-4 pt-3 pb-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <AnimatePresence>
             
             {(!showMessages || (messages.length === 0 && !isLoading)) && (
@@ -623,7 +623,7 @@ export function PromptBoxPreview({ onClose }: { onClose?: () => void }) {
                   <MessageContent className="animate-pulse">Thinking...</MessageContent>
                 </Message>
               )}
-              <div className="h-28 shrink-0" />
+              <div className="h-24 shrink-0" />
             </ConversationContent>
             <ConversationScrollButton className="z-20 bottom-24" />
           </Conversation>
@@ -636,16 +636,17 @@ export function PromptBoxPreview({ onClose }: { onClose?: () => void }) {
         </div>
         
         <motion.div 
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 w-full max-w-md flex flex-col items-center gap-3 z-20 px-4"
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex flex-col items-center gap-3 z-20 px-6"
           initial={false}
           animate={{
             y: isAtBottom || messages.length === 0 ? 0 : 150,
             opacity: isAtBottom || messages.length === 0 ? 1 : 0,
             scale: isAtBottom || messages.length === 0 ? 1 : 0.9,
             pointerEvents: isAtBottom || messages.length === 0 ? "auto" : "none",
+            maxWidth: isDesktop ? (inputValue.length > 45 ? 900 : 448) : "100%",
           }}
           transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-          style={{ willChange: "transform, opacity" }}
+          style={{ willChange: "transform, opacity, max-width" }}
         >
           {attachments.length > 0 && (
             <div className="w-full px-2">
@@ -692,6 +693,7 @@ export function PromptBoxPreview({ onClose }: { onClose?: () => void }) {
                 onFocusCapture={() => setIsExpanded(true)}
               >
                 <ModelSelectorPrompt
+                  className="max-w-none"
                   models={DEFAULT_LLM_MODELS}
                   configurations={configurations}
                   value={modelValue}
@@ -754,7 +756,7 @@ export function PromptBoxPreview({ onClose }: { onClose?: () => void }) {
                   className={cn(
                     "pointer-events-auto flex flex-col bg-white dark:bg-zinc-950 dark:border dark:border-white/10 rounded-[1.5rem] shadow-2xl relative overflow-hidden w-full transition-all duration-500",
                     showMessages
-                      ? "max-w-[800px] h-[80vh] max-h-[800px]"
+                      ? "max-w-[900px] h-[80vh] max-h-[800px]"
                       : "max-w-2xl h-[450px]"
                   )}
                 >

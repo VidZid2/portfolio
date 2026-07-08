@@ -22,6 +22,7 @@ import { LetsConnect } from "@/components/LetsConnect";
 import { SocialsSection } from "@/components/SocialsSection";
 import { ProjectsSection } from "@/components/ProjectsSection";
 import { SkillsSection } from "@/components/SkillsSection";
+import { ComponentsSection } from "@/components/ComponentsSection";
 import { BlogsSection } from "@/components/BlogsSection";
 import { AboutSection } from "@/components/AboutSection";
 import { GoalMilestoneSection } from "@/components/GoalMilestoneSection";
@@ -106,7 +107,6 @@ export default async function Home() {
       <AnimationTracker />
       <div className="ml-0 mr-0 md:ml-[26%] md:mr-[26%] pt-[calc(22vh+112px)] pb-0 px-4 flex flex-col z-10 relative min-h-screen">
         <AboutSection hasSeenAboutMe={hasSeenAboutMe} />
-        <GoalMilestoneSection hasSeenScrollAnimations={hasSeenScrollAnimations} />
 
         {/* Buttons Section */}
         <div className="mt-8 flex flex-col relative z-10 py-6">
@@ -139,6 +139,7 @@ export default async function Home() {
 
         {/* Socials */}
         <SocialsSection hasSeenScrollAnimations={hasSeenScrollAnimations} />
+        <GoalMilestoneSection hasSeenScrollAnimations={hasSeenScrollAnimations} />
         <ExperienceSection hasSeenScrollAnimations={hasSeenScrollAnimations} />
         <ProjectsSection hasSeenScrollAnimations={hasSeenScrollAnimations} />
 
@@ -151,6 +152,8 @@ export default async function Home() {
         </div>
 
         <SkillsSection hasSeenScrollAnimations={hasSeenScrollAnimations} />
+
+        <ComponentsSection hasSeenScrollAnimations={hasSeenScrollAnimations} />
 
         <BlogsSection hasSeenScrollAnimations={hasSeenScrollAnimations} />
 

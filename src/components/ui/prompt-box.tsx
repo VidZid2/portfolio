@@ -1787,6 +1787,17 @@ export function PromptInput({
   const isPanelScrollable = textareaPanelHeight >= MAX_TEXTAREA_PANEL_HEIGHT;
   const showSettings = settingGroups.length > 0 || menuActions.length > 0;
 
+  const [isScrolling, setIsScrolling] = useState(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleScroll = useCallback(() => {
+    setIsScrolling(true);
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = setTimeout(() => {
+      setIsScrolling(false);
+    }, 800);
+  }, []);
+
   const updateSettings = useCallback(
     (groupId: string, nextValue: string) => {
       const nextSettings = { ...settings, [groupId]: nextValue };
@@ -1854,7 +1865,7 @@ export function PromptInput({
     });
 
     return () => cancelAnimationFrame(frame);
-  }, [expanded, syncExpandedHeight]);
+  }, [expanded, value, syncExpandedHeight]);
 
   const handleValueChange = useCallback(
     (nextValue: string) => {
@@ -1980,7 +1991,8 @@ export function PromptInput({
               render={(props) => (
                 <textarea
                   {...props}
-                  className={`${props.className ?? ""} ${promptFieldClassName} block h-full min-h-0 w-full resize-none pt-4 pr-14 pl-5 outline-none ${isPanelScrollable ? "overflow-y-auto overscroll-contain" : "overflow-hidden"}`}
+                  className={`${props.className ?? ""} ${promptFieldClassName} block h-full min-h-0 w-full resize-none pt-4 pr-14 pl-5 outline-none overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:w-[14px] [&::-webkit-scrollbar-track]:bg-transparent ${isScrolling ? "[&::-webkit-scrollbar-thumb]:bg-zinc-300 dark:[&::-webkit-scrollbar-thumb]:bg-zinc-600" : "[&::-webkit-scrollbar-thumb]:bg-transparent dark:[&::-webkit-scrollbar-thumb]:bg-transparent"} [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-4 [&::-webkit-scrollbar-thumb]:border-solid [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:bg-clip-padding`}
+                  onScroll={handleScroll}
                   onKeyDown={(event) => {
                     props.onKeyDown?.(event);
                     handleTextareaKeyDown(event);
