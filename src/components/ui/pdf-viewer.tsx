@@ -1278,14 +1278,19 @@ function PDFViewerScrollAreaViewport({
   const viewportGap = viewport?.getViewportGap() ?? 0
 
   const [isTextSelectionActive, setIsTextSelectionActive] = React.useState(false)
+  const activePointers = React.useRef<Map<number, { x: number; y: number }>>(new Map())
   const isDragging = React.useRef(false)
   const startPos = React.useRef({ x: 0, y: 0 })
   const startScroll = React.useRef({ left: 0, top: 0 })
   const lastTapTime = React.useRef(0)
+  const startPinchDistance = React.useRef<number | null>(null)
+  const startPinchZoom = React.useRef<number | null>(null)
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     // 1 is middle button, 0 is left button/touch
     if (e.button !== 1 && e.button !== 0) return
+
+    activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
 
     const now = Date.now()
     if (now - lastTapTime.current < 300) {
@@ -1309,10 +1314,30 @@ function PDFViewerScrollAreaViewport({
       viewportRef.current.classList.add("select-none")
     }
 
-    // For touch events, if selection is not active, stop propagation to prevent selection plugin from hijacking the scroll gesture
+    // For touch events, if selection is not active, implement free 2D drag panning (preventing browser scroll locking)
+    // We only drag if there is exactly 1 pointer active (to preserve native pinch-zoom gestures)
     if (e.pointerType === "touch") {
       if (!isTextSelectionActive) {
         e.stopPropagation()
+        if (activePointers.current.size === 1) {
+          e.preventDefault() 
+          isDragging.current = true
+          startPos.current = { x: e.clientX, y: e.clientY }
+          if (viewportRef.current) {
+            startScroll.current = {
+              left: viewportRef.current.scrollLeft,
+              top: viewportRef.current.scrollTop,
+            }
+          }
+        } else if (activePointers.current.size === 2) {
+          // Pinch zoom started! Cancel dragging
+          isDragging.current = false
+          const pts = Array.from(activePointers.current.values())
+          const dx = pts[1].x - pts[0].x
+          const dy = pts[1].y - pts[0].y
+          startPinchDistance.current = Math.sqrt(dx * dx + dy * dy)
+          startPinchZoom.current = zoomState.currentZoomLevel
+        }
       }
       return
     }
@@ -1336,9 +1361,34 @@ function PDFViewerScrollAreaViewport({
   }
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (activePointers.current.has(e.pointerId)) {
+      activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    }
+
     if (e.pointerType === "touch") {
       if (!isTextSelectionActive) {
         e.stopPropagation()
+        if (activePointers.current.size === 1 && isDragging.current && viewportRef.current) {
+          e.preventDefault()
+          const dx = e.clientX - startPos.current.x
+          const dy = e.clientY - startPos.current.y
+          viewportRef.current.scrollLeft = startScroll.current.left - dx
+          viewportRef.current.scrollTop = startScroll.current.top - dy
+        } else if (activePointers.current.size === 2 && startPinchDistance.current !== null && startPinchZoom.current !== null && zoom) {
+          e.preventDefault()
+          const pts = Array.from(activePointers.current.values())
+          const dx = pts[1].x - pts[0].x
+          const dy = pts[1].y - pts[0].y
+          const currentDistance = Math.sqrt(dx * dx + dy * dy)
+          
+          if (startPinchDistance.current > 0) {
+            const scale = currentDistance / startPinchDistance.current
+            const minZoom = ZOOM_OPTIONS[0]
+            const maxZoom = ZOOM_OPTIONS[ZOOM_OPTIONS.length - 1]
+            const targetZoom = Math.min(Math.max(startPinchZoom.current * scale, minZoom), maxZoom)
+            zoom.requestZoom(targetZoom)
+          }
+        }
       }
       return
     }
@@ -1350,10 +1400,17 @@ function PDFViewerScrollAreaViewport({
   }
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    activePointers.current.delete(e.pointerId)
+    if (activePointers.current.size < 2) {
+      startPinchDistance.current = null
+      startPinchZoom.current = null
+    }
+
     if (e.pointerType === "touch") {
       if (!isTextSelectionActive) {
         e.stopPropagation()
       }
+      isDragging.current = false
       return
     }
     isDragging.current = false
