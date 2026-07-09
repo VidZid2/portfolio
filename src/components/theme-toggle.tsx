@@ -230,7 +230,6 @@ export function ThemeToggle({ className }: { className?: string }) {
       <AnimatedThemeToggler
         variant="circle"
         duration={600}
-        fromCenter
         theme={isDark ? "dark" : "light"}
         onThemeChange={setTheme}
         onClick={() => {
