@@ -340,9 +340,9 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
                       <div className="relative -ml-4 -mr-4 sm:-ml-6 sm:-mr-8 mb-6 mt-0">
                         {item.title === "Project SYNC" && (
                           <div className="mb-0 pt-6 pb-6 px-4 sm:px-6 flex flex-col items-center justify-center text-center gap-2 relative">
-                            <h4 className="text-[12px] font-bold tracking-[0.2em] uppercase text-zinc-900 dark:text-zinc-100 flex items-center justify-center gap-2.5 w-full">
+                            <h3 className="text-[12px] font-bold tracking-[0.2em] uppercase text-zinc-900 dark:text-zinc-100 flex items-center justify-center gap-2.5 w-full">
                               <JapaneseAsciiText text="TECHNICAL ARCHITECTURE" duration={3000} idleScramble={true} />
-                            </h4>
+                            </h3>
                             <p className="text-[13px] text-zinc-500 dark:text-zinc-400 max-w-lg mx-auto">
                               Comprehensive breakdown of the core technologies and systems powering this portfolio.
                             </p>
@@ -356,9 +356,9 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
                         )}
                         {(item.title === "PRIMA" || item.title === "eLMS 2.0 Overhaul") && (
                           <div className="mb-0 pt-6 pb-6 px-4 sm:px-6 flex flex-col items-center justify-center text-center gap-2 relative">
-                            <h4 className="text-[12px] font-bold tracking-[0.2em] uppercase text-zinc-900 dark:text-zinc-100 flex items-center justify-center gap-2.5 w-full">
+                            <h3 className="text-[12px] font-bold tracking-[0.2em] uppercase text-zinc-900 dark:text-zinc-100 flex items-center justify-center gap-2.5 w-full">
                               <JapaneseAsciiText text="TECHNICAL ARCHITECTURE" duration={3000} idleScramble={true} />
-                            </h4>
+                            </h3>
                             <p className="text-[13px] text-zinc-500 dark:text-zinc-400 max-w-lg mx-auto">
                               Comprehensive breakdown of the core technologies and systems powering this platform.
                             </p>

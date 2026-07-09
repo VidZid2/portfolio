@@ -1325,6 +1325,7 @@ export const GithubCalendar = memo(function GithubCalendar({
                     }
                     setGameActive(!gameActive);
                   }}
+                  aria-label="Toggle Game Mode"
                   className={cn(
                     "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-all duration-200 ease-in-out focus:outline-none",
                     gameActive ? "bg-emerald-500" : "bg-neutral-300 dark:bg-neutral-800",
@@ -1352,11 +1353,11 @@ export const GithubCalendar = memo(function GithubCalendar({
                 rel="noopener noreferrer"
                 className="flex items-center gap-x-1 text-neutral-600 dark:text-neutral-400 select-none"
               >
-                <span className="font-semibold text-[#6495ED]">
+                <span className="font-semibold text-blue-600 dark:text-[#6495ED]">
                   {username}
                 </span>
                 <span>contributed</span>
-                <span className="font-bold text-[#6495ED]">
+                <span className="font-bold text-blue-600 dark:text-[#6495ED]">
                   {stats.total.toLocaleString()}
                 </span>
                 <span>this year on</span>

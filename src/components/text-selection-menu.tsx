@@ -120,24 +120,30 @@ export function TextSelectionMenu() {
               <button
                 onClick={() => {
                   const enhancedPrompt = `Can you explain or give me more details about this from the portfolio?\n\n"${selection.text.trim()}"`;
+                  
+                  // Forcefully clear the selection across all browsers/devices
+                  const sel = window.getSelection();
+                  if (sel) {
+                    sel.removeAllRanges();
+                    if (sel.empty) {
+                      sel.empty();
+                    }
+                  }
+                  
+                  // Blur the active element to drop the mobile keyboard/highlight
+                  if (document.activeElement instanceof HTMLElement) {
+                    document.activeElement.blur();
+                  }
+
                   window.dispatchEvent(new CustomEvent("open-ai", { detail: { initialQuery: enhancedPrompt } }));
                   setSelection(prev => ({ ...prev, show: false }));
                 }}
                 className="flex items-center gap-2 rounded-md hover:bg-[#6495ED]/10 dark:hover:bg-[#6495ED]/20 py-1.5 px-3 text-sm outline-none transition-colors font-medium group"
               >
-                <Sparkles className="h-4 w-4 text-[#6495ED]" />
                 <span className="animate-shimmer-text whitespace-nowrap">Ask this to AI?</span>
               </button>
             </div>
             
-            {/* Dynamic caret that points up or down depending on the placement */}
-            <div 
-              className={`absolute left-1/2 -translate-x-1/2 w-3 h-3 bg-white dark:bg-[#111111] z-[-1] ${
-                selection.isAbove 
-                  ? "-bottom-1.5 border-b border-r border-black/10 dark:border-white/10 rotate-45" 
-                  : "-top-1.5 border-t border-l border-black/10 dark:border-white/10 rotate-45"
-              }`}
-            />
           </motion.div>
         </div>
       )}

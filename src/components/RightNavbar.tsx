@@ -4,22 +4,22 @@ import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
 
-const homeItems = [
-  { id: "experience", label: "Experience" },
-  { id: "projects", label: "Projects" },
-  { id: "opensource", label: "Open Source" },
-  { id: "skills", label: "Skills" },
-  { id: "blogs", label: "Blog" },
+export const homeItems = [
+  { id: "experience", label: "Experience", icon: "briefcase" },
+  { id: "projects", label: "Projects", icon: "folder" },
+  { id: "opensource", label: "Open Source", icon: "code" },
+  { id: "skills", label: "Skills", icon: "wrench" },
+  { id: "blogs", label: "Blog", icon: "book" },
 ];
 
-const primaItems = [
-  { id: "part-1", label: "Part 1: The Genesis" },
-  { id: "part-2", label: "Part 2: Architecture" },
-  { id: "part-3", label: "Part 3: Ask AI Helper" },
-  { id: "part-4", label: "Part 4: Visuals & Shaders" },
-  { id: "part-5", label: "Part 5: Mobile Perf" },
-  { id: "part-6", label: "Part 6: Degradation" },
-  { id: "part-7", label: "Part 7: The Future" },
+export const primaItems = [
+  { id: "part-1", label: "Part 1: The Genesis", icon: "file" },
+  { id: "part-2", label: "Part 2: Architecture", icon: "file" },
+  { id: "part-3", label: "Part 3: Ask AI Helper", icon: "file" },
+  { id: "part-4", label: "Part 4: Visuals & Shaders", icon: "file" },
+  { id: "part-5", label: "Part 5: Mobile Perf", icon: "file" },
+  { id: "part-6", label: "Part 6: Degradation", icon: "file" },
+  { id: "part-7", label: "Part 7: The Future", icon: "file" },
 ];
 
 export function RightNavbar() {

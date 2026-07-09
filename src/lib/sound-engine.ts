@@ -35,10 +35,16 @@ export interface SoundPlayback {
   stop: () => void;
 }
 
+import { getSoundEnabled } from "@/hooks/use-sound";
+
 export async function playSound(
   dataUri: string,
   options: PlaySoundOptions = {}
 ): Promise<SoundPlayback> {
+  if (!getSoundEnabled()) {
+    return { stop: () => {} };
+  }
+
   const { volume = 1, playbackRate = 1, onEnd } = options;
   const ctx = getAudioContext();
   if (ctx.state === "suspended") {

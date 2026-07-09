@@ -1,4 +1,5 @@
 "use client";
+import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 
 import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
@@ -20,6 +21,7 @@ import { usePerformance } from "@/hooks/usePerformance";
 type CarouselApi = UseEmblaCarouselType[1];
 
 export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
+  const phase = useArcReveal();
   const { isLowTier } = usePerformance();
   const skip = hasSeenScrollAnimations || isLowTier;
   const [activeTab, setActiveTab] = useState<'experiences' | 'lessons'>('experiences');
@@ -53,10 +55,12 @@ export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeen
       id="experience" 
       className="mt-6 flex flex-col relative z-10 scroll-mt-24"
       initial={skip ? "visible" : "hidden"}
-      whileInView={skip ? undefined : "visible"}
+      whileInView={skip ? undefined : (phase === "done" ? "visible" : "hidden")}
       animate={skip ? "visible" : undefined}
-      transition={isLowTier ? { duration: 0 } : undefined}
       viewport={{ once: true, amount: 0.1 }}
+      
+      transition={isLowTier ? { duration: 0 } : undefined}
+      
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren: 0.15 } }
@@ -76,8 +80,8 @@ export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeen
 
       <motion.div 
         variants={{
-          hidden: { opacity: 0, y: -20 },
-          visible: { opacity: 1, y: 0, transition: { type: "spring", bounce: 0.4 } }
+          hidden: { opacity: 0, y: -10 },
+          visible: { opacity: 1, y: 0, transition: { type: "spring", bounce: 0.3 } }
         }}
         className="py-2 relative flex items-center justify-between"
       >
@@ -99,6 +103,7 @@ export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeen
             {/* Buttons */}
             <button
               onClick={() => handleTabSwitch('experiences')}
+              aria-label="Experiences"
               className={`z-10 relative flex items-center justify-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-center transition-colors duration-200 ${
                 activeTab === 'experiences'
                   ? 'text-zinc-900 dark:text-zinc-100'
@@ -110,6 +115,7 @@ export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeen
             </button>
             <button
               onClick={() => handleTabSwitch('lessons')}
+              aria-label="Lessons Learned"
               className={`z-10 relative flex items-center justify-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-center transition-colors duration-200 ${
                 activeTab === 'lessons'
                   ? 'text-zinc-900 dark:text-zinc-100'

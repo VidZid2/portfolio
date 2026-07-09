@@ -88,7 +88,7 @@ export default function ResumePage() {
               <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
             </TransitionLink>
             <div className="flex min-w-0 flex-col justify-center">
-              <h1 className="truncate text-[20px] font-bold leading-none text-zinc-800 [text-shadow:-1.5px_0_0_rgba(0,200,255,0.3),1.5px_0_0_rgba(255,80,0,0.3)] dark:text-zinc-100 dark:[text-shadow:-1.5px_0_0_rgba(0,200,255,0.6),1.5px_0_0_rgba(255,80,0,0.6)] sm:text-[24px]">
+              <h1 className="truncate text-[20px] font-bold leading-none text-zinc-800 [text-shadow:-1.5px_0_0_rgba(0,200,255,0.15),1.5px_0_0_rgba(255,80,0,0.15)] dark:text-zinc-100 dark:[text-shadow:-1.5px_0_0_rgba(0,200,255,0.25),1.5px_0_0_rgba(255,80,0,0.25)] sm:text-[24px]">
                 Resume
               </h1>
               <p className="mt-1 truncate text-[12px] text-zinc-500 dark:text-zinc-400">

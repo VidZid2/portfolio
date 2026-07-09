@@ -204,7 +204,7 @@ export function SocialProfileContent({ socialName, profile }: { socialName: stri
                     height={64}
                     loading="eager"
                     decoding="async"
-                    quality={75}
+                    quality={60}
                     sizes="250px"
                     className="w-full h-full object-cover object-center opacity-95 dark:hidden"
                   />
@@ -215,7 +215,7 @@ export function SocialProfileContent({ socialName, profile }: { socialName: stri
                     height={64}
                     loading="eager"
                     decoding="async"
-                    quality={75}
+                    quality={60}
                     sizes="250px"
                     className="w-full h-full object-cover object-center opacity-95 hidden dark:block"
                   />

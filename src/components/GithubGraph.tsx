@@ -1,4 +1,5 @@
 "use client";
+import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 
 import React, { useEffect, useState } from "react";
 import ScrambleText from "@/components/ruixen/scramble-text";
@@ -8,6 +9,7 @@ import { motion } from "framer-motion";
 import { usePerformance } from "@/hooks/usePerformance";
 
 export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
+  const phase = useArcReveal();
   const { isLowTier } = usePerformance();
   const skip = hasSeenScrollAnimations || isLowTier;
   const { resolvedTheme } = useTheme();
@@ -75,10 +77,12 @@ export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScroll
       aria-labelledby="github-activity-title"
       aria-describedby="github-activity-summary"
       initial={skip ? "visible" : "hidden"}
-      whileInView={skip ? undefined : "visible"}
+      whileInView={skip ? undefined : (phase === "done" ? "visible" : "hidden")}
       animate={skip ? "visible" : undefined}
-      transition={isLowTier ? { duration: 0 } : undefined}
       viewport={{ once: true, amount: 0.1 }}
+      
+      transition={isLowTier ? { duration: 0 } : undefined}
+      
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren: 0.15 } }

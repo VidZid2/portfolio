@@ -100,22 +100,26 @@ export const ProjectCard = ({
 
         {/* Ambient Hover Background */}
         <motion.div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: shouldLoadHoverImage
-              ? `url('${(resolvedTheme === "dark" && project.darkBackgroundImage) ? project.darkBackgroundImage : project.backgroundImage}')`
-              : undefined,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
+          className="absolute inset-0 z-0 overflow-hidden"
           variants={{
             rest: { opacity: 0, scale: 1 },
             hover: { opacity: 1, scale: 1.05 },
           }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-        />
+        >
+          {shouldLoadHoverImage && project.backgroundImage && (
+            <Image
+              src={(resolvedTheme === "dark" && project.darkBackgroundImage) ? project.darkBackgroundImage : project.backgroundImage}
+              alt={`${project.title} background`}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 70vw, 33vw"
+              quality={60}
+            />
+          )}
+        </motion.div>
 
-        <motion.h1
+        <motion.span
           className="absolute top-4 left-4 text-[10px] font-bold text-zinc-500 dark:text-zinc-400 z-30 uppercase tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]"
           variants={{
             rest: { left: "1rem", top: "1rem", x: "0%", color: "#71717a", opacity: 0 },
@@ -124,7 +128,7 @@ export const ProjectCard = ({
           transition={{ type: "spring", stiffness: 200, damping: 25 }}
         >
           View Live
-        </motion.h1>
+        </motion.span>
 
         {project.live && (
           <motion.div
@@ -251,7 +255,7 @@ export const ProjectCard = ({
             })}
           </div>
 
-          <AnimatedLink as="div" variant="right" className="absolute bottom-0 right-0 flex shrink-0 items-center text-[11px] font-medium text-zinc-500 transition-colors cursor-pointer hover:text-zinc-900 dark:hover:text-zinc-100 sm:text-[12px] mb-0.5" onClick={(e: any) => { e.stopPropagation(); if (project.live) window.open(project.live, "_blank"); else if (project.github) window.open(project.github, "_blank"); }}>
+          <AnimatedLink as="div" variant="right" className="absolute bottom-0 right-0 flex shrink-0 items-center text-[11px] font-medium text-zinc-600 dark:text-zinc-400 transition-colors cursor-pointer hover:text-zinc-900 dark:hover:text-zinc-100 sm:text-[12px] mb-0.5" onClick={(e: any) => { e.stopPropagation(); if (project.live) window.open(project.live, "_blank"); else if (project.github) window.open(project.github, "_blank"); }}>
             View Project
           </AnimatedLink>
         </div>

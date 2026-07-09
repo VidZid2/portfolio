@@ -1,4 +1,5 @@
 "use client";
+import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 
 import React from "react";
 import { motion } from "framer-motion";
@@ -8,6 +9,7 @@ import { TransitionLink } from "@/components/TransitionLink";
 import { usePerformance } from "@/hooks/usePerformance";
 
 export function ProjectsSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
+  const phase = useArcReveal();
   const { isLowTier } = usePerformance();
   const skip = hasSeenScrollAnimations || isLowTier;
   return (
@@ -15,10 +17,12 @@ export function ProjectsSection({ hasSeenScrollAnimations = false }: { hasSeenSc
       id="projects" 
       className="mt-0 flex flex-col relative z-10 scroll-mt-24"
       initial={skip ? "visible" : "hidden"}
-      whileInView={skip ? undefined : "visible"}
+      whileInView={skip ? undefined : (phase === "done" ? "visible" : "hidden")}
       animate={skip ? "visible" : undefined}
-      transition={isLowTier ? { duration: 0 } : undefined}
       viewport={{ once: true, amount: 0.1 }}
+      
+      transition={isLowTier ? { duration: 0 } : undefined}
+      
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren: 0.15 } }
@@ -26,8 +30,8 @@ export function ProjectsSection({ hasSeenScrollAnimations = false }: { hasSeenSc
     >
       <motion.div 
         variants={{
-          hidden: { opacity: 0, y: -20, filter: "blur(8px)" },
-          visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { type: "spring", bounce: 0.4 } }
+          hidden: { opacity: 0, y: -10, filter: "blur(4px)" },
+          visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { type: "spring", bounce: 0.3 } }
         }}
         className="py-2 relative mt-1"
       >
@@ -58,8 +62,8 @@ export function ProjectsSection({ hasSeenScrollAnimations = false }: { hasSeenSc
       {/* View All Button */}
       <motion.div 
         variants={{
-          hidden: { opacity: 0, y: 10, scale: 0.9 },
-          visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", bounce: 0.5, delay: 0.2 } }
+          hidden: { opacity: 0, y: 10, scale: 0.95 },
+          visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", bounce: 0.3, delay: 0.2 } }
         }}
         className="flex justify-center -mt-[19px] pb-0 relative z-20"
       >

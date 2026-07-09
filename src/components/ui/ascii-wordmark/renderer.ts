@@ -399,4 +399,11 @@ export class AsciiWordmarkRenderer {
       this.renderer.domElement.parentNode.removeChild(this.renderer.domElement);
     }
   }
+
+  updateInkColor(color: string) {
+    if (this.disposed || !this.asciiPass) return;
+    const ink = new THREE.Color(color);
+    this.opts.inkColor = color;
+    this.asciiPass.uniforms.uInk.value.set(ink.r, ink.g, ink.b);
+  }
 }

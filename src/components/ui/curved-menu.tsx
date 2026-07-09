@@ -63,7 +63,7 @@ export function CurvedMenu({ isOpen, children, className, onAnimationComplete }:
               className
             )}
           >
-            {isAnimationComplete && children}
+            {children}
           </motion.div>
         </>
       )}

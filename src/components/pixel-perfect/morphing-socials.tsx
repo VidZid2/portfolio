@@ -13,6 +13,8 @@ interface SocialItem {
   href: string;
   icon: React.ReactNode;
   disabled?: boolean;
+  hoverClass?: string;
+  textHoverClass?: string;
 }
 
 export function MorphingSocials({ socials, children, className }: { socials: SocialItem[]; children?: React.ReactNode; className?: string }) {
@@ -52,6 +54,13 @@ export function MorphingSocials({ socials, children, className }: { socials: Soc
         setHoveredSocial(null);
         prevIndex.current = null;
       }}
+      onBlur={(e) => {
+        // Reset when focus moves completely outside this container
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setHoveredSocial(null);
+          prevIndex.current = null;
+        }
+      }}
       className="relative z-50 w-full"
     >
       <div className={cn("grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2", className)}>
@@ -65,16 +74,24 @@ export function MorphingSocials({ socials, children, className }: { socials: Soc
             ref={(el) => { itemRefs.current[social.name] = el; }}
             className="relative"
             onMouseEnter={() => !social.disabled && handleMouseEnter(social.name, index)}
+            onFocus={() => !social.disabled && handleMouseEnter(social.name, index)}
           >
             <SoftPillButton
               as="a"
               href={social.disabled ? undefined : social.href}
               target={social.disabled ? undefined : "_blank"}
               rel={social.disabled ? undefined : "noopener noreferrer"}
+              aria-label={social.name}
+              aria-disabled={social.disabled}
+              tabIndex={social.disabled ? -1 : 0}
               variant="secondary"
-              className={cn("w-full justify-center px-3 py-2 !text-[12px] group", social.disabled && "opacity-50 pointer-events-none grayscale")}
+              className={cn(
+                "w-full justify-center px-3 py-2 !text-[12px] group transition-all duration-300", 
+                social.disabled && "opacity-50 pointer-events-none grayscale",
+                social.hoverClass
+              )}
             >
-              <div className="flex items-center justify-center gap-1.5 opacity-70 group-hover:opacity-100 transition-opacity duration-300">
+              <div className={cn("flex items-center justify-center gap-1.5 opacity-70 group-hover:opacity-100 transition-opacity duration-300", social.textHoverClass)}>
                 <svg viewBox="0 0 24 24" className="w-3.5 h-3.5">
                   {social.icon}
                 </svg>

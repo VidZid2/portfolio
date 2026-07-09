@@ -85,7 +85,7 @@ export const projectsData: Project[] = [
     src: "/PRIMA Landing Page.png",
     lightModeSrc: "/PRIMA Landing Page.png",
     video: "",
-    description: "As I entered my second year as an IT student, the project took on a completely new meaning. PRIMA isn't just a fictional sandbox; it is a real, growing digital agency founded by an industry mentor. I decided to take the initiative and build this premium landing page to help elevate their professional portfolio. This collaboration evolved into my first true B2B (Business-to-Business) project, establishing a professional partnership where I am trusted to develop full-stack applications for the agency's future clients.",
+    description: "As an upcoming 2nd-year IT student, I knew I had to push beyond standard coursework. PRIMA Digital Agency wasn't a fictional sandbox—it was a real firm founded by an industry mentor. They needed a digital presence that converted, but standard templates felt too rigid. Combining my 2 years of AI-agentic development workflows with modern Next.js architecture, I engineered a premium, highly-interactive landing page. This wasn't just about writing React; it was my first true B2B challenge, balancing high-end UI animations with strict performance budgets to deliver a professional product.",
     tech: [
       "html5", 
       "css3", 
@@ -114,7 +114,7 @@ export const projectsData: Project[] = [
     src: "/STI Landing Page DARKMODE.png",
     lightModeSrc: "/STI Landing Page.png",
     video: "",
-    description: "A complete, modernized overhaul of the STI eLMS system to prove that school software doesn't have to be clunky. I focused on building a highly interactive interface with fluid page transitions, dark mode support, and a clean, component-driven architecture. On the backend, I challenged myself to learn Supabase for database management and user authentication, and implemented Row Level Security (RLS) and AES encryption to protect sensitive student data.",
+    description: "School software is notoriously clunky—so I decided to prove it didn't have to be. For this eLMS overhaul, the challenge wasn't just making it look modern; it was building a system that felt instantly responsive. As a student myself, I knew exactly where the UI pain points were. I leveraged my AI-assisted coding experience to rapidly architect a clean React interface with fluid page transitions. But the real boss fight was the backend: I dove headfirst into Supabase, implementing Row Level Security (RLS) and AES encryption to ensure sensitive data remained locked down. It was a humbling dive into production security, resulting in a platform I'd actually want to use.",
     tech: [
       "html5", 
       "css3", 

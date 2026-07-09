@@ -10,7 +10,7 @@ import { projectsData } from "@/data/projectsData";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowLeft, Home } from "lucide-react";
-import { CursorParticles } from "@/components/CursorParticles";
+
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 export default function AllProjectsPage() {
@@ -26,7 +26,7 @@ export default function AllProjectsPage() {
 
   return (
     <>
-      <CursorParticles />
+
       <div className="min-h-screen w-full bg-white dark:bg-black relative overflow-x-hidden transition-colors duration-300">
         {/* Right Side Blueprint Navigation */}
         <RightNavbar />
@@ -59,7 +59,7 @@ export default function AllProjectsPage() {
         <TopBanner />
 
         {/* Cell 2: Header with Back Button + Title + Controls */}
-        <div className="absolute left-0 right-0 md:left-[26%] md:right-[26%] top-[22vh] h-[112px] flex items-center px-4 z-50">
+        <div className="absolute left-0 right-0 md:left-[26%] md:right-[26%] top-[22vh] h-[112px] flex items-center px-2 sm:px-4 z-50">
           <div className="flex w-full items-center justify-between">
             {/* Left: Back + Title */}
             <div className="flex items-center gap-5">
@@ -67,11 +67,12 @@ export default function AllProjectsPage() {
                 href="/"
                 direction="left"
                 className="group flex items-center justify-center w-8 h-8 rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all hover:bg-zinc-200 dark:hover:bg-zinc-800"
+                aria-label="Back to home"
               >
                 <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
               </TransitionLink>
               <div className="flex flex-col justify-center">
-                <h1 className="text-[20px] sm:text-[24px] font-bold text-zinc-800 dark:text-zinc-100 tracking-tight leading-none mb-0.5 [text-shadow:-1.5px_0_0_rgba(0,200,255,0.3),1.5px_0_0_rgba(255,80,0,0.3)] dark:[text-shadow:-1.5px_0_0_rgba(0,200,255,0.6),1.5px_0_0_rgba(255,80,0,0.6)]">
+                <h1 className="text-[20px] sm:text-[24px] font-bold text-zinc-800 dark:text-zinc-100 tracking-tight leading-none mb-0.5 [text-shadow:-1.5px_0_0_rgba(0,200,255,0.15),1.5px_0_0_rgba(255,80,0,0.15)] dark:[text-shadow:-1.5px_0_0_rgba(0,200,255,0.25),1.5px_0_0_rgba(255,80,0,0.25)]">
                   All Projects
                 </h1>
                 <Breadcrumbs
@@ -84,11 +85,12 @@ export default function AllProjectsPage() {
               </div>
             </div>
 
-            {/* Right: Controls */}
-            <div className="flex items-start justify-end gap-2 sm:gap-3 h-24 py-1">
-              <CommandMenu />
-              <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300" />
-            </div>
+          </div>
+
+          {/* Top-right absolute buttons container */}
+          <div className="absolute top-1.5 right-2 sm:top-3 sm:right-4 flex items-center gap-1.5 sm:gap-3 pointer-events-auto z-20">
+            <CommandMenu />
+            <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300 shrink-0" />
           </div>
         </div>
 

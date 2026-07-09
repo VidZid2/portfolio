@@ -5,7 +5,11 @@
 import { AsciiText } from "@/components/ui/ascii-text";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { ExperimentStage } from "@/components/swirl/experiment-stage";
+import dynamic from "next/dynamic";
+const ExperimentStage = dynamic(
+  () => import("@/components/swirl/experiment-stage").then((mod) => mod.ExperimentStage),
+  { ssr: false }
+);
 import { DEFAULT_TEXT } from "@/components/swirl/default-text";
 import { DEFAULT_STAGE } from "@/components/swirl/use-swirl-stage";
 

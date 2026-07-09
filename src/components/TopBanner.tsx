@@ -14,8 +14,8 @@ export function TopBanner() {
         fill
         priority
         fetchPriority="high"
-        sizes="(min-width: 768px) 40vw, 100vw"
-        quality={100}
+        sizes="(max-width: 768px) 70vw, 520px"
+        quality={60}
         className="object-cover object-center dark:hidden"
       />
       <Image
@@ -24,8 +24,8 @@ export function TopBanner() {
         fill
         priority
         fetchPriority="high"
-        sizes="(min-width: 768px) 40vw, 100vw"
-        quality={100}
+        sizes="(max-width: 768px) 70vw, 520px"
+        quality={60}
         className="hidden object-cover object-center dark:block"
       />
       <BannerParticles />

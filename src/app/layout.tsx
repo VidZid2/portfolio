@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Doto } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,11 +15,20 @@ import { TextSelectionMenu } from "@/components/text-selection-menu";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const doto = Doto({
+  variable: "--font-doto",
+  subsets: ["latin"],
+  weight: ["400", "700", "900"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -50,9 +59,9 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${doto.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col dark:bg-black dark:text-zinc-50 transition-colors duration-300">
+      <body className="min-h-full flex flex-col dark:bg-black dark:text-zinc-50">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -64,7 +73,9 @@ export default function RootLayout({
               <TooltipProvider>
                 <TransitionProvider>
                   <GlobalContextMenu>
-                    {children}
+                    <main className="flex-grow flex flex-col">
+                      {children}
+                    </main>
                   </GlobalContextMenu>
                   <TextSelectionMenu />
                 </TransitionProvider>
@@ -72,8 +83,12 @@ export default function RootLayout({
             </SoundProvider>
           </HardwareProvider>
         </ThemeProvider>
-        <Analytics />
-        <SpeedInsights />
+        {process.env.VERCEL === "1" && (
+          <>
+            <Analytics />
+            <SpeedInsights />
+          </>
+        )}
         <GlobalConsoleWarning />
       </body>
     </html>

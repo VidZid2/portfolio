@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useTheme } from "next-themes"
+import { useRouter, usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
     LayoutDashboard,
@@ -15,7 +16,8 @@ import {
     CornerDownLeft,
     Copy,
     Briefcase,
-    BookOpen
+    BookOpen,
+    Search
 } from "lucide-react"
 import { SiGithub } from "react-icons/si"
 
@@ -29,7 +31,11 @@ import {
     CommandSeparator,
     CommandShortcut,
 } from "@/components/ui/command"
-import { PromptBoxPreview } from "@/components/prompt-box-preview"
+import dynamic from "next/dynamic"
+const PromptBoxPreview = dynamic(
+  () => import("@/components/prompt-box-preview").then((mod) => mod.PromptBoxPreview),
+  { ssr: false }
+)
 import { useArcReveal } from "@/components/ruixen/arc-reveal-hero"
 import { JapaneseAsciiText } from "@/components/ui/japanese-ascii-text"
 
@@ -39,6 +45,16 @@ export function CommandMenu() {
     const [initialAiQuery, setInitialAiQuery] = React.useState("")
     const [showTooltip, setShowTooltip] = React.useState(false)
     const phase = useArcReveal()
+    const router = useRouter()
+    const pathname = usePathname()
+
+    const navigateToSection = (hash: string) => {
+        if (pathname === "/") {
+            window.location.hash = hash;
+        } else {
+            router.push(`/${hash}`);
+        }
+    };
 
     React.useEffect(() => {
         const handleOpenAi = (e: CustomEvent) => {
@@ -158,7 +174,7 @@ export function CommandMenu() {
 
     return (
         <div 
-            className="relative flex items-center gap-1.5 sm:gap-3"
+            className="relative flex items-center gap-2.5 sm:gap-3 mx-1 sm:mx-0"
             onMouseEnter={dismissTooltip}
             onClick={dismissTooltip}
             onTouchStart={dismissTooltip}
@@ -166,13 +182,17 @@ export function CommandMenu() {
             <button 
                 onClick={() => setAiOpen(true)}
                 className="relative group cursor-pointer transition-all duration-300 active:scale-95 shrink-0"
+                aria-label="Ask AI Assistant"
             >
                 {/* Outer border wrapper matching View All style */}
                 <div className="absolute -inset-[4.5px] border border-black/5 dark:border-white/5 rounded-[9px] pointer-events-none transition-colors duration-300 group-hover:border-black/10 dark:group-hover:border-white/10" />
                 
-                <div className="relative flex items-center justify-center w-[64px] sm:w-[72px] py-1 bg-zinc-50 hover:bg-zinc-100 dark:bg-[#09090b] dark:hover:bg-[#121214] text-[#6495ED] dark:text-[#6495ED] hover:text-[#4b7deb] dark:hover:text-[#87afff] rounded-[5px] text-[11px] font-bold transition-all duration-300 border border-black/5 dark:border-white/5 shadow-sm shadow-black/20 dark:shadow-lg dark:shadow-black/80 font-mono whitespace-nowrap shrink-0">
-                    <span className="leading-none mt-[0.5px] whitespace-nowrap inline-flex">
+                <div className="relative flex items-center justify-center w-[34px] sm:w-[72px] h-[21px] bg-zinc-50 hover:bg-zinc-100 dark:bg-[#09090b] dark:hover:bg-[#121214] text-[#6495ED] dark:text-[#6495ED] hover:text-[#4b7deb] dark:hover:text-[#87afff] rounded-[5px] text-[11px] font-bold transition-all duration-300 border border-black/5 dark:border-white/5 shadow-sm shadow-black/20 dark:shadow-lg dark:shadow-black/80 font-mono whitespace-nowrap shrink-0">
+                    <span className="leading-none mt-[0.5px] whitespace-nowrap hidden sm:inline-flex">
                         <JapaneseAsciiText text="Ask AI" duration={3000} idleScramble={true} />
+                    </span>
+                    <span className="leading-none mt-[0.5px] whitespace-nowrap inline-flex sm:hidden">
+                        <JapaneseAsciiText text="AI" duration={3000} idleScramble={true} />
                     </span>
                 </div>
             </button>
@@ -180,13 +200,15 @@ export function CommandMenu() {
             <button 
                 onClick={() => setOpen(true)}
                 className="relative group cursor-pointer transition-all duration-300 active:scale-95 shrink-0"
+                aria-label="Search portfolio"
             >
                 {/* Outer border wrapper matching View All style */}
                 <div className="absolute -inset-[4.5px] border border-black/5 dark:border-white/5 rounded-[9px] pointer-events-none transition-colors duration-300 group-hover:border-black/10 dark:group-hover:border-white/10" />
                 
-                <div className="relative flex items-center gap-1.5 px-2 sm:px-3 py-1 bg-zinc-50 hover:bg-zinc-100 dark:bg-[#09090b] dark:hover:bg-[#121214] text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 rounded-[5px] text-[11px] font-medium transition-all duration-300 border border-black/5 dark:border-white/5 shadow-sm shadow-black/20 dark:shadow-lg dark:shadow-black/80 font-mono whitespace-nowrap shrink-0">
-                    <span className="leading-none mt-[0.5px]">⌘</span>
-                    <span className="leading-none mt-[0.5px]">K</span>
+                <div className="relative flex items-center justify-center gap-1.5 w-[34px] sm:w-auto px-0 sm:px-3 h-[21px] bg-zinc-50 hover:bg-zinc-100 dark:bg-[#09090b] dark:hover:bg-[#121214] text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 rounded-[5px] text-[11px] font-medium transition-all duration-300 border border-black/5 dark:border-white/5 shadow-sm shadow-black/20 dark:shadow-lg dark:shadow-black/80 font-mono whitespace-nowrap shrink-0">
+                    <Search className="w-3.5 h-3.5 sm:hidden" />
+                    <span className="hidden sm:inline leading-none mt-[0.5px]">⌘</span>
+                    <span className="hidden sm:inline leading-none mt-[0.5px]">K</span>
                 </div>
             </button>
 
@@ -225,7 +247,7 @@ export function CommandMenu() {
                     <CommandEmpty>No results found.</CommandEmpty>
 
                     <CommandGroup heading="Sections">
-                        <CommandItem value="experience" onSelect={() => runCommand(() => window.location.hash = "#experience")} className="relative rounded-lg py-3 cursor-pointer">
+                        <CommandItem value="experience" onSelect={() => runCommand(() => navigateToSection("#experience"))} className="relative rounded-lg py-3 cursor-pointer">
                             {value === "experience" && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
                             <div className="relative z-10 flex items-center w-full">
                                 <Briefcase className="mr-2 h-4 w-4 text-zinc-500" />
@@ -233,7 +255,7 @@ export function CommandMenu() {
                                 <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">shift + E</CommandShortcut>
                             </div>
                         </CommandItem>
-                        <CommandItem value="projects" onSelect={() => runCommand(() => window.location.hash = "#projects")} className="relative rounded-lg py-3 cursor-pointer">
+                        <CommandItem value="projects" onSelect={() => runCommand(() => navigateToSection("#projects"))} className="relative rounded-lg py-3 cursor-pointer">
                             {value === "projects" && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
                             <div className="relative z-10 flex items-center w-full">
                                 <Code className="mr-2 h-4 w-4 text-zinc-500" />
@@ -241,7 +263,7 @@ export function CommandMenu() {
                                 <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">shift + P</CommandShortcut>
                             </div>
                         </CommandItem>
-                        <CommandItem value="blogs" onSelect={() => runCommand(() => window.location.hash = "#blogs")} className="relative rounded-lg py-3 cursor-pointer">
+                        <CommandItem value="blogs" onSelect={() => runCommand(() => navigateToSection("#blogs"))} className="relative rounded-lg py-3 cursor-pointer">
                             {value === "blogs" && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
                             <div className="relative z-10 flex items-center w-full">
                                 <FileText className="mr-2 h-4 w-4 text-zinc-500" />
@@ -249,7 +271,7 @@ export function CommandMenu() {
                                 <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">shift + B</CommandShortcut>
                             </div>
                         </CommandItem>
-                        <CommandItem value="opensource" onSelect={() => runCommand(() => window.location.hash = "#opensource")} className="relative rounded-lg py-3 cursor-pointer">
+                        <CommandItem value="opensource" onSelect={() => runCommand(() => navigateToSection("#opensource"))} className="relative rounded-lg py-3 cursor-pointer">
                             {value === "opensource" && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
                             <div className="relative z-10 flex items-center w-full">
                                 <SiGithub className="mr-2 h-4 w-4 text-zinc-500" />
@@ -257,7 +279,7 @@ export function CommandMenu() {
                                 <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">shift + O</CommandShortcut>
                             </div>
                         </CommandItem>
-                        <CommandItem value="skills" onSelect={() => runCommand(() => window.location.hash = "#skills")} className="relative rounded-lg py-3 cursor-pointer">
+                        <CommandItem value="skills" onSelect={() => runCommand(() => navigateToSection("#skills"))} className="relative rounded-lg py-3 cursor-pointer">
                             {value === "skills" && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
                             <div className="relative z-10 flex items-center w-full">
                                 <BookOpen className="mr-2 h-4 w-4 text-zinc-500" />

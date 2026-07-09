@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useLayoutEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Signature } from "@/components/Signature";
 import { GithubGraph } from "@/components/GithubGraph";
@@ -27,25 +30,31 @@ import { BlogsSection } from "@/components/BlogsSection";
 import { AboutSection } from "@/components/AboutSection";
 import { GoalMilestoneSection } from "@/components/GoalMilestoneSection";
 import { MotionContainer } from "@/components/motion-container";
-import { AnimationTracker } from "@/components/animation-tracker";
-import { cookies } from "next/headers";
 import { TransitionLink } from "@/components/TransitionLink";
 import { SwirlQuote } from "@/components/swirl/SwirlQuote";
 import { SwirlBackground } from "@/components/swirl/SwirlBackground";
 import { AsciiGlitchRipple } from "@/components/ui/ascii-glitch-ripple";
-import { CursorParticles } from "@/components/CursorParticles";
+
 import { GlobalBootSequence } from "@/components/GlobalBootSequence";
 
-export default async function Home() {
-  const cookieStore = await cookies();
-  const hasSeenAboutMe = cookieStore.get("hasSeenAboutMe")?.value === "true";
-  const hasSeenScrollAnimations = cookieStore.get("hasSeenScrollAnimations")?.value === "true";
-  const skipIntro = cookieStore.get("portfolio-first-visit-v1")?.value === "done";
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+
+export default function Home() {
+  const [hasPlayed, setHasPlayed] = useState(false);
+
+  useIsomorphicLayoutEffect(() => {
+    if (typeof window !== 'undefined') {
+      const played = sessionStorage.getItem('portfolio_animations_played_v3');
+      if (played) {
+        setHasPlayed(true);
+      }
+    }
+  }, []);
 
   return (
-    <GlobalBootSequence skipIntro={skipIntro}>
+    <GlobalBootSequence>
       <div className="min-h-screen w-full bg-white dark:bg-black relative overflow-x-hidden transition-colors duration-300">
-      <CursorParticles />
+
 
       {/* Right Side Blueprint Navigation */}
       <RightNavbar />
@@ -78,35 +87,36 @@ export default async function Home() {
       <TopBanner />
 
       {/* Cell 2: Profile Section - 112px height to wrap the framed image (13px gap top/bottom) */}
-      <div className="absolute left-0 right-0 md:left-[26%] md:right-[26%] top-[22vh] h-[112px] flex items-center px-4 z-50 hide-cursor-particles">
+      <div className="absolute left-0 right-0 md:left-[26%] md:right-[26%] top-[22vh] h-[112px] flex items-center px-2 sm:px-4 z-50 hide-cursor-particles">
         <SwirlBackground />
         <div className="flex w-full items-center justify-between relative z-10 pointer-events-none">
 
-          <div className="flex items-center gap-4 sm:gap-5 pointer-events-auto">
+          <div className="flex items-center gap-1.5 min-[360px]:gap-3 sm:gap-5 pointer-events-auto">
             <ProfilePictureScramble />
 
-            <div className="flex flex-col justify-center pt-8">
-              <h1 className="whitespace-nowrap text-[20px] sm:text-[24px] font-bold text-zinc-800 dark:text-zinc-100 tracking-tight leading-none mb-0.5 [text-shadow:-1px_0_0_rgba(0,200,255,0.15),1px_0_0_rgba(255,80,0,0.15)] dark:[text-shadow:-1.5px_0_0_rgba(0,200,255,0.6),1.5px_0_0_rgba(255,80,0,0.6)]">
+            <div className="flex flex-col justify-center pt-4 min-[360px]:pt-8">
+              <h1 className="whitespace-nowrap text-[16px] min-[360px]:text-[20px] sm:text-[24px] font-bold text-zinc-800 dark:text-zinc-100 tracking-tight leading-none mb-0.5 [text-shadow:-1px_0_0_rgba(0,200,255,0.15),1px_0_0_rgba(255,80,0,0.15)] dark:[text-shadow:-1.5px_0_0_rgba(0,200,255,0.25),1.5px_0_0_rgba(255,80,0,0.25)]">
                 Josiah De Asis
               </h1>
               <div className="flex flex-nowrap items-center gap-1 sm:gap-2 mt-0.5">
-                <p className="text-[13px] sm:text-[14px] text-zinc-500 dark:text-zinc-400 shrink-0">20</p>
+                <p className="text-[11px] min-[360px]:text-[13px] sm:text-[14px] text-zinc-500 dark:text-zinc-400 shrink-0">20</p>
               </div>
             </div>
           </div>
 
-          <div className="flex items-start justify-end gap-1.5 sm:gap-3 h-24 py-1 pointer-events-auto shrink-0">
-            <CommandMenu />
-            <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300 shrink-0" />
-          </div>
+        </div>
 
+        {/* Top-right absolute buttons container */}
+        <div className="absolute top-1.5 right-2 sm:top-3 sm:right-4 flex items-center gap-1.5 sm:gap-3 pointer-events-auto z-20">
+          <CommandMenu />
+          <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300 shrink-0" />
         </div>
       </div>
 
       {/* Flowing Content Section */}
-      <AnimationTracker />
       <div className="ml-0 mr-0 md:ml-[26%] md:mr-[26%] pt-[calc(22vh+112px)] pb-0 px-4 flex flex-col z-10 relative min-h-screen">
-        <AboutSection hasSeenAboutMe={hasSeenAboutMe} />
+        {/* About Me Section */}
+        <AboutSection key={`about-${hasPlayed}`} hasSeenAboutMe={hasPlayed} />
 
         {/* Buttons Section */}
         <div className="mt-8 flex flex-col relative z-10 py-6">
@@ -122,7 +132,7 @@ export default async function Home() {
           <div className="absolute top-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
           <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
 
-          <LetsConnect hasSeenScrollAnimations={hasSeenScrollAnimations} />
+          <LetsConnect key={`connect-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
         {/* Bottom full-width line */}
           <div
@@ -138,24 +148,24 @@ export default async function Home() {
         </div>
 
         {/* Socials */}
-        <SocialsSection hasSeenScrollAnimations={hasSeenScrollAnimations} />
-        <GoalMilestoneSection hasSeenScrollAnimations={hasSeenScrollAnimations} />
-        <ExperienceSection hasSeenScrollAnimations={hasSeenScrollAnimations} />
-        <ProjectsSection hasSeenScrollAnimations={hasSeenScrollAnimations} />
+        <SocialsSection key={`socials-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+        <GoalMilestoneSection key={`goals-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+        <ExperienceSection key={`exp-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+        <ProjectsSection key={`projects-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
         {/* Github Graph */}
-        <GithubGraph hasSeenScrollAnimations={hasSeenScrollAnimations} />
+        <GithubGraph key={`github-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
         {/* Open Source Contributions */}
         <div id="opensource" className="scroll-mt-24">
-          <OpenSourceContributions hasSeenScrollAnimations={hasSeenScrollAnimations} />
+          <OpenSourceContributions key={`oss-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
         </div>
 
-        <SkillsSection hasSeenScrollAnimations={hasSeenScrollAnimations} />
+        <SkillsSection key={`skills-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
-        <ComponentsSection hasSeenScrollAnimations={hasSeenScrollAnimations} />
+        <ComponentsSection key={`components-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
-        <BlogsSection hasSeenScrollAnimations={hasSeenScrollAnimations} />
+        <BlogsSection key={`blogs-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
         {/* Fading Grid Filler */}
         <div className="flex-grow w-[calc(100%+32px)] -mx-4 h-[400px] relative mt-0 overflow-hidden">

@@ -55,7 +55,7 @@ export default function PullRequestsPage() {
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
             </TransitionLink>
             <div className="flex flex-col justify-center">
-              <h1 className="text-[20px] sm:text-[24px] font-bold text-zinc-800 dark:text-zinc-100 tracking-tight leading-none mb-0.5 [text-shadow:-1.5px_0_0_rgba(0,200,255,0.3),1.5px_0_0_rgba(255,80,0,0.3)] dark:[text-shadow:-1.5px_0_0_rgba(0,200,255,0.6),1.5px_0_0_rgba(255,80,0,0.6)]">
+              <h1 className="text-[20px] sm:text-[24px] font-bold text-zinc-800 dark:text-zinc-100 tracking-tight leading-none mb-0.5 [text-shadow:-1.5px_0_0_rgba(0,200,255,0.15),1.5px_0_0_rgba(255,80,0,0.15)] dark:[text-shadow:-1.5px_0_0_rgba(0,200,255,0.25),1.5px_0_0_rgba(255,80,0,0.25)]">
                 Pull Requests
               </h1>
               <p className="text-[12px] text-zinc-500 dark:text-zinc-400">
@@ -74,7 +74,7 @@ export default function PullRequestsPage() {
 
       {/* Content Section */}
       <motion.div 
-        initial={{ opacity: 0, filter: "blur(8px)", y: 12 }}
+        initial={{ opacity: 0, filter: "blur(4px)", y: 12 }}
         animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
         className="ml-0 mr-0 md:ml-[26%] md:mr-[26%] pt-[calc(22vh+112px)] pb-16 px-4 flex flex-col z-10 relative"

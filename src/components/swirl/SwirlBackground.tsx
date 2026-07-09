@@ -2,7 +2,11 @@
 
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { ExperimentStage } from "./experiment-stage";
+import dynamic from "next/dynamic";
+const ExperimentStage = dynamic(
+  () => import("./experiment-stage").then((mod) => mod.ExperimentStage),
+  { ssr: false }
+);
 import { DEFAULT_TEXT } from "./default-text";
 import { DEFAULT_STAGE } from "./use-swirl-stage";
 

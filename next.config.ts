@@ -4,8 +4,12 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
+  experimental: {
+    optimizePackageImports: ["react-icons", "lucide-react", "three", "mermaid", "zod", "ai", "@ai-sdk/react", "framer-motion"],
+  },
+  productionBrowserSourceMaps: true,
   images: {
-    deviceSizes: [360, 414, 640, 768, 1024, 1280],
+    deviceSizes: [360, 414, 512, 600, 640, 768, 1024, 1280],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 2678400,
     qualities: [60, 70, 75, 90, 100],

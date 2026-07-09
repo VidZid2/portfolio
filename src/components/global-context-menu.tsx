@@ -13,8 +13,10 @@ import {
   Code,
   Wrench,
   BookOpen,
-  ChevronRight as ChevronRightIcon
+  ChevronRight as ChevronRightIcon,
+  FileText
 } from "lucide-react";
+import { homeItems, primaItems } from "@/components/RightNavbar";
 
 export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -22,6 +24,33 @@ export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [position, setPosition] = React.useState({ x: 0, y: 0 });
   const menuRef = React.useRef<HTMLDivElement>(null);
+
+  const isHome = pathname === "/";
+  const isPrimaDoc = pathname === "/projects/prima-digital-agency/how-its-made";
+  const hasIndex = isHome || isPrimaDoc;
+  const activeItems = isHome ? homeItems : (isPrimaDoc ? primaItems : []);
+
+  const scrollToSection = (id: string) => {
+    setIsOpen(false);
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 50);
+  };
+
+  const renderIcon = (iconName: string) => {
+    switch (iconName) {
+      case "briefcase": return <Briefcase className="h-4 w-4 text-zinc-500" />;
+      case "folder": return <FolderOpen className="h-4 w-4 text-zinc-500" />;
+      case "code": return <Code className="h-4 w-4 text-zinc-500" />;
+      case "wrench": return <Wrench className="h-4 w-4 text-zinc-500" />;
+      case "book": return <BookOpen className="h-4 w-4 text-zinc-500" />;
+      case "file": return <FileText className="h-4 w-4 text-zinc-500" />;
+      default: return <ChevronRightIcon className="h-4 w-4 text-zinc-500" />;
+    }
+  };
 
   const handleBack = () => {
     if (typeof window !== "undefined") window.history.back();
@@ -45,6 +74,11 @@ export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     const handleGlobalContextMenu = (e: MouseEvent) => {
+      // Disable custom context menu on mobile/tablet devices
+      if (window.innerWidth < 768) {
+        return;
+      }
+
       // Allow default browser context menu on input fields
       const target = e.target as HTMLElement;
       if (
@@ -176,32 +210,21 @@ export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
           <div className="h-px bg-black/5 dark:bg-white/5 my-1" />
 
           {/* Index Navigation */}
-          {pathname !== "/" && pathname !== "/projects/prima-digital-agency/how-its-made" && (
+          {hasIndex && activeItems.length > 0 && (
             <>
               <div className="px-2 py-1.5 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
                 Navigation Index
               </div>
-              <button onClick={() => navigateTo("/experience")} className="w-full flex items-center gap-2 rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors">
-                <Briefcase className="h-4 w-4 text-zinc-500" />
-                <span>Experience</span>
-              </button>
-              <button onClick={() => navigateTo("/projects")} className="w-full flex items-center gap-2 rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors">
-                <FolderOpen className="h-4 w-4 text-zinc-500" />
-                <span>Projects</span>
-              </button>
-              <button onClick={() => navigateTo("/open-source")} className="w-full flex items-center gap-2 rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors">
-                <Code className="h-4 w-4 text-zinc-500" />
-                <span>Open Source</span>
-              </button>
-              <button onClick={() => navigateTo("/skills")} className="w-full flex items-center gap-2 rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors">
-                <Wrench className="h-4 w-4 text-zinc-500" />
-                <span>Skills</span>
-              </button>
-              <button onClick={() => navigateTo("/blog")} className="w-full flex items-center gap-2 rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors">
-                <BookOpen className="h-4 w-4 text-zinc-500" />
-                <span>Blog</span>
-              </button>
-
+              {activeItems.map((item) => (
+                <button 
+                  key={item.id} 
+                  onClick={() => scrollToSection(item.id)} 
+                  className="w-full flex items-center gap-2 rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors"
+                >
+                  {renderIcon(item.icon)}
+                  <span>{item.label}</span>
+                </button>
+              ))}
               <div className="h-px bg-black/5 dark:bg-white/5 my-1" />
             </>
           )}

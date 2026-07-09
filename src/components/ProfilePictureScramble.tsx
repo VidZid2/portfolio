@@ -62,7 +62,7 @@ export function ProfilePictureScramble() {
     <div className="relative p-[3px] rounded-[6px] sm:rounded-[8px] border-[1.5px] border-black/30 dark:border-white/[0.15] shrink-0">
       
       {/* The inner image container */}
-      <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-[3px] sm:rounded-[5px] overflow-hidden bg-zinc-950 flex items-center justify-center">
+      <div className="relative w-12 h-12 min-[360px]:w-16 min-[360px]:h-16 sm:w-20 sm:h-20 rounded-[3px] sm:rounded-[5px] overflow-hidden bg-zinc-950 flex items-center justify-center">
         
         {/* Scramble Overlay */}
         <AnimatePresence>

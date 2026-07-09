@@ -1,6 +1,9 @@
 "use client";
 import React from "react";
 import { cn } from "@/lib/utils";
+import { playHoverTick } from "@/lib/synth-sounds";
+import { playSound } from "@/lib/sound-engine";
+import { click003Sound } from "@/lib/click-003";
 
 export type SoftPillVariant = "secondary" | "primary";
 
@@ -22,9 +25,18 @@ const SoftPillButton = React.forwardRef<HTMLButtonElement, SoftPillButtonProps>(
         className={cn(
           "group relative block rounded-[4px] text-center px-5 py-2.5 text-[13px] font-medium tracking-tight transition-[transform] duration-200 active:scale-[0.99] active:duration-[50ms]",
           "[backdrop-filter:blur(6px)]",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50",
           isPrimary ? "text-white dark:text-white" : "text-neutral-900 dark:text-neutral-300",
           className,
         )}
+        onMouseEnter={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+          playHoverTick(0.02);
+          props.onMouseEnter?.(e);
+        }}
+        onMouseDown={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+          void playSound(click003Sound.dataUri, { volume: 0.1 });
+          props.onMouseDown?.(e);
+        }}
         {...props}
       >
         <span

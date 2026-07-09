@@ -40,7 +40,7 @@ const breadcrumbLinkClassName =
   "rounded-sm outline-none transition-colors hover:text-[#6495ed] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 const breadcrumbTruncateClassName =
-  "block max-w-[9rem] truncate sm:max-w-[14rem]";
+  "inline-block max-w-[9rem] truncate sm:max-w-[14rem] align-middle";
 
 const breadcrumbIconClassName =
   "flex shrink-0 items-center justify-center text-current [&>svg]:size-3.5";
@@ -204,12 +204,12 @@ function BreadcrumbSegmentContent({
   return (
     <span
       className={cn(
-        "inline-flex min-w-0 items-center",
+        "inline-flex min-w-0 items-center leading-none",
         icon ? "gap-1.5" : undefined
       )}
     >
       {icon ? <span className={breadcrumbIconClassName}>{icon}</span> : null}
-      <span className={cn("min-w-0", truncate && breadcrumbTruncateClassName)}>
+      <span className={cn("min-w-0 inline-flex items-center", truncate && breadcrumbTruncateClassName)}>
         {label}
       </span>
     </span>
@@ -262,7 +262,7 @@ const BreadcrumbList = forwardRef<HTMLOListElement, React.ComponentProps<"ol">>(
     return (
       <motion.ol
         className={cn(
-          "wrap-break-word flex flex-wrap items-center gap-1.5 text-zinc-500 dark:text-zinc-400 text-[12px]",
+          "wrap-break-word flex flex-wrap items-center gap-1.5 text-zinc-500 dark:text-zinc-400 text-[12px] leading-none",
           className
         )}
         data-slot="breadcrumb-list"

@@ -732,46 +732,53 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
   );
 
   const modalContent = (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {isDesktop ? (
-            <>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="fixed inset-0 z-[100] bg-zinc-950/60 backdrop-blur-md"
-                onClick={handleClose}
-              />
-              <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none p-4">
-                <motion.div 
-                  layout
-                  initial={{ opacity: 0, y: 20, scale: 0.97 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 20, scale: 0.97, transition: { duration: 0.2 } }}
-                  transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-                  style={{ willChange: "transform, border-radius, height, width" }}
-                  className={cn(
-                    "pointer-events-auto flex flex-col bg-white dark:bg-zinc-950 dark:border dark:border-white/10 rounded-[1.5rem] shadow-2xl relative overflow-hidden w-full transition-all duration-500",
-                    showMessages
-                      ? "max-w-[900px] h-[80vh] max-h-[800px]"
-                      : "max-w-2xl h-[450px]"
-                  )}
-                >
-                  {chatContent}
-                </motion.div>
-              </div>
-            </>
-          ) : (
-            <CurvedMenu isOpen={isOpen} onAnimationComplete={() => {}}>
+    <>
+      <AnimatePresence>
+        {isOpen && isDesktop && (
+          <motion.div
+            key="backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[100] bg-zinc-950/60 backdrop-blur-md"
+            onClick={handleClose}
+          />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {isOpen && isDesktop && (
+          <motion.div 
+            key="modal-wrapper"
+            exit={{ opacity: 0, transition: { duration: 0.2 } }}
+            className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none p-4"
+          >
+            <motion.div 
+              layout
+              initial={{ opacity: 0, y: 20, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.97, transition: { duration: 0.2 } }}
+              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              style={{ willChange: "transform, border-radius, height, width" }}
+              className={cn(
+                "pointer-events-auto flex flex-col bg-white dark:bg-zinc-950 dark:border dark:border-white/10 rounded-[1.5rem] shadow-2xl relative overflow-hidden w-full transition-all duration-500",
+                showMessages
+                  ? "max-w-[900px] h-[80vh] max-h-[800px]"
+                  : "max-w-2xl h-[450px]"
+              )}
+            >
               {chatContent}
-            </CurvedMenu>
-          )}
-        </>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {!isDesktop && (
+        <CurvedMenu isOpen={isOpen} onAnimationComplete={() => {}}>
+          {chatContent}
+        </CurvedMenu>
       )}
-    </AnimatePresence>
+    </>
   );
 
   if (typeof document === "undefined") return null;

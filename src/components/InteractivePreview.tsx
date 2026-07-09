@@ -82,6 +82,8 @@ export function InteractivePreview({
                 src={imageSrc} 
                 alt={imageAlt} 
                 fill 
+                priority
+                fetchPriority="high"
                 sizes="(min-width: 768px) 40vw, 100vw"
                 quality={75}
                 className="object-cover group-hover:blur-sm transition-all duration-300"

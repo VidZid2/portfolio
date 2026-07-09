@@ -1,4 +1,5 @@
 "use client";
+import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 
 import React, { useRef } from "react";
 import { motion } from "framer-motion";
@@ -8,6 +9,7 @@ import { usePerformance } from "@/hooks/usePerformance";
 import { TransitionLink } from "@/components/TransitionLink";
 
 export function GoalMilestoneSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
+  const phase = useArcReveal();
   const { isLowTier } = usePerformance();
   const skip = hasSeenScrollAnimations || isLowTier;
   const scrambleRef = useRef<ScrambleTextRef>(null);
@@ -17,10 +19,12 @@ export function GoalMilestoneSection({ hasSeenScrollAnimations = false }: { hasS
       id="goals" 
       className="mt-6 flex flex-col relative z-10 scroll-mt-24"
       initial={skip ? "visible" : "hidden"}
-      whileInView={skip ? undefined : "visible"}
+      whileInView={skip ? undefined : (phase === "done" ? "visible" : "hidden")}
       animate={skip ? "visible" : undefined}
-      transition={isLowTier ? { duration: 0 } : undefined}
       viewport={{ once: true, amount: 0.1 }}
+      
+      transition={isLowTier ? { duration: 0 } : undefined}
+      
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren: 0.15 } }
@@ -40,8 +44,8 @@ export function GoalMilestoneSection({ hasSeenScrollAnimations = false }: { hasS
 
       <motion.div 
         variants={{
-          hidden: { opacity: 0, y: -20 },
-          visible: { opacity: 1, y: 0, transition: { type: "spring", bounce: 0.4 } }
+          hidden: { opacity: 0, y: -10 },
+          visible: { opacity: 1, y: 0, transition: { type: "spring", bounce: 0.3 } }
         }}
         className="py-2 relative flex items-center justify-between"
       >

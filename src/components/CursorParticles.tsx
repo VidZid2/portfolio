@@ -108,6 +108,11 @@ export function CursorParticles() {
 
 
   useEffect(() => {
+    // Disable particle simulations on mobile devices to save massive main-thread work
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      return;
+    }
+
     const handlePointerDown = (e: PointerEvent) => {
       if ((e.target as Element)?.closest?.('.hide-cursor-particles')) return;
       

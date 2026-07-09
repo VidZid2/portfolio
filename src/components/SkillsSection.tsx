@@ -1,4 +1,5 @@
 "use client";
+import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 
 import React from "react";
 import { motion } from "framer-motion";
@@ -25,6 +26,7 @@ const skills = [
 import { usePerformance } from "@/hooks/usePerformance";
 
 export function SkillsSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
+  const phase = useArcReveal();
   const { isLowTier } = usePerformance();
   const skip = hasSeenScrollAnimations || isLowTier;
   return (
@@ -32,10 +34,12 @@ export function SkillsSection({ hasSeenScrollAnimations = false }: { hasSeenScro
       id="skills" 
       className="mt-0 flex flex-col relative z-10 scroll-mt-24"
       initial={skip ? "visible" : "hidden"}
-      whileInView={skip ? undefined : "visible"}
+      whileInView={skip ? undefined : (phase === "done" ? "visible" : "hidden")}
       animate={skip ? "visible" : undefined}
-      transition={isLowTier ? { duration: 0 } : undefined}
       viewport={{ once: true, amount: 0.1 }}
+      
+      transition={isLowTier ? { duration: 0 } : undefined}
+      
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren: 0.1 } }
@@ -55,8 +59,8 @@ export function SkillsSection({ hasSeenScrollAnimations = false }: { hasSeenScro
 
       <motion.div 
         variants={{
-          hidden: { opacity: 0, y: -20, filter: "blur(8px)" },
-          visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { type: "spring", bounce: 0.4 } }
+          hidden: { opacity: 0, y: -10, filter: "blur(4px)" },
+          visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { type: "spring", bounce: 0.3 } }
         }}
         className="py-2 relative mt-1"
       >
@@ -76,7 +80,7 @@ export function SkillsSection({ hasSeenScrollAnimations = false }: { hasSeenScro
               key={index} 
               variants={{
                 hidden: { opacity: 0, scale: 0.8, y: 15 },
-                visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", bounce: 0.5 } }
+                visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", bounce: 0.3 } }
               }}
               className="grow flex items-center justify-center gap-2 px-3 py-1.5 bg-zinc-50 hover:bg-zinc-100 dark:bg-[#0a0a0a] dark:hover:bg-[#121214] border border-black/30 dark:border-white/[0.15] rounded-[6px] transition-colors duration-200 cursor-default"
             >

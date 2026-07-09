@@ -1,4 +1,5 @@
 "use client";
+import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
@@ -66,6 +67,7 @@ function buildGraphQLQuery(searchQuery: string) {
 import { usePerformance } from "@/hooks/usePerformance";
 
 export function OpenSourceContributions({ isFullPage = false, hasSeenScrollAnimations = false }: { isFullPage?: boolean, hasSeenScrollAnimations?: boolean }) {
+  const phase = useArcReveal();
   const { isLowTier } = usePerformance();
   const skip = hasSeenScrollAnimations || isLowTier;
   const [prsByType, setPrsByType] = useState<Record<FilterType, PR[]>>({
@@ -170,10 +172,12 @@ export function OpenSourceContributions({ isFullPage = false, hasSeenScrollAnima
     <motion.div 
       className="w-full flex flex-col"
       initial={skip ? "visible" : "hidden"}
-      whileInView={skip ? undefined : "visible"}
+      whileInView={skip ? undefined : (phase === "done" ? "visible" : "hidden")}
       animate={skip ? "visible" : undefined}
-      transition={isLowTier ? { duration: 0 } : undefined}
       viewport={{ once: true, amount: 0.1 }}
+      
+      transition={isLowTier ? { duration: 0 } : undefined}
+      
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren: 0.15 } }

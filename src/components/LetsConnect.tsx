@@ -1,4 +1,5 @@
 "use client";
+import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 
 import React from "react";
 import { motion } from "framer-motion";
@@ -9,13 +10,14 @@ import SoftPillButton from "@/components/pixel-perfect/soft-pill-button";
 import { usePerformance } from "@/hooks/usePerformance";
 
 export function LetsConnect({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
+  const phase = useArcReveal();
   const { isLowTier } = usePerformance();
   const skip = hasSeenScrollAnimations || isLowTier;
   const { navigate } = useTransition();
   return (
     <motion.div 
       initial={skip ? "visible" : "hidden"}
-      whileInView={skip ? undefined : "visible"}
+      whileInView={skip ? undefined : (phase === "done" ? "visible" : "hidden")}
       animate={skip ? "visible" : undefined}
       transition={isLowTier ? { duration: 0 } : undefined}
       viewport={{ once: true, amount: 0.3 }}

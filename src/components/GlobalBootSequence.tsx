@@ -9,10 +9,10 @@ function AutoReveal({ trigger, onReveal }: { trigger: boolean; onReveal: () => v
     if (trigger) {
       // JOSIAH is displayed for 3 seconds before morphing to SYNC.
       // SYNC takes ~1 second to ripple-reveal.
-      // We wait 7 seconds total to give SYNC a long lifespan before the curtain sweeps up.
+      // We wait 5 seconds total before the curtain sweeps up.
       const timer = setTimeout(() => {
         onReveal();
-      }, 7000);
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [trigger, onReveal]);

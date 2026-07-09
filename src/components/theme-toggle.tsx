@@ -3,10 +3,10 @@
 import * as React from "react";
 import { flushSync } from "react-dom";
 import { useTheme } from "next-themes";
-import { playSound } from "@/lib/sound-engine";
-import { click003Sound } from "@/lib/click-003";
 import { cn } from "@/lib/utils";
 import { motion, useMotionValue, useTransform } from "framer-motion";
+import { playThemeSwoosh, playHoverTick } from "@/lib/synth-sounds";
+import { SoundToggle } from "@/components/SoundToggle";
 
 type ViewTransitionDocument = Document & {
   startViewTransition?: (callback: () => void) => void;
@@ -211,6 +211,8 @@ const SolarSwitch = ({ isDark }: { isDark: boolean }) => {
   );
 };
 
+import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+
 export function ThemeToggle({ className }: { className?: string }) {
   const { setTheme, resolvedTheme } = useTheme();
   const mounted = useMounted();
@@ -221,44 +223,37 @@ export function ThemeToggle({ className }: { className?: string }) {
 
   const isDark = resolvedTheme === "dark";
 
-  const toggleTheme = () => {
-    const nextTheme = isDark ? "light" : "dark";
-    const transitionDocument = document as ViewTransitionDocument;
-
-    if (!transitionDocument.startViewTransition) {
-      setTheme(nextTheme);
-      return;
-    }
-
-    transitionDocument.startViewTransition(() => {
-      flushSync(() => {
-        setTheme(nextTheme);
-      });
-    });
-  };
-
   return (
-    <button
-      type="button"
-      onClick={() => {
-        void playSound(click003Sound.dataUri, { volume: 0.5 });
-        toggleTheme();
-      }}
-      className={cn(
-        "relative group cursor-pointer transition-all duration-300 active:scale-95 z-50",
-        className
-      )}
-      aria-label="Toggle theme"
-      aria-pressed={isDark}
-    >
-      {/* Outer border wrapper matching View All style */}
-      <div className="absolute -inset-[4.5px] border border-black/5 dark:border-white/5 rounded-[9px] pointer-events-none transition-colors duration-300 group-hover:border-black/10 dark:group-hover:border-white/10" />
+    <div className="flex items-center gap-2.5 sm:gap-3 mx-1 sm:mx-0">
+      <SoundToggle className={className} />
       
-      <div className="relative flex items-center justify-center h-[21px] px-2.5 bg-zinc-50 hover:bg-zinc-100 dark:bg-[#09090b] dark:hover:bg-[#121214] text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 rounded-[5px] transition-all duration-300 border border-black/5 dark:border-white/5 shadow-sm shadow-black/20 dark:shadow-lg dark:shadow-black/80 shrink-0">
-        <div className="relative flex h-[14px] w-[14px] items-center justify-center">
-          <SolarSwitch isDark={isDark} />
+      <AnimatedThemeToggler
+        variant="circle"
+        duration={600}
+        fromCenter
+        theme={isDark ? "dark" : "light"}
+        onThemeChange={setTheme}
+        onClick={() => {
+          // Play the atmospheric swoosh for theme transitions
+          playThemeSwoosh(isDark);
+        }}
+        onMouseEnter={() => playHoverTick(0.05)}
+        className={cn(
+          "relative group cursor-pointer transition-all duration-300 active:scale-95 z-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 rounded-[9px]",
+          className
+        )}
+        aria-label="Toggle theme"
+        aria-pressed={isDark}
+      >
+        {/* Outer border wrapper matching View All style */}
+        <div className="absolute -inset-[4.5px] border border-black/5 dark:border-white/5 rounded-[9px] pointer-events-none transition-colors duration-300 group-hover:border-black/10 dark:group-hover:border-white/10" />
+        
+        <div className="relative flex items-center justify-center h-[21px] px-2.5 bg-zinc-50 hover:bg-zinc-100 dark:bg-[#09090b] dark:hover:bg-[#121214] text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 rounded-[5px] transition-all duration-300 border border-black/5 dark:border-white/5 shadow-sm shadow-black/20 dark:shadow-lg dark:shadow-black/80 shrink-0">
+          <div className="relative flex h-[14px] w-[14px] items-center justify-center">
+            <SolarSwitch isDark={isDark} />
+          </div>
         </div>
-      </div>
-    </button>
+      </AnimatedThemeToggler>
+    </div>
   );
 }
