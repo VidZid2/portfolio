@@ -298,6 +298,15 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
                     </button>
                   )}
 
+                  {item.tldr && (
+                    <div className="mb-4 text-[14px]">
+                      <p>
+                        <strong className="text-zinc-700 dark:text-zinc-300 font-semibold">Summary: </strong>
+                        <span className="text-zinc-600 dark:text-zinc-400">{item.tldr}</span>
+                      </p>
+                    </div>
+                  )}
+
                   <ul className="mb-4 space-y-2 text-[14px] leading-relaxed">
                     {item.description
                       .split("\n")

@@ -7,6 +7,7 @@ export type ExperienceData = {
   type?: string;
   imageFit?: "contain" | "cover";
   imageZoom?: number;
+  tldr?: string;
   description: string;
   tech: string[];
   metrics?: { label: string; value: string }[];
@@ -23,6 +24,7 @@ export const experiences: ExperienceData[] = [
     src: "/STI.png",
     imageFit: "cover",
     imageZoom: 1,
+    tldr: "Self-taught modern web development (React, Next.js, Supabase) and re-architected a static site into a 21k+ line scalable LMS application.",
     description: `
       **During my first year as a BSIT student**, I realized that to truly stand out, I needed to go beyond the standard classroom curriculum. I started my self-taught journey with basic HTML, CSS, and JavaScript, building simple layouts to understand the fundamentals of the web.
       **However, my curiosity quickly pushed me toward modern frameworks.** I dedicated countless hours after classes to learning **React, TypeScript, and version control using Git**. To accelerate my learning, I started integrating AI coding assistants into my workflow—not to write the code for me, but to act as a mentor. It explained complex concepts and helped me debug faster, allowing me to focus on software architecture instead of just syntax.
@@ -59,6 +61,7 @@ export const experiences: ExperienceData[] = [
     darkScreenshot: "/JILCF Uniform System 2025 DARKMODE.png",
     imageFit: "contain",
     imageZoom: 1.1,
+    tldr: "Built a full-stack real-time Uniform Inventory System in under 3 weeks using Python, Flask, and WebSockets for my final capstone.",
     description: `
       **Successfully concluded** my Senior High School journey by building a complete **Uniform Inventory System** for my final ICT Capstone project.
       **Remarkably**, I architected and developed this entire full-stack platform from scratch in **less than 3 weeks**!
@@ -91,6 +94,7 @@ export const experiences: ExperienceData[] = [
     darkScreenshot: "/STARTLINK 2024-2025 DARKMODE.png",
     imageFit: "contain",
     imageZoom: 1.1,
+    tldr: "Launched my first web deployment for an entrepreneurship class, learning HTML and JS to build a custom password strength indicator and business plan site.",
     description: `
       **Ignited my coding journey** by choosing to build a fully functional website for my Entrepreneurship class instead of a standard application.
       **Consequently**, I designed and launched **"Startlink"**—a complete business plan platform that became my **very first successful website deployment**.

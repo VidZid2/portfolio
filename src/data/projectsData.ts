@@ -47,6 +47,7 @@ export interface Project {
   src: string;
   lightModeSrc?: string;
   video: string;
+  tldr?: string;
   description: string;
   tech: TechItem[];
   github: string;
@@ -85,6 +86,7 @@ export const projectsData: Project[] = [
     src: "/PRIMA Landing Page.png",
     lightModeSrc: "/PRIMA Landing Page.png",
     video: "",
+    tldr: "Engineered a premium, highly-interactive landing page for a real B2B digital agency using Next.js and custom UI animations.",
     description: "As an upcoming 2nd-year IT student, I knew I had to push beyond standard coursework. PRIMA Digital Agency wasn't a fictional sandbox—it was a real firm founded by an industry mentor. They needed a digital presence that converted, but standard templates felt too rigid. Combining my 2 years of AI-agentic development workflows with modern Next.js architecture, I engineered a premium, highly-interactive landing page. This wasn't just about writing React; it was my first true B2B challenge, balancing high-end UI animations with strict performance budgets to deliver a professional product.",
     tech: [
       "html5", 
@@ -114,6 +116,7 @@ export const projectsData: Project[] = [
     src: "/STI Landing Page DARKMODE.png",
     lightModeSrc: "/STI Landing Page.png",
     video: "",
+    tldr: "Architected a highly-responsive learning management system using React, Vite, and Supabase, featuring Row Level Security (RLS) and AES encryption.",
     description: "School software is notoriously clunky—so I decided to prove it didn't have to be. For this eLMS overhaul, the challenge wasn't just making it look modern; it was building a system that felt instantly responsive. As a student myself, I knew exactly where the UI pain points were. I leveraged my AI-assisted coding experience to rapidly architect a clean React interface with fluid page transitions. But the real boss fight was the backend: I dove headfirst into Supabase, implementing Row Level Security (RLS) and AES encryption to ensure sensitive data remained locked down. It was a humbling dive into production security, resulting in a platform I'd actually want to use.",
     tech: [
       "html5", 

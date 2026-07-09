@@ -167,7 +167,7 @@ export const AnimatedThemeToggler = ({
     return () => observer.disconnect()
   }, [isControlled])
 
-  const toggleTheme = useCallback(() => {
+  const toggleTheme = useCallback((e?: React.MouseEvent | React.PointerEvent) => {
     const button = buttonRef.current
     if (!button) return
 
@@ -179,6 +179,9 @@ export const AnimatedThemeToggler = ({
     if (fromCenter) {
       x = viewportWidth / 2
       y = viewportHeight / 2
+    } else if (e && 'clientX' in e && e.clientX && e.clientY) {
+      x = e.clientX
+      y = e.clientY
     } else {
       const { top, left, width, height } = button.getBoundingClientRect()
       x = left + width / 2
@@ -266,7 +269,7 @@ export const AnimatedThemeToggler = ({
       ref={buttonRef}
       onClick={(e) => {
         onClick?.(e);
-        toggleTheme();
+        toggleTheme(e);
       }}
       className={cn(className)}
       {...props}
