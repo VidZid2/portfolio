@@ -108,8 +108,8 @@ export function ArcRevealHero({
       // 1. Instantly skip for Lighthouse to prevent extreme LCP penalties (5s intro delay)
       const isLighthouse = typeof navigator !== "undefined" && navigator.userAgent.includes("Lighthouse");
       
-      // 2. Skip if the user has already seen it (sessionStorage)
-      const hasSeen = storageKey && sessionStorage.getItem(storageKey) === "done";
+      // 2. Skip if the user has already seen it (localStorage)
+      const hasSeen = storageKey && localStorage.getItem(storageKey) === "done";
       
       if (isLighthouse || hasSeen) {
         setIsSkipped(true);
@@ -152,7 +152,7 @@ export function ArcRevealHero({
       onComplete: () => {
         if (typeof window !== "undefined") {
           if (storageKey) {
-            sessionStorage.setItem(storageKey, "done");
+            localStorage.setItem(storageKey, "done");
           }
           sessionStorage.setItem('portfolio_animations_played_v3', 'true');
         }
@@ -217,7 +217,7 @@ export function ArcRevealHero({
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: isSkipped ? 0 : 0.42, ease: [0.22, 1, 0.36, 1] }}
                     className={cn(
-                      "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none px-6 text-center text-2xl sm:text-3xl md:text-4xl font-doto font-bold tracking-tight text-blue-600 dark:text-blue-400 leading-tight w-full",
+                      "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none px-6 text-center text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-blue-600 dark:text-blue-400 leading-tight w-full",
                       greetingClassName,
                     )}
                   >

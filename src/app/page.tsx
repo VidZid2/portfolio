@@ -47,6 +47,8 @@ export default function Home() {
       const played = sessionStorage.getItem('portfolio_animations_played_v3');
       if (played) {
         setHasPlayed(true);
+      } else {
+        sessionStorage.setItem('portfolio_animations_played_v3', 'true');
       }
     }
   }, []);
