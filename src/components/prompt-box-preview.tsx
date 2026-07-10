@@ -44,7 +44,7 @@ function parseReasoningSteps(text: string) {
   }
   
   // If no explicit headers, artificially split the stream of consciousness into multiple steps
-  const sentenceMatches = text.match(/[^.!?]+[.!?]+/g) || [];
+  const sentenceMatches: string[] = text.match(/[^.!?]+[.!?]+/g) || [];
   const matchedTextLength = sentenceMatches.join('').length;
   if (matchedTextLength < text.length) {
     sentenceMatches.push(text.substring(matchedTextLength));
