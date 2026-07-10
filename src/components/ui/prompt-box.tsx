@@ -35,14 +35,14 @@ const promptFieldClassName =
 const promptFieldCollapsedClassName = promptFieldClassName;
 
 const WAVE_WASH_GRADIENT =
-  "linear-gradient(180deg, transparent, rgba(34,211,238,0.07), rgba(59,130,246,0.09), rgba(217,70,239,0.1), rgba(244,63,94,0.09), rgba(249,115,22,0.08), transparent)";
+  "linear-gradient(180deg, transparent, rgba(34,211,238,0.4), rgba(59,130,246,0.5), rgba(217,70,239,0.5), rgba(244,63,94,0.4), rgba(249,115,22,0.4), transparent)";
 
 function SendWave({ reducedMotion }: { reducedMotion: boolean }) {
   return (
     <motion.div
       animate={{ opacity: 1 }}
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 z-[10] overflow-hidden rounded-[inherit]"
+      className="pointer-events-none absolute inset-0 z-[50] overflow-hidden rounded-[inherit]"
       exit={{ opacity: 0 }}
       initial={{ opacity: 1 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
