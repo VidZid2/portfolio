@@ -111,6 +111,30 @@ export type ModelSelectorPromptProps = {
   value?: string;
 };
 
+const WAVE_WASH_GRADIENT =
+  "linear-gradient(180deg, transparent, rgba(100,149,237,0.3), rgba(100,149,237,0.5), rgba(100,149,237,0.7), rgba(100,149,237,0.5), rgba(100,149,237,0.3), transparent)";
+
+function SendWave() {
+  return (
+    <motion.div
+      animate={{ opacity: 1 }}
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-[10] overflow-hidden rounded-[inherit]"
+      exit={{ opacity: 0 }}
+      initial={{ opacity: 1 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+    >
+      <motion.div
+        animate={{ y: "-105%" }}
+        className="absolute inset-x-0 top-0 h-[150%] blur-xl"
+        initial={{ y: "55%" }}
+        style={{ background: WAVE_WASH_GRADIENT }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+      />
+    </motion.div>
+  );
+}
+
 const DEFAULT_MODEL_CONFIGURATION: ModelConfiguration = {
   reasoning: "medium",
   speed: "standard",
@@ -836,6 +860,13 @@ export function ModelSelectorPrompt({
   async function handleSubmit() {
     if (!promptValue.trim() || isSendingRef.current || disabled) return;
     isSendingRef.current = true;
+    
+    // Capture the prompt before clearing it
+    const currentPrompt = promptValue;
+    
+    // Clear instantly from the UI and start wave animation
+    updatePrompt("");
+    setIsSending(true);
 
     let nextCount = messageCount + 1;
     if (nextCount > 40) {
@@ -851,14 +882,12 @@ export function ModelSelectorPrompt({
       ),
       configurations: modelConfigurations,
       model: selectedModel,
-      prompt: promptValue,
+      prompt: currentPrompt,
     });
 
-    setIsSending(true);
     setTimeout(() => {
       isSendingRef.current = false;
       setIsSending(false);
-      updatePrompt("");
     }, 1500);
   }
   function closeModelPreview() {
@@ -873,12 +902,15 @@ export function ModelSelectorPrompt({
       ref={containerRef}
       onClick={() => setIsExpanded(true)}
       className={cn(
-        "relative mx-auto flex w-full flex-col rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 pointer-events-auto",
+        "relative mx-auto flex w-full flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 pointer-events-auto",
         className || "max-w-md",
       )}
     >
+      <AnimatePresence>
+        {isSending && <SendWave />}
+      </AnimatePresence>
 
-      <div className="relative w-full">
+      <div className="relative z-20 w-full">
         <motion.textarea
           rows={1}
           ref={textareaRef}
@@ -887,7 +919,7 @@ export function ModelSelectorPrompt({
           className={cn(
             "w-full resize-none bg-transparent pl-5 pr-14 py-4 font-medium text-sm outline-none placeholder:text-neutral-400 disabled:cursor-not-allowed disabled:opacity-60 dark:placeholder:text-neutral-500 prompt-scrollbar overflow-auto",
             isScrolling && "is-scrolling",
-            isSending ? "text-transparent dark:text-transparent" : "text-neutral-900 dark:text-neutral-100"
+            "text-neutral-900 dark:text-neutral-100"
           )}
           initial={false}
           animate={{ height: textareaHeight }}
@@ -903,38 +935,6 @@ export function ModelSelectorPrompt({
           placeholder={placeholder}
           value={promptValue}
         />
-        {isSending && (
-          <motion.div
-            className="absolute top-0 left-0 w-full h-full px-3 py-3 pr-10 font-medium overflow-hidden pointer-events-none whitespace-pre-wrap break-words text-sm text-neutral-900 dark:text-neutral-100"
-            initial={{ opacity: 1 }}
-            animate={{
-              opacity: [1, 0.5, 0],
-              filter: isMobile ? ["none", "none", "none"] : ["blur(0px)", "blur(5px)", "blur(10px)"],
-              transition: { duration: isMobile ? 0.3 : 1.5, ease: "linear" },
-            }}
-          >
-            {isMobile ? (
-              promptValue
-            ) : (
-              Array.from(promptValue).map((char, index) => (
-                <motion.span
-                  key={index}
-                  className="inline-block"
-                  initial={{ opacity: 1, y: 0 }}
-                  animate={{
-                    opacity: [1, 0.7, 0],
-                    transition: {
-                      delay: index * 0.02,
-                      ease: "linear",
-                    },
-                  }}
-                >
-                  {char === " " ? "\u00A0" : char}
-                </motion.span>
-              ))
-            )}
-          </motion.div>
-        )}
       </div>
       <AnimatePresence initial={false}>
         {showToolbar && (
@@ -945,8 +945,8 @@ export function ModelSelectorPrompt({
             transition={{ duration: 0.3, type: "spring", stiffness: 350, damping: 25 }}
             className="overflow-hidden"
           >
-            <div className="flex w-full flex-row items-center justify-between gap-2 p-2 pt-6">
-              <div className="flex items-center gap-2">
+            <div className="flex w-full flex-row items-center justify-between gap-1 sm:gap-2 p-1 sm:p-2 pt-6">
+              <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2">
                 <Combobox.Root<LlmModel>
           autoHighlight
           isItemEqualToValue={(item, nextValue) =>
@@ -970,16 +970,16 @@ export function ModelSelectorPrompt({
         >
           <Combobox.Trigger
             aria-label="Select model"
-            className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2 py-1.5 text-neutral-900 text-sm transition-colors hover:bg-neutral-50 data-[popup-open]:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 dark:data-[popup-open]:bg-neutral-800"
+            className="group flex min-w-0 items-center gap-1 sm:gap-1.5 rounded-lg border border-neutral-200 bg-white px-1.5 sm:px-2 py-1 sm:py-1.5 text-neutral-900 text-xs sm:text-sm transition-colors hover:bg-neutral-50 data-[popup-open]:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 dark:data-[popup-open]:bg-neutral-800"
             disabled={disabled}
           >
             <Combobox.Value>
               {(model: LlmModel | null) =>
                 model ? (
                   <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
-                    <span className="flex min-w-0 items-center gap-1.5">
+                    <span className="flex min-w-0 items-center gap-1 sm:gap-1.5">
                       <ProviderIcon
-                        className="size-3.5"
+                        className="size-3 sm:size-3.5 shrink-0"
                         provider={model.provider}
                       />
                       <span className="truncate">{model.label}</span>
@@ -998,7 +998,7 @@ export function ModelSelectorPrompt({
               }
             </Combobox.Value>
             <Combobox.Icon className="text-neutral-500 dark:text-neutral-400">
-              <CaretDownIcon size={14} weight="bold" />
+              <CaretDownIcon size={14} weight="bold" className="transition-transform duration-200 ease-in-out group-data-[popup-open]:rotate-180" />
             </Combobox.Icon>
           </Combobox.Trigger>
           <Combobox.Portal>
@@ -1130,7 +1130,7 @@ export function ModelSelectorPrompt({
             setIsExpanded(false);
           }}
           type="button"
-          className="dark:bg-white/10 dark:text-white dark:hover:bg-white/20 relative overflow-hidden w-24 flex items-center justify-center"
+          className="shrink-0 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 relative overflow-hidden w-20 sm:w-24 h-8 sm:h-9 text-xs sm:text-sm flex items-center justify-center px-2 sm:px-4"
         >
           <AnimatePresence mode="popLayout" initial={false}>
             {!(isSending || disabled) ? (

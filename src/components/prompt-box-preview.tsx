@@ -3,7 +3,86 @@
 import { useState, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useChat } from "@ai-sdk/react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+
+function parseReasoningSteps(text: string) {
+  if (!text) return [];
+  
+  // First, check if there are actual markdown headings
+  let parts = text.split(/(?:^|\n)###\s+/);
+  
+  if (parts.length > 1) {
+    const steps = [];
+    if (parts[0].trim()) {
+      steps.push({ label: "Thinking", content: parts[0].trim() });
+    }
+    for (let i = 1; i < parts.length; i++) {
+      const part = parts[i];
+      const newlineIndex = part.indexOf('\n');
+      if (newlineIndex !== -1) {
+        const label = part.substring(0, newlineIndex).trim();
+        const content = part.substring(newlineIndex).trim();
+        steps.push({ label, content });
+      } else {
+        steps.push({ label: part.trim(), content: "" });
+      }
+    }
+    return steps;
+  }
+  
+  // Check for bold headers
+  parts = text.split(/(?:^|\n)\*\*(.*?)\*\*\n/);
+  if (parts.length > 1) {
+    const steps = [];
+    if (parts[0].trim()) {
+      steps.push({ label: "Thinking", content: parts[0].trim() });
+    }
+    for (let i = 1; i < parts.length; i += 2) {
+      steps.push({ label: parts[i].trim(), content: parts[i+1]?.trim() || "" });
+    }
+    return steps;
+  }
+  
+  // If no explicit headers, artificially split the stream of consciousness into multiple steps
+  const sentenceMatches = text.match(/[^.!?]+[.!?]+/g) || [];
+  const matchedTextLength = sentenceMatches.join('').length;
+  if (matchedTextLength < text.length) {
+    sentenceMatches.push(text.substring(matchedTextLength));
+  }
+  
+  if (sentenceMatches.length <= 2) {
+    return [{ label: "Thinking", content: text }];
+  }
+  
+  const steps = [];
+  let currentContent = "";
+  let stepIndex = 0;
+  const stepLabels = [
+    "Analyzing the request",
+    "Recalling relevant context",
+    "Weighing approaches",
+    "Structuring the response",
+    "Refining the details",
+    "Finalizing thoughts"
+  ];
+  
+  for (let i = 0; i < sentenceMatches.length; i++) {
+    currentContent += sentenceMatches[i];
+    
+    // Group every 3 sentences into a step, or if it's the last sentence
+    if ((i + 1) % 3 === 0 || i === sentenceMatches.length - 1) {
+      steps.push({
+        label: stepLabels[stepIndex] || `Step ${stepIndex + 1}`,
+        content: currentContent.trim()
+      });
+      currentContent = "";
+      stepIndex++;
+    }
+  }
+  
+  return steps;
+}
+
 import { Camera, FolderKanban, Paperclip, MessageSquareIcon, CopyIcon, RefreshCcwIcon, ThumbsDownIcon, ThumbsUpIcon, XIcon } from "lucide-react";
 import { nanoid } from "nanoid";
 import { memo, useCallback, useRef } from "react";
@@ -41,10 +120,13 @@ import {
   MessageAction
 } from "@/components/ai-elements/message";
 import {
-  Reasoning,
-  ReasoningContent,
-  ReasoningTrigger,
-} from "@/components/ai-elements/reasoning";
+  ReasoningSteps,
+  ReasoningStepsContent,
+  ReasoningStepsTrigger,
+  ReasoningStep,
+} from "@/components/ai-elements/reasoning-steps";
+import { Banner } from "@/components/ui/banner";
+import { ThinkingIndicator } from "@/components/ai-elements/thinking-indicator";
 import { cn } from "@/lib/utils";
 import {
   Context,
@@ -145,6 +227,15 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [closeTooltipOpen, setCloseTooltipOpen] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
+  const [showBanner, setShowBanner] = useState(false);
+
+  useEffect(() => {
+    // Show banner after 2 minutes (120000ms) of exploring
+    const bannerTimer = setTimeout(() => {
+      setShowBanner(true);
+    }, 120000);
+    return () => clearTimeout(bannerTimer);
+  }, []);
 
   useEffect(() => {
     let hideTimer: NodeJS.Timeout;
@@ -430,6 +521,19 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
 
   const chatContent = (
     <>
+      <div className="absolute top-0 inset-x-0 z-[110]">
+        <Banner
+          open={showBanner}
+          variant="default"
+          actionLabel="Contact Me"
+          actionHref="/contact"
+          morphMessage="Thank you!"
+          onDismiss={() => setShowBanner(false)}
+        >
+          <span className="hidden sm:inline">Enjoying your conversation? I'm currently looking for new opportunities.</span>
+          <span className="sm:hidden">Enjoying this? Let's connect!</span>
+        </Banner>
+      </div>
       {/* Mobile Close Button (visible only on mobile/tablet) */}
       <div className="absolute top-4 right-4 z-[99] md:hidden">
         <Button 
@@ -577,10 +681,30 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                       {role === "assistant" ? (
                         <>
                           {reasoningContent && (
-                            <Reasoning isStreaming={isLoading && index === messages.length - 1}>
-                              <ReasoningTrigger />
-                              <ReasoningContent>{reasoningContent}</ReasoningContent>
-                            </Reasoning>
+                            (() => {
+                              const parsedSteps = parseReasoningSteps(reasoningContent);
+                              const isThinkingActive = isLoading && index === messages.length - 1;
+                              
+                              return (
+                                <ReasoningSteps
+                                  className="mb-4"
+                                  defaultOpen={isThinkingActive}
+                                >
+                                  <ReasoningStepsTrigger>Thought Process</ReasoningStepsTrigger>
+                                  <ReasoningStepsContent>
+                                    {parsedSteps.map((step, stepIdx) => (
+                                      <ReasoningStep
+                                        key={stepIdx}
+                                        label={step.label}
+                                        status={isThinkingActive && stepIdx === parsedSteps.length - 1 ? "active" : "done"}
+                                      >
+                                        {step.content}
+                                      </ReasoningStep>
+                                    ))}
+                                  </ReasoningStepsContent>
+                                </ReasoningSteps>
+                              );
+                            })()
                           )}
                           <MessageResponse>{textContent}</MessageResponse>
                         </>
@@ -620,7 +744,9 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
               )}
               {isLoading && (
                 <Message from="assistant" key="loading">
-                  <MessageContent className="animate-pulse">Thinking...</MessageContent>
+                  <MessageContent>
+                    <ThinkingIndicator words={["Thinking", "Reasoning", "Planning"]} />
+                  </MessageContent>
                 </Message>
               )}
               <div className="h-24 shrink-0" />

@@ -42,7 +42,7 @@ function SendWave({ reducedMotion }: { reducedMotion: boolean }) {
     <motion.div
       animate={{ opacity: 1 }}
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 z-[50] overflow-hidden rounded-[inherit]"
+      className="pointer-events-none absolute inset-0 z-[10] overflow-hidden rounded-[inherit]"
       exit={{ opacity: 0 }}
       initial={{ opacity: 1 }}
       transition={{ duration: 0.25, ease: "easeOut" }}

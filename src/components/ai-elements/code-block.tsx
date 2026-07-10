@@ -1,562 +1,486 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Check, Copy } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useCallback, useMemo, useRef, useState } from "react";
+
 import { cn } from "@/lib/utils";
-import { CheckIcon, CopyIcon } from "lucide-react";
-import type { ComponentProps, CSSProperties, HTMLAttributes } from "react";
-import {
-  createContext,
-  memo,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import type {
-  BundledLanguage,
-  BundledTheme,
-  HighlighterGeneric,
-  ThemedToken,
-} from "shiki";
-import { createHighlighter } from "shiki";
 
-// Shiki uses bitflags for font styles: 1=italic, 2=bold, 4=underline
-// oxlint-disable-next-line eslint(no-bitwise)
-const isItalic = (fontStyle: number | undefined) => fontStyle && fontStyle & 1;
-// oxlint-disable-next-line eslint(no-bitwise)
-const isBold = (fontStyle: number | undefined) => fontStyle && fontStyle & 2;
-const isUnderline = (fontStyle: number | undefined) =>
-  // oxlint-disable-next-line eslint(no-bitwise)
-  fontStyle && fontStyle & 4;
+const COPY_RESET_MS = 2000;
 
-// Transform tokens to include pre-computed keys to avoid noArrayIndexKey lint
-interface KeyedToken {
-  token: ThemedToken;
-  key: string;
-}
-interface KeyedLine {
-  tokens: KeyedToken[];
-  key: string;
-}
+/** Transform-only spring for the copy icon swap — stays off the layout thread. */
+const ICON_SPRING = {
+  type: "spring",
+  stiffness: 600,
+  damping: 30,
+  mass: 0.6,
+} as const;
 
-const addKeysToTokens = (lines: ThemedToken[][]): KeyedLine[] =>
-  lines.map((line, lineIdx) => ({
-    key: `line-${lineIdx}`,
-    tokens: line.map((token, tokenIdx) => ({
-      key: `line-${lineIdx}-${tokenIdx}`,
-      token,
-    })),
-  }));
+type TokenKind =
+  | "call"
+  | "comment"
+  | "keyword"
+  | "number"
+  | "operator"
+  | "plain"
+  | "property"
+  | "punctuation"
+  | "string"
+  | "tag"
+  | "type";
 
-// Token rendering component
-const TokenSpan = ({ token }: { token: ThemedToken }) => (
-  <span
-    className="dark:!bg-[var(--shiki-dark-bg)] dark:!text-[var(--shiki-dark)]"
-    style={
-      {
-        backgroundColor: token.bgColor,
-        color: token.color,
-        fontStyle: isItalic(token.fontStyle) ? "italic" : undefined,
-        fontWeight: isBold(token.fontStyle) ? "bold" : undefined,
-        textDecoration: isUnderline(token.fontStyle) ? "underline" : undefined,
-        ...token.htmlStyle,
-      } as CSSProperties
+type Token = {
+  kind: TokenKind;
+  value: string;
+};
+
+const KEYWORDS = new Set([
+  "abstract",
+  "as",
+  "async",
+  "await",
+  "break",
+  "case",
+  "catch",
+  "class",
+  "const",
+  "continue",
+  "def",
+  "default",
+  "delete",
+  "do",
+  "elif",
+  "else",
+  "enum",
+  "export",
+  "extends",
+  "false",
+  "finally",
+  "fn",
+  "for",
+  "from",
+  "function",
+  "if",
+  "implements",
+  "import",
+  "in",
+  "instanceof",
+  "interface",
+  "let",
+  "match",
+  "new",
+  "None",
+  "not",
+  "null",
+  "of",
+  "pass",
+  "private",
+  "protected",
+  "public",
+  "readonly",
+  "return",
+  "satisfies",
+  "static",
+  "struct",
+  "switch",
+  "this",
+  "throw",
+  "true",
+  "try",
+  "type",
+  "typeof",
+  "undefined",
+  "var",
+  "void",
+  "while",
+  "yield",
+]);
+
+const WHITESPACE_RE = /^\s+/;
+const BLOCK_COMMENT_RE = /^\/\*[\s\S]*?(?:\*\/|$)/;
+const LINE_COMMENT_RE = /^(?:\/\/|#)[^\n]*/;
+const TEMPLATE_STRING_RE = /^`(?:\\.|[\s\S])*?`/;
+const DOUBLE_QUOTED_STRING_RE = /^"(?:\\.|[^"\\])*"/;
+const SINGLE_QUOTED_STRING_RE = /^'(?:\\.|[^'\\])*'/;
+const TAG_RE = /^<\/?[A-Za-z][\w.-]*|^\/?>/;
+const ATTRIBUTE_RE = /^[A-Za-z_$][\w$-]*(?==)/;
+const PROPERTY_RE = /^[A-Za-z_$][\w$-]*(?=\s*:)/;
+const IDENTIFIER_RE = /^[A-Za-z_$][\w$]*/;
+const TYPE_IDENTIFIER_RE = /^[A-Z]/;
+const NUMBER_RE = /^-?\d+(?:\.\d+)?/;
+const OPERATOR_RE =
+  /^(?:=>|===|!==|==|!=|<=|>=|\+\+|--|\|\||&&|\?\?|\.\.\.|[=<>+\-*/%!?&|])/;
+const PUNCTUATION_RE = /^[{}()[\],.;:]/;
+
+const STATIC_MATCHERS: { kind: TokenKind; regex: RegExp }[] = [
+  { kind: "plain", regex: WHITESPACE_RE },
+  { kind: "comment", regex: BLOCK_COMMENT_RE },
+  { kind: "comment", regex: LINE_COMMENT_RE },
+  { kind: "string", regex: TEMPLATE_STRING_RE },
+  { kind: "string", regex: DOUBLE_QUOTED_STRING_RE },
+  { kind: "string", regex: SINGLE_QUOTED_STRING_RE },
+  { kind: "tag", regex: TAG_RE },
+  { kind: "property", regex: ATTRIBUTE_RE },
+  { kind: "property", regex: PROPERTY_RE },
+  { kind: "number", regex: NUMBER_RE },
+  { kind: "operator", regex: OPERATOR_RE },
+  { kind: "punctuation", regex: PUNCTUATION_RE },
+];
+
+/** Theme-aware token palette — light colors on white, brighter ones in dark. */
+const TOKEN_CLASS_NAMES: Record<TokenKind, string> = {
+  plain: "text-zinc-800 dark:text-zinc-200",
+  comment: "text-zinc-400 italic dark:text-zinc-500",
+  keyword: "text-rose-600 dark:text-rose-400",
+  string: "text-emerald-600 dark:text-emerald-400",
+  number: "text-amber-600 dark:text-amber-400",
+  property: "text-sky-600 dark:text-sky-400",
+  call: "text-violet-600 dark:text-violet-400",
+  type: "text-indigo-600 dark:text-indigo-400",
+  tag: "text-teal-600 dark:text-teal-400",
+  operator: "text-zinc-500 dark:text-zinc-400",
+  punctuation: "text-zinc-400 dark:text-zinc-500",
+};
+
+function readStaticToken(source: string): Token | null {
+  for (const matcher of STATIC_MATCHERS) {
+    const value = matcher.regex.exec(source)?.[0];
+
+    if (value) {
+      return { kind: matcher.kind, value };
     }
-  >
-    {token.content}
-  </span>
-);
-
-// Line number styles using CSS counters
-const LINE_NUMBER_CLASSES = cn(
-  "block",
-  "before:content-[counter(line)]",
-  "before:inline-block",
-  "before:[counter-increment:line]",
-  "before:w-8",
-  "before:mr-4",
-  "before:text-right",
-  "before:text-muted-foreground/50",
-  "before:font-mono",
-  "before:select-none"
-);
-
-// Line rendering component
-const LineSpan = ({
-  keyedLine,
-  showLineNumbers,
-}: {
-  keyedLine: KeyedLine;
-  showLineNumbers: boolean;
-}) => (
-  <span className={showLineNumbers ? LINE_NUMBER_CLASSES : "block"}>
-    {keyedLine.tokens.length === 0
-      ? "\n"
-      : keyedLine.tokens.map(({ token, key }) => (
-          <TokenSpan key={key} token={token} />
-        ))}
-  </span>
-);
-
-// Types
-type CodeBlockProps = HTMLAttributes<HTMLDivElement> & {
-  code: string;
-  language: BundledLanguage;
-  showLineNumbers?: boolean;
-};
-
-interface TokenizedCode {
-  tokens: ThemedToken[][];
-  fg: string;
-  bg: string;
-}
-
-interface CodeBlockContextType {
-  code: string;
-}
-
-// Context
-const CodeBlockContext = createContext<CodeBlockContextType>({
-  code: "",
-});
-
-// Highlighter cache (singleton per language)
-const highlighterCache = new Map<
-  string,
-  Promise<HighlighterGeneric<BundledLanguage, BundledTheme>>
->();
-
-// Token cache
-const tokensCache = new Map<string, TokenizedCode>();
-
-// Subscribers for async token updates
-const subscribers = new Map<string, Set<(result: TokenizedCode) => void>>();
-
-const getTokensCacheKey = (code: string, language: BundledLanguage) => {
-  const start = code.slice(0, 100);
-  const end = code.length > 100 ? code.slice(-100) : "";
-  return `${language}:${code.length}:${start}:${end}`;
-};
-
-const getHighlighter = (
-  language: BundledLanguage
-): Promise<HighlighterGeneric<BundledLanguage, BundledTheme>> => {
-  const cached = highlighterCache.get(language);
-  if (cached) {
-    return cached;
   }
-
-  const highlighterPromise = createHighlighter({
-    langs: [language],
-    themes: ["github-light", "github-dark"],
-  });
-
-  highlighterCache.set(language, highlighterPromise);
-  return highlighterPromise;
-};
-
-// Create raw tokens for immediate display while highlighting loads
-const createRawTokens = (code: string): TokenizedCode => ({
-  bg: "transparent",
-  fg: "inherit",
-  tokens: code.split("\n").map((line) =>
-    line === ""
-      ? []
-      : [
-          {
-            color: "inherit",
-            content: line,
-          } as ThemedToken,
-        ]
-  ),
-});
-
-// Synchronous highlight with callback for async results
-export const highlightCode = (
-  code: string,
-  language: BundledLanguage,
-  // oxlint-disable-next-line eslint-plugin-promise(prefer-await-to-callbacks)
-  callback?: (result: TokenizedCode) => void
-): TokenizedCode | null => {
-  const tokensCacheKey = getTokensCacheKey(code, language);
-
-  // Return cached result if available
-  const cached = tokensCache.get(tokensCacheKey);
-  if (cached) {
-    return cached;
-  }
-
-  // Subscribe callback if provided
-  if (callback) {
-    if (!subscribers.has(tokensCacheKey)) {
-      subscribers.set(tokensCacheKey, new Set());
-    }
-    subscribers.get(tokensCacheKey)?.add(callback);
-  }
-
-  // Start highlighting in background - fire-and-forget async pattern
-  getHighlighter(language)
-    // oxlint-disable-next-line eslint-plugin-promise(prefer-await-to-then)
-    .then((highlighter) => {
-      const availableLangs = highlighter.getLoadedLanguages();
-      const langToUse = availableLangs.includes(language) ? language : "text";
-
-      const result = highlighter.codeToTokens(code, {
-        lang: langToUse,
-        themes: {
-          dark: "github-dark",
-          light: "github-light",
-        },
-      });
-
-      const tokenized: TokenizedCode = {
-        bg: result.bg ?? "transparent",
-        fg: result.fg ?? "inherit",
-        tokens: result.tokens,
-      };
-
-      // Cache the result
-      tokensCache.set(tokensCacheKey, tokenized);
-
-      // Notify all subscribers
-      const subs = subscribers.get(tokensCacheKey);
-      if (subs) {
-        for (const sub of subs) {
-          sub(tokenized);
-        }
-        subscribers.delete(tokensCacheKey);
-      }
-    })
-    // oxlint-disable-next-line eslint-plugin-promise(prefer-await-to-then), eslint-plugin-promise(prefer-await-to-callbacks)
-    .catch((error) => {
-      console.error("Failed to highlight code:", error);
-      subscribers.delete(tokensCacheKey);
-    });
 
   return null;
-};
+}
 
-const CodeBlockBody = memo(
-  ({
-    tokenized,
-    showLineNumbers,
-    className,
-  }: {
-    tokenized: TokenizedCode;
-    showLineNumbers: boolean;
-    className?: string;
-  }) => {
-    const preStyle = useMemo(
-      () => ({
-        backgroundColor: tokenized.bg,
-        color: tokenized.fg,
-      }),
-      [tokenized.bg, tokenized.fg]
-    );
-
-    const keyedLines = useMemo(
-      () => addKeysToTokens(tokenized.tokens),
-      [tokenized.tokens]
-    );
-
-    return (
-      <pre
-        className={cn(
-          "dark:!bg-[var(--shiki-dark-bg)] dark:!text-[var(--shiki-dark)] m-0 p-4 text-sm",
-          className
-        )}
-        style={preStyle}
-      >
-        <code
-          className={cn(
-            "font-mono text-sm",
-            showLineNumbers && "[counter-increment:line_0] [counter-reset:line]"
-          )}
-        >
-          {keyedLines.map((keyedLine) => (
-            <LineSpan
-              key={keyedLine.key}
-              keyedLine={keyedLine}
-              showLineNumbers={showLineNumbers}
-            />
-          ))}
-        </code>
-      </pre>
-    );
-  },
-  (prevProps, nextProps) =>
-    prevProps.tokenized === nextProps.tokenized &&
-    prevProps.showLineNumbers === nextProps.showLineNumbers &&
-    prevProps.className === nextProps.className
-);
-
-CodeBlockBody.displayName = "CodeBlockBody";
-
-export const CodeBlockContainer = ({
-  className,
-  language,
-  style,
-  ...props
-}: HTMLAttributes<HTMLDivElement> & { language: string }) => (
-  <div
-    className={cn(
-      "group relative w-full overflow-hidden rounded-md border bg-background text-foreground",
-      className
-    )}
-    data-language={language}
-    style={{
-      containIntrinsicSize: "auto 200px",
-      contentVisibility: "auto",
-      ...style,
-    }}
-    {...props}
-  />
-);
-
-export const CodeBlockHeader = ({
-  children,
-  className,
-  ...props
-}: HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      "flex items-center justify-between border-b bg-muted/80 px-3 py-2 text-muted-foreground text-xs",
-      className
-    )}
-    {...props}
-  >
-    {children}
-  </div>
-);
-
-export const CodeBlockTitle = ({
-  children,
-  className,
-  ...props
-}: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex items-center gap-2", className)} {...props}>
-    {children}
-  </div>
-);
-
-export const CodeBlockFilename = ({
-  children,
-  className,
-  ...props
-}: HTMLAttributes<HTMLSpanElement>) => (
-  <span className={cn("font-mono", className)} {...props}>
-    {children}
-  </span>
-);
-
-export const CodeBlockActions = ({
-  children,
-  className,
-  ...props
-}: HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn("-my-1 -mr-1 flex items-center gap-2", className)}
-    {...props}
-  >
-    {children}
-  </div>
-);
-
-export const CodeBlockContent = ({
-  code,
-  language,
-  showLineNumbers = false,
-}: {
-  code: string;
-  language: BundledLanguage;
-  showLineNumbers?: boolean;
-}) => {
-  // Memoized raw tokens for immediate display
-  const rawTokens = useMemo(() => createRawTokens(code), [code]);
-
-  // Synchronous cache lookup — avoids setState in effect for cached results
-  const syncTokens = useMemo(
-    () => highlightCode(code, language) ?? rawTokens,
-    [code, language, rawTokens]
-  );
-
-  // Async highlighting result (populated after shiki loads)
-  const [asyncTokens, setAsyncTokens] = useState<TokenizedCode | null>(null);
-  const asyncKeyRef = useRef({ code, language });
-
-  // Invalidate stale async tokens synchronously during render
-  if (
-    asyncKeyRef.current.code !== code ||
-    asyncKeyRef.current.language !== language
-  ) {
-    asyncKeyRef.current = { code, language };
-    setAsyncTokens(null);
+function identifierKind(identifier: string, source: string): TokenKind {
+  if (KEYWORDS.has(identifier)) {
+    return "keyword";
   }
 
-  useEffect(() => {
-    let cancelled = false;
+  if (TYPE_IDENTIFIER_RE.test(identifier)) {
+    return "type";
+  }
 
-    highlightCode(code, language, (result) => {
-      if (!cancelled) {
-        setAsyncTokens(result);
-      }
-    });
+  if (source.startsWith(`${identifier}(`)) {
+    return "call";
+  }
 
-    return () => {
-      cancelled = true;
-    };
-  }, [code, language]);
+  return "plain";
+}
 
-  const tokenized = asyncTokens ?? syncTokens;
+function readDynamicToken(source: string): Token {
+  const identifier = IDENTIFIER_RE.exec(source)?.[0];
+
+  if (identifier) {
+    return { kind: identifierKind(identifier, source), value: identifier };
+  }
+
+  return { kind: "plain", value: source[0] ?? "" };
+}
+
+function tokenizeLine(line: string): Token[] {
+  const tokens: Token[] = [];
+  let cursor = 0;
+
+  while (cursor < line.length) {
+    const source = line.slice(cursor);
+    const token = readStaticToken(source) ?? readDynamicToken(source);
+
+    tokens.push(token);
+    cursor += token.value.length;
+  }
+
+  return tokens;
+}
+
+function CopyButton({
+  copied,
+  onCopy,
+  reducedMotion,
+  floating = false,
+}: {
+  copied: boolean;
+  onCopy: () => void;
+  reducedMotion: boolean;
+  /** Glass-chip styling for when the button floats over the code area. */
+  floating?: boolean;
+}) {
+  const iconTransition = reducedMotion ? { duration: 0 } : ICON_SPRING;
 
   return (
-    <div className="relative overflow-auto">
-      <CodeBlockBody showLineNumbers={showLineNumbers} tokenized={tokenized} />
-    </div>
+    <motion.button
+      aria-label={copied ? "Copied" : "Copy code"}
+      className={cn(
+        "flex h-7 items-center gap-1.5 rounded-md px-2 font-medium text-xs outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-ring/60",
+        floating &&
+          "border border-border/70 bg-background/85 shadow-sm backdrop-blur-sm",
+        copied
+          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+          : "text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground"
+      )}
+      data-slot="code-block-copy"
+      onClick={onCopy}
+      type="button"
+      whileTap={reducedMotion ? undefined : { scale: 0.95 }}
+    >
+      <span className="relative size-3.5">
+        <AnimatePresence initial={false}>
+          {copied ? (
+            <motion.span
+              animate={{ opacity: 1, scale: 1 }}
+              className="absolute inset-0 flex items-center justify-center"
+              exit={{ opacity: 0, scale: 0.4 }}
+              initial={{ opacity: 0, scale: 0.4 }}
+              key="check"
+              transition={iconTransition}
+            >
+              <Check className="size-3.5" strokeWidth={2.5} />
+            </motion.span>
+          ) : (
+            <motion.span
+              animate={{ opacity: 1, scale: 1 }}
+              className="absolute inset-0 flex items-center justify-center"
+              exit={{ opacity: 0, scale: 0.4 }}
+              initial={{ opacity: 0, scale: 0.4 }}
+              key="copy"
+              transition={iconTransition}
+            >
+              <Copy className="size-3.5" />
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </span>
+
+      {/* Both labels overlay a fixed-width slot, so the swap never shifts layout. */}
+      <span className="relative">
+        <span aria-hidden className="invisible">
+          Copied
+        </span>
+        <span
+          aria-hidden
+          className={cn(
+            "absolute inset-0 text-left transition-opacity duration-200",
+            copied ? "opacity-0" : "opacity-100"
+          )}
+        >
+          Copy
+        </span>
+        <span
+          aria-hidden
+          className={cn(
+            "absolute inset-0 text-left transition-opacity duration-200",
+            copied ? "opacity-100" : "opacity-0"
+          )}
+        >
+          Copied
+        </span>
+      </span>
+    </motion.button>
   );
+}
+
+export type CodeBlockProps = {
+  /** Source code to render. Leading and trailing blank lines are trimmed. */
+  code: string;
+  /** Language shown in the bottom status bar and used for the tab accent dot. */
+  language?: string;
+  /** Filename shown inside the editor-style tab at the top. */
+  filename?: string;
+  /** Show the line-number gutter. */
+  showLineNumbers?: boolean;
+  /** 1-based line numbers to emphasize with a tinted row and accent bar. */
+  highlightLines?: number[];
+  /** Max body height before the code scrolls, e.g. 320 or "20rem". */
+  maxHeight?: number | string;
+  /** Called with the code after it is written to the clipboard. */
+  onCopy?: (code: string) => void;
+  /** Extra classes for the outer shell. */
+  className?: string;
 };
 
-export const CodeBlock = ({
+export function CodeBlock({
   code,
   language,
-  showLineNumbers = false,
-  className,
-  children,
-  ...props
-}: CodeBlockProps) => {
-  const contextValue = useMemo(() => ({ code }), [code]);
-
-  return (
-    <CodeBlockContext.Provider value={contextValue}>
-      <CodeBlockContainer className={className} language={language} {...props}>
-        {children}
-        <CodeBlockContent
-          code={code}
-          language={language}
-          showLineNumbers={showLineNumbers}
-        />
-      </CodeBlockContainer>
-    </CodeBlockContext.Provider>
-  );
-};
-
-export type CodeBlockCopyButtonProps = ComponentProps<typeof Button> & {
-  onCopy?: () => void;
-  onError?: (error: Error) => void;
-  timeout?: number;
-};
-
-export const CodeBlockCopyButton = ({
+  filename,
+  showLineNumbers = true,
+  highlightLines,
+  maxHeight = 384,
   onCopy,
-  onError,
-  timeout = 2000,
-  children,
   className,
-  ...props
-}: CodeBlockCopyButtonProps) => {
-  const [isCopied, setIsCopied] = useState(false);
-  const timeoutRef = useRef<number>(0);
-  const { code } = useContext(CodeBlockContext);
+}: CodeBlockProps) {
+  const reducedMotion = useReducedMotion() ?? false;
+  const [copied, setCopied] = useState(false);
+  const resetTimer = useRef<number | null>(null);
 
-  const copyToClipboard = useCallback(async () => {
-    if (typeof window === "undefined" || !navigator?.clipboard?.writeText) {
-      onError?.(new Error("Clipboard API not available"));
-      return;
-    }
+  const lines = useMemo(() => {
+    const trimmed = code.replace(/^\n+|\s+$/g, "");
+    return trimmed.split("\n").map((line) => tokenizeLine(line));
+  }, [code]);
 
-    try {
-      if (!isCopied) {
-        await navigator.clipboard.writeText(code);
-        setIsCopied(true);
-        onCopy?.();
-        timeoutRef.current = window.setTimeout(
-          () => setIsCopied(false),
-          timeout
-        );
-      }
-    } catch (error) {
-      onError?.(error as Error);
-    }
-  }, [code, onCopy, onError, timeout, isCopied]);
-
-  useEffect(
-    () => () => {
-      window.clearTimeout(timeoutRef.current);
-    },
-    []
+  const highlighted = useMemo(
+    () => new Set(highlightLines ?? []),
+    [highlightLines]
   );
 
-  const Icon = isCopied ? CheckIcon : CopyIcon;
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+    } catch {
+      // Clipboard API can be unavailable in iframes or without permission —
+      // fall back to a hidden textarea and the legacy copy command.
+      const textarea = document.createElement("textarea");
+      textarea.value = code;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      const succeeded = document.execCommand("copy");
+      textarea.remove();
+
+      if (!succeeded) {
+        return;
+      }
+    }
+
+    setCopied(true);
+    onCopy?.(code);
+
+    if (resetTimer.current !== null) {
+      window.clearTimeout(resetTimer.current);
+    }
+    resetTimer.current = window.setTimeout(() => {
+      setCopied(false);
+      resetTimer.current = null;
+    }, COPY_RESET_MS);
+  }, [code, onCopy]);
+
+  const hasTab = Boolean(filename);
 
   return (
-    <Button
-      className={cn("shrink-0", className)}
-      onClick={copyToClipboard}
-      size="icon"
-      variant="ghost"
-      {...props}
+    <div
+      className={cn(
+        "overflow-hidden rounded-xl border border-border/80 bg-background shadow-[0_1px_2px_rgba(15,23,42,0.05),0_16px_40px_-20px_rgba(15,23,42,0.22)] dark:bg-zinc-950 dark:shadow-[0_1px_2px_rgba(0,0,0,0.4),0_16px_40px_-20px_rgba(0,0,0,0.55)]",
+        className
+      )}
+      data-copied={copied || undefined}
+      data-slot="code-block"
     >
-      {children ?? <Icon size={14} />}
-    </Button>
+      {hasTab ? (
+        // Editor-style tab strip: the active tab joins the code area below it,
+        // with the copy button pinned to the strip's right edge.
+        <div className="flex items-end justify-between gap-3 border-border/70 border-b bg-gradient-to-b from-muted/70 to-muted/40 pt-2 pr-1.5 pl-2.5 dark:from-white/[0.05] dark:to-white/[0.02]">
+          <div className="relative -mb-px flex min-w-0 items-center gap-2 rounded-t-lg border border-border/70 border-b-0 bg-background px-3.5 py-1.5 dark:bg-zinc-950">
+            <span className="truncate font-mono text-[12.5px] text-foreground/80">
+              {filename}
+            </span>
+          </div>
+
+          <div className="mb-1 shrink-0">
+            <CopyButton
+              copied={copied}
+              onCopy={handleCopy}
+              reducedMotion={reducedMotion}
+            />
+          </div>
+        </div>
+      ) : null}
+
+      <div className="relative">
+        {hasTab ? null : (
+          // No tab strip — the copy button floats over the code, top right.
+          <div className="absolute top-2 right-2 z-10">
+            <CopyButton
+              copied={copied}
+              floating
+              onCopy={handleCopy}
+              reducedMotion={reducedMotion}
+            />
+          </div>
+        )}
+
+        <div
+          className="overflow-auto [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/80 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar]:w-2"
+          style={{ maxHeight }}
+        >
+          <pre className="min-w-max py-3.5 font-mono text-[13px] leading-6 selection:bg-indigo-500/25">
+            <code className="block">
+              {lines.map((tokens, index) => {
+                const lineNumber = index + 1;
+                const isHighlighted = highlighted.has(lineNumber);
+
+                return (
+                  <span
+                    className={cn(
+                      "relative block pr-5 transition-colors duration-100",
+                      showLineNumbers ? "pl-0" : "pl-4",
+                      isHighlighted
+                        ? "bg-gradient-to-r from-indigo-500/[0.12] via-indigo-500/[0.04] to-transparent dark:from-indigo-400/[0.16] dark:via-indigo-400/[0.05]"
+                        : "hover:bg-muted/60 dark:hover:bg-white/[0.04]",
+                      isHighlighted &&
+                        !showLineNumbers &&
+                        "shadow-[inset_2px_0_0_0_#6366f1]"
+                    )}
+                    key={lineNumber}
+                  >
+                    {showLineNumbers ? (
+                      // Opaque gutter cell: long lines slide underneath it on
+                      // horizontal scroll instead of showing through the digits.
+                      <span
+                        aria-hidden
+                        className={cn(
+                          "sticky left-0 z-10 mr-4 inline-block w-11 select-none border-border/60 border-r pr-3 text-right text-xs tabular-nums leading-6",
+                          isHighlighted
+                            ? "bg-[color-mix(in_srgb,#6366f1_10%,var(--color-background))] text-indigo-600 shadow-[inset_2px_0_0_0_#6366f1] dark:bg-[color-mix(in_srgb,#818cf8_14%,#09090b)] dark:text-indigo-400"
+                            : "bg-background text-muted-foreground/50 dark:bg-zinc-950"
+                        )}
+                      >
+                        {lineNumber}
+                      </span>
+                    ) : null}
+                    {tokens.length === 0 ? (
+                      "\n"
+                    ) : (
+                      <>
+                        {tokens.map((token, tokenIndex) => (
+                          <span
+                            className={TOKEN_CLASS_NAMES[token.kind]}
+                            key={`${lineNumber}-${token.kind}-${tokenIndex}`}
+                          >
+                            {token.value}
+                          </span>
+                        ))}
+                        {"\n"}
+                      </>
+                    )}
+                  </span>
+                );
+              })}
+            </code>
+          </pre>
+        </div>
+      </div>
+
+      {/* Status bar: language and line count, plus a copy confirmation. */}
+      <div className="flex items-center justify-between gap-3 border-border/70 border-t bg-muted/60 px-4 py-1.5 text-[11px] text-muted-foreground dark:bg-white/[0.04]">
+        <div className="flex min-w-0 items-center gap-2">
+          {language ? (
+            <>
+              <span className="truncate font-mono uppercase tracking-wider">
+                {language}
+              </span>
+              <span aria-hidden className="text-muted-foreground/50">
+                ·
+              </span>
+            </>
+          ) : null}
+          <span className="shrink-0 tabular-nums">
+            {lines.length} {lines.length === 1 ? "line" : "lines"}
+          </span>
+        </div>
+      </div>
+    </div>
   );
-};
-
-export type CodeBlockLanguageSelectorProps = ComponentProps<typeof Select>;
-
-export const CodeBlockLanguageSelector = (
-  props: CodeBlockLanguageSelectorProps
-) => <Select {...props} />;
-
-export type CodeBlockLanguageSelectorTriggerProps = ComponentProps<
-  typeof SelectTrigger
->;
-
-export const CodeBlockLanguageSelectorTrigger = ({
-  className,
-  ...props
-}: CodeBlockLanguageSelectorTriggerProps) => (
-  <SelectTrigger
-    className={cn(
-      "h-7 border-none bg-transparent px-2 text-xs shadow-none",
-      className
-    )}
-    size="sm"
-    {...props}
-  />
-);
-
-export type CodeBlockLanguageSelectorValueProps = ComponentProps<
-  typeof SelectValue
->;
-
-export const CodeBlockLanguageSelectorValue = (
-  props: CodeBlockLanguageSelectorValueProps
-) => <SelectValue {...props} />;
-
-export type CodeBlockLanguageSelectorContentProps = ComponentProps<
-  typeof SelectContent
->;
-
-export const CodeBlockLanguageSelectorContent = ({
-  align = "end",
-  ...props
-}: CodeBlockLanguageSelectorContentProps) => (
-  <SelectContent align={align} {...props} />
-);
-
-export type CodeBlockLanguageSelectorItemProps = ComponentProps<
-  typeof SelectItem
->;
-
-export const CodeBlockLanguageSelectorItem = (
-  props: CodeBlockLanguageSelectorItemProps
-) => <SelectItem {...props} />;
+}

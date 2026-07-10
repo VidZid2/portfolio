@@ -22,11 +22,11 @@ export async function POST(req: Request) {
 
     let reasoningInstruction = "";
     if (effort === "high") {
-      reasoningInstruction = "CRITICAL INSTRUCTION: You MUST perform an extremely thorough, exhaustive, multi-step, deep chain of thought. Take a long time to explore all technical nuances, edge cases, user intent, and potential architectures before answering. Your reasoning should be extensive and detailed.";
+      reasoningInstruction = "CRITICAL INSTRUCTION: You MUST perform an extremely thorough, exhaustive, multi-step, deep chain of thought. Take a long time to explore all technical nuances, edge cases, user intent, and potential architectures before answering. Your reasoning should be extensive and detailed. IMPORTANT: Format your internal reasoning into clear, distinct steps using Markdown headings (e.g., ### Reading the request, ### Analyzing context) for each stage of your thought process.";
     } else if (effort === "medium") {
-      reasoningInstruction = "INSTRUCTION: Perform a standard, balanced reasoning process before answering. Think through the steps logically without being overly brief or unnecessarily exhaustive.";
+      reasoningInstruction = "INSTRUCTION: Perform a standard, balanced reasoning process before answering. Think through the steps logically without being overly brief or unnecessarily exhaustive. IMPORTANT: Format your internal reasoning into clear, distinct steps using Markdown headings (e.g., ### Reading the request, ### Analyzing context) for each stage of your thought process.";
     } else {
-      reasoningInstruction = "INSTRUCTION: You MUST think very briefly and concisely. Provide a quick, direct reasoning without overthinking. Keep your chain of thought as short as possible.";
+      reasoningInstruction = "INSTRUCTION: You MUST think very briefly and concisely. Provide a quick, direct reasoning without overthinking. Keep your chain of thought as short as possible. IMPORTANT: Use a Markdown heading (e.g., ### Quick Analysis) for your reasoning step.";
     }
 
     const coreMessages = messages.map((m: any) => {

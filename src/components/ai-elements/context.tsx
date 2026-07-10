@@ -135,7 +135,7 @@ export const ContextContent = ({
   <HoverCardContent
     side="top"
     align="end"
-    className={cn("z-[9999] min-w-60 divide-y divide-zinc-200 dark:divide-zinc-800 overflow-hidden p-0 bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100", className)}
+    className={cn("z-[9999] min-w-60 divide-y divide-neutral-200 dark:divide-neutral-800 overflow-hidden p-0 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100", className)}
     {...props}
   />
 );
@@ -192,7 +192,7 @@ export const ContextContentFooter = ({
   return (
     <div
       className={cn(
-        "flex w-full items-center justify-between gap-3 bg-zinc-100 dark:bg-[#0a0a0a] p-3 text-xs",
+        "flex w-full items-center justify-between gap-3 bg-transparent p-3 text-xs",
         className
       )}
       {...props}
