@@ -17,10 +17,12 @@ import {
   FileText
 } from "lucide-react";
 import { homeItems, primaItems } from "@/components/RightNavbar";
+import { useTransition } from "@/components/TransitionProvider";
 
 export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { transitionBack, transitionForward } = useTransition();
   const [isOpen, setIsOpen] = React.useState(false);
   const [position, setPosition] = React.useState({ x: 0, y: 0 });
   const menuRef = React.useRef<HTMLDivElement>(null);
@@ -53,12 +55,12 @@ export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
   };
 
   const handleBack = () => {
-    if (typeof window !== "undefined") window.history.back();
+    transitionBack();
     setIsOpen(false);
   };
 
   const handleForward = () => {
-    if (typeof window !== "undefined") window.history.forward();
+    transitionForward();
     setIsOpen(false);
   };
 
@@ -174,27 +176,31 @@ export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
             onContextMenu={(e) => e.preventDefault()}
           >
           {/* Browser Controls */}
-          <button
-            onClick={handleBack}
-            className="w-full flex items-center justify-between rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <ChevronLeft className="h-4 w-4 text-zinc-500" />
-              <span>Back</span>
-            </div>
-            <span className="text-xs tracking-widest text-zinc-400">⌘[</span>
-          </button>
-          
-          <button
-            onClick={handleForward}
-            className="w-full flex items-center justify-between rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <ChevronRight className="h-4 w-4 text-zinc-500" />
-              <span>Forward</span>
-            </div>
-            <span className="text-xs tracking-widest text-zinc-400">⌘]</span>
-          </button>
+          {!isHome && (
+            <>
+              <button
+                onClick={handleBack}
+                className="w-full flex items-center justify-between rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <ChevronLeft className="h-4 w-4 text-zinc-500" />
+                  <span>Back</span>
+                </div>
+                <span className="text-xs tracking-widest text-zinc-400">⌘[</span>
+              </button>
+              
+              <button
+                onClick={handleForward}
+                className="w-full flex items-center justify-between rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <ChevronRight className="h-4 w-4 text-zinc-500" />
+                  <span>Forward</span>
+                </div>
+                <span className="text-xs tracking-widest text-zinc-400">⌘]</span>
+              </button>
+            </>
+          )}
           
           <button
             onClick={handleReload}
@@ -248,6 +254,8 @@ export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
               window.dispatchEvent(new CustomEvent("open-ai"));
               setIsOpen(false);
             }}
+            onMouseEnter={() => import("@/components/prompt-box-preview")}
+            onTouchStart={() => import("@/components/prompt-box-preview")}
             className="w-full flex items-center gap-2 rounded-md hover:bg-[#6495ED]/10 dark:hover:bg-[#6495ED]/20 py-1.5 px-2 text-sm outline-none transition-colors font-medium group"
           >
             <Sparkles className="h-4 w-4 text-[#6495ED]" />

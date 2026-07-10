@@ -34,8 +34,19 @@ import {
 import dynamic from "next/dynamic"
 const PromptBoxPreview = dynamic(
   () => import("@/components/prompt-box-preview").then((mod) => mod.PromptBoxPreview),
-  { ssr: false }
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/20 dark:bg-zinc-950/40 backdrop-blur-sm">
+        <div className="w-8 h-8 rounded-full border-2 border-zinc-500/30 border-t-zinc-900 dark:border-white/20 dark:border-t-white animate-spin" />
+      </div>
+    )
+  }
 )
+
+const preloadPromptBox = () => {
+    import("@/components/prompt-box-preview");
+};
 import { useArcReveal } from "@/components/ruixen/arc-reveal-hero"
 import { JapaneseAsciiText } from "@/components/ui/japanese-ascii-text"
 
@@ -181,6 +192,8 @@ export function CommandMenu() {
         >
             <button 
                 onClick={() => setAiOpen(true)}
+                onMouseEnter={preloadPromptBox}
+                onTouchStart={preloadPromptBox}
                 className="relative group cursor-pointer transition-all duration-300 active:scale-95 shrink-0"
                 aria-label="Ask AI Assistant"
             >

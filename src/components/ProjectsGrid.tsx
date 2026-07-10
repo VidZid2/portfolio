@@ -208,13 +208,14 @@ export const ProjectCard = ({
         </div>
 
         <div className="mt-2 sm:mt-1.5 text-[13px] text-zinc-500 dark:text-zinc-400 leading-relaxed pr-2 space-y-2">
-          {project.tldr && (
+          {project.tldr ? (
             <p>
               <strong className="text-zinc-700 dark:text-zinc-300 font-semibold">Summary: </strong>
               <span className="text-zinc-600 dark:text-zinc-400">{project.tldr}</span>
             </p>
+          ) : (
+            <p>{project.description}</p>
           )}
-          <p>{project.description}</p>
         </div>
 
         <div className="relative mt-3 pt-1">

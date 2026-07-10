@@ -7,7 +7,15 @@ import { useTheme } from "next-themes";
 
 export type TransitionDirection = "left" | "right";
 
-const TransitionContext = createContext<{ navigate: (href: string, direction?: TransitionDirection) => void }>({ navigate: () => {} });
+const TransitionContext = createContext<{ 
+  navigate: (href: string, direction?: TransitionDirection) => void;
+  transitionBack: () => void;
+  transitionForward: () => void;
+}>({ 
+  navigate: () => {},
+  transitionBack: () => {},
+  transitionForward: () => {}
+});
 
 export function useTransition() {
     return useContext(TransitionContext);
@@ -76,8 +84,48 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
 
     const bgColor = "#6495ED";
 
+    const transitionBack = () => {
+        setDirection("left");
+        setIsTransitioning(true);
+        setTimeout(() => {
+            const currentUrl = window.location.href;
+            window.history.back();
+            
+            let attempts = 0;
+            const checkInterval = setInterval(() => {
+                attempts++;
+                if (window.location.href !== currentUrl || attempts > 200) {
+                    clearInterval(checkInterval);
+                    requestAnimationFrame(() => {
+                        setIsTransitioning(false);
+                    });
+                }
+            }, 50);
+        }, 800);
+    };
+
+    const transitionForward = () => {
+        setDirection("right");
+        setIsTransitioning(true);
+        setTimeout(() => {
+            const currentUrl = window.location.href;
+            window.history.forward();
+            
+            let attempts = 0;
+            const checkInterval = setInterval(() => {
+                attempts++;
+                if (window.location.href !== currentUrl || attempts > 200) {
+                    clearInterval(checkInterval);
+                    requestAnimationFrame(() => {
+                        setIsTransitioning(false);
+                    });
+                }
+            }, 50);
+        }, 800);
+    };
+
     return (
-        <TransitionContext.Provider value={{ navigate }}>
+        <TransitionContext.Provider value={{ navigate, transitionBack, transitionForward }}>
             {children}
             <AnimatePresence>
                 {isTransitioning && windowDimensions.h > 0 && (

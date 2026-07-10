@@ -307,36 +307,38 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
                     </div>
                   )}
 
-                  <ul className="mb-4 space-y-2 text-[14px] leading-relaxed">
-                    {item.description
-                      .split("\n")
-                      .filter((line) => line.trim() !== "")
-                      .map((point, i) => {
-                        return (
-                          <li key={i} className="flex items-start gap-2">
-                            <span className="text-zinc-400 dark:text-zinc-500 mt-[2px] text-[15px] leading-none">•</span>
-                            <span className="text-zinc-600 dark:text-zinc-400">
-                              {point
-                                .trim()
-                                .split(/(\*\*.*?\*\*)/)
-                                .map((part, partIndex) => {
-                                  if (part.startsWith("**") && part.endsWith("**")) {
-                                    return (
-                                      <strong
-                                        key={partIndex}
-                                        className="font-semibold text-zinc-800 dark:text-zinc-200"
-                                      >
-                                        {part.slice(2, -2)}
-                                      </strong>
-                                    );
-                                  }
-                                  return part;
-                                })}
-                            </span>
-                          </li>
-                        );
-                      })}
-                  </ul>
+                  {!item.tldr && (
+                    <ul className="mb-4 space-y-2 text-[14px] leading-relaxed">
+                      {item.description
+                        .split("\n")
+                        .filter((line) => line.trim() !== "")
+                        .map((point, i) => {
+                          return (
+                            <li key={i} className="flex items-start gap-2">
+                              <span className="text-zinc-400 dark:text-zinc-500 mt-[2px] text-[15px] leading-none">•</span>
+                              <span className="text-zinc-600 dark:text-zinc-400">
+                                {point
+                                  .trim()
+                                  .split(/(\*\*.*?\*\*)/)
+                                  .map((part, partIndex) => {
+                                    if (part.startsWith("**") && part.endsWith("**")) {
+                                      return (
+                                        <strong
+                                          key={partIndex}
+                                          className="font-semibold text-zinc-800 dark:text-zinc-200"
+                                        >
+                                          {part.slice(2, -2)}
+                                        </strong>
+                                      );
+                                    }
+                                    return part;
+                                  })}
+                              </span>
+                            </li>
+                          );
+                        })}
+                    </ul>
+                  )}
 
                   {item.tech && (
                     <div className="flex flex-wrap gap-2 mt-4">
