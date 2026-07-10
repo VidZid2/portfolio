@@ -14,6 +14,7 @@ import {
   useState,
 } from "react";
 import { createPortal, flushSync } from "react-dom";
+import { useReducedMotion } from "motion/react";
 
 const TRANSITION = {
   type: "spring" as const,
@@ -32,6 +33,32 @@ const promptFieldClassName =
   "w-full border-0 bg-transparent text-base leading-5 text-zinc-900 dark:text-[#6495ED] shadow-none outline-none placeholder:font-medium placeholder:text-zinc-500 dark:placeholder:text-[#6495ED]/60 focus:outline-none focus-visible:outline-none focus-visible:ring-0 sm:text-sm sm:leading-[17px]";
 
 const promptFieldCollapsedClassName = promptFieldClassName;
+
+const WAVE_WASH_GRADIENT =
+  "linear-gradient(180deg, transparent, rgba(34,211,238,0.07), rgba(59,130,246,0.09), rgba(217,70,239,0.1), rgba(244,63,94,0.09), rgba(249,115,22,0.08), transparent)";
+
+function SendWave({ reducedMotion }: { reducedMotion: boolean }) {
+  return (
+    <motion.div
+      animate={{ opacity: 1 }}
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-[10] overflow-hidden rounded-[inherit]"
+      exit={{ opacity: 0 }}
+      initial={{ opacity: 1 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+    >
+      <motion.div
+        animate={reducedMotion ? { y: "-17%" } : { y: "-105%" }}
+        className="absolute inset-x-0 top-0 h-[150%] blur-xl"
+        initial={{ y: "55%" }}
+        style={{ background: WAVE_WASH_GRADIENT }}
+        transition={
+          reducedMotion ? { duration: 0 } : { duration: 0.7, ease: "easeOut" }
+        }
+      />
+    </motion.div>
+  );
+}
 
 export type PromptSettingOption = {
   value: string;
@@ -1753,6 +1780,8 @@ export function PromptInput({
   topRightContent,
 }: PromptInputProps) {
   const [expanded, setExpandedState] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const reducedMotion = useReducedMotion() ?? false;
   const setExpanded = useCallback((val: boolean) => {
     setExpandedState(val);
     onExpandedChange?.(val);
@@ -1928,13 +1957,18 @@ export function PromptInput({
   );
 
   const handleSubmit = useCallback(() => {
-    if (settingsOpenRef.current || plusOpenRef.current) return;
+    if (settingsOpenRef.current || plusOpenRef.current || isSending) return;
     if (value.trim() === "") return;
 
-    onSubmit?.(value);
-    setValue("");
-    setExpanded(false);
-  }, [onSubmit, value]);
+    setIsSending(true);
+
+    setTimeout(() => {
+      onSubmit?.(value);
+      setValue("");
+      setExpanded(false);
+      setIsSending(false);
+    }, 800);
+  }, [onSubmit, value, isSending, setExpanded, setValue]);
 
   const handleTextareaKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -1975,6 +2009,9 @@ export function PromptInput({
       style={{ borderRadius: 24 }}
       transition={TRANSITION}
     >
+      <AnimatePresence>
+        {isSending && <SendWave reducedMotion={reducedMotion} />}
+      </AnimatePresence>
       <AnimatePresence initial={false} mode="popLayout">
         {expanded ? (
           <motion.div
