@@ -11,7 +11,6 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { GlobalConsoleWarning } from "@/components/ui/global-console-warning";
 import { GlobalContextMenu } from "@/components/global-context-menu";
 import { TextSelectionMenu } from "@/components/text-selection-menu";
-import { BrowserDarkDetector } from "@/components/ui/browser-dark-detector";
 import { Toaster } from "@/components/ui/toast";
 
 const geistSans = Geist({
@@ -86,7 +85,6 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <BrowserDarkDetector />
           <HardwareProvider>
             <SoundProvider>
               <TooltipProvider>
