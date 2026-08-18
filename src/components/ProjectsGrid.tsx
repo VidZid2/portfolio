@@ -7,6 +7,7 @@ import { useTransition } from "@/components/TransitionProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import AnimatedLink from "@/components/ruixen/animated-link";
+import { StatusDot } from "@/components/ui/status-dot";
 import {
   type TechIcon,
   type TechKey,
@@ -75,20 +76,32 @@ export const ProjectCard = ({
       onFocus={() => setShouldLoadHoverImage(true)}
       onTouchStart={() => setShouldLoadHoverImage(true)}
     >
-      {/* Outer Wrapper exactly like screenshot */}
+      {/* Outer Wrapper with clean, minimalist border */}
       <motion.div
-        className={`relative w-full aspect-[1.25] rounded-xl border ${
-          project.live && project.live !== "#" 
-            ? project.isDown 
-              ? "border-2 border-rose-500/50 shadow-[0_0_15px_rgba(244,63,94,0.3)] bg-zinc-50/80 dark:bg-[#09090b]/80"
-              : "border-2 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] bg-zinc-50/80 dark:bg-[#09090b]/80" 
-            : "border-black/5 dark:border-white/5 bg-zinc-50/80 dark:bg-[#09090b]/80 shadow-sm hover:border-black/10 dark:hover:border-white/10"
-        } p-3.5 pb-0 flex flex-col overflow-hidden transition-all duration-500 hover:shadow-md sm:aspect-[1.4] sm:p-4 sm:pb-0`}
+        className="relative w-full aspect-[1.25] rounded-xl border border-black/10 dark:border-white/10 bg-zinc-50/80 dark:bg-[#09090b]/80 shadow-sm hover:border-black/20 dark:hover:border-white/20 p-3.5 pb-0 flex flex-col overflow-hidden transition-all duration-300 hover:shadow-md sm:aspect-[1.4] sm:p-4 sm:pb-0"
         initial={isMobile ? "hover" : "rest"}
         animate={isMobile ? "hover" : "rest"}
         whileHover={!isMobile ? "hover" : undefined}
       >
-        <div className="flex items-center justify-end z-10 min-h-[24px]">
+        <div className="flex items-center justify-between z-10 min-h-[24px]">
+          {project.live && project.live !== "#" ? (
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md border border-black/5 dark:border-white/10 text-[10.5px] font-medium text-zinc-700 dark:text-zinc-300 shadow-sm">
+              <StatusDot 
+                tone={project.isDown ? "error" : "success"} 
+                size="sm" 
+                animate={!project.isDown} 
+              />
+              <span>{project.isDown ? "Offline" : "Live"}</span>
+            </div>
+          ) : isBuilding ? (
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md border border-black/5 dark:border-white/10 text-[10.5px] font-medium text-zinc-700 dark:text-zinc-300 shadow-sm">
+              <StatusDot tone="warning" size="sm" animate />
+              <span>Building</span>
+            </div>
+          ) : (
+            <div />
+          )}
+
           {project.hasPin && (
             <div className="w-6 h-6 rounded-[6px] bg-transparent border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-center text-zinc-400 dark:text-zinc-500">
               <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -119,25 +132,18 @@ export const ProjectCard = ({
           )}
         </motion.div>
 
-        <motion.span
-          className="absolute top-4 left-4 text-[10px] font-bold text-zinc-500 dark:text-zinc-400 z-30 uppercase tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]"
-          variants={{
-            rest: { left: "1rem", top: "1rem", x: "0%", color: "#71717a", opacity: 0 },
-            hover: { left: "50%", top: "25%", x: "-50%", color: "#ffffff", opacity: 1 },
-          }}
-          transition={{ type: "spring", stiffness: 200, damping: 25 }}
-        >
-          View Live
-        </motion.span>
-
-        {project.live && (
+        {/* Clean Interactive Hover Action Pill */}
+        {project.live && project.live !== "#" && (
           <motion.div
             className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none group-hover:pointer-events-auto"
-            variants={{ rest: { scale: 0.5, opacity: 0 }, hover: { scale: 1, opacity: 1 } }}
-            transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.05 }}
+            variants={{
+              rest: { scale: 0.85, opacity: 0, y: 6 },
+              hover: { scale: 1, opacity: 1, y: 0 },
+            }}
+            transition={{ type: "spring", stiffness: 350, damping: 25 }}
           >
-            <div 
-              className="h-10 w-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:scale-110 active:scale-95 transition-transform duration-200 border border-white/50"
+            <div
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900/90 hover:bg-zinc-900 dark:bg-zinc-100/95 dark:hover:bg-white text-zinc-50 dark:text-zinc-950 text-[12px] font-medium backdrop-blur-md shadow-2xl border border-white/20 dark:border-black/10 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 if (project.live && project.live !== "#") {
@@ -145,7 +151,8 @@ export const ProjectCard = ({
                 }
               }}
             >
-              <svg className="w-4 h-4 text-zinc-900 ml-0.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <span>View Live</span>
+              <svg className="w-3.5 h-3.5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
               </svg>
             </div>
@@ -204,7 +211,9 @@ export const ProjectCard = ({
       {/* Content Area directly below the wrapper */}
       <div className="mt-4 flex flex-col px-0.5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
-          <h3 className="text-[15px] font-bold text-zinc-900 dark:text-zinc-100 leading-tight">{project.title}</h3>
+          <h3 className="text-[15px] font-bold text-zinc-900 dark:text-zinc-100 leading-tight">
+            {project.title}
+          </h3>
         </div>
 
         <div className="mt-2 sm:mt-1.5 text-[13px] text-zinc-500 dark:text-zinc-400 leading-relaxed pr-2 space-y-2">

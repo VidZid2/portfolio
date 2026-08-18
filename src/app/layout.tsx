@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Doto } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -11,6 +11,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { GlobalConsoleWarning } from "@/components/ui/global-console-warning";
 import { GlobalContextMenu } from "@/components/global-context-menu";
 import { TextSelectionMenu } from "@/components/text-selection-menu";
+import { Toaster } from "@/components/ui/toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,14 @@ const doto = Doto({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+  ],
+  colorScheme: "light dark",
+};
+
 export const metadata: Metadata = {
   title: "Josiah De Asis",
   description:
@@ -48,6 +57,10 @@ export const metadata: Metadata = {
       "Full-Stack Front-End Engineer & UI Systems Architect.",
     type: "website",
   },
+  other: {
+    "color-scheme": "light dark",
+    "supported-color-schemes": "light dark",
+  },
 };
 
 export default function RootLayout({
@@ -61,6 +74,10 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${doto.variable} h-full antialiased`}
     >
+      <head>
+        <meta name="color-scheme" content="light dark" />
+        <meta name="supported-color-schemes" content="light dark" />
+      </head>
       <body className="min-h-full flex flex-col dark:bg-black dark:text-zinc-50">
         <ThemeProvider
           attribute="class"
@@ -90,6 +107,7 @@ export default function RootLayout({
           </>
         )}
         <GlobalConsoleWarning />
+        <Toaster />
       </body>
     </html>
   );

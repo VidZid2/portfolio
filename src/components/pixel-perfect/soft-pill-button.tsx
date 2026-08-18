@@ -1,9 +1,7 @@
 "use client";
 import React from "react";
 import { cn } from "@/lib/utils";
-import { playHoverTick } from "@/lib/synth-sounds";
-import { playSound } from "@/lib/sound-engine";
-import { click003Sound } from "@/lib/click-003";
+import { playHoverTick, playSoftClick } from "@/lib/synth-sounds";
 
 export type SoftPillVariant = "secondary" | "primary";
 
@@ -30,11 +28,11 @@ const SoftPillButton = React.forwardRef<HTMLButtonElement, SoftPillButtonProps>(
           className,
         )}
         onMouseEnter={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          playHoverTick(0.02);
+          playHoverTick(0.025);
           props.onMouseEnter?.(e);
         }}
         onMouseDown={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          void playSound(click003Sound.dataUri, { volume: 0.1 });
+          playSoftClick(0.05);
           props.onMouseDown?.(e);
         }}
         {...props}

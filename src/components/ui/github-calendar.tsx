@@ -40,6 +40,7 @@ export type GithubCalendarProps = {
   showLegend?: boolean;
   deviceType?: "mobile" | "tablet" | "desktop"; // Changes animation text and label sizes
   className?: string; // Custom class for custom styling
+  onStatusChange?: (status: "live" | "down" | "loading") => void;
 };
 
 // ─── Built-in themes ──────────────────────────────────────────────────────────
@@ -143,8 +144,14 @@ function formatTooltipDate(dateStr: string): string {
   }
 }
 
-function playSound(type: "laser" | "explosion" | "hit" | "victory") {
-  // Sound effects disabled
+import { playLaserSound, playExplosionSound, playHitChime, playVictoryFanfare, playSuperComboSound } from "@/lib/synth-sounds";
+
+function playSound(type: "laser" | "explosion" | "hit" | "victory" | "superCombo", param: number = 0) {
+  if (type === "laser") playLaserSound(0.03);
+  else if (type === "explosion") playExplosionSound(0.04);
+  else if (type === "hit") playHitChime(param, 0.035);
+  else if (type === "victory") playVictoryFanfare(0.05);
+  else if (type === "superCombo") playSuperComboSound(param === 10 ? 10 : 5, 0.05);
 }
 
 // ─── API fetch ────────────────────────────────────────────────────────────────
@@ -155,24 +162,54 @@ type APIResponse = {
 };
 
 async function fetchContributions(username: string): Promise<ContributionData> {
-  const res = await fetch(
-    `https://github-contributions-api.jogruber.de/v4/${username}`,
-  );
-  if (!res.ok) {
-    throw new Error(
-      `Could not fetch contributions for "${username}" (${res.status})`,
+  // 1. Primary Reliable Endpoint
+  try {
+    const res = await fetch(
+      `https://github-contributions-api.jogruber.de/v4/${username}`,
+      { cache: "no-store" }
     );
+    if (res.ok) {
+      const json: APIResponse = await res.json();
+      if (json && Array.isArray(json.contributions) && json.contributions.length > 0) {
+        const result: ContributionData = {};
+        for (const entry of json.contributions) {
+          result[entry.date] = {
+            level: Math.min(4, Math.max(0, entry.level)) as ContributionLevel,
+            count: entry.count,
+          };
+        }
+        return result;
+      }
+    }
+  } catch (err) {
+    console.warn("Primary GitHub API fetch failed, trying secondary fallback:", err);
   }
-  const json: APIResponse = await res.json();
 
-  const result: ContributionData = {};
-  for (const entry of json.contributions) {
-    result[entry.date] = {
-      level: Math.min(4, Math.max(0, entry.level)) as ContributionLevel,
-      count: entry.count,
-    };
+  // 2. Secondary Fallback Endpoint
+  try {
+    const res2 = await fetch(
+      `https://github-contributions.vercel.app/api/v1/${username}`,
+      { cache: "no-store" }
+    );
+    if (res2.ok) {
+      const json2 = await res2.json();
+      const list = json2?.contributions;
+      if (Array.isArray(list) && list.length > 0) {
+        const result: ContributionData = {};
+        for (const entry of list) {
+          result[entry.date] = {
+            level: Math.min(4, Math.max(0, entry.intensity ?? entry.level ?? 0)) as ContributionLevel,
+            count: entry.count ?? 0,
+          };
+        }
+        return result;
+      }
+    }
+  } catch (err) {
+    console.warn("Secondary GitHub API fetch failed:", err);
   }
-  return result;
+
+  throw new Error(`Could not fetch live contributions for "${username}"`);
 }
 
 // ─── Build calendar grid ──────────────────────────────────────────────────────
@@ -392,6 +429,7 @@ export const GithubCalendar = memo(function GithubCalendar({
   showLegend = true,
   deviceType = "desktop",
   className,
+  onStatusChange,
 }: GithubCalendarProps) {
   const id = useId();
   // Scroll ref — used to auto-scroll to most recent months on compact viewports
@@ -468,12 +506,20 @@ export const GithubCalendar = memo(function GithubCalendar({
     setFetchedData(null);
     setFetchError(null);
     setLoading(true);
+    onStatusChange?.("loading");
 
     fetchContributions(username)
-      .then((d) => setFetchedData(d))
-      .catch((e) => setFetchError(e instanceof Error ? e.message : String(e)))
+      .then((d) => {
+        setFetchedData(d);
+        onStatusChange?.("live");
+      })
+      .catch((e) => {
+        const msg = e instanceof Error ? e.message : String(e);
+        setFetchError(msg);
+        onStatusChange?.("down");
+      })
       .finally(() => setLoading(false));
-  }, [username]);
+  }, [username, onStatusChange]);
 
   // ── Choose data source ─────────────────────────────────────────────────
   const data: ContributionData = dataProp ?? fetchedData ?? {};
@@ -614,7 +660,7 @@ export const GithubCalendar = memo(function GithubCalendar({
     };
   }, []);
 
-  // Game loop and autoplay logic
+  // Game loop and interactive space shooter logic
   useEffect(() => {
     if (!gameActive) {
       // Restore all cells opacity and colors when game is stopped
@@ -643,28 +689,57 @@ export const GithubCalendar = memo(function GithubCalendar({
 
     let gameWon = false;
     let animationFrameId: number;
-    
-    // Canvas dimensions must match SVG viewBox exactly to prevent coordinate mismatch
-    const canvasWidth = svgWidth + 48;
-    const canvasHeight = svgHeight + 8 + 80; // +80 for the player ship area
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
+    let score = 0;
+    let combo = 0;
+    let lastHitTime = 0;
+    let screenShake = 0;
+    let shotCount = 0;
+    let gameplayAlpha = 1;
+    let superLaserCharges = 0;
 
-    // We translate the canvas context so that (0,0) matches the SVG (0,0)
-    // The SVG viewBox starts at -24, -4. So (0,0) is 24px right and 4px down.
-    ctx.translate(24, 4);
+    // Victory celebration state
+    const victoryState = {
+      active: false,
+      startTime: 0,
+      alpha: 0,
+      targetAlpha: 1,
+      scale: 0.85,
+    };
+
+    // Smooth Animated Combo State
+    const comboDisplay = {
+      alpha: 0,
+      targetAlpha: 0,
+      scale: 1,
+      text: "",
+      color: "#38bdf8",
+    };
+
+    // Canvas dimensions matching SVG viewBox with high-DPI retina sharpness
+    const dpr = typeof window !== "undefined" ? Math.max(window.devicePixelRatio || 1, 2) : 2;
+    const canvasWidth = svgWidth + 48;
+    const canvasHeight = svgHeight + 8 + 80;
+    canvas.width = Math.round(canvasWidth * dpr);
+    canvas.height = Math.round(canvasHeight * dpr);
+
+    // Initial scale and translation for high-DPI rendering
+    ctx.setTransform(dpr, 0, 0, dpr, 24 * dpr, 4 * dpr);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
 
     const logicalWidth = svgWidth;
     const logicalHeight = svgHeight + 80;
 
     // Local mutable map for dynamic cell levels
     const cellLevels = new Map<string, number>();
+    let totalTargetCells = 0;
     weeks.forEach((week) => {
       week.forEach((date) => {
         if (!date) return;
         const entry = data[date];
         const initialLevel = entry?.level ?? 0;
         cellLevels.set(date, initialLevel);
+        if (initialLevel > 0) totalTargetCells++;
         const rect = document.getElementById(`cell-${id}-${date}`);
         if (rect) {
           if (initialLevel === 0) {
@@ -678,52 +753,153 @@ export const GithubCalendar = memo(function GithubCalendar({
       });
     });
 
-    // Player (Spacecraft) with automatic direction sweep
+    // Player (Spacecraft)
     const player = {
-      x: logicalWidth / 2 - 15,
-      y: logicalHeight - 25,
-      width: 30,
-      height: 20,
-      speed: 4,
+      x: logicalWidth / 2 - 16,
+      targetX: logicalWidth / 2 - 16,
+      y: logicalHeight - 26,
+      width: 32,
+      height: 22,
+      speed: 2.8,
       direction: 1, // 1 = right, -1 = left
       color: "#38bdf8",
+      userControlled: false,
+      lastUserInteraction: 0,
     };
 
-    // Bullets
+    // Mouse & Touch Controls
+    const handlePointerMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvasWidth / rect.width;
+      const canvasX = (e.clientX - rect.left) * scaleX - 24;
+      player.targetX = canvasX - player.width / 2;
+      player.userControlled = true;
+      player.lastUserInteraction = Date.now();
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!e.touches[0]) return;
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvasWidth / rect.width;
+      const canvasX = (e.touches[0].clientX - rect.left) * scaleX - 24;
+      player.targetX = canvasX - player.width / 2;
+      player.userControlled = true;
+      player.lastUserInteraction = Date.now();
+    };
+
+    const handlePointerLeave = () => {
+      player.userControlled = false;
+    };
+
+    canvas.addEventListener("mousemove", handlePointerMove);
+    canvas.addEventListener("touchmove", handleTouchMove, { passive: true });
+    canvas.addEventListener("mouseleave", handlePointerLeave);
+
+    // Bullets with trails & plasma glow
     type GameBullet = {
       x: number;
       y: number;
       vy: number;
+      vx: number;
       width: number;
       height: number;
       color: string;
+      glowColor: string;
+      isSpecial?: boolean;
     };
     let bullets: GameBullet[] = [];
     let lastShot = 0;
-    const cooldown = 140; // Autoplay shooting speed
+    const cooldown = 380; // Slower, rhythmic and deliberate shooting pace
 
     const shoot = () => {
-      bullets.push({
-        x: player.x + player.width / 2 - 1.5,
-        y: player.y - 4,
-        vy: -6,
-        width: 3,
-        height: 8,
-        color: "#fbbf24", // Yellow laser
-      });
+      shotCount++;
+
+      if (superLaserCharges > 0) {
+        // Hyper Plasma Tri-Beam (5x / 10x Combo Reward!)
+        superLaserCharges--;
+        bullets.push({
+          x: player.x + 2,
+          y: player.y - 2,
+          vx: -0.6,
+          vy: -4.2,
+          width: 3.5,
+          height: 11,
+          color: "#facc15",
+          glowColor: "#eab308",
+          isSpecial: true,
+        });
+        bullets.push({
+          x: player.x + player.width / 2 - 1.75,
+          y: player.y - 5,
+          vx: 0,
+          vy: -4.5,
+          width: 4,
+          height: 12,
+          color: "#e879f9",
+          glowColor: "#c084fc",
+          isSpecial: true,
+        });
+        bullets.push({
+          x: player.x + player.width - 5.5,
+          y: player.y - 2,
+          vx: 0.6,
+          vy: -4.2,
+          width: 3.5,
+          height: 11,
+          color: "#facc15",
+          glowColor: "#eab308",
+          isSpecial: true,
+        });
+      } else if (shotCount % 5 === 0) {
+        // Dual Wing Laser Cannons
+        bullets.push({
+          x: player.x + 4,
+          y: player.y - 2,
+          vx: -0.2,
+          vy: -4.0,
+          width: 3.5,
+          height: 10,
+          color: "#38bdf8",
+          glowColor: "#0284c7",
+          isSpecial: true,
+        });
+        bullets.push({
+          x: player.x + player.width - 7.5,
+          y: player.y - 2,
+          vx: 0.2,
+          vy: -4.0,
+          width: 3.5,
+          height: 10,
+          color: "#38bdf8",
+          glowColor: "#0284c7",
+          isSpecial: true,
+        });
+      } else {
+        // Center Plasma Laser
+        bullets.push({
+          x: player.x + player.width / 2 - 1.5,
+          y: player.y - 4,
+          vx: 0,
+          vy: -4.0,
+          width: 3,
+          height: 9,
+          color: "#fbbf24",
+          glowColor: "#f59e0b",
+        });
+      }
       playSound("laser");
     };
 
-    // Stars background (Space effect)
-    const stars = Array.from({ length: 140 }).map(() => ({
-      x: Math.random() * canvasWidth - 24, // -24 to svgWidth + 24
-      y: Math.random() * canvasHeight - 4, // -4 to svgHeight + 76
-      speed: Math.random() * 0.4 + 0.1,
+    // Stars background (Deep Space parallax effect)
+    const stars = Array.from({ length: 120 }).map(() => ({
+      x: Math.random() * canvasWidth - 24,
+      y: Math.random() * canvasHeight - 4,
+      speed: Math.random() * 0.35 + 0.1,
       size: Math.random() * 1.2 + 0.5,
       alpha: Math.random() * 0.5 + 0.1,
     }));
 
-    // Particles (for explosions)
+    // Particles (for explosions, engine thrusters & debris)
     type GameParticle = {
       x: number;
       y: number;
@@ -736,33 +912,87 @@ export const GithubCalendar = memo(function GithubCalendar({
       maxLife: number;
     };
     let particles: GameParticle[] = [];
-    const explode = (x: number, y: number, color: string) => {
-      playSound("explosion");
-      for (let i = 0; i < 12; i++) {
+
+    // Shockwave rings
+    type Shockwave = {
+      x: number;
+      y: number;
+      radius: number;
+      maxRadius: number;
+      color: string;
+      alpha: number;
+    };
+    let shockwaves: Shockwave[] = [];
+
+    // Floating text popups (+100, COMBO x2)
+    type FloatText = {
+      x: number;
+      y: number;
+      text: string;
+      color: string;
+      alpha: number;
+      vy: number;
+    };
+    let floatTexts: FloatText[] = [];
+
+    const explode = (x: number, y: number, color: string, isFullDestroy: boolean) => {
+      if (isFullDestroy) {
+        playSound("explosion");
+        screenShake = 3;
+        // Spawn Shockwave Ring
+        shockwaves.push({
+          x,
+          y,
+          radius: 2,
+          maxRadius: 24,
+          color,
+          alpha: 0.9,
+        });
+      } else {
+        playSound("hit", combo);
+      }
+
+      // Shard Debris Particles
+      const count = isFullDestroy ? 14 : 6;
+      for (let i = 0; i < count; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 2.5 + 1.2;
+        const speed = isFullDestroy ? (Math.random() * 2.8 + 1.2) : (Math.random() * 1.5 + 0.8);
         particles.push({
           x,
           y,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
           color,
-          size: Math.random() * 2 + 1,
+          size: Math.random() * 2.5 + 1.2,
           alpha: 1,
           life: 0,
-          maxLife: Math.random() * 15 + 15,
+          maxLife: Math.random() * 20 + 20,
         });
       }
     };
 
     const update = () => {
-      // Find the min and max column index (wi) that still has active cells (level > 0)
+      const now = Date.now();
+
+      // Smoothly fade out combo if inactive for > 1.6s
+      if (now - lastHitTime > 1600) {
+        combo = 0;
+        comboDisplay.targetAlpha = 0;
+      }
+
+      // Smooth spring interpolation for combo display
+      comboDisplay.alpha += (comboDisplay.targetAlpha - comboDisplay.alpha) * 0.12;
+      comboDisplay.scale += (1 - comboDisplay.scale) * 0.14;
+
+      // Find active column boundaries
       let minWi = -1;
       let maxWi = -1;
+      let remainingTargets = 0;
       weeks.forEach((week, wi) => {
         week.forEach((date) => {
           if (!date) return;
           if ((cellLevels.get(date) ?? 0) > 0) {
+            remainingTargets++;
             if (minWi === -1) minWi = wi;
             minWi = Math.min(minWi, wi);
             maxWi = Math.max(maxWi, wi);
@@ -770,80 +1000,118 @@ export const GithubCalendar = memo(function GithubCalendar({
         });
       });
 
-      // If there are active cells, restrict player boundary
-      let minX = 0;
-      let maxX = logicalWidth - player.width;
-      if (minWi !== -1 && maxWi !== -1) {
-        const activeLeft = leftMargin + minWi * step;
-        const activeRight = leftMargin + maxWi * step + cellSize;
-        minX = Math.max(0, activeLeft - 40);
-        maxX = Math.min(logicalWidth - player.width, activeRight + 40 - player.width);
-        if (minX > maxX) {
-          const mid = (minX + maxX) / 2;
-          minX = mid;
-          maxX = mid;
+      // Stable, full-width grid boundaries for smooth left-to-right ship patrol
+      const gridLeft = leftMargin;
+      const gridRight = leftMargin + weeks.length * step - cellGap;
+      const minX = Math.max(0, gridLeft - 6);
+      const maxX = Math.min(logicalWidth - player.width, gridRight - player.width + 6);
+
+      // ── Ship Movement (Interactive + Auto-patrol fallback) ─────────────────
+      const isUserActive = player.userControlled && (now - player.lastUserInteraction < 2000);
+
+      if (isUserActive) {
+        // Smoothly glide to pointer position with inertia
+        const clampedTarget = Math.max(minX, Math.min(maxX, player.targetX));
+        player.x += (clampedTarget - player.x) * 0.16;
+      } else {
+        // Smooth, full-range auto-pilot patrol sweep
+        player.x += player.speed * player.direction;
+        if (player.x >= maxX) {
+          player.x = maxX;
+          player.direction = -1;
+        } else if (player.x <= minX) {
+          player.x = minX;
+          player.direction = 1;
         }
       }
 
-      // Clamp player position
+      // Clamp player bounds
       player.x = Math.max(minX, Math.min(maxX, player.x));
 
-      // ── Side-to-Side Sweep Ship Movement ──────────────────────────────────
-      player.x += player.speed * player.direction;
-      if (player.x >= maxX) {
-        player.x = maxX;
-        player.direction = -1;
-      } else if (player.x <= minX) {
-        player.x = minX;
-        player.direction = 1;
+      // ── Thruster Exhaust Plasma Particles ──────────────────────────────────
+      if (!victoryState.active && Math.random() < 0.6) {
+        particles.push({
+          x: player.x + player.width / 2 + (Math.random() * 6 - 3),
+          y: player.y + player.height * 0.8,
+          vx: (Math.random() - 0.5) * 0.8,
+          vy: Math.random() * 1.8 + 1.2,
+          color: combo >= 10 ? "#e879f9" : combo >= 5 ? "#facc15" : Math.random() > 0.4 ? "#38bdf8" : "#f59e0b",
+          size: Math.random() * 2 + 1,
+          alpha: 0.8,
+          life: 0,
+          maxLife: 15,
+        });
       }
 
-      // ── Continuous Auto-Shooting ──────────────────────────────────────────
-      const now = Date.now();
-      if (now - lastShot >= cooldown) {
+      // ── Rhythmic Auto-Shooting ─────────────────────────────────────────────
+      if (!victoryState.active && now - lastShot >= cooldown) {
         shoot();
         lastShot = now;
       }
 
-      // ── Reset Game if all contribution cells are cleared to level 0 ──────
-      let anyActive = false;
-      cellLevels.forEach((level) => {
-        if (level > 0) anyActive = true;
-      });
+      // ── Smooth Victory Animation & Gameplay Fade-out State Update ───────────
+      const targetGameplayAlpha = victoryState.active ? 0 : 1;
+      gameplayAlpha += (targetGameplayAlpha - gameplayAlpha) * 0.12;
 
-      if (!anyActive && !gameWon) {
-        gameWon = true;
-        playSound("victory");
-        // Reset all cell levels back to their original levels
-        weeks.forEach((week) => {
-          week.forEach((date) => {
-            if (!date) return;
-            const originalLevel = data[date]?.level ?? 0;
-            cellLevels.set(date, originalLevel);
-            const rect = document.getElementById(`cell-${id}-${date}`);
-            if (rect) {
-              const originalColor =
-                activeColors[`level${originalLevel}` as keyof ThemeColors] ||
-                activeColors.level0;
-              rect.setAttribute("fill", originalColor);
-              if (originalLevel === 0) {
-                rect.style.opacity = "0";
-                rect.style.pointerEvents = "none";
-              } else {
-                rect.style.opacity = "1";
-                rect.style.pointerEvents = "auto";
-              }
-            }
-          });
-        });
-        
-        setTimeout(() => {
-          setGameActive(false);
-        }, 1200);
+      if (victoryState.active) {
+        if (now - victoryState.startTime >= 2300) {
+          victoryState.targetAlpha = 0;
+        }
+        victoryState.alpha += (victoryState.targetAlpha - victoryState.alpha) * 0.08;
+        victoryState.scale += (1 - victoryState.scale) * 0.08;
       }
 
-      // ── Update Environment ────────────────────────────────────────────────
-      // Move Stars
+      // ── Victory Check ──────────────────────────────────────────────────────
+      if (remainingTargets === 0 && !gameWon) {
+        gameWon = true;
+        victoryState.active = true;
+        victoryState.startTime = now;
+        victoryState.targetAlpha = 1;
+        playSound("victory");
+        screenShake = 4.0;
+
+        // Big Celebratory Confetti Burst
+        for (let i = 0; i < 45; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = Math.random() * 4.5 + 1.2;
+          particles.push({
+            x: logicalWidth / 2,
+            y: logicalHeight / 2 - 10,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            color: ["#38bdf8", "#facc15", "#e879f9", "#34d399", "#60a5fa"][Math.floor(Math.random() * 5)]!,
+            size: Math.random() * 3 + 1.5,
+            alpha: 1,
+            life: 0,
+            maxLife: 60,
+          });
+        }
+
+        // Concentric Victory Shockwaves
+        shockwaves.push({
+          x: logicalWidth / 2,
+          y: logicalHeight / 2 - 10,
+          radius: 4,
+          maxRadius: 70,
+          color: "#38bdf8",
+          alpha: 1,
+        });
+        shockwaves.push({
+          x: logicalWidth / 2,
+          y: logicalHeight / 2 - 10,
+          radius: 2,
+          maxRadius: 50,
+          color: "#facc15",
+          alpha: 0.9,
+        });
+
+        // Smoothly close the game mode after the winner sequence concludes (cells will smoothly restore on cleanup)
+        setTimeout(() => {
+          setGameActive(false);
+        }, 2800);
+      }
+
+      // ── Update Stars ───────────────────────────────────────────────────────
       stars.forEach((s) => {
         s.y += s.speed;
         if (s.y > canvasHeight - 4) {
@@ -852,14 +1120,15 @@ export const GithubCalendar = memo(function GithubCalendar({
         }
       });
 
-      // Move Bullets
+      // ── Update Bullets ─────────────────────────────────────────────────────
       bullets = bullets.filter((b) => {
+        b.x += b.vx;
         b.y += b.vy;
         return b.y > 0;
       });
 
-      // Move Particles
-      particles.forEach((p, idx) => {
+      // ── Update Particles ───────────────────────────────────────────────────
+      particles.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
         p.life++;
@@ -867,33 +1136,166 @@ export const GithubCalendar = memo(function GithubCalendar({
       });
       particles = particles.filter((p) => p.life < p.maxLife);
 
-      // Check laser collisions with cells
+      // ── Update Shockwaves ──────────────────────────────────────────────────
+      shockwaves.forEach((s) => {
+        s.radius += 1.2;
+        s.alpha = Math.max(0, 1 - s.radius / s.maxRadius);
+      });
+      shockwaves = shockwaves.filter((s) => s.radius < s.maxRadius);
+
+      // ── Update Floating Text ───────────────────────────────────────────────
+      floatTexts.forEach((t) => {
+        t.y += t.vy;
+        t.alpha -= 0.02;
+      });
+      floatTexts = floatTexts.filter((t) => t.alpha > 0);
+
+      // Decay screen shake
+      if (screenShake > 0) screenShake -= 0.4;
+
+      // ── Bullet Collision with Cells ────────────────────────────────────────
       bullets.forEach((bullet, bulletIdx) => {
         weeks.forEach((week, wi) => {
           week.forEach((date, di) => {
             if (!date) return;
 
             const currentLevel = cellLevels.get(date) ?? 0;
-            if (currentLevel === 0) return; // Already finished / level 0
+            if (currentLevel === 0) return;
 
             const cellX = leftMargin + wi * step;
             const cellY = monthLabelHeight + di * step;
 
-            // Simple box-overlap collision check
             if (
               bullet.x < cellX + cellSize &&
               bullet.x + bullet.width > cellX &&
               bullet.y < cellY + cellSize &&
               bullet.y + bullet.height > cellY
             ) {
-              // Collision detected! Remove the bullet
+              // Collision detected!
               bullets.splice(bulletIdx, 1);
 
-              // Decrement the level by 1
               const newLevel = currentLevel - 1;
               cellLevels.set(date, newLevel);
 
-              // Instantly update the cell color in the SVG DOM
+              // Combo & Score calculation
+              lastHitTime = now;
+              combo++;
+              comboDisplay.targetAlpha = 1;
+              comboDisplay.scale = 1.35; // spring bounce
+
+              if (combo >= 10) {
+                comboDisplay.text = `🔥 HYPER COMBO x${combo}! 🔥`;
+                comboDisplay.color = "#e879f9";
+              } else if (combo >= 5) {
+                comboDisplay.text = `⚡ SUPER COMBO x${combo}! ⚡`;
+                comboDisplay.color = "#facc15";
+              } else {
+                comboDisplay.text = `COMBO x${combo}!`;
+                comboDisplay.color = "#38bdf8";
+              }
+
+              // ── Milestone 5x Combo Trigger ─────────────────────────────────
+              if (combo === 5) {
+                playSound("superCombo", 5);
+                screenShake = 4.5;
+                superLaserCharges += 4;
+                // Golden Solar Shockwave
+                shockwaves.push({
+                  x: logicalWidth / 2,
+                  y: logicalHeight / 2 - 20,
+                  radius: 4,
+                  maxRadius: 46,
+                  color: "#facc15",
+                  alpha: 1,
+                });
+                // Golden Spark Blast
+                for (let i = 0; i < 22; i++) {
+                  const angle = Math.random() * Math.PI * 2;
+                  const speed = Math.random() * 3.2 + 1.5;
+                  particles.push({
+                    x: logicalWidth / 2,
+                    y: logicalHeight / 2 - 20,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    color: Math.random() > 0.3 ? "#facc15" : "#38bdf8",
+                    size: Math.random() * 2.8 + 1.2,
+                    alpha: 1,
+                    life: 0,
+                    maxLife: 28,
+                  });
+                }
+                floatTexts.push({
+                  x: logicalWidth / 2,
+                  y: logicalHeight / 2 - 15,
+                  text: "⚡ 5X COMBO STREAK! ⚡",
+                  color: "#facc15",
+                  alpha: 1,
+                  vy: -0.45,
+                });
+              }
+
+              // ── Milestone 10x Combo Trigger ────────────────────────────────
+              if (combo === 10) {
+                playSound("superCombo", 10);
+                screenShake = 6.0;
+                superLaserCharges += 6;
+                // Dual Cosmic Nova Rings
+                shockwaves.push({
+                  x: logicalWidth / 2,
+                  y: logicalHeight / 2 - 20,
+                  radius: 4,
+                  maxRadius: 56,
+                  color: "#e879f9",
+                  alpha: 1,
+                });
+                shockwaves.push({
+                  x: logicalWidth / 2,
+                  y: logicalHeight / 2 - 20,
+                  radius: 2,
+                  maxRadius: 38,
+                  color: "#38bdf8",
+                  alpha: 0.9,
+                });
+                // Cosmic Spark Burst
+                for (let i = 0; i < 32; i++) {
+                  const angle = Math.random() * Math.PI * 2;
+                  const speed = Math.random() * 4.0 + 2.0;
+                  particles.push({
+                    x: logicalWidth / 2,
+                    y: logicalHeight / 2 - 20,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    color: ["#e879f9", "#facc15", "#38bdf8"][Math.floor(Math.random() * 3)]!,
+                    size: Math.random() * 3 + 1.5,
+                    alpha: 1,
+                    life: 0,
+                    maxLife: 32,
+                  });
+                }
+                floatTexts.push({
+                  x: logicalWidth / 2,
+                  y: logicalHeight / 2 - 15,
+                  text: "🔥 10X HYPER STREAK! 🔥",
+                  color: "#e879f9",
+                  alpha: 1,
+                  vy: -0.45,
+                });
+              }
+
+              const points = newLevel === 0 ? (150 * Math.min(combo, 10)) : (50 * Math.min(combo, 10));
+              score += points;
+
+              // Spawn floating score popup
+              floatTexts.push({
+                x: cellX + cellSize / 2,
+                y: cellY - 4,
+                text: newLevel === 0 ? `+${points}${combo > 1 ? ` (x${combo})` : ""}` : `+${points}`,
+                color: combo >= 10 ? "#e879f9" : combo >= 5 ? "#facc15" : newLevel === 0 ? "#60a5fa" : "#fbbf24",
+                alpha: 1,
+                vy: -0.6,
+              });
+
+              // Instantly update cell in SVG DOM
               const rect = document.getElementById(`cell-${id}-${date}`);
               if (rect) {
                 if (newLevel === 0) {
@@ -907,11 +1309,10 @@ export const GithubCalendar = memo(function GithubCalendar({
                 }
               }
 
-              // Play hit explosion effect using the level color before hit
               const hitColor =
                 activeColors[`level${currentLevel}` as keyof ThemeColors] ||
                 activeColors.level0;
-              explode(cellX + cellSize / 2, cellY + cellSize / 2, hitColor);
+              explode(cellX + cellSize / 2, cellY + cellSize / 2, hitColor, newLevel === 0);
             }
           });
         });
@@ -919,9 +1320,16 @@ export const GithubCalendar = memo(function GithubCalendar({
     };
 
     const render = () => {
+      const now = Date.now();
+
+      // Clean Transform with DPR scaling and screen shake
+      const shakeX = screenShake > 0 ? (Math.random() - 0.5) * screenShake : 0;
+      const shakeY = screenShake > 0 ? (Math.random() - 0.5) * screenShake : 0;
+      ctx.setTransform(dpr, 0, 0, dpr, (24 + shakeX) * dpr, (4 + shakeY) * dpr);
+
       ctx.clearRect(-24, -4, canvasWidth, canvasHeight);
 
-      // Draw starry space background
+      // 1. Starry Space Background
       ctx.fillStyle = isDark ? "#ffffff" : "#94a3b8";
       stars.forEach((s) => {
         ctx.globalAlpha = s.alpha;
@@ -929,13 +1337,29 @@ export const GithubCalendar = memo(function GithubCalendar({
       });
       ctx.globalAlpha = 1.0;
 
-      // Draw bullets
-      bullets.forEach((b) => {
-        ctx.fillStyle = b.color;
-        ctx.fillRect(b.x, b.y, b.width, b.height);
+      // 2. Shockwave Rings
+      shockwaves.forEach((s) => {
+        ctx.save();
+        ctx.strokeStyle = s.color;
+        ctx.lineWidth = 1.5;
+        ctx.globalAlpha = s.alpha;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
       });
 
-      // Draw particles
+      // 3. Bullets
+      bullets.forEach((b) => {
+        ctx.save();
+        ctx.shadowColor = b.glowColor;
+        ctx.shadowBlur = 6;
+        ctx.fillStyle = b.color;
+        ctx.fillRect(b.x, b.y, b.width, b.height);
+        ctx.restore();
+      });
+
+      // 4. Particles
       particles.forEach((p) => {
         ctx.fillStyle = p.color;
         ctx.globalAlpha = p.alpha;
@@ -943,25 +1367,127 @@ export const GithubCalendar = memo(function GithubCalendar({
       });
       ctx.globalAlpha = 1.0;
 
-      // Draw Player Ship (Cyan space fighter style)
-      ctx.fillStyle = player.color;
-      ctx.shadowColor = player.color;
-      ctx.shadowBlur = 6;
-      ctx.beginPath();
-      ctx.moveTo(player.x + player.width / 2, player.y);
-      ctx.lineTo(player.x + player.width, player.y + player.height);
-      ctx.lineTo(
-        player.x + player.width * 0.7,
-        player.y + player.height * 0.75,
-      );
-      ctx.lineTo(
-        player.x + player.width * 0.3,
-        player.y + player.height * 0.75,
-      );
-      ctx.lineTo(player.x, player.y + player.height);
-      ctx.closePath();
-      ctx.fill();
-      ctx.shadowBlur = 0;
+      // 5. Floating Text Popups (Crisp Geist Mono font)
+      floatTexts.forEach((t) => {
+        ctx.save();
+        ctx.font = '700 10.5px var(--font-geist-mono), "Geist Mono", monospace';
+        ctx.fillStyle = t.color;
+        ctx.globalAlpha = t.alpha;
+        ctx.textAlign = "center";
+        ctx.fillText(t.text, t.x, t.y);
+        ctx.restore();
+      });
+
+      // 6. In-Game HUD (Crisp Geist Mono font matching website typography)
+      if (gameplayAlpha > 0.01) {
+        ctx.save();
+        ctx.globalAlpha = gameplayAlpha;
+        ctx.font = '600 11px var(--font-geist-mono), "Geist Mono", monospace';
+        ctx.fillStyle = isDark ? "#a1a1aa" : "#71717a";
+        ctx.textAlign = "left";
+        ctx.fillText("SCORE: ", 4, 12);
+        const scoreLabelWidth = ctx.measureText("SCORE: ").width;
+
+        ctx.font = '700 11px var(--font-geist-mono), "Geist Mono", monospace';
+        ctx.fillStyle = isDark ? "#f4f4f5" : "#18181b";
+        ctx.fillText(score.toLocaleString(), 4 + scoreLabelWidth, 12);
+
+        // Smooth Animated Combo Banner (Smooth In / Out + Special 5x & 10x Pulse)
+        if (comboDisplay.alpha > 0.005) {
+          ctx.save();
+          ctx.globalAlpha = Math.min(1, comboDisplay.alpha * gameplayAlpha);
+          const pulse = combo >= 10 ? Math.sin(now * 0.012) * 0.08 : combo >= 5 ? Math.sin(now * 0.008) * 0.05 : 0;
+          ctx.translate(logicalWidth / 2, 12);
+          ctx.scale(comboDisplay.scale + pulse, comboDisplay.scale + pulse);
+
+          ctx.font = '700 11px var(--font-geist-mono), "Geist Mono", monospace';
+          ctx.fillStyle = comboDisplay.color;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(comboDisplay.text, 0, 0);
+          ctx.restore();
+        }
+        ctx.restore();
+      }
+
+      // 7. Player Spaceship (Smoothly hidden during victory)
+      if (gameplayAlpha > 0.01) {
+        ctx.save();
+        ctx.globalAlpha = gameplayAlpha;
+        ctx.fillStyle = combo >= 10 ? "#e879f9" : combo >= 5 ? "#facc15" : player.color;
+        ctx.shadowColor = combo >= 10 ? "#e879f9" : combo >= 5 ? "#facc15" : player.color;
+        ctx.shadowBlur = combo >= 5 ? 12 : 8;
+        ctx.beginPath();
+        ctx.moveTo(player.x + player.width / 2, player.y);
+        ctx.lineTo(player.x + player.width, player.y + player.height);
+        ctx.lineTo(
+          player.x + player.width * 0.7,
+          player.y + player.height * 0.75,
+        );
+        ctx.lineTo(
+          player.x + player.width * 0.3,
+          player.y + player.height * 0.75,
+        );
+        ctx.lineTo(player.x, player.y + player.height);
+        ctx.closePath();
+        ctx.fill();
+
+        // Cockpit Glow
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.ellipse(
+          player.x + player.width / 2,
+          player.y + player.height * 0.45,
+          2.5,
+          4.5,
+          0,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // 8. Winner Overlay Banner (Centered, High-DPI Crisp Geist Mono)
+      if (victoryState.active && victoryState.alpha > 0.01) {
+        ctx.save();
+        ctx.globalAlpha = Math.min(1, Math.max(0, victoryState.alpha));
+        ctx.translate(logicalWidth / 2, logicalHeight / 2 - 10);
+        ctx.scale(victoryState.scale, victoryState.scale);
+
+        // High contrast backdrop card
+        const bannerW = Math.min(logicalWidth - 32, 280);
+        const bannerH = 50;
+
+        ctx.fillStyle = isDark ? "rgba(9, 9, 11, 0.9)" : "rgba(255, 255, 255, 0.92)";
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineWidth = 1.5;
+
+        ctx.beginPath();
+        if (typeof ctx.roundRect === "function") {
+          ctx.roundRect(-bannerW / 2, -bannerH / 2, bannerW, bannerH, 10);
+        } else {
+          ctx.rect(-bannerW / 2, -bannerH / 2, bannerW, bannerH);
+        }
+        ctx.fill();
+        ctx.stroke();
+
+        // Primary Header Text
+        ctx.font = '700 12px var(--font-geist-mono), "Geist Mono", monospace';
+        ctx.fillStyle = "#38bdf8";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("★ ALL TARGETS CLEARED! ★", 0, -9);
+
+        // Subtitle & Score Text
+        ctx.font = '600 10px var(--font-geist-mono), "Geist Mono", monospace';
+        ctx.fillStyle = isDark ? "#e4e4e7" : "#3f3f46";
+        ctx.fillText(`VICTORY • SCORE: ${score.toLocaleString()}`, 0, 11);
+
+        ctx.restore();
+      }
+
+      ctx.restore();
     };
 
     const loop = () => {
@@ -976,6 +1502,9 @@ export const GithubCalendar = memo(function GithubCalendar({
 
     return () => {
       cancelAnimationFrame(animationFrameId);
+      canvas.removeEventListener("mousemove", handlePointerMove);
+      canvas.removeEventListener("touchmove", handleTouchMove);
+      canvas.removeEventListener("mouseleave", handlePointerLeave);
     };
   }, [
     gameActive,

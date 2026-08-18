@@ -4,23 +4,11 @@ import * as React from "react";
 import { motion } from "motion/react";
 import { Check } from "lucide-react";
 
+import { playHoverTick } from "@/lib/synth-sounds";
+
 /* ── sound ─────────────────────────────────────────────── */
-let _a: AudioContext, _b: AudioBuffer;
 const tick = () => {
-  if (typeof window === "undefined") return;
-  if (!_a) {
-    _a = new AudioContext();
-    _b = _a.createBuffer(1, (_a.sampleRate * 0.003) | 0, _a.sampleRate);
-    const d = _b.getChannelData(0);
-    for (let i = 0; i < d.length; i++)
-      d[i] = (Math.random() * 2 - 1) * (1 - i / d.length) ** 4;
-  }
-  const s = _a.createBufferSource();
-  s.buffer = _b;
-  const g = _a.createGain();
-  g.gain.value = 0.08;
-  s.connect(g).connect(_a.destination);
-  s.start();
+  playHoverTick(0.025);
 };
 
 /* ── theme ─────────────────────────────────────────────── */

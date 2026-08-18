@@ -5,7 +5,7 @@ import { Volume2, VolumeX } from "lucide-react";
 import { useSoundPreferences } from "@/hooks/use-sound";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { playHoverTick } from "@/lib/synth-sounds";
+import { playHoverTick, playToggleOn, playToggleOff } from "@/lib/synth-sounds";
 
 export function SoundToggle({ className }: { className?: string }) {
   const { soundEnabled, toggleSound } = useSoundPreferences();
@@ -14,16 +14,17 @@ export function SoundToggle({ className }: { className?: string }) {
     <button
       type="button"
       onClick={() => {
+        if (soundEnabled) {
+          playToggleOff(0.04);
+        }
         toggleSound();
         if (!soundEnabled) {
-          // If we are turning it ON, play a subtle tick as feedback
-          // setTimeout ensures state updates first
-          setTimeout(() => playHoverTick(0.2), 50);
+          setTimeout(() => playToggleOn(0.06), 20);
         }
       }}
-      onMouseEnter={() => playHoverTick(0.05)}
+      onMouseEnter={() => playHoverTick(0.03)}
       className={cn(
-        "relative group cursor-pointer transition-all duration-300 active:scale-95 z-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 rounded-[9px]",
+        "relative inline-flex items-center justify-center group cursor-pointer transition-all duration-300 active:scale-95 z-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 rounded-[9px]",
         className
       )}
       aria-label={soundEnabled ? "Mute sounds" : "Enable sounds"}

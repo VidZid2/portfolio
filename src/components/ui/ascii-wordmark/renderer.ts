@@ -49,7 +49,8 @@ export class AsciiWordmarkRenderer {
   private points!: THREE.Points;
   private pointsMat!: THREE.ShaderMaterial;
 
-  private clock = new THREE.Clock();
+  private lastTime = typeof performance !== "undefined" ? performance.now() : 0;
+  private elapsedTime = 0;
   private raf = 0;
   private running = false;
   private onScreen = true;
@@ -322,7 +323,7 @@ export class AsciiWordmarkRenderer {
   private maybeStart() {
     if (this.disposed || this.running || !this.onScreen || document.hidden) return;
     this.running = true;
-    this.clock.getDelta();
+    this.lastTime = typeof performance !== "undefined" ? performance.now() : Date.now();
     this.raf = requestAnimationFrame(this.loop);
   }
 
@@ -352,8 +353,11 @@ export class AsciiWordmarkRenderer {
 
   private loop = () => {
     if (!this.running) return;
-    const dt = Math.min(this.clock.getDelta(), 1 / 30);
-    const t = this.clock.elapsedTime;
+    const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+    const dt = Math.min((now - this.lastTime) / 1000, 1 / 30);
+    this.lastTime = now;
+    this.elapsedTime += dt;
+    const t = this.elapsedTime;
 
     this.mouseSpeed = this.mouse.distanceTo(this.prevMouse);
     if (this.mouse.x > 9000) this.mouseSpeed = 0;

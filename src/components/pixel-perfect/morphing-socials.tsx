@@ -39,13 +39,29 @@ export function MorphingSocials({ socials, children, className }: { socials: Soc
     setHoveredSocial(name);
   };
 
-  const transition = {
-    type: "spring",
+  const springTransition = {
+    type: "spring" as const,
+    stiffness: 380,
+    damping: 30,
     mass: 0.5,
-    damping: 11.5,
-    stiffness: 100,
-    restDelta: 0.001,
-    restSpeed: 0.001,
+  };
+
+  const contentVariants = {
+    initial: (dir: number) => ({
+      x: dir > 0 ? 32 : dir < 0 ? -32 : 0,
+      opacity: 0,
+      filter: "blur(4px)",
+    }),
+    animate: {
+      x: 0,
+      opacity: 1,
+      filter: "blur(0px)",
+    },
+    exit: (dir: number) => ({
+      x: dir > 0 ? -32 : dir < 0 ? 32 : 0,
+      opacity: 0,
+      filter: "blur(4px)",
+    }),
   };
 
   return (
@@ -116,33 +132,40 @@ export function MorphingSocials({ socials, children, className }: { socials: Soc
       <AnimatePresence>
         {hoveredSocial && socialProfiles[hoveredSocial] && (
           <motion.div
-            initial={{ opacity: 0, x: hoverPos.x, y: hoverPos.y + 8, scale: 0.98 }}
+            initial={{ opacity: 0, x: hoverPos.x, y: hoverPos.y + 6, scale: 0.96 }}
             animate={{ opacity: 1, x: hoverPos.x, y: hoverPos.y, scale: 1 }}
-            exit={{ opacity: 0, x: hoverPos.x, y: hoverPos.y + 8, scale: 0.98 }}
+            exit={{ opacity: 0, x: hoverPos.x, y: hoverPos.y + 6, scale: 0.96 }}
             transition={{
-              ...transition,
-              opacity: { duration: 0.15, ease: "easeOut" }
-            } as any}
+              x: springTransition,
+              y: springTransition,
+              scale: { duration: 0.18, ease: "easeOut" },
+              opacity: { duration: 0.15, ease: "easeOut" },
+            }}
             className="absolute top-0 left-0 z-[60] pointer-events-none"
           >
             <motion.div
               layout
-              transition={transition as any}
+              transition={springTransition}
               className={cn(
                 "relative -translate-x-1/2 -translate-y-full", 
-                "w-[230px] sm:w-[250px] rounded-xl shadow-2xl backdrop-blur-md overflow-hidden",
+                "w-[230px] sm:w-[250px] rounded-xl backdrop-blur-md overflow-hidden",
                 "bg-white/95 dark:bg-[#0c0c0e]/95 border border-black/5 dark:border-white/5",
                 "text-zinc-900 dark:text-zinc-100 select-none origin-bottom"
               )}
             >
-              <AnimatePresence mode="popLayout" custom={direction}>
+              <AnimatePresence mode="popLayout" custom={direction} initial={false}>
                 <motion.div
                   key={hoveredSocial}
                   custom={direction}
-                  initial={((dir: any) => ({ x: dir === 1 ? "100%" : dir === -1 ? "-100%" : 0 })) as any}
-                  animate={{ x: 0 }}
-                  exit={((dir: any) => ({ x: dir === 1 ? "-100%" : dir === -1 ? "100%" : 0 })) as any}
-                  transition={transition as any}
+                  variants={contentVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  transition={{
+                    x: springTransition,
+                    opacity: { duration: 0.2, ease: "easeInOut" },
+                    filter: { duration: 0.2, ease: "easeInOut" },
+                  }}
                   className="w-full relative"
                 >
                   <SocialProfileContent

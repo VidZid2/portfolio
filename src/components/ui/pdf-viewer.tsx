@@ -111,7 +111,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { loadSharedPdfEngine } from "@/components/pdf-thumbnail-utils"
+import { loadSharedPdfEngine } from "@/lib/pdf-thumbnail-utils"
 
 export type PDFViewerPageOverlayProps = {
   pageNumber: number

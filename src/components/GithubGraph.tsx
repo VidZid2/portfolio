@@ -4,6 +4,7 @@ import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 import React, { useEffect, useState } from "react";
 import ScrambleText from "@/components/ruixen/scramble-text";
 import { GithubCalendar } from "@/components/ui/github-calendar";
+import { StatusDot } from "@/components/ui/status-dot";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
 import { usePerformance } from "@/hooks/usePerformance";
@@ -18,6 +19,7 @@ export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScroll
   const [cellGap, setCellGap] = useState(3);
   const [monthsToShow, setMonthsToShow] = useState(9);
   const [deviceType, setDeviceType] = useState<"mobile" | "tablet" | "desktop">("desktop");
+  const [dataStatus, setDataStatus] = useState<"live" | "down" | "loading">("loading");
 
   useEffect(() => {
     setIsDark(resolvedTheme === "dark");
@@ -110,12 +112,23 @@ export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScroll
               GitHub Activity
             </ScrambleText>
           </div>
-          <div className="flex items-center gap-1.5 text-right text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            Live Data
+          <div className="flex items-center gap-1.5 text-right text-[11px] font-medium">
+            {dataStatus === "down" ? (
+              <div className="flex items-center gap-1 text-red-500 dark:text-red-400">
+                <StatusDot state="ERROR" size="sm" animate={false} />
+                <span className="font-semibold">Down</span>
+              </div>
+            ) : dataStatus === "loading" ? (
+              <div className="flex items-center gap-1 text-amber-500 dark:text-amber-400">
+                <StatusDot state="BUILDING" size="sm" animate={true} />
+                <span className="text-zinc-500 dark:text-zinc-400">Connecting...</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 text-zinc-500 dark:text-zinc-400">
+                <StatusDot state="READY" size="sm" animate={true} />
+                <span>Live Data</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -148,6 +161,7 @@ export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScroll
           cellGap={cellGap}
           startDate={calculateStartDate()}
           deviceType={deviceType}
+          onStatusChange={setDataStatus}
           className="!border-0 w-full flex-1 max-w-full" 
         />
       </motion.div>

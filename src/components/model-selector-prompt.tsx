@@ -30,18 +30,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { playKeyTick, playSoftClick, playHoverTick, playReasoningSound } from "@/lib/synth-sounds";
+import { MobiusLoopIcon, MorphingSpinner } from "@/components/loading-ui/morphing-spinner";
+import ClaudeModelSelector, { EffortLevel } from "@/components/ui/claude-model-selector";
 import {
-  Context,
-  ContextCacheUsage,
-  ContextContent,
-  ContextContentBody,
-  ContextContentFooter,
-  ContextContentHeader,
-  ContextInputUsage,
-  ContextOutputUsage,
-  ContextReasoningUsage,
-  ContextTrigger,
-} from "@/components/ai-elements/context";
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/motion/popover";
 
 export type LlmModel = {
   value: string;
@@ -62,20 +58,20 @@ export type LlmModel = {
 
 export const DEFAULT_LLM_MODELS: LlmModel[] = [
   {
-    value: "ai-helper",
-    label: "AI Helper",
-    provider: "Our AI",
-    description: "Our flagship AI helper for all your tasks and queries.",
-    contextWindow: "256k",
+    value: "sync-ai",
+    label: "Sync AI",
+    provider: "Sync Engine",
+    description: "Sync AI. Flagship reasoning model with 1 Million (1M) context window, state-of-the-art frontend architecture exploration, and rapid inference.",
+    contextWindow: "1M",
     inputPrice: "Free",
     outputPrice: "Free",
-    metrics: { intelligence: 8.5, speed: 9.2, context: 4, cost: 0 },
+    metrics: { intelligence: 9.9, speed: 9.6, context: 10, cost: 0 },
   },
 ];
 
 const DEFAULT_MODEL = DEFAULT_LLM_MODELS[0];
 
-export type ReasoningLevel = "low" | "medium" | "high";
+export type ReasoningLevel = "low" | "medium" | "high" | "max";
 export type SpeedLevel = "standard" | "fast";
 
 export type ModelConfiguration = {
@@ -151,6 +147,7 @@ const REASONING_INTELLIGENCE_DELTA: Record<ReasoningLevel, number> = {
   low: -2,
   medium: 0,
   high: 2,
+  max: 4,
 };
 const SPEED_METRIC_DELTA: Record<SpeedLevel, number> = {
   standard: 0,
@@ -194,10 +191,15 @@ function ProviderIcon({
       </svg>
     );
   }
-  if (provider === "OpenCode Zen" || provider === "Our AI") {
+  if (
+    provider === "Sync Engine" ||
+    provider === "Sync Labs" ||
+    provider === "Sync AI" ||
+    provider === "Our AI"
+  ) {
     return (
-      <svg className={base} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d="M12 2c0 5.5-4.5 10-10 10 5.5 0 10 4.5 10 10 0-5.5 4.5-10 10-10-5.5 0-10-4.5-10-10z" />
+      <svg className={base} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12 2C12 7.52 16.48 12 22 12C16.48 12 12 16.48 12 22C12 16.48 7.52 12 2 12C7.52 12 12 7.52 12 2Z" />
       </svg>
     );
   }
@@ -223,7 +225,22 @@ const REASONING_LABELS: Record<ReasoningLevel, string> = {
   low: "Low",
   medium: "Medium",
   high: "High",
+  max: "Max",
 };
+
+const LEVEL_TO_INDEX: Record<ReasoningLevel, number> = {
+  low: 0,
+  medium: 1,
+  high: 2,
+  max: 3,
+};
+
+const INDEX_TO_LEVEL: ReasoningLevel[] = [
+  "low",
+  "medium",
+  "high",
+  "max",
+];
 
 function ModelConfigurationBadge({
   model,
@@ -253,13 +270,16 @@ function ModelConfigurationBadge({
             <div className={cn(
               badgeClassName, 
               "whitespace-nowrap transition-colors duration-500",
-              configuration.reasoning === "high" && "bg-[#6495ED]/10 text-[#6495ED] group-data-[selected]:bg-[#6495ED]/20 dark:bg-[#6495ED]/20 dark:text-[#6495ED] dark:group-data-[selected]:bg-[#6495ED]/30",
-              configuration.reasoning === "low" && "bg-[#10b981]/10 text-[#10b981] group-data-[selected]:bg-[#10b981]/20 dark:bg-[#10b981]/20 dark:text-[#10b981] dark:group-data-[selected]:bg-[#10b981]/30"
+              configuration.reasoning === "max" && "bg-[#6495ED]/15 text-[#6495ED] group-data-[selected]:bg-[#6495ED]/25 dark:bg-[#6495ED]/25 dark:text-[#6495ED] dark:group-data-[selected]:bg-[#6495ED]/35",
+              configuration.reasoning === "high" && "bg-[#6495ED]/15 text-[#6495ED] group-data-[selected]:bg-[#6495ED]/25 dark:bg-[#6495ED]/25 dark:text-[#6495ED] dark:group-data-[selected]:bg-[#6495ED]/35",
+              configuration.reasoning === "low" && "bg-[#10b981]/15 text-[#10b981] group-data-[selected]:bg-[#10b981]/25 dark:bg-[#10b981]/25 dark:text-[#10b981] dark:group-data-[selected]:bg-[#10b981]/35"
             )}>
               <BrainIcon 
                 className={cn(
                   "shrink-0 transition-colors duration-500", 
-                  configuration.reasoning === "high" ? "text-[#6495ED]" : configuration.reasoning === "low" ? "text-[#10b981]" : "text-neutral-500 dark:text-neutral-400"
+                  configuration.reasoning === "max" ? "text-[#6495ED]" :
+                  configuration.reasoning === "high" ? "text-[#6495ED]" :
+                  configuration.reasoning === "low" ? "text-[#10b981]" : "text-neutral-500 dark:text-neutral-400"
                 )} 
                 size={11} 
                 weight="fill" 
@@ -289,71 +309,65 @@ function ModelConfigurationBadge({
   );
 }
 
+const getMetricColor = (
+  label: string,
+  value: number,
+  invert?: boolean
+): string => {
+  const normLabel = label.toLowerCase();
+  
+  if (normLabel.includes("context")) {
+    return "#10b981"; // Emerald Green
+  }
+  
+  if (invert || normLabel.includes("cost")) {
+    return "#f43f5e"; // Rose
+  }
+
+  // Speed and Intelligence (4 tiers applied to whole meter based on value):
+  // 1 to 3 -> Red
+  // 4 to 6 -> Yellow
+  // 7 to 8 -> Sky Blue
+  // 9 to 10 (Close to max / Max) -> Cornflower Blue
+  if (value <= 3.5) return "#ef4444"; // Red (1 to 3)
+  if (value <= 6.5) return "#eab308"; // Yellow (4 to 6)
+  if (value <= 8.5) return "#38bdf8"; // Sky Blue (7 to 8)
+  return "#6495ED";                   // Cornflower Blue (9 to 10)
+};
+
 const GrowSegment = memo(function GrowSegment({
-  finalColor,
+  color,
   delay,
   fillFraction,
 }: {
-  finalColor: string;
+  color: string;
   delay: number;
   fillFraction: number;
 }) {
   const [scale, setScale] = useState(0);
-  const [color, setColor] = useState("#f97316"); // start orange
-  const [hasBooted, setHasBooted] = useState(false);
 
   useEffect(() => {
-    // Phase 1: Grow (happens on mount and updates)
-    const growTimer = setTimeout(() => {
+    const timer = setTimeout(() => {
       setScale(fillFraction);
-    }, 10);
-    return () => clearTimeout(growTimer);
-  }, [fillFraction]);
+    }, delay + 15);
+    return () => clearTimeout(timer);
+  }, [fillFraction, delay]);
 
-  const prevFillFraction = useRef(fillFraction);
-
-  useEffect(() => {
-    let colorTimer: NodeJS.Timeout;
-    
-    const isIncrease = fillFraction > prevFillFraction.current;
-    
-    if (!hasBooted || isIncrease) {
-      if (fillFraction > 0) {
-        setColor("#f97316");
-        // Phase 2: After growth animation completes, transition to final color
-        colorTimer = setTimeout(() => {
-          setColor(finalColor);
-          if (!hasBooted) setHasBooted(true);
-        }, delay + 300);
-      } else {
-        setColor(finalColor);
-        if (!hasBooted) setHasBooted(true);
-      }
-    } else {
-      // On subsequent updates where it shrinks or stays same, keep final color
-      setColor(finalColor);
-    }
-    
-    prevFillFraction.current = fillFraction;
-
-    return () => {
-      clearTimeout(colorTimer);
-    };
-  }, [fillFraction, finalColor, delay, hasBooted]);
+  const active = fillFraction > 0;
 
   return (
     <div
-      className="h-full w-full origin-bottom rounded-sm"
+      className="h-full w-full origin-bottom rounded-[1.5px]"
       style={{
         backgroundColor: color,
+        opacity: active ? (fillFraction >= 0.95 ? 1 : 0.55 + fillFraction * 0.45) : 0,
         transform: `scaleY(${scale})`,
-        willChange: "transform, background-color",
-        transition: `transform 300ms ease-out ${delay}ms, background-color 300ms ease-out 0ms`,
+        transition: `transform 320ms cubic-bezier(0.16, 1, 0.3, 1), opacity 250ms ease, background-color 250ms ease`,
+        willChange: "transform, opacity, background-color",
       }}
     />
   );
-}
-);
+});
 
 const MetricBar = memo(function MetricBar({
   label,
@@ -370,24 +384,28 @@ const MetricBar = memo(function MetricBar({
   animationKey: string;
   forceOpenTooltip?: boolean;
 }) {
-  const finalColor = invert ? "#e5484d" : "#30a46c";
+  const barColor = getMetricColor(label, value, invert);
+
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between gap-1">
-        <span className="font-mono font-medium text-[10px] text-neutral-400 uppercase leading-none dark:text-neutral-500">
+        <span className="font-mono font-medium text-[10px] tracking-wider text-neutral-400 uppercase leading-none dark:text-neutral-500">
           {label}
         </span>
         {info ? (
           <TooltipProvider delayDuration={100}>
             <Tooltip open={forceOpenTooltip ? true : undefined}>
               <TooltipTrigger asChild>
-                <button type="button" className="cursor-help text-neutral-400 leading-none dark:text-neutral-500 hover:text-neutral-500 dark:hover:text-neutral-400 transition-colors">
+                <button
+                  type="button"
+                  className="cursor-help text-neutral-400 leading-none hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors"
+                >
                   <InfoIcon weight="fill" className="size-[11px]" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent 
-                side="top" 
-                sideOffset={6} 
+              <TooltipContent
+                side="top"
+                sideOffset={6}
                 hideArrow={true}
                 inline={forceOpenTooltip}
                 className="z-[9999] bg-zinc-900 text-white dark:bg-zinc-100 dark:text-black border-none rounded-md px-2.5 py-1.5 text-xs font-medium shadow-md max-w-[200px]"
@@ -400,7 +418,7 @@ const MetricBar = memo(function MetricBar({
       </div>
       <div
         aria-label={`${label}: ${value} out of 10`}
-        className="grid grid-cols-10 gap-1"
+        className="grid grid-cols-10 gap-[2px]"
         key={animationKey}
         role="img"
       >
@@ -408,12 +426,12 @@ const MetricBar = memo(function MetricBar({
           const fillFraction = Math.max(0, Math.min(1, value - index));
           return (
             <div
-              className="h-3 overflow-hidden rounded-sm bg-neutral-100 dark:bg-neutral-800"
+              className="h-3 overflow-hidden rounded-[2px] bg-neutral-100 dark:bg-neutral-800/90"
               key={index}
             >
               <GrowSegment
-                finalColor={finalColor}
-                delay={index * 25}
+                color={barColor}
+                delay={index * 20}
                 fillFraction={fillFraction}
               />
             </div>
@@ -422,8 +440,7 @@ const MetricBar = memo(function MetricBar({
       </div>
     </div>
   );
-}
-);
+});
 
 const SegmentedRadio = memo(function SegmentedRadio<TValue extends string>({
   ariaLabel,
@@ -454,6 +471,7 @@ const SegmentedRadio = memo(function SegmentedRadio<TValue extends string>({
                 : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-white",
             )}
             key={option.value}
+            onPointerEnter={() => playHoverTick(0.02)}
             onClick={() => onValueChange(option.value)}
             role="radio"
             type="button"
@@ -501,7 +519,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
 }) {
   const [animationCounter] = useState(() => Date.now());
   const { reasoning, speed } = configuration;
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery("(max-width: 1024px)");
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
 
   useEffect(() => {
@@ -540,7 +558,16 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
     [model.hasSpeedConfiguration, model.metrics, reasoning, speed],
   );
   return (
-    <div className="flex w-56 flex-col divide-y divide-neutral-100 dark:divide-neutral-800">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.97, y: 3, filter: "blur(3px)" }}
+      animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
+      exit={{ opacity: 0, scale: 0.97, y: 3, filter: "blur(3px)" }}
+      transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+      onPointerDown={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
+      className="flex w-full flex-col divide-y divide-neutral-100 dark:divide-neutral-800"
+    >
       <div className="flex flex-col gap-3 p-3">
         <div className="flex flex-col gap-1">
           <p className="font-medium text-neutral-900 text-sm dark:text-neutral-100">{model.label}</p>
@@ -584,29 +611,24 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
         <p className="font-mono font-medium text-[10px] text-neutral-500 uppercase leading-none dark:text-neutral-400">
           Configuration
         </p>
-        <div className="flex flex-col gap-2">
-          <p className="text-neutral-500 text-xs leading-none dark:text-neutral-400">Reasoning</p>
-          <SegmentedRadio<ReasoningLevel>
-            ariaLabel="Reasoning level"
-            onValueChange={(reasoningValue) =>
-              onConfigurationChange({ reasoning: reasoningValue })
-            }
-            options={[
-              { label: "Low", value: "low" },
-              { label: "Medium", value: "medium" },
-              { label: "High", value: "high" },
-            ]}
-            value={reasoning}
+        <div className="flex flex-col gap-1">
+          <ClaudeModelSelector
+            value={LEVEL_TO_INDEX[reasoning] ?? 1}
+            onLevelChange={(_level: EffortLevel, index: number) => {
+              const nextReasoning = INDEX_TO_LEVEL[index] ?? "medium";
+              onConfigurationChange({ reasoning: nextReasoning });
+            }}
           />
         </div>
         {model.hasSpeedConfiguration ? (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 pt-1">
             <p className="text-neutral-500 text-xs leading-none dark:text-neutral-400">Speed</p>
             <SegmentedRadio<SpeedLevel>
               ariaLabel="Speed"
-              onValueChange={(speedValue) =>
-                onConfigurationChange({ speed: speedValue })
-              }
+              onValueChange={(speedValue) => {
+                playSoftClick(0.04);
+                onConfigurationChange({ speed: speedValue });
+              }}
               options={[
                 { label: "Standard", value: "standard" },
                 { label: "Fast", value: "fast" },
@@ -616,7 +638,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
           </div>
         ) : null}
       </div>
-    </div>
+    </motion.div>
   );
 });
 
@@ -686,7 +708,7 @@ const ModelComboboxItem = memo(function ModelComboboxItem({
     >
       <PreviewCard.Trigger
         id={model.value}
-        className="flex w-full items-start gap-2 rounded-md px-1.5 py-1.5 hover:bg-neutral-100 group-data-[selected]:bg-neutral-100 dark:hover:bg-neutral-800 dark:group-data-[selected]:bg-neutral-800"
+        className="flex w-full items-start gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800/60 group-data-[selected]:bg-neutral-100 dark:group-data-[selected]:bg-neutral-800"
         closeDelay={180}
         delay={0}
         handle={previewHandle}
@@ -694,7 +716,7 @@ const ModelComboboxItem = memo(function ModelComboboxItem({
         render={<div />}
       >
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="truncate">{model.label}</span>
+          <span className="truncate font-medium">{model.label}</span>
           <ProviderLabel
             className="text-neutral-500 text-xs dark:text-neutral-400"
             provider={model.provider}
@@ -706,30 +728,7 @@ const ModelComboboxItem = memo(function ModelComboboxItem({
   );
 });
 
-function AsciiSpinner({ className }: { className?: string }) {
-  const frames = [
-    "[░░░]",
-    "[▓░░]",
-    "[▓▓░]",
-    "[▓▓▓]",
-    "[░▓▓]",
-    "[░░▓]",
-  ];
-  const [frameIndex, setFrameIndex] = useState(0);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFrameIndex((prev) => (prev + 1) % frames.length);
-    }, 120);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <span className={cn("font-mono text-neutral-400 select-none text-[11px] tracking-tighter shrink-0", className)}>
-      {frames[frameIndex]}
-    </span>
-  );
-}
 
 export function ModelSelectorPrompt({
   className,
@@ -751,7 +750,7 @@ export function ModelSelectorPrompt({
   const [uncontrolledModelValue, setUncontrolledModelValue] = useState(
     defaultValue ?? fallbackModel.value,
   );
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery("(max-width: 1024px)");
   const [uncontrolledConfigurations, setUncontrolledConfigurations] = useState<
     Record<string, ModelConfiguration>
   >(defaultConfigurations);
@@ -766,8 +765,10 @@ export function ModelSelectorPrompt({
   const [isExpanded, setIsExpanded] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const [messageCount, setMessageCount] = useState(0);
-  const [isSending, setIsSending] = useState(false);
+  const [internalSending, setInternalSending] = useState(false);
+  const isSending = internalSending || Boolean(disabled);
   const isSendingRef = useRef(false);
+  const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isScrolling, setIsScrolling] = useState(false);
@@ -866,7 +867,7 @@ export function ModelSelectorPrompt({
     
     // Clear instantly from the UI and start wave animation
     updatePrompt("");
-    setIsSending(true);
+    setInternalSending(true);
 
     let nextCount = messageCount + 1;
     if (nextCount > 40) {
@@ -875,27 +876,29 @@ export function ModelSelectorPrompt({
     }
     setMessageCount(nextCount);
 
-    await onSubmit?.({
-      configuration: getModelConfiguration(
-        modelConfigurations,
-        selectedModel.value,
-      ),
-      configurations: modelConfigurations,
-      model: selectedModel,
-      prompt: currentPrompt,
-    });
-
-    setTimeout(() => {
+    try {
+      await onSubmit?.({
+        configuration: getModelConfiguration(
+          modelConfigurations,
+          selectedModel.value,
+        ),
+        configurations: modelConfigurations,
+        model: selectedModel,
+        prompt: currentPrompt,
+      });
+    } finally {
+      setInternalSending(false);
       isSendingRef.current = false;
-      setIsSending(false);
-    }, 1500);
+    }
   }
   function closeModelPreview() {
     previewHandle.close();
   }
 
-  const contextWindowStr = selectedModel.contextWindow || "128k";
-  const maxTokens = parseInt(contextWindowStr.replace(/\D/g, '')) * 1000;
+  const contextWindowStr = selectedModel.contextWindow || "1M";
+  const maxTokens = contextWindowStr.toUpperCase().includes("M")
+    ? (parseFloat(contextWindowStr.replace(/[^\d.]/g, "")) || 1) * 1000000
+    : (parseInt(contextWindowStr.replace(/\D/g, "")) || 128) * 1000;
 
   return (
     <div
@@ -910,7 +913,69 @@ export function ModelSelectorPrompt({
         {isSending && <SendWave />}
       </AnimatePresence>
 
-      <div className="relative z-20 w-full">
+      {/* Morphing Expanded Loader Overlay */}
+      <AnimatePresence>
+        {isSending && (
+          <motion.div
+            key="send-morph-expansion"
+            initial={{
+              opacity: 0,
+              scale: 0.85,
+              clipPath: "inset(40% 5% 5% 65% round 12px)",
+              filter: "blur(10px)",
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              clipPath: "inset(0% 0% 0% 0% round 12px)",
+              filter: "blur(0px)",
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0.85,
+              clipPath: "inset(40% 5% 5% 65% round 12px)",
+              filter: "blur(10px)",
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 420,
+              damping: 32,
+              mass: 0.85,
+            }}
+            className="absolute inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-xl p-6 rounded-xl border border-neutral-200/80 dark:border-neutral-800 pointer-events-auto"
+          >
+            <motion.div
+              initial={{ scale: 0.6, opacity: 0, y: 8 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.6, opacity: 0, y: 8 }}
+              transition={{ delay: 0.08, duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+              className="flex flex-col items-center justify-center gap-2.5"
+            >
+              <div className="relative flex items-center justify-center w-12 h-12 rounded-2xl bg-neutral-100 dark:bg-neutral-800 border-0 outline-none shadow-none">
+                <MobiusLoopIcon className="w-6 h-6 text-neutral-600 dark:text-neutral-400" />
+                <div className="absolute inset-0 rounded-2xl animate-pulse bg-neutral-200/50 dark:bg-neutral-700/50 pointer-events-none" />
+              </div>
+              <div className="flex flex-col items-center gap-0.5 text-center">
+                <span className="font-semibold text-xs sm:text-sm text-neutral-900 dark:text-neutral-100">
+                  Wait...
+                </span>
+                <span className="text-[11px] text-neutral-500 dark:text-neutral-400 font-medium">
+                  Formulating response with Sync AI
+                </span>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.div 
+        className="relative z-20 w-full"
+        animate={{
+          filter: isSending ? "blur(8px)" : "blur(0px)",
+          opacity: isSending ? 0 : 1,
+        }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+      >
         <motion.textarea
           rows={1}
           ref={textareaRef}
@@ -925,7 +990,10 @@ export function ModelSelectorPrompt({
           animate={{ height: textareaHeight }}
           transition={{ duration: 0.3, type: "spring", stiffness: 350, damping: 25 }}
           disabled={disabled || isSending}
-          onChange={(event) => updatePrompt(event.target.value)}
+          onChange={(event) => {
+            playKeyTick(0.015);
+            updatePrompt(event.target.value);
+          }}
           onKeyDown={(event) => {
             if (event.key === "Enter" && !event.shiftKey) {
               event.preventDefault();
@@ -935,7 +1003,7 @@ export function ModelSelectorPrompt({
           placeholder={placeholder}
           value={promptValue}
         />
-      </div>
+      </motion.div>
       <AnimatePresence initial={false}>
         {showToolbar && (
           <motion.div
@@ -946,67 +1014,16 @@ export function ModelSelectorPrompt({
             className="overflow-hidden"
           >
             <div className="flex w-full flex-row items-center justify-between gap-1 sm:gap-2 p-1 sm:p-2 pt-6">
-              <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2">
-                <Combobox.Root<LlmModel>
-          autoHighlight
-          isItemEqualToValue={(item, nextValue) =>
-            item.value === nextValue.value
-          }
-          items={models}
-          onInputValueChange={closeModelPreview}
-          onValueChange={(nextModel) => {
-            if (nextModel) {
-              updateSelectedModel(nextModel);
-            }
-          }}
-          onOpenChange={(open) => {
-            if (open && isMobile) {
-              setTimeout(() => {
-                previewHandle.open(selectedModel.value);
-              }, 150);
-            }
-          }}
-          value={selectedModel}
-        >
-          <Combobox.Trigger
-            aria-label="Select model"
-            className="group flex min-w-0 items-center gap-1 sm:gap-1.5 rounded-lg border border-neutral-200 bg-white px-1.5 sm:px-2 py-1 sm:py-1.5 text-neutral-900 text-xs sm:text-sm transition-colors hover:bg-neutral-50 data-[popup-open]:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 dark:data-[popup-open]:bg-neutral-800"
-            disabled={disabled}
-          >
-            <Combobox.Value>
-              {(model: LlmModel | null) =>
-                model ? (
-                  <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
-                    <span className="flex min-w-0 items-center gap-1 sm:gap-1.5">
-                      <ProviderIcon
-                        className="size-3 sm:size-3.5 shrink-0"
-                        provider={model.provider}
-                      />
-                      <span className="truncate">{model.label}</span>
-                    </span>
-                    <ModelConfigurationBadge
-                      configuration={getModelConfiguration(
-                        modelConfigurations,
-                        model.value,
-                      )}
-                      model={model}
-                    />
-                  </span>
-                ) : (
-                  <span>Select model</span>
-                )
-              }
-            </Combobox.Value>
-            <Combobox.Icon className="text-neutral-500 dark:text-neutral-400">
-              <CaretDownIcon size={14} weight="bold" className="transition-transform duration-200 ease-in-out group-data-[popup-open]:rotate-180" />
-            </Combobox.Icon>
-          </Combobox.Trigger>
-          <Combobox.Portal>
-            <Combobox.Positioner align="start" side="top" sideOffset={4} className="z-[9999]">
-              <Combobox.Popup
-                id="model-combobox-popup"
-                aria-label="Select model"
-                className="w-60 rounded-xl border border-neutral-200 bg-white shadow-lg outline-none dark:border-neutral-800 dark:bg-neutral-900"
+              <motion.div 
+                className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2"
+                animate={{
+                  opacity: isSending ? 0 : 1,
+                  filter: isSending ? "blur(8px)" : "blur(0px)",
+                  scale: isSending ? 0.95 : 1,
+                  x: isSending ? -8 : 0,
+                }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                style={{ pointerEvents: isSending ? "none" : "auto" }}
               >
                 <PreviewCard.Root<string>
                   handle={previewHandle}
@@ -1016,150 +1033,224 @@ export function ModelSelectorPrompt({
                     }
                   }}
                 >
-                  {({ payload }) => {
-                    return (
+                  {({ payload }) => (
                     <>
-                    {/* Mobile: render details inline above search */}
-                      {isMobile && payload ? (
-                        <div className="border-b border-neutral-100 dark:border-neutral-800 transition-all duration-200 ease-out animate-in fade-in-0 slide-in-from-top-2">
-                          <ModelPreviewPanel
-                            key={`${payload}-${previewOpenCounter}`}
-                            configuration={getModelConfiguration(
-                              modelConfigurations,
-                              payload,
-                            )}
-                            model={models.find((m) => m.value === payload) ?? fallbackModel}
-                            onConfigurationChange={(update) =>
-                              updateModelConfiguration(payload, update)
-                            }
-                          />
-                        </div>
-                      ) : null}
-                      <Combobox.InputGroup className="flex items-center gap-1.5 rounded-none border-0 border-b border-neutral-100 bg-transparent px-2 dark:border-neutral-800">
-                        <Combobox.Input
-                          className="w-full bg-transparent px-0 py-2 text-sm outline-none placeholder:text-neutral-400 dark:text-neutral-100"
-                          onFocus={closeModelPreview}
-                          placeholder="Search models..."
-                        />
-                        <MagnifyingGlassIcon
-                          aria-hidden="true"
-                          className="shrink-0 text-neutral-400"
-                          size={14}
-                          weight="bold"
-                        />
-                      </Combobox.InputGroup>
-                      <Combobox.Empty>
-                        <div className="flex flex-col gap-1 px-2 py-2 text-center font-medium text-neutral-500 text-xs">
-                          No models found
-                          <div className="text-pretty text-center text-neutral-400 text-xs">
-                            Maybe try a different search.
-                          </div>
-                        </div>
-                      </Combobox.Empty>
-                      <ModelListWithScrollFade>
-                        {(model: LlmModel) => (
-                          <ModelComboboxItem
-                            configuration={getModelConfiguration(
-                              modelConfigurations,
-                              model.value,
-                            )}
-                            key={model.value}
-                            model={model}
-                            previewHandle={previewHandle}
-                          />
-                        )}
-                      </ModelListWithScrollFade>
-                      {/* Desktop: render details as floating portal to the right */}
-                      {!isMobile ? (
-                      <PreviewCard.Portal keepMounted>
-                        <PreviewCard.Positioner
-                          align="center"
-                          className="z-[9999]"
-                          side="right"
-                          sideOffset={8}
-                        >
-                          <PreviewCard.Popup 
-                            id="model-preview-popup" 
-                            className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-lg outline-none dark:border-neutral-800 dark:bg-neutral-900 transition-all duration-200 ease-out data-[starting-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:-translate-y-2 data-[ending-style]:opacity-0 data-[ending-style]:scale-95 data-[ending-style]:translate-y-2"
+                      <Popover
+                        side="top"
+                        align="start"
+                        sideOffset={8}
+                        panelRadius={14}
+                        gooStrength={0}
+                        blobClassName="bg-white dark:bg-neutral-900 border-0 outline-none"
+                        open={modelDropdownOpen}
+                        onOpenChange={(open) => {
+                          setModelDropdownOpen(open);
+                          if (!open) {
+                            previewHandle.close();
+                          }
+                        }}
+                      >
+                        <PopoverTrigger>
+                          <button
+                            type="button"
+                            aria-label="Select model"
+                            className="group flex min-w-0 items-center gap-1.5 rounded-lg border-0 outline-none bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 px-2.5 py-1.5 text-neutral-900 text-xs sm:text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 dark:text-neutral-100 cursor-pointer shadow-none"
+                            disabled={disabled}
                           >
-                            {payload ? (
-                              <ModelPreviewPanel
-                                key={`${payload}-${previewOpenCounter}`}
+                            <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                              <span className="flex min-w-0 items-center gap-1.5">
+                                <ProviderIcon
+                                  className="size-3 sm:size-3.5 shrink-0"
+                                  provider={selectedModel.provider}
+                                />
+                                <span className="truncate font-medium">{selectedModel.label}</span>
+                              </span>
+                              <ModelConfigurationBadge
                                 configuration={getModelConfiguration(
                                   modelConfigurations,
-                                  payload,
+                                  selectedModel.value,
                                 )}
-                                model={models.find((m) => m.value === payload) ?? fallbackModel}
-                                onConfigurationChange={(update) =>
-                                  updateModelConfiguration(payload, update)
-                                }
+                                model={selectedModel}
                               />
-                            ) : null}
-                          </PreviewCard.Popup>
-                        </PreviewCard.Positioner>
-                      </PreviewCard.Portal>
+                            </span>
+                            <span className="text-neutral-500 dark:text-neutral-400">
+                              <CaretDownIcon
+                                size={14}
+                                weight="bold"
+                                className={cn(
+                                  "transition-transform duration-200 ease-in-out",
+                                  modelDropdownOpen && "rotate-180"
+                                )}
+                              />
+                            </span>
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className={cn(
+                          "p-0 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-xl overflow-hidden text-neutral-900 dark:text-neutral-100",
+                          isMobile ? "w-[min(20rem,calc(100vw-2rem))] max-h-[85vh] overflow-y-auto" : "w-64"
+                        )}>
+                          {(() => {
+                            const activeModel =
+                              models.find(
+                                (m) =>
+                                  m.value === (payload ?? selectedModel.value),
+                              ) ?? selectedModel;
+                            return (
+                              <Combobox.Root<LlmModel>
+                                autoHighlight
+                                isItemEqualToValue={(item, nextValue) =>
+                                  item.value === nextValue.value
+                                }
+                                items={models}
+                                onInputValueChange={closeModelPreview}
+                                onValueChange={(nextModel) => {
+                                  if (nextModel) {
+                                    playSoftClick(0.04);
+                                    updateSelectedModel(nextModel);
+                                    setModelDropdownOpen(false);
+                                  }
+                                }}
+                                value={selectedModel}
+                              >
+                                {/* Mobile / Tablet: render model details on top inside the modal card */}
+                                {isMobile && (
+                                  <div className="overflow-hidden border-b border-neutral-100 dark:border-neutral-800">
+                                    <ModelPreviewPanel
+                                      key={`${activeModel.value}-${previewOpenCounter}`}
+                                      configuration={getModelConfiguration(
+                                        modelConfigurations,
+                                        activeModel.value,
+                                      )}
+                                      model={activeModel}
+                                      onConfigurationChange={(update) =>
+                                        updateModelConfiguration(
+                                          activeModel.value,
+                                          update,
+                                        )
+                                      }
+                                    />
+                                  </div>
+                                )}
+                                <Combobox.InputGroup className="flex items-center gap-1.5 rounded-none border-0 border-b border-neutral-100 bg-transparent px-2.5 dark:border-neutral-800">
+                                  <Combobox.Input
+                                    className="w-full bg-transparent px-0 py-2 text-sm outline-none placeholder:text-neutral-400 dark:text-neutral-100"
+                                    onFocus={closeModelPreview}
+                                    placeholder="Search models..."
+                                  />
+                                  <MagnifyingGlassIcon
+                                    aria-hidden="true"
+                                    className="shrink-0 text-neutral-400"
+                                    size={14}
+                                    weight="bold"
+                                  />
+                                </Combobox.InputGroup>
+                                <Combobox.Empty>
+                                  <div className="flex flex-col gap-1 px-2 py-2 text-center font-medium text-neutral-500 text-xs">
+                                    No models found
+                                    <div className="text-pretty text-center text-neutral-400 text-xs">
+                                      Maybe try a different search.
+                                    </div>
+                                  </div>
+                                </Combobox.Empty>
+                                <ModelListWithScrollFade>
+                                  {(model: LlmModel) => (
+                                    <ModelComboboxItem
+                                      configuration={getModelConfiguration(
+                                        modelConfigurations,
+                                        model.value,
+                                      )}
+                                      key={model.value}
+                                      model={model}
+                                      previewHandle={previewHandle}
+                                    />
+                                  )}
+                                </ModelListWithScrollFade>
+                              </Combobox.Root>
+                            );
+                          })()}
+                        </PopoverContent>
+                      </Popover>
+
+                      {/* Desktop: render details as floating portal to the right only when popover is open */}
+                      {!isMobile && modelDropdownOpen ? (
+                        <PreviewCard.Portal>
+                          <PreviewCard.Positioner
+                            align="center"
+                            className="z-[9999]"
+                            side="right"
+                            sideOffset={10}
+                          >
+                            <PreviewCard.Popup
+                              id="model-preview-popup"
+                              className="w-64 overflow-hidden rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 origin-left transition-all duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] data-[starting-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:-translate-x-3 data-[starting-style]:blur-[4px] data-[ending-style]:opacity-0 data-[ending-style]:scale-90 data-[ending-style]:translate-x-1 data-[ending-style]:blur-[4px]"
+                            >
+                              {payload ? (
+                                <ModelPreviewPanel
+                                  key={`${payload}-${previewOpenCounter}`}
+                                  configuration={getModelConfiguration(
+                                    modelConfigurations,
+                                    payload,
+                                  )}
+                                  model={
+                                    models.find((m) => m.value === payload) ??
+                                    fallbackModel
+                                  }
+                                  onConfigurationChange={(update) =>
+                                    updateModelConfiguration(payload, update)
+                                  }
+                                />
+                              ) : null}
+                            </PreviewCard.Popup>
+                          </PreviewCard.Positioner>
+                        </PreviewCard.Portal>
                       ) : null}
                     </>
-                    );
-                  }}
+                  )}
                 </PreviewCard.Root>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>
-        <Context
-          maxTokens={40}
-          modelId={`${selectedModel.provider}: ${selectedModel.label}`}
-          usage={{
-            promptTokens: messageCount,
-            totalTokens: messageCount,
-          } as any}
-          usedTokens={messageCount}
-        >
-          <ContextTrigger />
-          <ContextContent>
-            <ContextContentHeader />
-            <ContextContentFooter />
-          </ContextContent>
-        </Context>
-      </div>
-        <Button
-          disabled={disabled || isSending}
-          onClick={() => {
-            void handleSubmit();
-            setIsExpanded(false);
-          }}
-          type="button"
-          className="shrink-0 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 relative overflow-hidden w-20 sm:w-24 h-8 sm:h-9 text-xs sm:text-sm flex items-center justify-center px-2 sm:px-4"
-        >
-          <AnimatePresence mode="popLayout" initial={false}>
-            {!(isSending || disabled) ? (
-              <motion.div
-                key="send"
-                initial={{ y: -20, opacity: 0, filter: "blur(5px)" }}
-                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-                exit={{ y: 20, opacity: 0, filter: "blur(5px)" }}
-                transition={{ duration: 0.25, type: "spring", bounce: 0 }}
-                className="flex items-center gap-1.5"
-              >
-                <PaperPlaneTiltIcon size={14} weight="fill" />
-                <span>Send</span>
               </motion.div>
-            ) : (
-              <motion.div
-                key="wait"
-                initial={{ y: -20, opacity: 0, filter: "blur(5px)" }}
-                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-                exit={{ y: 20, opacity: 0, filter: "blur(5px)" }}
-                transition={{ duration: 0.25, type: "spring", bounce: 0 }}
-                className="flex items-center gap-1.5"
+              <Button
+                disabled={disabled || isSending}
+                onClick={() => {
+                  void handleSubmit();
+                }}
+                type="button"
+                className={cn(
+                  "shrink-0 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 relative overflow-hidden h-8 sm:h-9 text-xs sm:text-sm flex items-center justify-center px-2.5 sm:px-4 transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] border-0 outline-none shadow-none",
+                  isSending
+                    ? "w-24 sm:w-28 bg-neutral-100 dark:bg-neutral-800/90"
+                    : "w-20 sm:w-24"
+                )}
               >
-                <AsciiSpinner />
-                <span className="bg-[linear-gradient(110deg,#939393,45%,#fff,55%,#939393)] bg-[length:200%_100%] animate-shimmer text-transparent bg-clip-text font-medium">Wait...</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </Button>
+                <AnimatePresence mode="popLayout" initial={false}>
+                  {!(isSending || disabled) ? (
+                    <motion.div
+                      key="send"
+                      initial={{ y: -16, opacity: 0, filter: "blur(6px)" }}
+                      animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                      exit={{ y: 16, opacity: 0, filter: "blur(6px)" }}
+                      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                      className="flex items-center gap-1.5 font-medium"
+                    >
+                      <PaperPlaneTiltIcon size={14} weight="fill" />
+                      <span>Send</span>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="wait"
+                      initial={{ y: -16, opacity: 0, filter: "blur(6px)" }}
+                      animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                      exit={{ y: 16, opacity: 0, filter: "blur(6px)" }}
+                      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                      className="flex items-center gap-2 font-medium"
+                    >
+                      <MobiusLoopIcon className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
+                      <span className="text-neutral-600 dark:text-neutral-300 font-medium text-xs">
+                        Wait...
+                      </span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </Button>
             </div>
           </motion.div>
         )}

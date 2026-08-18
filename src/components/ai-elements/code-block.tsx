@@ -5,6 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
+import { playCopySuccess } from "@/lib/synth-sounds";
 
 const COPY_RESET_MS = 2000;
 
@@ -346,6 +347,7 @@ export function CodeBlock({
     }
 
     setCopied(true);
+    playCopySuccess(0.035);
     onCopy?.(code);
 
     if (resetTimer.current !== null) {

@@ -4,17 +4,32 @@ import { useState, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useChat } from "@ai-sdk/react";
 import { AnimatePresence, motion } from "framer-motion";
+import { 
+  playChatSend, 
+  playChatReceive, 
+  playChatDone, 
+  playChatOpen, 
+  playChatClose, 
+  playSoftClick,
+  playAttachmentSound,
+  playCopySuccess 
+} from "@/lib/synth-sounds";
 
 function parseReasoningSteps(text: string) {
   if (!text) return [];
   
-  // First, check if there are actual markdown headings
-  let parts = text.split(/(?:^|\n)###\s+/);
+  // Clean up any common conversational intros from the model's raw thinking
+  const cleaned = text
+    .replace(/^Here'?s (?:a )?(?:thinking process|chain of thought):?\s*/i, "")
+    .replace(/^Thinking Process:?\s*/i, "")
+    .trim();
   
+  // First, check if there are actual markdown headings
+  const parts = cleaned.split(/(?:^|\n)###\s+/);
   if (parts.length > 1) {
     const steps = [];
     if (parts[0].trim()) {
-      steps.push({ label: "Thinking", content: parts[0].trim() });
+      steps.push({ label: "Initial Thoughts", content: parts[0].trim() });
     }
     for (let i = 1; i < parts.length; i++) {
       const part = parts[i];
@@ -22,68 +37,36 @@ function parseReasoningSteps(text: string) {
       if (newlineIndex !== -1) {
         const label = part.substring(0, newlineIndex).trim();
         const content = part.substring(newlineIndex).trim();
-        steps.push({ label, content });
+        steps.push({ label: label || "Reasoning Step", content });
       } else {
-        steps.push({ label: part.trim(), content: "" });
+        steps.push({ label: part.trim() || "Reasoning Step", content: "" });
       }
     }
     return steps;
   }
   
-  // Check for bold headers
-  parts = text.split(/(?:^|\n)\*\*(.*?)\*\*\n/);
-  if (parts.length > 1) {
+  // Check for numbered bold headers like 1. **Analyze...**
+  const boldParts = cleaned.split(/(?:^|\n)(?:\d+\.\s+)?\*\*(.*?)\*\*(?::|\n|$)/);
+  if (boldParts.length > 2) {
     const steps = [];
-    if (parts[0].trim()) {
-      steps.push({ label: "Thinking", content: parts[0].trim() });
+    if (boldParts[0].trim()) {
+      steps.push({ label: "Initial Thoughts", content: boldParts[0].trim() });
     }
-    for (let i = 1; i < parts.length; i += 2) {
-      steps.push({ label: parts[i].trim(), content: parts[i+1]?.trim() || "" });
+    for (let i = 1; i < boldParts.length; i += 2) {
+      const label = boldParts[i].trim();
+      const content = boldParts[i+1]?.trim() || "";
+      if (label && content) {
+        steps.push({ label, content });
+      }
     }
-    return steps;
+    if (steps.length > 0) return steps;
   }
   
-  // If no explicit headers, artificially split the stream of consciousness into multiple steps
-  const sentenceMatches: string[] = text.match(/[^.!?]+[.!?]+/g) || [];
-  const matchedTextLength = sentenceMatches.join('').length;
-  if (matchedTextLength < text.length) {
-    sentenceMatches.push(text.substring(matchedTextLength));
-  }
-  
-  if (sentenceMatches.length <= 2) {
-    return [{ label: "Thinking", content: text }];
-  }
-  
-  const steps = [];
-  let currentContent = "";
-  let stepIndex = 0;
-  const stepLabels = [
-    "Analyzing the request",
-    "Recalling relevant context",
-    "Weighing approaches",
-    "Structuring the response",
-    "Refining the details",
-    "Finalizing thoughts"
-  ];
-  
-  for (let i = 0; i < sentenceMatches.length; i++) {
-    currentContent += sentenceMatches[i];
-    
-    // Group every 3 sentences into a step, or if it's the last sentence
-    if ((i + 1) % 3 === 0 || i === sentenceMatches.length - 1) {
-      steps.push({
-        label: stepLabels[stepIndex] || `Step ${stepIndex + 1}`,
-        content: currentContent.trim()
-      });
-      currentContent = "";
-      stepIndex++;
-    }
-  }
-  
-  return steps;
+  // Default single unified reasoning block
+  return [{ label: "Thought Process", content: cleaned }];
 }
 
-import { Camera, FolderKanban, Paperclip, MessageSquareIcon, CopyIcon, RefreshCcwIcon, ThumbsDownIcon, ThumbsUpIcon, XIcon } from "lucide-react";
+import { Camera, FolderKanban, Paperclip, MessageSquareIcon, CopyIcon, RefreshCcwIcon, ThumbsDownIcon, ThumbsUpIcon, XIcon, DownloadIcon } from "lucide-react";
 import { nanoid } from "nanoid";
 import { memo, useCallback, useRef } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -125,21 +108,8 @@ import {
   ReasoningStepsTrigger,
   ReasoningStep,
 } from "@/components/ai-elements/reasoning-steps";
-import { Banner } from "@/components/ui/banner";
 import { ThinkingIndicator } from "@/components/ai-elements/thinking-indicator";
 import { cn } from "@/lib/utils";
-import {
-  Context,
-  ContextCacheUsage,
-  ContextContent,
-  ContextContentBody,
-  ContextContentFooter,
-  ContextContentHeader,
-  ContextInputUsage,
-  ContextOutputUsage,
-  ContextReasoningUsage,
-  ContextTrigger,
-} from "@/components/ai-elements/context";
 import {
   PromptInput,
   type PromptPlusMenuItem,
@@ -157,6 +127,22 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
+export type LlmModel = {
+  value: string;
+  label: string;
+  provider: string;
+  description: string;
+  contextWindow: string;
+  inputPrice: string;
+  outputPrice: string;
+  metrics: {
+    intelligence: number;
+    speed: number;
+    context: number;
+    cost: number;
+  };
+};
 
 import { ProgressiveBlur } from "@/components/ui/progressive-blur";
 import { Button } from "@/components/ui/button";
@@ -221,36 +207,11 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [inputValue, setInputValue] = useState(initialQuery);
   const [effort, setEffort] = useState("high");
-  const [modelValue, setModelValue] = useState("ai-helper");
+  const [modelValue, setModelValue] = useState("sync-ai");
   const [configurations, setConfigurations] = useState<Record<string, ModelConfiguration>>({});
   const [attachments, setAttachments] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [closeTooltipOpen, setCloseTooltipOpen] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
-  const [showBanner, setShowBanner] = useState(false);
-
-  useEffect(() => {
-    // Show banner after 2 minutes (120000ms) of exploring
-    const bannerTimer = setTimeout(() => {
-      setShowBanner(true);
-    }, 120000);
-    return () => clearTimeout(bannerTimer);
-  }, []);
-
-  useEffect(() => {
-    let hideTimer: NodeJS.Timeout;
-    const showTimer = setTimeout(() => {
-      setCloseTooltipOpen(true);
-      hideTimer = setTimeout(() => {
-        setCloseTooltipOpen(false);
-      }, 4000);
-    }, 4000);
-
-    return () => {
-      clearTimeout(showTimer);
-      clearTimeout(hideTimer);
-    };
-  }, []);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -351,12 +312,16 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
           });
         }
       }
+      if (newAttachments.length > 0) {
+        playAttachmentSound(0.035);
+      }
       setAttachments(prev => [...prev, ...newAttachments]);
     }
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleRemoveAttachment = useCallback((id: string) => {
+    playSoftClick(0.03);
     setAttachments((prev) => prev.filter((a) => a.id !== id));
   }, []);
 
@@ -380,7 +345,12 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
 
   const [isOpen, setIsOpen] = useState(true);
 
+  useEffect(() => {
+    playChatOpen(0.035);
+  }, []);
+
   const handleClose = useCallback(() => {
+    playChatClose(0.025);
     setIsOpen(false);
     setTimeout(() => {
       if (onClose) onClose();
@@ -403,7 +373,9 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
   const chatResponse = useChat({
     // @ts-ignore
     api: "/api/chat",
+    experimental_throttle: 50,
     body: {
+      model: modelValue,
       effort: effort,
     },
     initialMessages: initialMessages as any,
@@ -423,8 +395,28 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
   const triggerSend = sendMessage || append;
   const triggerReload = regenerate || reload;
 
+  // Track status transitions for streaming and completion sound cues
+  const prevStatusRef = useRef<string>(status);
+  const hasStreamedRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    const prev = prevStatusRef.current;
+    prevStatusRef.current = status;
+
+    if (status === "streaming" && !hasStreamedRef.current) {
+      hasStreamedRef.current = true;
+      playChatReceive(0.028);
+    }
+
+    if (prev === "streaming" && status === "ready") {
+      hasStreamedRef.current = false;
+      playChatDone(0.03);
+    }
+  }, [status]);
+
   const handleSuggestionClick = (promptText: string) => {
     setSessionActive(true);
+    playChatSend(0.04);
     try {
       if (triggerSend) {
         triggerSend(
@@ -510,6 +502,8 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
   const totalTokens = inputTokens + outputTokens;
 
   const showMessages = sessionActive || isExpanded || inputValue.length > 0;
+  const [desktopHoveredAction, setDesktopHoveredAction] = useState<"download" | "close" | null>(null);
+  const [mobileHoveredAction, setMobileHoveredAction] = useState<"download" | "close" | null>(null);
 
   const customGreetings = [
     { text: "Welcome." },
@@ -521,59 +515,157 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
 
   const chatContent = (
     <>
-      <div className="absolute top-0 inset-x-0 z-[110]">
-        <Banner
-          open={showBanner}
-          variant="default"
-          actionLabel="Contact Me"
-          actionHref="/contact"
-          morphMessage="Thank you!"
-          onDismiss={() => setShowBanner(false)}
-        >
-          <span className="hidden sm:inline">Enjoying your conversation? I'm currently looking for new opportunities.</span>
-          <span className="sm:hidden">Enjoying this? Let's connect!</span>
-        </Banner>
-      </div>
-      {/* Mobile Close Button (visible only on mobile/tablet) */}
+      {/* Mobile/Tablet Action Group */}
       <div className="absolute top-4 right-4 z-[99] md:hidden">
-        <Button 
-          onClick={(e) => { e.stopPropagation(); handleClose(); }}
-          className="rounded-full bg-zinc-100/50 backdrop-blur-sm dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-50 border border-zinc-200 dark:border-white/10 hover:bg-zinc-200 dark:hover:bg-zinc-700 shadow-sm transition-colors size-9 flex items-center justify-center"
-          variant="outline"
-          size="icon"
-        >
-          <XIcon className="size-4" />
-        </Button>
+        {showMessages && messages.length > 0 ? (
+          <div 
+            className="relative flex items-center bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl shadow-none select-none"
+            onMouseLeave={() => setMobileHoveredAction(null)}
+          >
+            {/* Sliding Pill Indicator at z-0 */}
+            <AnimatePresence>
+              {mobileHoveredAction && (
+                <motion.div
+                  key="mobile-pill"
+                  initial={false}
+                  animate={{
+                    x: mobileHoveredAction === "download" ? 0 : 36,
+                    opacity: 1,
+                  }}
+                  exit={{ opacity: 0 }}
+                  transition={{ type: "spring", bounce: 0.15, duration: 0.3 }}
+                  className="absolute top-1 left-1 bottom-1 w-8 bg-zinc-200/90 dark:bg-zinc-700/90 rounded-lg shadow-sm pointer-events-none z-0"
+                />
+              )}
+            </AnimatePresence>
+
+            <button 
+              onClick={() => {
+                const markdown = messages
+                  .map((msg: any) => `### ${msg.role === "user" ? "User" : "AI"}\n\n${msg.content}`)
+                  .join("\n\n");
+                const blob = new Blob([markdown], { type: "text/markdown" });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = "conversation.md";
+                document.body.append(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(url);
+              }}
+              onMouseEnter={() => setMobileHoveredAction("download")}
+              className="relative z-10 size-8 rounded-lg flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors cursor-pointer active:scale-95 border-0 outline-none"
+              aria-label="Download conversation"
+            >
+              <DownloadIcon className="size-4 relative z-10 pointer-events-none" />
+            </button>
+            <div 
+              className={cn(
+                "w-[1px] h-4 bg-zinc-300 dark:bg-zinc-700 mx-0.5 transition-opacity duration-200 z-10 pointer-events-none",
+                mobileHoveredAction ? "opacity-30" : "opacity-100"
+              )} 
+            />
+            <button 
+              onClick={(e) => { e.stopPropagation(); handleClose(); }}
+              onMouseEnter={() => setMobileHoveredAction("close")}
+              className="relative z-10 size-8 rounded-lg flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors cursor-pointer active:scale-95 border-0 outline-none"
+              aria-label="Close"
+            >
+              <XIcon className="size-4 relative z-10 pointer-events-none" />
+            </button>
+          </div>
+        ) : (
+          <button 
+            onClick={(e) => { e.stopPropagation(); handleClose(); }}
+            className="size-9 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 flex items-center justify-center border-0 outline-none shadow-none transition-colors cursor-pointer active:scale-95"
+            aria-label="Close"
+          >
+            <XIcon className="size-4" />
+          </button>
+        )}
       </div>
       {showMessages && messages.length > 0 && (
-            <div className="absolute top-4 left-4 z-[90] hidden md:flex items-center gap-2">
-              <ConversationDownload 
-                className="static right-auto left-auto top-auto bg-zinc-100/50 backdrop-blur-sm dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-50 border border-zinc-200 dark:border-white/10 hover:bg-zinc-200 dark:hover:bg-zinc-700 shadow-sm transition-colors"
-                messages={messages.map((m: any) => ({
-                  key: m.id,
-                  role: m.role as "user" | "assistant",
-                  content: m.content
-                })) as any} 
+        <div className="absolute top-4 left-4 z-[90] hidden md:flex items-center">
+          <div 
+            className="relative flex items-center bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl shadow-none select-none"
+            onMouseLeave={() => setDesktopHoveredAction(null)}
+          >
+            {/* Sliding Pill Indicator at z-0 */}
+            <AnimatePresence>
+              {desktopHoveredAction && (
+                <motion.div
+                  key="desktop-pill"
+                  initial={false}
+                  animate={{
+                    x: desktopHoveredAction === "download" ? 0 : 36,
+                    opacity: 1,
+                  }}
+                  exit={{ opacity: 0 }}
+                  transition={{ type: "spring", bounce: 0.15, duration: 0.3 }}
+                  className="absolute top-1 left-1 bottom-1 w-8 bg-zinc-200/90 dark:bg-zinc-700/90 rounded-lg shadow-sm pointer-events-none z-0"
+                />
+              )}
+            </AnimatePresence>
+
+            <TooltipProvider delayDuration={150}>
+              {/* Download conversation tooltip */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button 
+                    onClick={() => {
+                      const markdown = messages
+                        .map((msg: any) => `### ${msg.role === "user" ? "User" : "AI"}\n\n${msg.content}`)
+                        .join("\n\n");
+                      const blob = new Blob([markdown], { type: "text/markdown" });
+                      const url = URL.createObjectURL(blob);
+                      const link = document.createElement("a");
+                      link.href = url;
+                      link.download = "conversation.md";
+                      document.body.append(link);
+                      link.click();
+                      link.remove();
+                      URL.revokeObjectURL(url);
+                    }}
+                    onMouseEnter={() => setDesktopHoveredAction("download")}
+                    className="relative z-10 size-8 rounded-lg flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors cursor-pointer active:scale-95 border-0 outline-none"
+                    aria-label="Download conversation"
+                  >
+                    <DownloadIcon className="size-4 relative z-10 pointer-events-none" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="start" sideOffset={8} hideArrow={true} className="z-[9999] text-[12px] font-medium bg-zinc-900 text-white dark:bg-white dark:text-black border-none rounded-md px-2.5 py-1 shadow-xl">
+                  <p>Download conversation</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <div 
+                className={cn(
+                  "w-[1px] h-4 bg-zinc-300 dark:bg-zinc-700 mx-0.5 transition-opacity duration-200 z-10 pointer-events-none",
+                  desktopHoveredAction ? "opacity-30" : "opacity-100"
+                )} 
               />
-              <TooltipProvider delayDuration={200}>
-                <Tooltip open={closeTooltipOpen} onOpenChange={setCloseTooltipOpen}>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      onClick={(e) => { e.stopPropagation(); handleClose(); }}
-                      className="rounded-full bg-zinc-100/50 backdrop-blur-sm dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-50 border border-zinc-200 dark:border-white/10 hover:bg-zinc-200 dark:hover:bg-zinc-700 shadow-sm transition-colors"
-                      variant="outline"
-                      size="icon"
-                    >
-                      <XIcon className="size-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" sideOffset={8} hideArrow={true} className="text-[12px] font-medium bg-zinc-900 text-white dark:bg-white dark:text-black border-none rounded-md px-2 py-1 shadow-md">
-                    <p>Close (Esc)</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          )}
+
+              {/* Close modal tooltip */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); handleClose(); }}
+                    onMouseEnter={() => setDesktopHoveredAction("close")}
+                    className="relative z-10 size-8 rounded-lg flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors cursor-pointer active:scale-95 border-0 outline-none"
+                    aria-label="Close"
+                  >
+                    <XIcon className="size-4 relative z-10 pointer-events-none" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="start" sideOffset={8} hideArrow={true} className="z-[9999] text-[12px] font-medium bg-zinc-900 text-white dark:bg-white dark:text-black border-none rounded-md px-2.5 py-1 shadow-xl">
+                  <p>Close (Esc)</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
+      )}
 
           {/* Aurora Glow */}
           <AnimatePresence>
@@ -717,7 +809,10 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                         {triggerReload && (
                           <MessageAction
                             label="Retry"
-                            onClick={() => triggerReload()}
+                            onClick={() => {
+                              playSoftClick(0.04);
+                              triggerReload();
+                            }}
                             tooltip="Regenerate response"
                           >
                             <RefreshCcwIcon className="size-4" />
@@ -725,7 +820,10 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                         )}
                         <MessageAction
                           label="Copy"
-                          onClick={() => navigator.clipboard.writeText(textContent)}
+                          onClick={() => {
+                            navigator.clipboard.writeText(textContent);
+                            playCopySuccess(0.035);
+                          }}
                           tooltip="Copy to clipboard"
                         >
                           <CopyIcon className="size-4" />
@@ -794,7 +892,7 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                   key={idx}
                   type="button"
                   onClick={() => handleSuggestionClick(s.prompt)}
-                  className="px-3 py-1.5 text-[11px] font-medium border border-zinc-200 dark:border-white/10 hover:border-[#6495ED] dark:hover:border-[#6495ED] bg-white/70 hover:bg-[#6495ED]/5 dark:bg-zinc-900/70 dark:hover:bg-[#6495ED]/10 text-zinc-600 hover:text-[#6495ED] dark:text-zinc-400 dark:hover:text-[#6495ED] rounded-full shadow-sm transition-all backdrop-blur-sm cursor-pointer"
+                  className="px-2.5 py-1 text-xs font-medium bg-neutral-100 hover:bg-neutral-200/80 dark:bg-neutral-800/80 dark:hover:bg-neutral-700/80 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200 rounded-md border-0 outline-none shadow-none transition-colors cursor-pointer"
                 >
                   {s.label}
                 </button>
@@ -830,6 +928,7 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                   onSubmit={({ model, configuration, prompt }) => {
                     setSessionActive(true);
                     setEffort(configuration.reasoning);
+                    playChatSend(0.04);
                     try {
                       if (triggerSend) {
                         triggerSend(

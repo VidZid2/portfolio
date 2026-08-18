@@ -1,107 +1,79 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useRef } from "react";
+import React, { createContext, useContext, useEffect, useRef } from "react";
+import { useSoundPreferences } from "@/hooks/use-sound";
+import { playHoverTick, playSoftClick } from "@/lib/synth-sounds";
 
 interface SoundContextType {
+  soundEnabled: boolean;
   muted: boolean;
+  toggleSound: () => void;
   toggleMute: () => void;
+  setSoundEnabled: (val: boolean) => void;
 }
 
 const SoundContext = createContext<SoundContextType>({
+  soundEnabled: true,
   muted: false,
+  toggleSound: () => {},
   toggleMute: () => {},
+  setSoundEnabled: () => {},
 });
 
 export const useSound = () => useContext(SoundContext);
 
+const INTERACTIVE_SELECTOR =
+  "a, button, [role='button'], [role='tab'], [role='menuitem'], [role='switch'], [role='checkbox'], [role='radio'], [role='option'], [role='link'], input[type='button'], input[type='submit'], input[type='reset'], input[type='checkbox'], input[type='radio'], select, summary, [data-hover-sound], [tabindex]:not([tabindex='-1'])";
+
 export function SoundProvider({ children }: { children: React.ReactNode }) {
-  const [muted, setMuted] = useState(false);
-  const audioCtxRef = useRef<AudioContext | null>(null);
+  const { soundEnabled, muted, toggleSound, toggleMute, setSoundEnabled } = useSoundPreferences();
   const lastHoveredRef = useRef<Element | null>(null);
+  const lastClickTimeRef = useRef<number>(0);
 
   useEffect(() => {
-    const saved = localStorage.getItem("portfolio-muted");
-    if (saved) {
-      setMuted(saved === "true");
-    }
-
-    // Initialize the Web Audio API context
-    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-    if (AudioContextClass) {
-      audioCtxRef.current = new AudioContextClass();
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("portfolio-muted", muted.toString());
-  }, [muted]);
-
-  useEffect(() => {
-    const playTick = () => {
-      const ctx = audioCtxRef.current;
-      if (!ctx) return;
-      
-      // Browsers require interaction before AudioContext can play. 
-      // If the user hasn't clicked anywhere yet, it might be suspended.
-      if (ctx.state === "suspended") {
-        ctx.resume().catch(() => {});
-      }
-
-      // Create a synthesizer graph
-      const osc = ctx.createOscillator();
-      const gainNode = ctx.createGain();
-
-      osc.connect(gainNode);
-      gainNode.connect(ctx.destination);
-
-      // Sound Design: A very soft, modern UI "tick"
-      // We use a sine wave that rapidly drops in frequency for a tactile feel
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(600, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.02);
-
-      // Volume envelope: extremely quiet (max gain 0.03) and short
-      gainNode.gain.setValueAtTime(0, ctx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 0.002); // attack
-      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03); // decay
-
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.03);
-    };
-
     const handleMouseOver = (e: MouseEvent) => {
-      if (muted) return;
+      if (!soundEnabled) return;
 
       const target = e.target as HTMLElement;
-      // Trigger sound on standard interactive elements
-      const interactiveEl = target.closest("a, button, [role='button']");
+      const interactiveEl = target?.closest?.(INTERACTIVE_SELECTOR);
 
       if (interactiveEl) {
-        // Only play if we just entered a NEW interactive element.
-        // This prevents the event from firing repeatedly as the mouse moves across children.
         if (interactiveEl !== lastHoveredRef.current) {
           lastHoveredRef.current = interactiveEl;
-          playTick();
+          playHoverTick(0.03);
         }
       } else {
-        // We moved off an interactive element, clear the ref
         lastHoveredRef.current = null;
       }
     };
 
-    document.addEventListener("mouseover", handleMouseOver);
+    const handleMouseDown = (e: MouseEvent) => {
+      if (!soundEnabled) return;
+
+      const target = e.target as HTMLElement;
+      const interactiveEl = target?.closest?.(INTERACTIVE_SELECTOR);
+
+      if (interactiveEl) {
+        const now = Date.now();
+        if (now - lastClickTimeRef.current > 40) {
+          lastClickTimeRef.current = now;
+          playSoftClick(0.045);
+        }
+      }
+    };
+
+    document.addEventListener("mouseover", handleMouseOver, { passive: true });
+    document.addEventListener("mousedown", handleMouseDown, { passive: true });
     return () => {
       document.removeEventListener("mouseover", handleMouseOver);
+      document.removeEventListener("mousedown", handleMouseDown);
     };
-  }, [muted]);
-
-  const toggleMute = () => {
-    setMuted((prev) => !prev);
-  };
+  }, [soundEnabled]);
 
   return (
-    <SoundContext.Provider value={{ muted, toggleMute }}>
+    <SoundContext.Provider value={{ soundEnabled, muted, toggleSound, toggleMute, setSoundEnabled }}>
       {children}
     </SoundContext.Provider>
   );
 }
+

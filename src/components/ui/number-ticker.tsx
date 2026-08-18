@@ -19,6 +19,8 @@ export interface NumberTickerProps {
   suffix?: string;
   /** Add a small blur during digit rolls. */
   blur?: boolean;
+  /** Add top and bottom fade mask for seamless scrolling transitions. */
+  fade?: boolean;
   className?: string;
   digitClassName?: string;
   /** Insert locale group separators (commas). Server-component safe. */
@@ -39,6 +41,7 @@ export function NumberTicker({
   prefix,
   suffix,
   blur = false,
+  fade = true,
   className,
   digitClassName,
   locale,
@@ -63,17 +66,10 @@ export function NumberTicker({
   }, [value, pad, format, locale]);
   const glyphs = useMemo(() => {
     const chars = text.split("");
-    // Key by place value (position from the right): a changing digit keeps its
-    // identity and rolls to the new value instead of remounting and replaying
-    // from 0. Growing numbers add glyphs on the left without re-keying the
-    // ones, tens, hundreds already on screen.
     return chars.map((char, i) => ({ char, id: `g-${chars.length - 1 - i}` }));
   }, [text]);
   const readableText = `${prefix ?? ""}${text}${suffix ?? ""}`;
 
-  // Stagger is an entrance flourish. Once the reveal has played, value
-  // changes roll every digit immediately — a per-digit delay on live updates
-  // reads as lag.
   const [entered, setEntered] = useState(false);
   useEffect(() => {
     if (!armed || entered) return;
@@ -107,6 +103,7 @@ export function NumberTicker({
               delay={entered ? 0 : i * stagger}
               duration={duration}
               blur={blur}
+              fade={fade}
               className={digitClassName}
             />
           );
@@ -122,12 +119,14 @@ function Digit({
   delay,
   duration,
   blur,
+  fade = true,
   className,
 }: {
   digit: number;
   delay: number;
   duration: number;
   blur: boolean;
+  fade?: boolean;
   className?: string;
 }) {
   const reduce = useReducedMotion();
@@ -141,7 +140,7 @@ function Digit({
     const node = columnRef.current;
     const controls = animate(
       node,
-      { filter: ["blur(10px)", "blur(0px)"] },
+      { filter: ["blur(6px)", "blur(0px)"] },
       {
         duration: Math.min(duration * 0.75, 0.32),
         delay,
@@ -157,7 +156,11 @@ function Digit({
 
   return (
     <span
-      className={cn("relative inline-block overflow-hidden", className)}
+      className={cn(
+        "relative inline-block overflow-hidden",
+        fade && "[mask-image:linear-gradient(to_bottom,transparent_0%,black_22%,black_78%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent_0%,black_22%,black_78%,transparent_100%)]",
+        className
+      )}
       style={{ height: `${DIGIT_HEIGHT_EM}em`, width: "calc(1ch + 0.15em)" }}
     >
       <motion.span

@@ -32,13 +32,14 @@ import {
     CommandShortcut,
 } from "@/components/ui/command"
 import dynamic from "next/dynamic"
+import { Swirling } from "@/components/loading-ui/swirling"
 const PromptBoxPreview = dynamic(
   () => import("@/components/prompt-box-preview").then((mod) => mod.PromptBoxPreview),
   { 
     ssr: false,
     loading: () => (
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/20 dark:bg-zinc-950/40 backdrop-blur-sm">
-        <div className="w-8 h-8 rounded-full border-2 border-zinc-500/30 border-t-zinc-900 dark:border-white/20 dark:border-t-white animate-spin" />
+        <Swirling className="size-8 text-zinc-900 dark:text-zinc-100" />
       </div>
     )
   }
@@ -49,9 +50,16 @@ const preloadPromptBox = () => {
 };
 import { useArcReveal } from "@/components/ruixen/arc-reveal-hero"
 import { JapaneseAsciiText } from "@/components/ui/japanese-ascii-text"
+import { playCommandMenuOpen, playListSelect } from "@/lib/synth-sounds"
 
 export function CommandMenu() {
     const [open, setOpen] = React.useState(false)
+
+    React.useEffect(() => {
+        if (open) {
+            playCommandMenuOpen(0.035);
+        }
+    }, [open]);
     const [aiOpen, setAiOpen] = React.useState(false)
     const [initialAiQuery, setInitialAiQuery] = React.useState("")
     const [showTooltip, setShowTooltip] = React.useState(false)
@@ -116,6 +124,7 @@ export function CommandMenu() {
     }, [])
 
     const runCommand = React.useCallback((command: () => unknown) => {
+        playListSelect(0.04)
         setOpen(false)
         command()
     }, [])

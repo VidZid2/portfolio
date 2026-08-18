@@ -116,7 +116,7 @@ export function ExperimentStage({
       ) : (
         <canvas
           ref={canvasRef}
-          style={{ opacity: painted && inView ? 1 : 0 }}
+          style={{ opacity: painted && inView ? 1 : 0, touchAction: "pan-y" }}
           className={`block w-full h-full transition-opacity duration-500 ease-[var(--ease-out)] motion-reduce:transition-none ${burstOnClick ? "cursor-pointer" : ""} ${seamless ? "" : "aspect-[16/9]"}`}
           onPointerMove={wantsMove ? handleMove : undefined}
           onPointerLeave={

@@ -1,47 +1,74 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore, useCallback } from "react";
 
-// Default to true (sound enabled) but we will initialize from localStorage
-let globalSoundEnabled = true; 
-const listeners = new Set<(val: boolean) => void>();
+let globalSoundEnabled = true;
+let isInitialized = false;
+const listeners = new Set<() => void>();
+
+function initFromStorage() {
+  if (typeof window !== "undefined" && !isInitialized) {
+    isInitialized = true;
+    try {
+      const saved = localStorage.getItem("soundEnabled");
+      if (saved !== null) {
+        globalSoundEnabled = saved === "true";
+      }
+    } catch {
+      // Ignore storage errors
+    }
+  }
+}
 
 export function toggleSound() {
-  globalSoundEnabled = !globalSoundEnabled;
-  localStorage.setItem("soundEnabled", String(globalSoundEnabled));
-  listeners.forEach((l) => l(globalSoundEnabled));
+  setSoundEnabled(!globalSoundEnabled);
 }
 
 export function setSoundEnabled(val: boolean) {
   globalSoundEnabled = val;
-  localStorage.setItem("soundEnabled", String(globalSoundEnabled));
-  listeners.forEach((l) => l(globalSoundEnabled));
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem("soundEnabled", String(globalSoundEnabled));
+    } catch {
+      // Ignore storage errors
+    }
+  }
+  listeners.forEach((l) => l());
 }
 
 export function getSoundEnabled() {
+  initFromStorage();
   return globalSoundEnabled;
 }
 
+function subscribe(callback: () => void) {
+  listeners.add(callback);
+  return () => {
+    listeners.delete(callback);
+  };
+}
+
 export function useSoundPreferences() {
-  const [enabled, setEnabled] = useState(globalSoundEnabled);
+  initFromStorage();
+  const soundEnabled = useSyncExternalStore(
+    subscribe,
+    () => globalSoundEnabled,
+    () => true
+  );
 
-  useEffect(() => {
-    // Only access localStorage on the client
-    const saved = localStorage.getItem("soundEnabled");
-    if (saved !== null) {
-      const val = saved === "true";
-      if (val !== globalSoundEnabled) {
-        globalSoundEnabled = val;
-      }
-    }
-    setEnabled(globalSoundEnabled);
-
-    const listener = (val: boolean) => setEnabled(val);
-    listeners.add(listener);
-    return () => {
-      listeners.delete(listener);
-    };
+  const handleToggle = useCallback(() => {
+    toggleSound();
   }, []);
 
-  return { soundEnabled: enabled, toggleSound, setSoundEnabled };
+  const handleSet = useCallback((val: boolean) => {
+    setSoundEnabled(val);
+  }, []);
+
+  return {
+    soundEnabled,
+    muted: !soundEnabled,
+    toggleSound: handleToggle,
+    toggleMute: handleToggle,
+    setSoundEnabled: handleSet,
+  };
 }

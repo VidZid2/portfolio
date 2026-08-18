@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { homeItems, primaItems } from "@/components/RightNavbar";
 import { useTransition } from "@/components/TransitionProvider";
+import { playSoftClick, playListSelect } from "@/lib/synth-sounds";
 
 export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -95,16 +96,30 @@ export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
 
       e.preventDefault();
       
-      // Calculate position to prevent overflowing the screen
+      // Calculate position to keep the menu cleanly within viewport boundaries
       let x = e.clientX;
       let y = e.clientY;
-      const menuWidth = 256; // w-64 is 256px
-      const estimatedHeight = 360; // Better estimate for the flattened menu
-      
-      if (x + menuWidth > window.innerWidth) x = window.innerWidth - menuWidth - 10;
-      if (y + estimatedHeight > window.innerHeight) y = window.innerHeight - estimatedHeight - 10;
+      const menuWidth = 256;
+      // Precise height based on whether Navigation Index is active
+      const menuHeight = (hasIndex && activeItems.length > 0) ? 310 : 120;
+      const padding = 12;
+
+      // Keep fully inside viewport horizontally
+      if (x + menuWidth > window.innerWidth - padding) {
+        x = Math.max(padding, window.innerWidth - menuWidth - padding);
+      } else {
+        x = Math.max(padding, x);
+      }
+
+      // Keep fully inside viewport vertically
+      if (y + menuHeight > window.innerHeight - padding) {
+        y = Math.max(padding, window.innerHeight - menuHeight - padding);
+      } else {
+        y = Math.max(padding, y);
+      }
 
       setPosition({ x, y });
+      playSoftClick(0.04);
       setIsOpen(true);
     };
 
@@ -134,19 +149,13 @@ export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
       window.removeEventListener("pointerdown", handlePointerDown, true);
       window.removeEventListener("scroll", handleScroll, true);
     };
-  }, [isOpen]);
+  }, [isOpen, hasIndex, activeItems.length]);
 
-  // Pixel-perfect auto-correction after the menu renders its true height
+  const [hoveredId, setHoveredId] = React.useState<string | null>(null);
+
   React.useEffect(() => {
-    if (isOpen && menuRef.current) {
-      const rect = menuRef.current.getBoundingClientRect();
-      if (position.y + rect.height > window.innerHeight) {
-        // If it still overflows after our estimate, smoothly slide it up!
-        setPosition(prev => ({
-          ...prev,
-          y: window.innerHeight - rect.height - 10
-        }));
-      }
+    if (!isOpen) {
+      setHoveredId(null);
     }
   }, [isOpen]);
 
@@ -169,48 +178,73 @@ export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
             transition={{
               duration: 0.15,
               ease: "easeOut",
-              left: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
-              top: { duration: 0.5, ease: [0.16, 1, 0.3, 1] }
+              left: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
+              top: { duration: 0.45, ease: [0.16, 1, 0.3, 1] }
             }}
-            className="fixed z-[9999] w-64 bg-white dark:bg-[#111111] border border-black/10 dark:border-white/10 shadow-2xl rounded-xl p-1.5"
+            className="fixed z-[9999] w-64 bg-white dark:bg-[#111111] border border-black/10 dark:border-white/10 rounded-xl p-1.5"
             onContextMenu={(e) => e.preventDefault()}
+            onMouseLeave={() => setHoveredId(null)}
           >
           {/* Browser Controls */}
           {!isHome && (
             <>
               <button
                 onClick={handleBack}
-                className="w-full flex items-center justify-between rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors"
+                onMouseEnter={() => setHoveredId("back")}
+                className="relative w-full flex items-center justify-between rounded-md py-1.5 px-2 text-sm outline-none"
               >
-                <div className="flex items-center gap-2">
+                {hoveredId === "back" && (
+                  <motion.div
+                    layoutId="context-menu-highlight"
+                    transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                    className="absolute inset-0 rounded-md bg-black/5 dark:bg-white/10 pointer-events-none"
+                  />
+                )}
+                <div className="relative z-10 flex items-center gap-2">
                   <ChevronLeft className="h-4 w-4 text-zinc-500" />
                   <span>Back</span>
                 </div>
-                <span className="text-xs tracking-widest text-zinc-400">⌘[</span>
+                <span className="relative z-10 text-xs tracking-widest text-zinc-400">⌘[</span>
               </button>
               
               <button
                 onClick={handleForward}
-                className="w-full flex items-center justify-between rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors"
+                onMouseEnter={() => setHoveredId("forward")}
+                className="relative w-full flex items-center justify-between rounded-md py-1.5 px-2 text-sm outline-none"
               >
-                <div className="flex items-center gap-2">
+                {hoveredId === "forward" && (
+                  <motion.div
+                    layoutId="context-menu-highlight"
+                    transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                    className="absolute inset-0 rounded-md bg-black/5 dark:bg-white/10 pointer-events-none"
+                  />
+                )}
+                <div className="relative z-10 flex items-center gap-2">
                   <ChevronRight className="h-4 w-4 text-zinc-500" />
                   <span>Forward</span>
                 </div>
-                <span className="text-xs tracking-widest text-zinc-400">⌘]</span>
+                <span className="relative z-10 text-xs tracking-widest text-zinc-400">⌘]</span>
               </button>
             </>
           )}
           
           <button
             onClick={handleReload}
-            className="w-full flex items-center justify-between rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors"
+            onMouseEnter={() => setHoveredId("reload")}
+            className="relative w-full flex items-center justify-between rounded-md py-1.5 px-2 text-sm outline-none"
           >
-            <div className="flex items-center gap-2">
+            {hoveredId === "reload" && (
+              <motion.div
+                layoutId="context-menu-highlight"
+                transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                className="absolute inset-0 rounded-md bg-black/5 dark:bg-white/10 pointer-events-none"
+              />
+            )}
+            <div className="relative z-10 flex items-center gap-2">
               <RotateCw className="h-4 w-4 text-zinc-500" />
               <span>Reload</span>
             </div>
-            <span className="text-xs tracking-widest text-zinc-400">⌘R</span>
+            <span className="relative z-10 text-xs tracking-widest text-zinc-400">⌘R</span>
           </button>
 
           <div className="h-px bg-black/5 dark:bg-white/5 my-1" />
@@ -225,10 +259,20 @@ export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
                 <button 
                   key={item.id} 
                   onClick={() => scrollToSection(item.id)} 
-                  className="w-full flex items-center gap-2 rounded-md hover:bg-black/5 dark:hover:bg-white/10 py-1.5 px-2 text-sm outline-none transition-colors"
+                  onMouseEnter={() => setHoveredId(`item-${item.id}`)}
+                  className="relative w-full flex items-center gap-2 rounded-md py-1.5 px-2 text-sm outline-none"
                 >
-                  {renderIcon(item.icon)}
-                  <span>{item.label}</span>
+                  {hoveredId === `item-${item.id}` && (
+                    <motion.div
+                      layoutId="context-menu-highlight"
+                      transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                      className="absolute inset-0 rounded-md bg-black/5 dark:bg-white/10 pointer-events-none"
+                    />
+                  )}
+                  <span className="relative z-10 flex items-center gap-2">
+                    {renderIcon(item.icon)}
+                    <span>{item.label}</span>
+                  </span>
                 </button>
               ))}
               <div className="h-px bg-black/5 dark:bg-white/5 my-1" />
@@ -254,12 +298,22 @@ export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
               window.dispatchEvent(new CustomEvent("open-ai"));
               setIsOpen(false);
             }}
-            onMouseEnter={() => import("@/components/prompt-box-preview")}
+            onMouseEnter={() => {
+              setHoveredId("ai");
+              import("@/components/prompt-box-preview");
+            }}
             onTouchStart={() => import("@/components/prompt-box-preview")}
-            className="w-full flex items-center gap-2 rounded-md hover:bg-[#6495ED]/10 dark:hover:bg-[#6495ED]/20 py-1.5 px-2 text-sm outline-none transition-colors font-medium group"
+            className="relative w-full flex items-center gap-2 rounded-md py-1.5 px-2 text-sm outline-none font-medium group"
           >
-            <Sparkles className="h-4 w-4 text-[#6495ED]" />
-            <span className="animate-shimmer-text">Ask AI</span>
+            {hoveredId === "ai" && (
+              <motion.div
+                layoutId="context-menu-highlight"
+                transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                className="absolute inset-0 rounded-md bg-[#6495ED]/10 dark:bg-[#6495ED]/20 pointer-events-none"
+              />
+            )}
+            <Sparkles className="relative z-10 h-4 w-4 text-[#6495ED]" />
+            <span className="relative z-10 animate-shimmer-text">Ask AI</span>
           </button>
         </motion.div>
         )}

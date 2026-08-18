@@ -5,10 +5,10 @@ import Link from "next/link";
 import { ArrowLeft, BrainCircuit, Terminal, ShieldCheck, Layers, MousePointerClick, Trash2, Zap, Scissors, Cpu, Database, Battery, CircleDashed, Home } from "lucide-react";
 import { RightNavbar } from "@/components/RightNavbar";
 
+import { BlueprintGrid } from "@/components/BlueprintGrid";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CommandMenu } from "@/components/command-menu";
 import { TransitionLink } from "@/components/TransitionLink";
-import { TopBanner } from "@/components/TopBanner";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { AnimatedRoadmap } from "@/components/AnimatedRoadmap";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
@@ -28,35 +28,8 @@ export default async function HowItsMadePage({ params }: { params: Promise<{ slu
   }
 
   return (
-    <>
-
-      <div className="min-h-screen w-full bg-white dark:bg-black relative overflow-x-hidden transition-colors duration-300">
-        <RightNavbar />
-
-        {/* Vertical Lines - Ultra-fine Micro Dots */}
-        <div className="absolute top-0 bottom-0 left-[26%] w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none hidden md:block" style={{ maskImage: 'repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)', WebkitMaskImage: 'repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)' }} />
-        <div className="absolute top-0 bottom-0 right-[26%] w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none hidden md:block" style={{ maskImage: 'repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)', WebkitMaskImage: 'repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)' }} />
-
-        {/* Ultra-Tiny Solid Nodes */}
-        {[
-          { top: '22vh', left: '26%' },
-          { top: '22vh', right: '26%' },
-          { top: 'calc(22vh + 112px)', left: '26%' },
-          { top: 'calc(22vh + 112px)', right: '26%' },
-        ].map((pos, i) => (
-          <div key={i} className="absolute w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] pointer-events-none z-10 hidden md:block"
-            style={{
-              top: pos.top,
-              left: pos.left,
-              right: pos.right,
-              transform: `translate(${pos.right ? '50%' : '-50%'}, -50%)`
-            }} />
-        ))}
-
-        {/* Cell 1: Top Banner */}
-        <TopBanner />
-
-        {/* Cell 2: Header with Back Button + Title + Controls */}
+    <BlueprintGrid
+      headerSlot={
         <div className="absolute left-0 right-0 md:left-[26%] md:right-[26%] top-[22vh] h-[112px] flex items-center px-2 sm:px-4 z-50">
           <div className="flex w-full items-center justify-between">
             {/* Left: Back + Title */}
@@ -99,18 +72,15 @@ export default async function HowItsMadePage({ params }: { params: Promise<{ slu
               </div>
             </div>
 
-          </div>
-
-          {/* Top-right absolute buttons container */}
-          <div className="absolute top-1.5 right-2 sm:top-3 sm:right-4 flex items-center gap-1.5 sm:gap-3 pointer-events-auto z-20">
-            <CommandMenu />
-            <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300 shrink-0" />
+            {/* Top-right absolute buttons container */}
+            <div className="absolute top-1.5 right-2 sm:top-3 sm:right-4 flex items-center gap-1.5 sm:gap-3 pointer-events-auto z-20">
+              <CommandMenu />
+              <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300 shrink-0" />
+            </div>
           </div>
         </div>
-
-        {/* Horizontal Lines */}
-        <div className="absolute left-0 right-0 top-[22vh] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)', WebkitMaskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)' }} />
-
+      }
+    >
         <div className="ml-0 mr-0 md:ml-[26%] md:mr-[26%] pt-[calc(22vh+112px)] pb-16 px-4 flex flex-col z-10 relative">
           <div className="w-full max-w-3xl mx-auto text-zinc-800 dark:text-zinc-300 space-y-12 leading-relaxed mt-16">
             
@@ -298,7 +268,6 @@ export default async function HowItsMadePage({ params }: { params: Promise<{ slu
             
           </div>
         </div>
-      </div>
-    </>
+    </BlueprintGrid>
   );
 }

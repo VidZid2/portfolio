@@ -77,8 +77,16 @@ export function OpenSourceContributions({ isFullPage = false, hasSeenScrollAnima
   });
   const [loadedTypes, setLoadedTypes] = useState<Set<FilterType>>(new Set());
   const [filterType, setFilterType] = useState<FilterType>("merged");
+  const [shakingTab, setShakingTab] = useState<FilterType | null>(null);
   const [closedPRIds] = useState<Set<number>>(new Set());
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const handleDisabledClick = (type: FilterType) => {
+    setShakingTab(type);
+    setTimeout(() => {
+      setShakingTab(null);
+    }, 500);
+  };
 
   const initialCount = 4;
   const fetchedRef = useRef(false);
@@ -196,25 +204,49 @@ export function OpenSourceContributions({ isFullPage = false, hasSeenScrollAnima
         <div className="flex items-center gap-2 relative z-20 group mr-0 sm:mr-[8px] w-full sm:w-auto">
           <div className="absolute -inset-[5px] border border-black/5 dark:border-white/5 rounded-[11px] pointer-events-none transition-colors duration-300 group-hover:border-black/10 dark:group-hover:border-white/10" />
           <div className="relative grid grid-cols-3 p-1 bg-zinc-50 dark:bg-[#09090b] rounded-[6px] border border-black/5 dark:border-white/5 shadow-sm shadow-black/20 dark:shadow-lg dark:shadow-black/80 w-full sm:w-fit select-none">
-            {/* Sliding Pill Background */}
+            {/* Sliding Pill Background (stays on Merged) */}
             <div
-              className={`absolute top-1 bottom-1 left-1 w-[calc((100%-8px)/3)] rounded-[4px] bg-white dark:bg-[#1e1e20] border border-zinc-200/50 dark:border-zinc-800/50 shadow-sm transition-transform duration-300 ease-[cubic-bezier(0.33,1,0.68,1)] transform will-change-transform ${filterType === "merged" ? "translate-x-0" : filterType === "open" ? "translate-x-[100%]" : "translate-x-[200%]"
-                }`}
+              className={`absolute top-1 bottom-1 left-1 w-[calc((100%-8px)/3)] rounded-[4px] bg-white dark:bg-[#1e1e20] border border-zinc-200/50 dark:border-zinc-800/50 shadow-sm transition-transform duration-300 ease-[cubic-bezier(0.33,1,0.68,1)] transform will-change-transform ${
+                filterType === "merged" ? "translate-x-0" : filterType === "open" ? "translate-x-[100%]" : "translate-x-[200%]"
+              }`}
             />
 
             {/* Buttons */}
-            {(["merged", "open", "closed"] as FilterType[]).map((type) => (
-              <button
-                key={type}
-                onClick={() => handleFilterChange(type)}
-                className={`z-10 relative px-3 py-1.5 text-[12px] font-medium text-center transition-colors duration-200 capitalize ${filterType === type
-                  ? "text-zinc-900 dark:text-zinc-100"
-                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
+            {(["merged", "open", "closed"] as FilterType[]).map((type) => {
+              const isDisabled = type === "open" || type === "closed";
+              const isShaking = shakingTab === type;
+              return (
+                <motion.button
+                  key={type}
+                  animate={
+                    isShaking
+                      ? {
+                          x: [0, -6, 6, -5, 5, -3, 3, 0],
+                        }
+                      : { x: 0 }
+                  }
+                  transition={{ duration: 0.4, ease: "easeInOut" }}
+                  onClick={() => {
+                    if (isDisabled) {
+                      handleDisabledClick(type);
+                    } else {
+                      handleFilterChange(type);
+                    }
+                  }}
+                  className={`z-10 relative px-3 py-1.5 text-[12px] font-medium text-center capitalize select-none transition-colors duration-300 ${
+                    isDisabled
+                      ? isShaking
+                        ? "!text-rose-500 !opacity-100 font-semibold"
+                        : "opacity-40 text-zinc-400 dark:text-zinc-500 cursor-not-allowed hover:opacity-60"
+                      : filterType === type
+                      ? "text-zinc-900 dark:text-zinc-100 cursor-pointer"
+                      : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 cursor-pointer"
                   }`}
-              >
-                {type}
-              </button>
-            ))}
+                >
+                  {type}
+                </motion.button>
+              );
+            })}
           </div>
         </div>
 

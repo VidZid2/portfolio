@@ -26,6 +26,7 @@ import {
 } from "react";
 
 import { cn } from "@/lib/utils";
+import { playAccordionToggle } from "@/lib/synth-sounds";
 
 // SSR-safe layout effect: "use client" still server-renders on first paint,
 // and useLayoutEffect warns when it runs there.
@@ -427,6 +428,7 @@ const ReasoningSteps = forwardRef<HTMLDivElement, ReasoningStepsProps>(
 
     const handleOpenChange = useCallback(
       (next: boolean) => {
+        playAccordionToggle(next, 0.028);
         if (!isControlled) {
           setUncontrolledOpen(next);
         }

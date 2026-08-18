@@ -3,6 +3,7 @@
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles } from "lucide-react";
+import { playSoftClick, playChatOpen } from "@/lib/synth-sounds";
 
 export function TextSelectionMenu() {
   const [selection, setSelection] = React.useState({
@@ -43,6 +44,7 @@ export function TextSelectionMenu() {
             isAbove = false;
           }
           
+          playSoftClick(0.025);
           setSelection({
             text: sel.toString().trim(),
             x,
@@ -119,6 +121,7 @@ export function TextSelectionMenu() {
               
               <button
                 onClick={() => {
+                  playChatOpen(0.035);
                   const enhancedPrompt = `Can you explain or give me more details about this from the portfolio?\n\n"${selection.text.trim()}"`;
                   
                   // Forcefully clear the selection across all browsers/devices

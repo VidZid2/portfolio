@@ -5,7 +5,6 @@ import * as HoverCard from "@radix-ui/react-hover-card";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { JapaneseAsciiText } from "@/components/ui/japanese-ascii-text";
 
 const defaultBanner = "default";
 
@@ -72,7 +71,7 @@ export const socialProfiles: Record<string, SocialProfile> = {
     name: "シーシュ",
     handle: "emptyyourmind231",
     avatar: "/discord-avatar.png",
-    bio: "Building enterprise-scale web applications.",
+    bio: "Discipline. Lift. Code. Sleep. Repeat.",
     location: "",
     stats: [],
   },
@@ -131,11 +130,7 @@ export function SocialProfileContent({ socialName, profile }: { socialName: stri
           {/* Bio Section */}
           <div className="mt-3">
             <div className="text-[12px] leading-relaxed text-zinc-800 dark:text-zinc-300">
-              {socialName === "Discord" ? (
-                <JapaneseAsciiText text="Discipline. Lift. Code. Sleep. Repeat." duration={3000} idleScramble={false} />
-              ) : (
-                <p>{profile.bio}</p>
-              )}
+              <p>{profile.bio}</p>
             </div>
           </div>
 
@@ -351,7 +346,7 @@ export default function SocialHoverCard({ socialName, children }: SocialHoverCar
                 exit={{ opacity: 0, y: 3, scale: 0.985 }}
                 transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                 className={cn(
-                  "w-[230px] sm:w-[250px] rounded-xl shadow-2xl backdrop-blur-md overflow-hidden",
+                  "w-[230px] sm:w-[250px] rounded-xl backdrop-blur-md overflow-hidden",
                   "bg-white/95 dark:bg-[#0c0c0e]/95 border border-black/5 dark:border-white/5",
                   "text-zinc-900 dark:text-zinc-100 select-none"
                 )}

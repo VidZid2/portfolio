@@ -5,7 +5,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import ScrambleText from "@/components/ruixen/scramble-text";
 import { ComponentList } from "@/components/ComponentList";
-import Link from "next/link";
+import { toastManager } from "@/components/ui/toast";
 
 import { usePerformance } from "@/hooks/usePerformance";
 
@@ -85,7 +85,38 @@ export function ComponentsSection({ hasSeenScrollAnimations = false }: { hasSeen
         <div className="absolute bottom-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
         <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
 
-        <Link href="#" className="relative group block mt-0">
+        <button
+          type="button"
+          onClick={() => {
+            toastManager.promise(
+              new Promise<string>((resolve, reject) => {
+                const shouldSucceed = Math.random() > 0.15;
+                setTimeout(() => {
+                  if (shouldSucceed) {
+                    resolve("Interactive UI components, design patterns, and animations are currently being crafted.");
+                  } else {
+                    reject(new Error("Unable to load upcoming components right now."));
+                  }
+                }, 1600);
+              }),
+              {
+                loading: {
+                  title: "Loading component library…",
+                  description: "Fetching upcoming open-source UI elements and playground.",
+                },
+                success: (data: string) => ({
+                  title: "Components in Development",
+                  description: data,
+                }),
+                error: () => ({
+                  title: "Something went wrong",
+                  description: "Please check back soon for new UI component releases.",
+                }),
+              },
+            );
+          }}
+          className="relative group block mt-0 cursor-pointer bg-transparent border-0 p-0 text-left"
+        >
           <div className="absolute -inset-[5px] border border-black/5 dark:border-white/5 rounded-[11px] pointer-events-none transition-colors duration-300 group-hover:border-black/10 dark:group-hover:border-white/10" />
           <div className="relative flex items-center gap-1.5 px-4 py-2 bg-zinc-50 hover:bg-zinc-100 dark:bg-[#09090b] dark:hover:bg-[#121214] text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 rounded-[6px] text-[13px] font-medium transition-all duration-300 border border-black/5 dark:border-white/5 shadow-sm shadow-black/20 dark:shadow-lg dark:shadow-black/80">
             View All
@@ -94,7 +125,7 @@ export function ComponentsSection({ hasSeenScrollAnimations = false }: { hasSeen
               <polyline points="7 7 17 7 17 17"></polyline>
             </svg>
           </div>
-        </Link>
+        </button>
       </motion.div>
     </motion.div>
   );

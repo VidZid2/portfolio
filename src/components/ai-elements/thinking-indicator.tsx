@@ -129,57 +129,40 @@ const ThinkingIndicator = forwardRef<HTMLDivElement, ThinkingIndicatorProps>(
               </>
             ) : (
               <>
-                <motion.path
+                <motion.g
                   animate={{
-                    d: [sparkle, blobA, circle, blobB, sparkle],
                     rotate: 360,
-                    scale: [1, 0.9, 0.78, 0.9, 1],
+                    scale: [1, 0.88, 1],
                   }}
-                  d={sparkle}
-                  fill={`url(#${gradientId})`}
-                  style={{
-                    transformBox: "view-box",
-                    transformOrigin: "center",
-                  }}
-                  transition={{
-                    d: {
-                      duration: GLYPH_CYCLE,
-                      ease: "easeInOut",
-                      repeat: Number.POSITIVE_INFINITY,
-                      times: GLYPH_TIMES,
-                    },
-                    scale: {
-                      duration: GLYPH_CYCLE,
-                      ease: "easeInOut",
-                      repeat: Number.POSITIVE_INFINITY,
-                      times: GLYPH_TIMES,
-                    },
-                    rotate: {
-                      duration: GLYPH_CYCLE,
-                      ease: "linear",
-                      repeat: Number.POSITIVE_INFINITY,
-                    },
-                  }}
-                />
-                <motion.path
-                  animate={{
-                    opacity: [0, 0, 1, 0, 0],
-                    rotate: [0, 45, 90, 135, 180],
-                    scale: [0.2, 0.5, 1, 0.5, 0.2],
-                  }}
-                  d={twinkle}
-                  fill="currentColor"
                   style={{
                     transformBox: "fill-box",
                     transformOrigin: "center",
                   }}
                   transition={{
-                    duration: GLYPH_CYCLE,
+                    duration: 3,
                     ease: "easeInOut",
                     repeat: Number.POSITIVE_INFINITY,
-                    times: GLYPH_TIMES,
                   }}
-                />
+                >
+                  <path d={sparkle} fill={`url(#${gradientId})`} />
+                </motion.g>
+                <motion.g
+                  animate={{
+                    opacity: [0.2, 1, 0.2],
+                    scale: [0.7, 1.1, 0.7],
+                  }}
+                  style={{
+                    transformBox: "fill-box",
+                    transformOrigin: "center",
+                  }}
+                  transition={{
+                    duration: 2,
+                    ease: "easeInOut",
+                    repeat: Number.POSITIVE_INFINITY,
+                  }}
+                >
+                  <path d={twinkle} fill="currentColor" opacity={0.6} />
+                </motion.g>
               </>
             )}
           </svg>
