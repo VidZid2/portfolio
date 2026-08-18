@@ -23,8 +23,9 @@ All notable changes, architectural updates, and UI/UX refinements to the portfol
   - Neutral gray, borderless, shadowless design for suggested prompt pills and Mobius loading indicators.
   - Enhanced streaming markdown rendering, reasoning step indicators, and code block formatting.
 - **Mobile & Cross-Browser Dark Mode Override**:
-  - Configured explicit `<meta name="color-scheme" content="light dark">` and Next.js viewport metadata.
-  - Enforced CSS `:root { color-scheme: light }` and `.dark { color-scheme: dark }` to prevent forced algorithmic color inversion in Chromium on Android, Edge, Opera GX, and Samsung Internet.
+  - Configured explicit `<meta name="color-scheme" content="light dark">`, `<meta name="supported-color-schemes" content="light dark">`, and Next.js viewport metadata.
+  - Enforced CSS `:root { color-scheme: only light; forced-color-adjust: none; }` and `.dark { color-scheme: only dark; forced-color-adjust: none; }` to forbid forced algorithmic color inversion in Chromium on Android, Edge, Opera GX, and Samsung Internet.
+  - Built `BrowserDarkDetector` client component that warns mobile users with "Dark theme for all web pages" active and offers a 1-tap switch to Dark Mode.
 - **Scrollbar & Layout System**:
   - Safely hid all native scrollbars across WebKit, Chromium, Firefox, and Edge while preserving 100% fluid touch, wheel, and keyboard scrolling.
   - Resolved Contact page scroll lock by removing nested `overflow-x-clip` container and adding `touch-action: pan-y` to WebGL canvas elements.

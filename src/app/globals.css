@@ -128,7 +128,8 @@
 }
 
 :root {
-  color-scheme: light;
+  color-scheme: only light;
+  forced-color-adjust: none;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -163,8 +164,19 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+html:not(.dark),
+html:not(.dark) body {
+  color-scheme: only light !important;
+}
+
+html.dark,
+html.dark body {
+  color-scheme: only dark !important;
+}
+
 .dark {
-  color-scheme: dark;
+  color-scheme: only dark;
+  forced-color-adjust: none;
   --color-background: #000000;
   --color-foreground: #fafafa;
   --color-popover: #09090b;
