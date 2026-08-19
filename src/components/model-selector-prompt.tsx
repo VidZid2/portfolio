@@ -593,7 +593,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                 <Link
                   href="/milestones"
                   onClick={() => playSoftClick(0.04)}
-                  className="flex size-6 sm:size-6.5 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors border border-neutral-200/70 dark:border-neutral-700/70 shadow-xs group/changelog shrink-0"
+                  className="flex size-6 sm:size-6.5 items-center justify-center rounded-full border-0 outline-none shadow-none bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors group/changelog shrink-0"
                   aria-label="Changelog"
                 >
                   <svg
