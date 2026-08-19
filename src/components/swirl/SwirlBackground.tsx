@@ -43,7 +43,13 @@ export function SwirlBackground() {
   };
 
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden rounded-[8px] opacity-80 dark:opacity-60 pointer-events-auto" style={{ maskImage: 'linear-gradient(to right, transparent 0%, transparent 30%, black 50%, black 65%, transparent 85%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 30%, black 50%, black 65%, transparent 85%, transparent 100%)' }}>
+    <div 
+      className="absolute inset-0 z-0 overflow-hidden rounded-[8px] opacity-85 dark:opacity-75 pointer-events-auto" 
+      style={{ 
+        maskImage: 'linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%)', 
+        WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%)' 
+      }}
+    >
       <ExperimentStage 
         config={config} 
         trackPointer={true} 
