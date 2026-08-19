@@ -282,37 +282,48 @@ const ChatMessageItem = memo(function ChatMessageItem({
                 )
               )}
             </AnimatePresence>
-            <MessageResponse>{textContent}</MessageResponse>
+            {textContent.trim().length > 0 && (
+              <MessageResponse>{textContent}</MessageResponse>
+            )}
           </>
         ) : (
           <div>{textContent}</div>
         )}
       </MessageContent>
-      {role === "assistant" && (
-        <MessageActions>
-          {triggerReload && (
-            <MessageAction
-              label="Retry"
-              onClick={() => {
-                playSoftClick(0.04);
-                triggerReload();
-              }}
-              tooltip="Regenerate response"
-            >
-              <RefreshCcwIcon className="size-4" />
-            </MessageAction>
-          )}
-          <MessageAction
-            label="Copy"
-            onClick={() => {
-              navigator.clipboard.writeText(textContent);
-              playCopySuccess(0.035);
-            }}
-            tooltip="Copy to clipboard"
+      {role === "assistant" && textContent.trim().length > 0 && (
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0, y: 4, scale: 0.95, filter: "blur(2px)" }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: 4, scale: 0.95, filter: "blur(2px)" }}
+            transition={{ type: "spring", stiffness: 400, damping: 28 }}
           >
-            <CopyIcon className="size-4" />
-          </MessageAction>
-        </MessageActions>
+            <MessageActions>
+              {triggerReload && (
+                <MessageAction
+                  label="Retry"
+                  onClick={() => {
+                    playSoftClick(0.04);
+                    triggerReload();
+                  }}
+                  tooltip="Regenerate response"
+                >
+                  <RefreshCcwIcon className="size-4" />
+                </MessageAction>
+              )}
+              <MessageAction
+                label="Copy"
+                onClick={() => {
+                  navigator.clipboard.writeText(textContent);
+                  playCopySuccess(0.035);
+                }}
+                tooltip="Copy to clipboard"
+              >
+                <CopyIcon className="size-4" />
+              </MessageAction>
+            </MessageActions>
+          </motion.div>
+        </AnimatePresence>
       )}
     </Message>
   );
