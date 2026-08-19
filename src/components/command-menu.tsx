@@ -215,33 +215,33 @@ export function CommandMenu() {
             </button>
 
             <div className="relative group/ai inline-flex items-center">
-                {/* Handwritten Annotation: interact on the right pointing left to Ask AI */}
-                <div className="absolute left-full ml-1.5 -top-4 sm:-top-5 hidden sm:flex items-center gap-1 pointer-events-none select-none z-30">
+                {/* Handwritten Annotation: interact on top, curved arrow underneath pointing to Ask AI */}
+                <div className="absolute left-full ml-1.5 -top-6 sm:-top-7 hidden sm:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
+                    <span className="font-caveat italic text-[17px] sm:text-[19px] font-medium text-zinc-600 dark:text-zinc-400 leading-none whitespace-nowrap -rotate-[4deg] tracking-wide ml-2.5">
+                        interact
+                    </span>
                     <svg
-                        width="22"
-                        height="20"
-                        viewBox="0 0 28 24"
+                        width="30"
+                        height="22"
+                        viewBox="0 0 30 22"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
-                        className="text-zinc-400 dark:text-zinc-500 overflow-visible translate-y-1"
+                        className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-0.5"
                     >
                         <path
-                            d="M 24 3 C 24 11, 14 18, 4 18"
+                            d="M 22 2 C 22 9, 12 15, 2 15"
                             stroke="currentColor"
                             strokeWidth="1.2"
                             strokeLinecap="round"
                         />
                         <path
-                            d="M 10 13 L 4 18 L 10 23"
+                            d="M 9 10 L 2 15 L 8 20"
                             stroke="currentColor"
                             strokeWidth="1.2"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                         />
                     </svg>
-                    <span className="font-caveat italic text-[16px] sm:text-[18px] font-semibold text-zinc-600 dark:text-zinc-400 leading-none whitespace-nowrap rotate-[6deg] tracking-wide">
-                        interact
-                    </span>
                 </div>
 
                 <button 
