@@ -215,33 +215,33 @@ export function CommandMenu() {
             </button>
 
             <div className="relative group/ai inline-flex items-center">
-                {/* Handwritten Annotation: interact with curved arrow pointing to Ask AI */}
-                <div className="absolute -top-6 right-1 hidden sm:flex items-center gap-1 pointer-events-none select-none z-30">
-                    <span className="font-caveat italic text-[16px] sm:text-[18px] font-semibold text-zinc-600 dark:text-zinc-400 leading-none whitespace-nowrap -rotate-[6deg] tracking-wide">
-                        interact
-                    </span>
+                {/* Handwritten Annotation: interact on the right pointing left to Ask AI */}
+                <div className="absolute left-full ml-1.5 -top-4 sm:-top-5 hidden sm:flex items-center gap-1 pointer-events-none select-none z-30">
                     <svg
-                        width="20"
-                        height="18"
+                        width="22"
+                        height="20"
                         viewBox="0 0 28 24"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
                         className="text-zinc-400 dark:text-zinc-500 overflow-visible translate-y-1"
                     >
                         <path
-                            d="M 4 2 C 4 10, 12 17, 24 17"
+                            d="M 24 3 C 24 11, 14 18, 4 18"
                             stroke="currentColor"
                             strokeWidth="1.2"
                             strokeLinecap="round"
                         />
                         <path
-                            d="M 18 12 L 24 17 L 18 22"
+                            d="M 10 13 L 4 18 L 10 23"
                             stroke="currentColor"
                             strokeWidth="1.2"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                         />
                     </svg>
+                    <span className="font-caveat italic text-[16px] sm:text-[18px] font-semibold text-zinc-600 dark:text-zinc-400 leading-none whitespace-nowrap rotate-[6deg] tracking-wide">
+                        interact
+                    </span>
                 </div>
 
                 <button 
