@@ -191,16 +191,15 @@ const VerifiedBadge = forwardRef<HTMLSpanElement, VerifiedBadgeProps>(
 
         <svg
           aria-hidden="true"
-          className="absolute inset-0 z-10 m-auto"
+          className="absolute inset-0 z-10 w-full h-full pointer-events-none"
           fill="none"
           stroke="white"
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth={strokeWidth}
-          style={{ width: checkSize, height: checkSize }}
-          viewBox="0 0 24 24"
+          strokeWidth={resolveVerifiedBadgeStrokeWidth(pixelSize)}
+          viewBox="0 0 22 22"
         >
-          <polyline points="5 12.5 10 17.5 19 7.5" />
+          <polyline points="6.8 11.2 9.6 14.2 15.2 8.4" />
         </svg>
       </span>
     );
