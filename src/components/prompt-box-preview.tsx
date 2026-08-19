@@ -192,6 +192,133 @@ const AttachmentItem = memo(({ attachment, onRemove }: AttachmentItemProps) => {
 });
 AttachmentItem.displayName = "AttachmentItem";
 
+interface ChatMessageItemProps {
+  m: any;
+  index: number;
+  isLast: boolean;
+  isLoading: boolean;
+  triggerReload?: () => void;
+}
+
+const ChatMessageItem = memo(function ChatMessageItem({
+  m,
+  index,
+  isLast,
+  isLoading,
+  triggerReload,
+}: ChatMessageItemProps) {
+  const role = m.role;
+  const id = m.id;
+  const textContent = m.content || m.parts?.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('') || '';
+  const reasoningContent = m.reasoning || m.parts?.filter((p: any) => p.type === 'reasoning').map((p: any) => p.reasoning).join('') || m.parts?.filter((p: any) => p.type === 'reasoning').map((p: any) => p.text).join('') || '';
+
+  const parsedSteps = useMemo(() => parseReasoningSteps(reasoningContent), [reasoningContent]);
+  const isThinkingActive = isLoading && isLast;
+
+  const attachments = useMemo(() => {
+    return m.experimental_attachments || 
+           m.parts?.filter((p: any) => p.type === 'file') || 
+           [];
+  }, [m]);
+
+  return (
+    <Message from={role as "user" | "assistant"} key={id}>
+      {role === "user" && attachments.length > 0 && (
+        <Attachments variant="grid">
+          {attachments.map((attachment: any, i: number) => {
+            const url = attachment.url || (attachment instanceof File ? URL.createObjectURL(attachment) : "");
+            const type = attachment.contentType || attachment.mediaType || (attachment instanceof File ? attachment.type : "");
+            const name = attachment.name || attachment.filename || (attachment instanceof File ? attachment.name : "");
+            return (
+              <Attachment data={{ url, type: "file", mediaType: type, name, filename: name } as any} key={i}>
+                <AttachmentPreview />
+              </Attachment>
+            );
+          })}
+        </Attachments>
+      )}
+      <MessageContent>
+        {role === "assistant" ? (
+          <>
+            <AnimatePresence mode="wait" initial={false}>
+              {reasoningContent ? (
+                <motion.div
+                  key="reasoning-steps-block"
+                  initial={{ opacity: 0, y: 3, filter: "blur(2px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, y: -3, filter: "blur(2px)" }}
+                  transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <ReasoningSteps
+                    className="mb-4"
+                    defaultOpen={false}
+                  >
+                    <ReasoningStepsTrigger>Thought Process</ReasoningStepsTrigger>
+                    <ReasoningStepsContent>
+                      {parsedSteps.map((step, stepIdx) => (
+                        <ReasoningStep
+                          key={stepIdx}
+                          label={step.label}
+                          status={isThinkingActive && stepIdx === parsedSteps.length - 1 ? "active" : "done"}
+                        >
+                          {step.content}
+                        </ReasoningStep>
+                      ))}
+                    </ReasoningStepsContent>
+                  </ReasoningSteps>
+                </motion.div>
+              ) : (
+                isThinkingActive && (
+                  <motion.div
+                    key="standalone-thinking-block"
+                    initial={{ opacity: 0, y: 3, filter: "blur(2px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, y: -3, filter: "blur(2px)" }}
+                    transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                    className="mb-3"
+                  >
+                    <ThinkingIndicator words={["Thinking", "Reasoning", "Planning"]} />
+                  </motion.div>
+                )
+              )}
+            </AnimatePresence>
+            <MessageResponse>{textContent}</MessageResponse>
+          </>
+        ) : (
+          <div>{textContent}</div>
+        )}
+      </MessageContent>
+      {role === "assistant" && (
+        <MessageActions>
+          {triggerReload && (
+            <MessageAction
+              label="Retry"
+              onClick={() => {
+                playSoftClick(0.04);
+                triggerReload();
+              }}
+              tooltip="Regenerate response"
+            >
+              <RefreshCcwIcon className="size-4" />
+            </MessageAction>
+          )}
+          <MessageAction
+            label="Copy"
+            onClick={() => {
+              navigator.clipboard.writeText(textContent);
+              playCopySuccess(0.035);
+            }}
+            tooltip="Copy to clipboard"
+          >
+            <CopyIcon className="size-4" />
+          </MessageAction>
+        </MessageActions>
+      )}
+    </Message>
+  );
+});
+ChatMessageItem.displayName = "ChatMessageItem";
+
 const SUGGESTIONS = [
   { label: "Tech Stack", prompt: "What is your main technology stack and what tools do you use?" },
   { label: "PRIMA's Architecture", prompt: "Explain the architecture of your PRIMA project and how you built it." },
@@ -739,125 +866,16 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
             <Conversation className="relative size-full">
             <ScrollTracker onScrollStateChange={setIsAtBottom} />
             <ConversationContent>
-              {messages.map((m: any, index: number) => {
-                  const role = (m as any).role;
-                  const id = (m as any).id;
-                  const textContent = (m as any).content || (m as any).parts?.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('') || '';
-                  const reasoningContent = (m as any).reasoning || (m as any).parts?.filter((p: any) => p.type === 'reasoning').map((p: any) => p.reasoning).join('') || (m as any).parts?.filter((p: any) => p.type === 'reasoning').map((p: any) => p.text).join('') || '';
-
-                  return (
-                  <Message from={role as "user" | "assistant"} key={id}>
-                    {role === "user" && (
-                      (() => {
-                        const attachments = (m as any).experimental_attachments || 
-                                          (m as any).parts?.filter((p: any) => p.type === 'file') || 
-                                          [];
-                        if (attachments.length === 0) return null;
-                        return (
-                          <Attachments variant="grid">
-                            {attachments.map((attachment: any, i: number) => {
-                              const url = attachment.url || (attachment instanceof File ? URL.createObjectURL(attachment) : "");
-                              const type = attachment.contentType || attachment.mediaType || (attachment instanceof File ? attachment.type : "");
-                              const name = attachment.name || attachment.filename || (attachment instanceof File ? attachment.name : "");
-                              return (
-                                <Attachment data={{ url, type: "file", mediaType: type, name, filename: name } as any} key={i}>
-                                  <AttachmentPreview />
-                                </Attachment>
-                              );
-                            })}
-                          </Attachments>
-                        );
-                      })()
-                    )}
-                    <MessageContent>
-                      {role === "assistant" ? (
-                        <>
-                          <AnimatePresence mode="wait" initial={false}>
-                            {reasoningContent ? (
-                              <motion.div
-                                key="reasoning-steps-block"
-                                initial={{ opacity: 0, y: 3 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -3 }}
-                                transition={{ duration: 0.2, ease: "easeOut" }}
-                                style={{ willChange: "opacity, transform" }}
-                              >
-                                {(() => {
-                                  const parsedSteps = parseReasoningSteps(reasoningContent);
-                                  const isThinkingActive = isLoading && index === messages.length - 1;
-                                  
-                                  return (
-                                    <ReasoningSteps
-                                      className="mb-4"
-                                      defaultOpen={false}
-                                    >
-                                      <ReasoningStepsTrigger>Thought Process</ReasoningStepsTrigger>
-                                      <ReasoningStepsContent>
-                                        {parsedSteps.map((step, stepIdx) => (
-                                          <ReasoningStep
-                                            key={stepIdx}
-                                            label={step.label}
-                                            status={isThinkingActive && stepIdx === parsedSteps.length - 1 ? "active" : "done"}
-                                          >
-                                            {step.content}
-                                          </ReasoningStep>
-                                        ))}
-                                      </ReasoningStepsContent>
-                                    </ReasoningSteps>
-                                  );
-                                })()}
-                              </motion.div>
-                            ) : (
-                              isLoading && index === messages.length - 1 && (
-                                <motion.div
-                                  key="standalone-thinking-block"
-                                  initial={{ opacity: 0, y: 3 }}
-                                  animate={{ opacity: 1, y: 0 }}
-                                  exit={{ opacity: 0, y: -3 }}
-                                  transition={{ duration: 0.2, ease: "easeOut" }}
-                                  style={{ willChange: "opacity, transform" }}
-                                  className="mb-3"
-                                >
-                                  <ThinkingIndicator words={["Thinking", "Reasoning", "Planning"]} />
-                                </motion.div>
-                              )
-                            )}
-                          </AnimatePresence>
-                          <MessageResponse>{textContent}</MessageResponse>
-                        </>
-                      ) : (
-                        <div>{textContent}</div>
-                      )}
-                    </MessageContent>
-                    {role === "assistant" && (
-                      <MessageActions>
-                        {triggerReload && (
-                          <MessageAction
-                            label="Retry"
-                            onClick={() => {
-                              playSoftClick(0.04);
-                              triggerReload();
-                            }}
-                            tooltip="Regenerate response"
-                          >
-                            <RefreshCcwIcon className="size-4" />
-                          </MessageAction>
-                        )}
-                        <MessageAction
-                          label="Copy"
-                          onClick={() => {
-                            navigator.clipboard.writeText(textContent);
-                            playCopySuccess(0.035);
-                          }}
-                          tooltip="Copy to clipboard"
-                        >
-                          <CopyIcon className="size-4" />
-                        </MessageAction>
-                      </MessageActions>
-                    )}
-                  </Message>
-                  );
-                })}
+              {messages.map((m: any, index: number) => (
+                <ChatMessageItem
+                  key={(m as any).id || index}
+                  m={m}
+                  index={index}
+                  isLast={index === messages.length - 1}
+                  isLoading={isLoading}
+                  triggerReload={triggerReload}
+                />
+              ))}
               {error && (
                 <Message from="assistant" key="error">
                   <MessageContent className="bg-red-500/10 text-red-500">
@@ -869,11 +887,10 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                 {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
                   <motion.div
                     key="initial-loading-message"
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -3, transition: { duration: 0.15 } }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                    style={{ willChange: "opacity, transform" }}
+                    initial={{ opacity: 0, y: 6, filter: "blur(3px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, y: -4, filter: "blur(2px)", transition: { duration: 0.2 } }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   >
                     <Message from="assistant">
                       <MessageContent>
@@ -891,8 +908,8 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
           )}
           </AnimatePresence>
         </div>
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background to-transparent z-10 opacity-80" />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-background to-transparent z-10 opacity-80" />
+        <ProgressiveBlur position="bottom" height="15%" className="z-10 pointer-events-none -inset-x-8 opacity-60" />
+        <ProgressiveBlur position="top" height="8%" className="z-10 pointer-events-none -inset-x-8 opacity-60" />
         </div>
         
         <motion.div 

@@ -14,7 +14,7 @@ export function ProgressiveBlur({
   className,
   height = "30%",
   position = "bottom",
-  blurLevels = [0.5, 1, 2, 4, 8, 16, 32, 64],
+  blurLevels = [2, 8, 16],
 }: ProgressiveBlurProps) {
   const renderBlurContainer = (pos: "top" | "bottom") => {
     const isTop = pos === "top";
@@ -25,7 +25,7 @@ export function ProgressiveBlur({
           isTop ? "top-0" : "bottom-0",
           className
         )}
-        style={{ height }}
+        style={{ height, willChange: "transform", transform: "translateZ(0)" }}
       >
         {blurLevels.map((blur, index) => {
           const ratio = (index + 1) / blurLevels.length;
