@@ -772,6 +772,11 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                     <MessageContent>
                       {role === "assistant" ? (
                         <>
+                          {isLoading && index === messages.length - 1 && (
+                            <div className="mb-3">
+                              <ThinkingIndicator words={["Thinking", "Reasoning", "Planning"]} />
+                            </div>
+                          )}
                           {reasoningContent && (
                             (() => {
                               const parsedSteps = parseReasoningSteps(reasoningContent);
@@ -840,7 +845,7 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                   </MessageContent>
                 </Message>
               )}
-              {isLoading && (
+              {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
                 <Message from="assistant" key="loading">
                   <MessageContent>
                     <ThinkingIndicator words={["Thinking", "Reasoning", "Planning"]} />
