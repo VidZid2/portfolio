@@ -297,11 +297,14 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
         :host([data-ultra]) .track {
           background-color: #1e293b;
+          box-shadow: 0 0 16px rgba(100, 149, 237, 0.2), inset 0 0 6px rgba(100, 149, 237, 0.15);
+          transition: background-color 300ms ease, box-shadow 400ms ease;
         }
 
         :host-context(.dark):host([data-ultra]) .track,
         :host([data-theme="dark"][data-ultra]) .track {
           background-color: #0f172a;
+          box-shadow: 0 0 16px rgba(100, 149, 237, 0.28), inset 0 0 8px rgba(100, 149, 237, 0.2);
         }
 
         .track-fill {
@@ -334,18 +337,25 @@ class ClaudeModelSelectorElement extends HTMLElement {
           pointer-events: none;
           opacity: 0;
           visibility: hidden;
-          clip-path: inset(0 0 0 100%);
+          -webkit-mask-image: linear-gradient(to left, #000 0%, #000 50%, rgba(0, 0, 0, 0.45) 75%, transparent 100%);
+          mask-image: linear-gradient(to left, #000 0%, #000 50%, rgba(0, 0, 0, 0.45) 75%, transparent 100%);
+          -webkit-mask-size: 260% 100%;
+          mask-size: 260% 100%;
+          -webkit-mask-position: 100% 0;
+          mask-position: 100% 0;
           transition: 
-            clip-path 750ms cubic-bezier(0.16, 1, 0.3, 1),
-            opacity 300ms ease,
-            visibility 750ms cubic-bezier(0.16, 1, 0.3, 1);
-          will-change: clip-path, opacity;
+            -webkit-mask-position 800ms cubic-bezier(0.16, 1, 0.3, 1),
+            mask-position 800ms cubic-bezier(0.16, 1, 0.3, 1),
+            opacity 350ms ease,
+            visibility 800ms cubic-bezier(0.16, 1, 0.3, 1);
+          will-change: -webkit-mask-position, mask-position, opacity;
         }
 
         :host([data-ultra]) .smoke-container {
           opacity: 1;
           visibility: visible;
-          clip-path: inset(0 0 0 0%);
+          -webkit-mask-position: 0% 0;
+          mask-position: 0% 0;
         }
 
         .smoke-canvas {
@@ -431,6 +441,11 @@ class ClaudeModelSelectorElement extends HTMLElement {
         :host([data-theme="dark"]) .range::-webkit-slider-thumb {
           background: #ffffff;
           border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        :host([data-ultra]) .range::-webkit-slider-thumb {
+          border-color: #6495ed !important;
+          box-shadow: 0 0 0 2px rgba(100, 149, 237, 0.4), 0 0 12px rgba(100, 149, 237, 0.5), 0 2px 6px rgba(0, 0, 0, 0.2) !important;
         }
 
         :host([data-low]) .range::-webkit-slider-thumb {
