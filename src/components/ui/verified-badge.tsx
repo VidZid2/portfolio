@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { motion, useReducedMotion } from "framer-motion";
 import {
@@ -16,7 +16,7 @@ const componentThemeClassName =
 
 export type VerifiedBadgeVariant = "shimmer" | "static";
 export type VerifiedBadgeSize = "sm" | "md" | "lg";
-export type VerifiedBadgeTone = "brand" | "gold" | "neutral";
+export type VerifiedBadgeTone = "brand" | "gold" | "neutral" | "white";
 
 const verifiedBadgeSizePixels = {
   sm: 18,
@@ -28,6 +28,7 @@ const verifiedBadgeToneClassNames = {
   brand: "text-[var(--verified-badge-color,#6495ED)]",
   gold: "text-[var(--verified-badge-gold)]",
   neutral: "text-[var(--verified-badge-neutral)]",
+  white: "text-zinc-900 dark:text-white",
 } as const satisfies Record<VerifiedBadgeTone, string>;
 
 export function resolveVerifiedBadgePixelSize(
@@ -191,9 +192,12 @@ const VerifiedBadge = forwardRef<HTMLSpanElement, VerifiedBadgeProps>(
 
         <svg
           aria-hidden="true"
-          className="absolute inset-0 z-10 m-auto"
+          className={cn(
+            "absolute inset-0 z-10 m-auto",
+            tone === "white" ? "text-white dark:text-black" : "text-white"
+          )}
           fill="none"
-          stroke="white"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokeWidth}

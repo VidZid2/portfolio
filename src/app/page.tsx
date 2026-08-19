@@ -93,12 +93,12 @@ export default function Home() {
 
               {/* Sub-row 2: Name & Badge (42px) */}
               <div className="h-[42px] flex items-center px-2.5 sm:px-4 relative z-20 pointer-events-auto">
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <h1 className="whitespace-nowrap text-[16px] min-[360px]:text-[18px] sm:text-[20px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight leading-none">
+                <div className="flex items-center gap-2">
+                  <h1 className="whitespace-nowrap text-[18px] min-[360px]:text-[21px] sm:text-[24px] font-bold text-zinc-900 dark:text-white tracking-tight leading-none">
                     Josiah De Asis
                   </h1>
                   <div className="flex items-center justify-center shrink-0">
-                    <VerifiedBadge size={15} tone="brand" variant="shimmer" className="shrink-0 text-[#6495ED]" />
+                    <VerifiedBadge size={16} tone="white" variant="shimmer" className="shrink-0" />
                   </div>
                   <button
                     type="button"
@@ -110,10 +110,10 @@ export default function Home() {
                         window.speechSynthesis.speak(utterance);
                       }
                     }}
-                    className="inline-flex items-center justify-center p-0.5 rounded text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors"
+                    className="inline-flex items-center justify-center p-0.5 rounded text-zinc-400 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-white transition-colors"
                     aria-label="Pronounce name"
                   >
-                    <Volume2 className="w-[14px] h-[14px] sm:w-[15px] sm:h-[15px]" strokeWidth={1.8} />
+                    <Volume2 className="w-[15px] h-[15px] sm:w-[16px] sm:h-[16px]" strokeWidth={1.8} />
                   </button>
                 </div>
                 {/* Horizontal Dotted Divider under Name */}
