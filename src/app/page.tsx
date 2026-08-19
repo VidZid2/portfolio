@@ -11,7 +11,6 @@ import { CommandMenu } from "@/components/command-menu";
 import { ProfilePictureScramble } from "@/components/ProfilePictureScramble";
 import { TextReveal } from "@/components/text-reveal";
 import { LetsConnect } from "@/components/LetsConnect";
-import { SocialsSection } from "@/components/SocialsSection";
 import { ProjectsSection } from "@/components/ProjectsSection";
 import { SkillsSection } from "@/components/SkillsSection";
 import { ComponentsSection } from "@/components/ComponentsSection";
@@ -22,6 +21,9 @@ import { SwirlQuote } from "@/components/swirl/SwirlQuote";
 import { SwirlBackground } from "@/components/swirl/SwirlBackground";
 import { GlobalBootSequence } from "@/components/GlobalBootSequence";
 import { BlueprintGrid } from "@/components/BlueprintGrid";
+import { ProfileDetailsGrid } from "@/components/ProfileDetailsGrid";
+import { CheckCircle2, Volume2 } from "lucide-react";
+import { playSoftClick } from "@/lib/synth-sounds";
 
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
@@ -47,16 +49,34 @@ export default function Home() {
           <div className="absolute left-0 right-0 md:left-[26%] md:right-[26%] top-[22vh] h-[112px] flex items-center px-2 sm:px-4 z-50 hide-cursor-particles">
             <SwirlBackground />
             <div className="flex w-full items-center justify-between relative z-10 pointer-events-none">
-              <div className="flex items-center gap-1.5 min-[360px]:gap-3 sm:gap-5 pointer-events-auto">
+              <div className="flex items-center gap-2 min-[360px]:gap-3 sm:gap-4 pointer-events-auto">
                 <ProfilePictureScramble />
 
-                <div className="flex flex-col justify-center pt-4 min-[360px]:pt-8">
-                  <h1 className="whitespace-nowrap text-[16px] min-[360px]:text-[20px] sm:text-[24px] font-bold text-zinc-800 dark:text-zinc-100 tracking-tight leading-none mb-0.5 [text-shadow:-1px_0_0_rgba(0,200,255,0.15),1px_0_0_rgba(255,80,0,0.15)] dark:[text-shadow:-1.5px_0_0_rgba(0,200,255,0.25),1.5px_0_0_rgba(255,80,0,0.25)]">
-                    Josiah De Asis
-                  </h1>
-                  <div className="flex flex-nowrap items-center gap-1 sm:gap-2 mt-0.5">
-                    <p className="text-[11px] min-[360px]:text-[13px] sm:text-[14px] text-zinc-500 dark:text-zinc-400 shrink-0">20</p>
+                <div className="flex flex-col justify-center pt-2 sm:pt-4">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <h1 className="whitespace-nowrap text-[17px] min-[360px]:text-[20px] sm:text-[24px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight leading-none mb-0.5">
+                      Josiah De Asis
+                    </h1>
+                    <CheckCircle2 className="w-4 h-4 text-sky-500 fill-sky-500/20 shrink-0" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playSoftClick(0.04);
+                        if (typeof window !== "undefined" && "speechSynthesis" in window) {
+                          const utterance = new SpeechSynthesisUtterance("Josiah De Asis");
+                          utterance.rate = 0.9;
+                          window.speechSynthesis.speak(utterance);
+                        }
+                      }}
+                      className="p-1 rounded-md text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors"
+                      aria-label="Pronounce name"
+                    >
+                      <Volume2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
+                  <p className="text-[12px] sm:text-[13px] text-zinc-500 dark:text-zinc-400 font-mono mt-0.5 sm:mt-1">
+                    Creating with code. Small details matter.
+                  </p>
                 </div>
               </div>
             </div>
@@ -71,10 +91,19 @@ export default function Home() {
       >
         {/* Flowing Content Section */}
         <div className="ml-0 mr-0 md:ml-[26%] md:mr-[26%] pt-[calc(22vh+112px)] pb-0 px-4 flex flex-col z-10 relative min-h-screen">
-          {/* About Me Section */}
+          {/* 1. Profile 2-Column Details Grid + Socials (Matching Reference Picture 1) */}
+          <ProfileDetailsGrid />
+
+          {/* 2. Github Activity (Matching Reference Picture 1) */}
+          <GithubGraph key={`github-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+
+          {/* 3. About Me Section (Matching Reference Picture 2) */}
           <AboutSection key={`about-${hasPlayed}`} hasSeenAboutMe={hasPlayed} />
 
-          {/* Buttons Section */}
+          {/* 4. Skills & Technologies Section */}
+          <SkillsSection key={`skills-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+
+          {/* 5. Let's Connect Section */}
           <div className="mt-8 flex flex-col relative z-10 py-6">
             {/* Top full-width line */}
             <div
@@ -107,14 +136,10 @@ export default function Home() {
             <div className="absolute bottom-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
           </div>
 
-          {/* Socials */}
-          <SocialsSection key={`socials-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+          {/* 6. Milestone Goals, Experience, Projects, Open Source */}
           <GoalMilestoneSection key={`goals-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
           <ExperienceSection key={`exp-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
           <ProjectsSection key={`projects-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
-
-          {/* Github Graph */}
-          <GithubGraph key={`github-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
           {/* Open Source Contributions */}
           <div id="opensource" className="scroll-mt-24">
