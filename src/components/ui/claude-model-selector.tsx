@@ -494,9 +494,16 @@ class ClaudeModelSelectorElement extends HTMLElement {
         }
 
         :host([data-ultra]) .range::-webkit-slider-thumb {
-          border: 1px solid transparent !important;
-          outline: none !important;
-          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18), 0 0 1px rgba(0, 0, 0, 0.12) !important;
+          background: #6495ED !important;
+          border-color: #4a7be8 !important;
+          box-shadow: 0 0 0 2.5px rgba(100, 149, 237, 0.45), 0 2px 5px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        :host-context(.dark):host([data-ultra]) .range::-webkit-slider-thumb,
+        :host([data-theme="dark"][data-ultra]) .range::-webkit-slider-thumb {
+          background: #6495ED !important;
+          border-color: #82abf5 !important;
+          box-shadow: 0 0 0 2.5px rgba(100, 149, 237, 0.55), 0 2px 6px rgba(0, 0, 0, 0.35) !important;
         }
 
         :host([data-low]) .range::-webkit-slider-thumb {
@@ -526,9 +533,16 @@ class ClaudeModelSelectorElement extends HTMLElement {
         }
 
         :host([data-ultra]) .range::-moz-range-thumb {
-          border: 1px solid transparent !important;
-          outline: none !important;
-          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18), 0 0 1px rgba(0, 0, 0, 0.12) !important;
+          background: #6495ED !important;
+          border-color: #4a7be8 !important;
+          box-shadow: 0 0 0 2.5px rgba(100, 149, 237, 0.45), 0 2px 5px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        :host-context(.dark):host([data-ultra]) .range::-moz-range-thumb,
+        :host([data-theme="dark"][data-ultra]) .range::-moz-range-thumb {
+          background: #6495ED !important;
+          border-color: #82abf5 !important;
+          box-shadow: 0 0 0 2.5px rgba(100, 149, 237, 0.55), 0 2px 6px rgba(0, 0, 0, 0.35) !important;
         }
 
         :host([data-low]) .range::-moz-range-thumb {
