@@ -61,11 +61,11 @@ export const DEFAULT_LLM_MODELS: LlmModel[] = [
     value: "sync-ai",
     label: "Sync AI",
     provider: "Sync Engine",
-    description: "Sync AI. Flagship reasoning model with 1 Million (1M) context window, state-of-the-art frontend architecture exploration, and rapid inference.",
-    contextWindow: "1M",
+    description: "Sync AI (BETA 0.1). Flagship reasoning model with a 128k context window, engineered for real-time frontend architecture exploration, system design queries, and rapid low-latency inference.",
+    contextWindow: "128k",
     inputPrice: "Free",
     outputPrice: "Free",
-    metrics: { intelligence: 9.9, speed: 9.6, context: 10, cost: 0 },
+    metrics: { intelligence: 9.9, speed: 9.6, context: 9.8, cost: 0 },
   },
 ];
 
@@ -573,7 +573,12 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
     >
       <div className="flex flex-col gap-3 p-3">
         <div className="flex flex-col gap-1">
-          <p className="font-medium text-neutral-900 text-sm dark:text-neutral-100">{model.label}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="font-medium text-neutral-900 text-sm dark:text-neutral-100">{model.label}</p>
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold tracking-wider uppercase bg-zinc-200/90 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 select-none">
+              BETA 0.1
+            </span>
+          </div>
           <ProviderLabel
             className="text-neutral-500 text-xs dark:text-neutral-400"
             provider={model.provider}
