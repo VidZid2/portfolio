@@ -23,7 +23,7 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
   };
 
   return (
-    <div className="relative mt-8 flex flex-col pt-6 pb-2 z-10">
+    <div className="relative flex flex-col z-10 w-full">
       {/* Top dashed boundary line */}
       <div
         className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
@@ -32,15 +32,25 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
       <div className="absolute top-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
       <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
 
-      {/* Handwritten Cursive Greeting (Matching Reference Picture 2) */}
-      <MotionContainer delay={0} skipAnimation={hasSeenAboutMe}>
-        <h2 className="font-caveat italic text-[26px] sm:text-[30px] font-semibold text-zinc-900 dark:text-zinc-100 mb-4 tracking-wide select-none leading-none">
-          {greeting}
-        </h2>
-      </MotionContainer>
+      {/* Greeting Sub-Row (Framed by top & bottom dotted lines) */}
+      <div className="relative h-[40px] sm:h-[44px] flex items-center px-3 sm:px-4">
+        <MotionContainer delay={0} skipAnimation={hasSeenAboutMe}>
+          <h2 className="font-caveat italic text-[24px] sm:text-[28px] font-semibold text-zinc-900 dark:text-zinc-100 tracking-wide select-none leading-none -mt-0.5">
+            {greeting}
+          </h2>
+        </MotionContainer>
 
-      {/* High-Precision Bulleted List (Matching Reference Picture 2) */}
-      <div className="flex flex-col gap-3.5 text-[14px] sm:text-[15px] leading-relaxed text-zinc-700 dark:text-zinc-300">
+        {/* Horizontal Dotted Divider under Greeting */}
+        <div
+          className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={dashedMask}
+        />
+        <div className="absolute bottom-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+        <div className="absolute bottom-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+      </div>
+
+      {/* High-Precision Bulleted List */}
+      <div className="flex flex-col gap-3 py-3.5 sm:py-4 px-3 sm:px-4 text-[14px] sm:text-[15px] leading-relaxed text-zinc-700 dark:text-zinc-300">
         <MotionContainer delay={0.08} skipAnimation={hasSeenAboutMe}>
           <div className="flex items-start gap-2.5">
             <span className="text-zinc-400 dark:text-zinc-500 font-bold select-none text-base leading-snug shrink-0">
