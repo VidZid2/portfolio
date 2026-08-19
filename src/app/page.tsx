@@ -146,8 +146,6 @@ export default function Home() {
             <OpenSourceContributions key={`oss-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
           </div>
 
-          <SkillsSection key={`skills-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
-
           <ComponentsSection key={`components-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
           <BlogsSection key={`blogs-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
