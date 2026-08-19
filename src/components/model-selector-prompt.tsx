@@ -770,11 +770,9 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
               >
                 <div className="flex flex-col rounded-xl bg-neutral-100/70 dark:bg-neutral-800/50 p-3.5 border-0 outline-none shadow-none">
                   {/* Item 1 */}
-                  <div className="relative flex items-start gap-2.5 pb-3">
-                    <div className="absolute left-[8.25px] top-[14px] bottom-0 w-[1.5px] bg-neutral-300 dark:bg-neutral-700" />
-                    <span className="relative z-10 flex size-4.5 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold ring-2 ring-neutral-100 dark:ring-neutral-800">
-                      ✦
-                    </span>
+                  <div className="relative flex items-start gap-3 pb-3">
+                    <div className="absolute left-[4.25px] top-[9px] bottom-0 w-[1.5px] bg-neutral-300 dark:bg-neutral-700" />
+                    <span className="relative z-10 size-2.5 shrink-0 rounded-full bg-[#6495ED] ring-2 ring-neutral-100 dark:ring-neutral-800 mt-1" />
                     <div className="flex flex-col gap-0.5">
                       <p className="font-semibold text-neutral-900 dark:text-neutral-100 text-xs">128k Context Window</p>
                       <p className="text-neutral-500 dark:text-neutral-400 text-[11.5px] leading-relaxed">
@@ -784,11 +782,9 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                   </div>
 
                   {/* Item 2 */}
-                  <div className="relative flex items-start gap-2.5 pb-3">
-                    <div className="absolute left-[8.25px] top-0 bottom-0 w-[1.5px] bg-neutral-300 dark:bg-neutral-700" />
-                    <span className="relative z-10 flex size-4.5 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold ring-2 ring-neutral-100 dark:ring-neutral-800">
-                      ✦
-                    </span>
+                  <div className="relative flex items-start gap-3 pb-3">
+                    <div className="absolute left-[4.25px] top-0 bottom-0 w-[1.5px] bg-neutral-300 dark:bg-neutral-700" />
+                    <span className="relative z-10 size-2.5 shrink-0 rounded-full bg-[#6495ED] ring-2 ring-neutral-100 dark:ring-neutral-800 mt-1" />
                     <div className="flex flex-col gap-0.5">
                       <p className="font-semibold text-neutral-900 dark:text-neutral-100 text-xs">Adaptive Reasoning Pipeline</p>
                       <p className="text-neutral-500 dark:text-neutral-400 text-[11.5px] leading-relaxed">
@@ -798,11 +794,9 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                   </div>
 
                   {/* Item 3 */}
-                  <div className="relative flex items-start gap-2.5">
-                    <div className="absolute left-[8.25px] top-0 h-[14px] w-[1.5px] bg-neutral-300 dark:bg-neutral-700" />
-                    <span className="relative z-10 flex size-4.5 shrink-0 items-center justify-center rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[10px] font-bold ring-2 ring-neutral-100 dark:ring-neutral-800">
-                      ✦
-                    </span>
+                  <div className="relative flex items-start gap-3">
+                    <div className="absolute left-[4.25px] top-0 h-[9px] w-[1.5px] bg-neutral-300 dark:bg-neutral-700" />
+                    <span className="relative z-10 size-2.5 shrink-0 rounded-full bg-[#6495ED] ring-2 ring-neutral-100 dark:ring-neutral-800 mt-1" />
                     <div className="flex flex-col gap-0.5">
                       <p className="font-semibold text-neutral-900 dark:text-neutral-100 text-xs">Acoustic & Action Telemetry</p>
                       <p className="text-neutral-500 dark:text-neutral-400 text-[11.5px] leading-relaxed">
