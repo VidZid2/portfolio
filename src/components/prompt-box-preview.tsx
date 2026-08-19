@@ -14,6 +14,7 @@ import {
   playAttachmentSound,
   playCopySuccess 
 } from "@/lib/synth-sounds";
+import { canMakeReasoningRequest, consumeReasoningQuota, showQuotaExceededToast } from "@/lib/ai-rate-limiter";
 
 function parseReasoningSteps(text: string) {
   if (!text) return [];
@@ -623,8 +624,13 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
   }, [status]);
 
   const handleSuggestionClick = (promptText: string) => {
+    if (!canMakeReasoningRequest(effort as any)) {
+      showQuotaExceededToast(effort as any);
+      return;
+    }
     setSessionActive(true);
     playChatSend(0.04);
+    consumeReasoningQuota(effort as any);
     try {
       if (triggerSend) {
         triggerSend(
@@ -1060,9 +1066,14 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                   onConfigurationChange={(_, __, nextConfigs) => setConfigurations(nextConfigs)}
                   onPromptChange={setInputValue}
                   onSubmit={({ model, configuration, prompt }) => {
+                    if (!canMakeReasoningRequest(configuration.reasoning as any)) {
+                      showQuotaExceededToast(configuration.reasoning as any);
+                      return;
+                    }
                     setSessionActive(true);
                     setEffort(configuration.reasoning);
                     playChatSend(0.04);
+                    consumeReasoningQuota(configuration.reasoning as any);
                     try {
                       if (triggerSend) {
                         triggerSend(

@@ -35,6 +35,7 @@ import {
 import { playKeyTick, playSoftClick, playHoverTick, playReasoningSound } from "@/lib/synth-sounds";
 import { MobiusLoopIcon, MorphingSpinner } from "@/components/loading-ui/morphing-spinner";
 import ClaudeModelSelector, { EffortLevel } from "@/components/ui/claude-model-selector";
+import { getReasoningQuota } from "@/lib/ai-rate-limiter";
 import {
   Popover,
   PopoverTrigger,
@@ -576,6 +577,14 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
   );
   const [isMetricsRevealed, setIsMetricsRevealed] = useState(false);
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
+  const [quota, setQuota] = useState(() => getReasoningQuota(reasoning));
+
+  useEffect(() => {
+    setQuota(getReasoningQuota(reasoning));
+    const handleUpdate = () => setQuota(getReasoningQuota(reasoning));
+    window.addEventListener("ai-quota-updated", handleUpdate);
+    return () => window.removeEventListener("ai-quota-updated", handleUpdate);
+  }, [reasoning]);
 
   return (
     <motion.div
@@ -737,6 +746,23 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                   }}
                   onTooltipToggle={setIsTooltipOpen}
                 />
+                {(reasoning === "high" || reasoning === "max") && (
+                  <div className="flex items-center justify-between text-[10.5px] px-1 pt-1 text-neutral-500 dark:text-neutral-400">
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <span className={cn(
+                        "size-1.5 rounded-full shrink-0",
+                        quota.remaining > 0 ? "bg-emerald-500" : "bg-amber-500 animate-pulse"
+                      )} />
+                      <span>Daily Quota</span>
+                    </span>
+                    <span className={cn(
+                      "font-mono font-medium",
+                      quota.remaining > 0 ? "text-neutral-600 dark:text-neutral-300" : "text-amber-500 font-semibold"
+                    )}>
+                      {quota.remaining}/{quota.limit} left today
+                    </span>
+                  </div>
+                )}
               </div>
               {model.hasSpeedConfiguration ? (
                 <div className="flex flex-col gap-2 pt-1">

@@ -82,6 +82,25 @@ function createFallbackStream(userPrompt: string, effort: string = 'high') {
   return createUIMessageStreamResponse({ stream });
 }
 
+// In-memory rate limiting map for server-side abuse prevention
+const ipRateLimitMap = new Map<string, { date: string; count: number }>();
+
+function checkServerRateLimit(ip: string, effort: string): boolean {
+  if (effort !== "high" && effort !== "max") return true;
+  const today = new Date().toISOString().slice(0, 10);
+  const key = `${ip}_${effort}_${today}`;
+  const record = ipRateLimitMap.get(key);
+  if (record && record.date === today) {
+    if (record.count >= 25) {
+      return false;
+    }
+    record.count += 1;
+  } else {
+    ipRateLimitMap.set(key, { date: today, count: 1 });
+  }
+  return true;
+}
+
 export async function POST(req: Request) {
   let userQuery = "";
   let effort = "high";
@@ -90,6 +109,14 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { messages, model = 'nemotron-3.5-lightning-free', effort: userEffort = 'high' } = body;
     effort = userEffort;
+
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    if (!checkServerRateLimit(ip, effort)) {
+      return new Response(
+        JSON.stringify({ error: `Daily limit reached for ${effort} reasoning (20/20). Switch to Medium or Low to continue.` }),
+        { status: 429, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
     // Extract last user message
     if (Array.isArray(messages) && messages.length > 0) {
