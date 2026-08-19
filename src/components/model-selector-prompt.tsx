@@ -763,7 +763,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
               </span>
             </div>
 
-            <div className="p-3 pt-2 relative overflow-hidden">
+            <div className="p-3 pt-2.5 pb-3 relative overflow-hidden">
               <div
                 style={{
                   maskImage: "linear-gradient(to bottom, transparent 0%, black 10px, black calc(100% - 10px), transparent 100%)",
@@ -771,32 +771,32 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                 }}
                 className="max-h-[175px] overflow-y-auto pr-1 py-1 space-y-2 prompt-scrollbar"
               >
-                <div className="flex flex-col gap-2 rounded-lg bg-neutral-50 dark:bg-neutral-800/40 p-2.5 border border-neutral-100 dark:border-neutral-800/80">
-                  <div className="flex items-start gap-2">
-                    <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">✦</span>
+                <div className="flex flex-col gap-3 rounded-xl bg-neutral-50/90 dark:bg-neutral-800/40 p-3.5 border border-neutral-200/60 dark:border-neutral-700/60">
+                  <div className="flex items-start gap-2.5">
+                    <span className="flex size-4.5 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold mt-0.5">✦</span>
                     <div className="flex flex-col gap-0.5">
-                      <p className="font-medium text-neutral-900 dark:text-neutral-100 text-xs">128k Context Window</p>
-                      <p className="text-neutral-500 dark:text-neutral-400 text-[11px] leading-relaxed">
+                      <p className="font-semibold text-neutral-900 dark:text-neutral-100 text-xs">128k Context Window</p>
+                      <p className="text-neutral-500 dark:text-neutral-400 text-[11.5px] leading-relaxed">
                         Deep real-time indexing of portfolio projects, engineering case studies, and stack architecture.
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-2">
-                    <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold">✦</span>
+                  <div className="flex items-start gap-2.5">
+                    <span className="flex size-4.5 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold mt-0.5">✦</span>
                     <div className="flex flex-col gap-0.5">
-                      <p className="font-medium text-neutral-900 dark:text-neutral-100 text-xs">Adaptive Reasoning Pipeline</p>
-                      <p className="text-neutral-500 dark:text-neutral-400 text-[11px] leading-relaxed">
+                      <p className="font-semibold text-neutral-900 dark:text-neutral-100 text-xs">Adaptive Reasoning Pipeline</p>
+                      <p className="text-neutral-500 dark:text-neutral-400 text-[11.5px] leading-relaxed">
                         Multi-tier reasoning depth with collapsible thought process, time latency tracker, and morphing animations.
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-2">
-                    <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[10px] font-bold">✦</span>
+                  <div className="flex items-start gap-2.5">
+                    <span className="flex size-4.5 shrink-0 items-center justify-center rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[10px] font-bold mt-0.5">✦</span>
                     <div className="flex flex-col gap-0.5">
-                      <p className="font-medium text-neutral-900 dark:text-neutral-100 text-xs">Acoustic & Action Telemetry</p>
-                      <p className="text-neutral-500 dark:text-neutral-400 text-[11px] leading-relaxed">
+                      <p className="font-semibold text-neutral-900 dark:text-neutral-100 text-xs">Acoustic & Action Telemetry</p>
+                      <p className="text-neutral-500 dark:text-neutral-400 text-[11.5px] leading-relaxed">
                         Interactive Good/Bad response rating icons with tactile synthesis sound design.
                       </p>
                     </div>
