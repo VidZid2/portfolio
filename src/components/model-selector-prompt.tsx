@@ -24,6 +24,7 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { useMeasure } from "@/hooks/use-measure";
 import { AsciiText } from "@/components/ui/ascii-text";
 import {
   Tooltip,
@@ -519,6 +520,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
   configuration: ModelConfiguration;
   onConfigurationChange: (update: Partial<ModelConfiguration>) => void;
 }) {
+  const [measureRef, { height }] = useMeasure();
   const [view, setView] = useState<"details" | "changelog">("details");
   const [animationCounter] = useState(() => Date.now());
   const { reasoning, speed } = configuration;
@@ -564,35 +566,27 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
 
   return (
     <motion.div
-      layout
-      initial={{ opacity: 0, scale: 0.97, y: 3, filter: "blur(3px)" }}
-      animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
-      exit={{ opacity: 0, scale: 0.97, y: 3, filter: "blur(3px)" }}
-      transition={{
-        duration: 0.22,
-        ease: [0.16, 1, 0.3, 1],
-        layout: { duration: 0.28, ease: [0.16, 1, 0.3, 1] },
-      }}
+      animate={{ height: height > 0 ? height : "auto" }}
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
       onPointerDown={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
-      className="flex w-full flex-col divide-y divide-neutral-200 dark:divide-neutral-700/80 overflow-hidden"
+      className="flex w-full flex-col overflow-hidden"
     >
-      <AnimatePresence mode="wait" initial={false}>
-        {view === "details" ? (
-          <motion.div
-            key="details-view"
-            layout
-            initial={{ opacity: 0, x: -8, filter: "blur(2px)" }}
-            animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, x: -8, filter: "blur(2px)" }}
-            transition={{
-              duration: 0.2,
-              ease: [0.16, 1, 0.3, 1],
-              layout: { duration: 0.28, ease: [0.16, 1, 0.3, 1] },
-            }}
-            className="flex flex-col divide-y divide-neutral-200 dark:divide-neutral-700/80"
-          >
+      <div
+        ref={measureRef as any}
+        className="flex w-full flex-col divide-y divide-neutral-200 dark:divide-neutral-700/80"
+      >
+        <AnimatePresence mode="wait" initial={false}>
+          {view === "details" ? (
+            <motion.div
+              key="details-view"
+              initial={{ opacity: 0, x: -8, filter: "blur(2px)" }}
+              animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, x: -8, filter: "blur(2px)" }}
+              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+              className="flex flex-col divide-y divide-neutral-200 dark:divide-neutral-700/80"
+            >
             <div className="flex flex-col gap-3 p-3">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex flex-col gap-1">
@@ -746,15 +740,10 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
         ) : (
           <motion.div
             key="changelog-view"
-            layout
             initial={{ opacity: 0, x: 8, filter: "blur(2px)" }}
             animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, x: 8, filter: "blur(2px)" }}
-            transition={{
-              duration: 0.2,
-              ease: [0.16, 1, 0.3, 1],
-              layout: { duration: 0.28, ease: [0.16, 1, 0.3, 1] },
-            }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col divide-y divide-neutral-200 dark:divide-neutral-700/80"
           >
             <div className="flex items-center gap-1.5 px-3 py-2">
@@ -825,6 +814,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </motion.div>
   );
 });
@@ -1372,7 +1362,7 @@ export function ModelSelectorPrompt({
                           >
                             <PreviewCard.Popup
                               id="model-preview-popup"
-                              className="w-64 overflow-hidden rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 origin-left transition-all duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] data-[starting-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:-translate-x-3 data-[starting-style]:blur-[4px] data-[ending-style]:opacity-0 data-[ending-style]:scale-90 data-[ending-style]:translate-x-1 data-[ending-style]:blur-[4px]"
+                              className="w-64 overflow-hidden rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 origin-left transition-[opacity,transform,filter] duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] data-[starting-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:-translate-x-3 data-[starting-style]:blur-[4px] data-[ending-style]:opacity-0 data-[ending-style]:scale-90 data-[ending-style]:translate-x-1 data-[ending-style]:blur-[4px]"
                             >
                               {payload ? (
                                 <ModelPreviewPanel
