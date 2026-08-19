@@ -250,26 +250,26 @@ export function ProfileDetailsGrid() {
       {/* Socials Row (Matching Reference Picture 2) */}
       <div className="relative flex items-center py-2.5">
         {/* Handwritten Annotation in Left Gutter outside the vertical line */}
-        <div className="absolute right-full top-[-8px] pr-2.5 hidden sm:flex flex-col items-end pointer-events-none select-none z-30">
-          <span className="font-caveat italic text-[20px] sm:text-[22px] font-semibold text-zinc-600 dark:text-zinc-400 leading-none pr-1 tracking-wide">
+        <div className="absolute right-full top-[-10px] pr-3 hidden sm:flex flex-col items-end pointer-events-none select-none z-30 min-w-max">
+          <span className="font-caveat italic text-[18px] sm:text-[20px] font-semibold text-zinc-600 dark:text-zinc-400 leading-none whitespace-nowrap tracking-wide select-none">
             say hi
           </span>
           <svg
-            width="42"
-            height="32"
-            viewBox="0 0 42 32"
+            width="34"
+            height="26"
+            viewBox="0 0 34 26"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-0.5"
           >
             <path
-              d="M 6 2 C 8 13, 18 24, 40 24"
+              d="M 4 2 C 6 10, 14 18, 30 18"
               stroke="currentColor"
               strokeWidth="1.3"
               strokeLinecap="round"
             />
             <path
-              d="M 32 19 L 41 24 L 32 29"
+              d="M 23 13.5 L 31 18 L 23 22.5"
               stroke="currentColor"
               strokeWidth="1.3"
               strokeLinecap="round"
@@ -279,8 +279,8 @@ export function ProfileDetailsGrid() {
         </div>
 
         {/* Mobile-only fallback */}
-        <div className="flex sm:hidden items-center gap-1 font-caveat italic text-[16px] text-zinc-600 dark:text-zinc-400 select-none shrink-0 mr-2 -mt-0.5">
-          <span>say hi ↘</span>
+        <div className="flex sm:hidden items-center gap-1 font-caveat italic text-[15px] text-zinc-600 dark:text-zinc-400 select-none shrink-0 mr-2 -mt-0.5">
+          <span className="whitespace-nowrap">say hi ↘</span>
         </div>
 
         {/* Social Icon Tiles - Flush with left edge */}
