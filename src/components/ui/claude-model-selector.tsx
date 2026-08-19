@@ -39,6 +39,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
   private _reducedMotion!: MediaQueryList;
   private _events?: AbortController;
   private _smokeRenderer: SmokeRenderer | null = null;
+  private _themeObserver?: MutationObserver;
 
   private _panel!: HTMLElement;
   private _input!: HTMLInputElement;
@@ -317,20 +318,18 @@ class ClaudeModelSelectorElement extends HTMLElement {
         .smoke-container {
           position: absolute;
           inset: 0;
-          width: calc(
-            (100% - var(--effort-thumb-w)) * var(--effort-progress, 0) +
-              (var(--effort-thumb-w) * 0.5)
-          );
+          width: 100%;
           overflow: hidden;
           border-radius: inherit;
           pointer-events: none;
-          opacity: 0.95;
-          transition: opacity 300ms ease;
+          opacity: 0;
+          visibility: hidden;
+          transition: opacity 350ms cubic-bezier(0.16, 1, 0.3, 1), visibility 350ms cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         :host([data-ultra]) .smoke-container {
-          width: 100%;
           opacity: 1;
+          visibility: visible;
         }
 
         .smoke-canvas {
@@ -349,6 +348,12 @@ class ClaudeModelSelectorElement extends HTMLElement {
           display: flex;
           align-items: center;
           justify-content: space-between;
+          pointer-events: none;
+          transition: opacity 250ms ease;
+        }
+
+        :host([data-ultra]) .ticks {
+          opacity: 0;
           pointer-events: none;
         }
 
@@ -542,23 +547,62 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this._initSmokeRenderer();
   }
 
+  _getThemeSmokeColors() {
+    const isDark =
+      typeof document !== "undefined" &&
+      (document.documentElement.classList.contains("dark") ||
+        document.body?.classList.contains("dark") ||
+        this.getAttribute("data-theme") === "dark");
+
+    if (isDark) {
+      return {
+        primary: hexToRgb("#6495ED"), // Cornflower Blue
+        secondary: hexToRgb("#3B82F6"), // Electric Blue
+        shadow: hexToRgb("#050814"), // Obsidian Shadow
+      };
+    } else {
+      return {
+        primary: hexToRgb("#3B82F6"), // Electric Blue
+        secondary: hexToRgb("#60A5FA"), // Sky Blue
+        shadow: hexToRgb("#0F172A"), // Deep Slate Shadow for crisp contrast in light mode
+      };
+    }
+  }
+
+  _syncThemeColors() {
+    if (!this._smokeRenderer) return;
+    const colors = this._getThemeSmokeColors();
+    this._smokeRenderer.update({
+      colors: [colors.primary, colors.secondary, colors.shadow],
+      speed: 1.25,
+    });
+  }
+
   _initSmokeRenderer() {
     if (this._smokeRenderer || !this._canvas) return;
     try {
+      const colors = this._getThemeSmokeColors();
       this._smokeRenderer = createSmokeRenderer(this._canvas, {
-        colors: [
-          hexToRgb("#6495ED"), // Cornflower Blue
-          hexToRgb("#4169E1"), // Royal Blue
-          hexToRgb("#0F172A"), // Deep Slate Shadow
-        ],
+        colors: [colors.primary, colors.secondary, colors.shadow],
         speed: 1.25,
       });
+
+      if (typeof MutationObserver !== "undefined" && typeof document !== "undefined") {
+        this._themeObserver?.disconnect();
+        this._themeObserver = new MutationObserver(() => this._syncThemeColors());
+        this._themeObserver.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ["class", "data-theme"],
+        });
+      }
     } catch (e) {
       console.warn("WebGL smoke renderer fallback for slider track.", e);
     }
   }
 
   disconnectedCallback() {
+    this._themeObserver?.disconnect();
+    this._themeObserver = undefined;
     this._smokeRenderer?.destroy();
     this._smokeRenderer = null;
     this._events?.abort();
