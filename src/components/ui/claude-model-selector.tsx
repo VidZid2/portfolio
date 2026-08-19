@@ -343,25 +343,22 @@ class ClaudeModelSelectorElement extends HTMLElement {
           pointer-events: none;
           opacity: 0;
           visibility: hidden;
-          -webkit-mask-image: linear-gradient(to left, #000 0%, #000 50%, rgba(0, 0, 0, 0.45) 75%, transparent 100%);
-          mask-image: linear-gradient(to left, #000 0%, #000 50%, rgba(0, 0, 0, 0.45) 75%, transparent 100%);
-          -webkit-mask-size: 260% 100%;
-          mask-size: 260% 100%;
-          -webkit-mask-position: 100% 0;
-          mask-position: 100% 0;
+          clip-path: inset(0 0 0 100%);
           transition: 
-            -webkit-mask-position 800ms cubic-bezier(0.16, 1, 0.3, 1),
-            mask-position 800ms cubic-bezier(0.16, 1, 0.3, 1),
-            opacity 350ms ease,
-            visibility 800ms cubic-bezier(0.16, 1, 0.3, 1);
-          will-change: -webkit-mask-position, mask-position, opacity;
+            clip-path 180ms ease,
+            opacity 180ms ease,
+            visibility 180ms ease;
+          will-change: clip-path, opacity;
         }
 
         :host([data-ultra]) .smoke-container {
           opacity: 1;
           visibility: visible;
-          -webkit-mask-position: 0% 0;
-          mask-position: 0% 0;
+          clip-path: inset(0 0 0 0%);
+          transition: 
+            clip-path 750ms cubic-bezier(0.16, 1, 0.3, 1),
+            opacity 300ms ease,
+            visibility 0s;
         }
 
         .smoke-canvas {
