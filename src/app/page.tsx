@@ -38,6 +38,11 @@ const DOT_MASK_HORIZONTAL = {
   WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
 };
 
+const DIAGONAL_HATCH_PATTERN = {
+  backgroundImage:
+    "repeating-linear-gradient(-45deg, transparent, transparent 5px, rgba(120, 120, 120, 0.15) 5px, rgba(120, 120, 120, 0.15) 6px)",
+};
+
 export default function Home() {
   const [hasPlayed, setHasPlayed] = useState(false);
 
@@ -76,9 +81,15 @@ export default function Home() {
             <div className="flex-1 h-[112px] relative flex flex-col justify-between overflow-hidden">
               <SwirlBackground />
 
-              {/* Sub-row 1: Top Action Buttons (36px) */}
-              <div className="h-[36px] flex items-center justify-end px-2 sm:px-4 relative z-20 pointer-events-auto">
-                <div className="flex items-center gap-1.5 sm:gap-3">
+              {/* Sub-row 1: Top Action Buttons with Blueprint Diagonal Hatch Background (36px) */}
+              <div className="h-[36px] flex items-center justify-end px-2 sm:px-4 relative z-20 pointer-events-auto overflow-hidden">
+                {/* Diagonal Slanted Hatch Pattern for Empty State */}
+                <div
+                  className="absolute inset-0 pointer-events-none opacity-80 dark:opacity-50"
+                  style={DIAGONAL_HATCH_PATTERN}
+                />
+
+                <div className="flex items-center gap-1.5 sm:gap-3 relative z-10 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-[2px] px-1.5 py-0.5 rounded border border-black/10 dark:border-white/[0.08]">
                   <CommandMenu />
                   <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300 shrink-0" />
                 </div>
