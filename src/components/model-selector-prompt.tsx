@@ -61,7 +61,7 @@ export const DEFAULT_LLM_MODELS: LlmModel[] = [
     value: "sync-ai",
     label: "Sync AI",
     provider: "Sync Engine",
-    description: "A custom AI assistant built by a 2nd-year CS student, trained with 128k context to explore my projects, architecture, and tech stack in real-time.",
+    description: "A custom AI assistant I built as a 2nd-year CS student, with 128k context to explore my projects, architecture, and tech stack in real-time.",
     contextWindow: "128k",
     inputPrice: "Free",
     outputPrice: "Free",
