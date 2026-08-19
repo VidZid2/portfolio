@@ -32,7 +32,7 @@ let instanceCount = 0;
 
 class ClaudeModelSelectorElement extends HTMLElement {
   static get observedAttributes() {
-    return ["value", "open", "disabled"];
+    return ["value", "open", "disabled", "quota"];
   }
 
   private _uid!: string;
@@ -60,6 +60,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
   private _canvas!: HTMLCanvasElement;
   private _currentLabel!: HTMLElement;
   private _outgoingLabel!: HTMLElement;
+  private _quotaBadge!: HTMLElement;
   private _helpWrap!: HTMLElement;
   private _helpButton!: HTMLButtonElement;
   private _ticks: HTMLElement[] = [];
@@ -228,6 +229,32 @@ class ClaudeModelSelectorElement extends HTMLElement {
         :host([data-ultra]) .level-current {
           color: var(--effort-accent) !important;
           text-shadow: 0 0 10px rgba(100, 149, 237, 0.4);
+        }
+
+        .quota-badge {
+          display: inline-flex;
+          align-items: center;
+          margin-left: 0.375rem;
+          font-size: 0.6875rem;
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+          font-weight: 500;
+          color: #71717a;
+          letter-spacing: -0.01em;
+          transition: opacity 160ms ease, color 160ms ease;
+        }
+
+        :host-context(.dark) .quota-badge,
+        :host([data-theme="dark"]) .quota-badge {
+          color: #94a3b8;
+        }
+
+        :host([data-quota-empty]) .quota-badge {
+          color: #f59e0b !important;
+          font-weight: 600;
+        }
+
+        .quota-badge:empty {
+          display: none;
         }
 
         .help-wrap {
@@ -650,6 +677,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
                 <span class="level-outgoing" aria-hidden="true"></span>
                 <span class="level-current">Medium</span>
               </span>
+              <span class="quota-badge"></span>
             </div>
             <div class="help-wrap">
               <button class="help-button" type="button" aria-label="About reasoning levels" aria-describedby="${this._uid}-tooltip">
@@ -706,6 +734,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this._canvas = this.shadowRoot!.querySelector(".pixel-field")!;
     this._currentLabel = this.shadowRoot!.querySelector(".level-current")!;
     this._outgoingLabel = this.shadowRoot!.querySelector(".level-outgoing")!;
+    this._quotaBadge = this.shadowRoot!.querySelector(".quota-badge")!;
     this._helpWrap = this.shadowRoot!.querySelector(".help-wrap")!;
     this._helpButton = this.shadowRoot!.querySelector(".help-button")!;
     this._ticks = Array.from(this.shadowRoot!.querySelectorAll(".tick"));
@@ -722,6 +751,12 @@ class ClaudeModelSelectorElement extends HTMLElement {
       reflect: false,
     });
     this._syncDisabledState();
+
+    const attrQuota = this.getAttribute("quota");
+    if (attrQuota && this._quotaBadge) {
+      this._quotaBadge.textContent = `· ${attrQuota}`;
+      this.toggleAttribute("data-quota-empty", attrQuota.startsWith("0/"));
+    }
 
     this._input.addEventListener(
       "pointerdown",
@@ -806,6 +841,10 @@ class ClaudeModelSelectorElement extends HTMLElement {
       });
     }
     if (name === "disabled" && this._input) this._syncDisabledState();
+    if (name === "quota" && this._quotaBadge) {
+      this._quotaBadge.textContent = newValue ? `· ${newValue}` : "";
+      this.toggleAttribute("data-quota-empty", Boolean(newValue?.startsWith("0/")));
+    }
   }
 
   get value() {
@@ -1329,6 +1368,7 @@ export type ClaudeModelSelectorProps = {
   open?: boolean;
   disabled?: boolean;
   className?: string;
+  quotaText?: string;
   onLevelChange?: (level: EffortLevel, index: number) => void;
   onValueChange?: (value: number) => void;
   onTooltipToggle?: (open: boolean) => void;
@@ -1338,7 +1378,7 @@ const ClaudeModelSelector = React.forwardRef<
   HTMLElement,
   ClaudeModelSelectorProps
 >(function ClaudeModelSelector(
-  { value = 0, disabled = false, className, onLevelChange, onValueChange, onTooltipToggle },
+  { value = 0, disabled = false, className, quotaText, onLevelChange, onValueChange, onTooltipToggle },
   ref
 ) {
   const innerRef = React.useRef<HTMLElement | null>(null);
@@ -1398,10 +1438,22 @@ const ClaudeModelSelector = React.forwardRef<
     }
   }, [disabled]);
 
+  React.useEffect(() => {
+    const el = innerRef.current;
+    if (el) {
+      if (quotaText) {
+        el.setAttribute("quota", quotaText);
+      } else {
+        el.removeAttribute("quota");
+      }
+    }
+  }, [quotaText]);
+
   return React.createElement("claude-model-selector", {
     ref: innerRef,
     class: className,
     value: Number.isFinite(value) ? String(value) : "1",
+    quota: quotaText || undefined,
   });
 });
 

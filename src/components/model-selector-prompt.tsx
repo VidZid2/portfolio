@@ -740,29 +740,17 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
               <div className="flex flex-col gap-1">
                 <ClaudeModelSelector
                   value={LEVEL_TO_INDEX[reasoning] ?? 1}
+                  quotaText={
+                    reasoning === "high" || reasoning === "max"
+                      ? `${quota.remaining}/${quota.limit} left`
+                      : undefined
+                  }
                   onLevelChange={(_level: EffortLevel, index: number) => {
                     const nextReasoning = INDEX_TO_LEVEL[index] ?? "medium";
                     onConfigurationChange({ reasoning: nextReasoning });
                   }}
                   onTooltipToggle={setIsTooltipOpen}
                 />
-                {(reasoning === "high" || reasoning === "max") && (
-                  <div className="flex items-center justify-between text-[10.5px] px-1 pt-1 text-neutral-500 dark:text-neutral-400">
-                    <span className="flex items-center gap-1.5 font-medium">
-                      <span className={cn(
-                        "size-1.5 rounded-full shrink-0",
-                        quota.remaining > 0 ? "bg-emerald-500" : "bg-amber-500 animate-pulse"
-                      )} />
-                      <span>Daily Quota</span>
-                    </span>
-                    <span className={cn(
-                      "font-mono font-medium",
-                      quota.remaining > 0 ? "text-neutral-600 dark:text-neutral-300" : "text-amber-500 font-semibold"
-                    )}>
-                      {quota.remaining}/{quota.limit} left today
-                    </span>
-                  </div>
-                )}
               </div>
               {model.hasSpeedConfiguration ? (
                 <div className="flex flex-col gap-2 pt-1">
