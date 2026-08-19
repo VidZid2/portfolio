@@ -140,7 +140,7 @@ export function ProfileDetailsGrid() {
         {/* Row 1: Role & Secondary Role */}
         <div className="relative grid grid-cols-1 sm:grid-cols-2 py-2.5 sm:py-3">
           <div className="flex items-center gap-2.5 px-3 sm:px-4 group">
-            <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
+            <div className="w-6 h-6 rounded-md bg-zinc-100/90 dark:bg-zinc-800/70 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
               <Code2 className="w-3.5 h-3.5" />
             </div>
             <span className="text-zinc-700 dark:text-zinc-300 font-medium truncate">
@@ -148,7 +148,7 @@ export function ProfileDetailsGrid() {
             </span>
           </div>
           <div className="flex items-center gap-2.5 px-3 sm:px-4 group mt-2.5 sm:mt-0">
-            <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
+            <div className="w-6 h-6 rounded-md bg-zinc-100/90 dark:bg-zinc-800/70 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
               <Lightbulb className="w-3.5 h-3.5" />
             </div>
             <span className="text-zinc-700 dark:text-zinc-300 font-medium truncate">
@@ -166,7 +166,7 @@ export function ProfileDetailsGrid() {
         {/* Row 2: Location & Time */}
         <div className="relative grid grid-cols-1 sm:grid-cols-2 py-2.5 sm:py-3">
           <div className="flex items-center gap-2.5 px-3 sm:px-4 group">
-            <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
+            <div className="w-6 h-6 rounded-md bg-zinc-100/90 dark:bg-zinc-800/70 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
               <MapPin className="w-3.5 h-3.5" />
             </div>
             <span className="text-zinc-600 dark:text-zinc-400 truncate">
@@ -174,7 +174,7 @@ export function ProfileDetailsGrid() {
             </span>
           </div>
           <div className="flex items-center gap-2.5 px-3 sm:px-4 group mt-2.5 sm:mt-0">
-            <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
+            <div className="w-6 h-6 rounded-md bg-zinc-100/90 dark:bg-zinc-800/70 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
               <Clock className="w-3.5 h-3.5" />
             </div>
             <span className="text-zinc-700 dark:text-zinc-300 font-medium">
@@ -195,7 +195,7 @@ export function ProfileDetailsGrid() {
         {/* Row 3: Phone & Email */}
         <div className="relative grid grid-cols-1 sm:grid-cols-2 py-2.5 sm:py-3">
           <div className="flex items-center gap-2.5 px-3 sm:px-4 group">
-            <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
+            <div className="w-6 h-6 rounded-md bg-zinc-100/90 dark:bg-zinc-800/70 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
               <Phone className="w-3.5 h-3.5" />
             </div>
             <a
@@ -207,7 +207,7 @@ export function ProfileDetailsGrid() {
             </a>
           </div>
           <div className="flex items-center gap-2.5 px-3 sm:px-4 group mt-2.5 sm:mt-0">
-            <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
+            <div className="w-6 h-6 rounded-md bg-zinc-100/90 dark:bg-zinc-800/70 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
               <Mail className="w-3.5 h-3.5" />
             </div>
             <a
@@ -229,7 +229,7 @@ export function ProfileDetailsGrid() {
         {/* Row 4: Domain URL & Pronouns */}
         <div className="relative grid grid-cols-1 sm:grid-cols-2 py-2.5 sm:py-3">
           <div className="flex items-center gap-2.5 px-3 sm:px-4 group">
-            <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
+            <div className="w-6 h-6 rounded-md bg-zinc-100/90 dark:bg-zinc-800/70 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
               <Link2 className="w-3.5 h-3.5" />
             </div>
             <a
@@ -243,7 +243,7 @@ export function ProfileDetailsGrid() {
             </a>
           </div>
           <div className="flex items-center gap-2.5 px-3 sm:px-4 group mt-2.5 sm:mt-0">
-            <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
+            <div className="w-6 h-6 rounded-md bg-zinc-100/90 dark:bg-zinc-800/70 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
               <User className="w-3.5 h-3.5" />
             </div>
             <span className="text-zinc-600 dark:text-zinc-400">he/him</span>
