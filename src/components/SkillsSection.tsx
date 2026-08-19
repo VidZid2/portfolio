@@ -64,9 +64,7 @@ const STACK_CATEGORIES: StackCategory[] = [
     index: "04",
     name: "Workflow & AI",
     items: [
-      { name: "Claude", icon: "anthropic" },
       { name: "Gemini", icon: "googlegemini" },
-      { name: "Cursor", icon: "cursor" },
       { name: "ChatGPT", icon: "openai" },
       { name: "Git", icon: "git" },
       { name: "GitHub", icon: "github" },
