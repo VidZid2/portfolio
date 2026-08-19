@@ -5,7 +5,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 export function ProfileBadges() {
   return (
-    <div className="absolute -bottom-2 -right-2 flex items-center gap-1 z-10">
+    <div className="absolute bottom-0 right-0 translate-x-0.5 translate-y-0.5 flex items-center gap-1 z-10">
       <TooltipProvider delayDuration={150}>
         <Tooltip>
           <TooltipTrigger asChild>

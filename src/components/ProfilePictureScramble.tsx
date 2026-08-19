@@ -59,10 +59,10 @@ export function ProfilePictureScramble() {
   }, [phase]);
 
   return (
-    <div className="relative p-[3px] rounded-[6px] sm:rounded-[8px] border-[1.5px] border-black/30 dark:border-white/[0.15] shrink-0">
+    <div className="relative p-[2.5px] sm:p-[3px] rounded-full border-[1.5px] border-black/30 dark:border-white/[0.2] shrink-0">
       
       {/* The inner image container */}
-      <div className="relative w-12 h-12 min-[360px]:w-16 min-[360px]:h-16 sm:w-20 sm:h-20 rounded-[3px] sm:rounded-[5px] overflow-hidden bg-zinc-950 flex items-center justify-center">
+      <div className="relative w-16 h-16 min-[360px]:w-20 min-[360px]:h-20 sm:w-[92px] sm:h-[92px] rounded-full overflow-hidden bg-zinc-950 flex items-center justify-center">
         
         {/* Scramble Overlay */}
         <AnimatePresence>
@@ -71,7 +71,7 @@ export function ProfilePictureScramble() {
               initial={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
               exit={{ opacity: 0, scale: 1.1, filter: "blur(8px)" }}
               transition={{ duration: 0.6, ease: "easeInOut" }}
-              className="absolute inset-0 z-20 flex items-center justify-center bg-zinc-950"
+              className="absolute inset-0 z-20 flex items-center justify-center bg-zinc-950 rounded-full overflow-hidden"
             >
               <div className="grid grid-cols-10 grid-rows-10 w-full h-full gap-0 overflow-hidden">
                 {grid.map((char, i) => (
@@ -99,7 +99,7 @@ export function ProfilePictureScramble() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: internalPhase !== "scramble" ? 0.9 : 0, scale: internalPhase !== "scramble" ? 1 : 0.9 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="absolute inset-0 z-10"
+          className="absolute inset-0 z-10 rounded-full overflow-hidden"
         >
           <Image
             src="https://github.com/VidZid2.png?v=1"
@@ -109,7 +109,7 @@ export function ProfilePictureScramble() {
             quality={90}
             fetchPriority="high"
             sizes="(min-width: 640px) 120px, 96px"
-            className="h-full w-full origin-center object-cover grayscale contrast-100 mix-blend-multiply dark:mix-blend-normal"
+            className="h-full w-full origin-center object-cover grayscale contrast-100 rounded-full mix-blend-multiply dark:mix-blend-normal"
           />
         </motion.div>
       </div>
