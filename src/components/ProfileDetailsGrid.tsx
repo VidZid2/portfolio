@@ -266,7 +266,7 @@ export function ProfileDetailsGrid() {
         {/* Handwritten Annotation in Left Gutter outside the vertical line */}
         <div className="absolute right-full top-[-20px] sm:top-[-24px] pr-4 sm:pr-5 hidden sm:flex flex-col items-end pointer-events-none select-none z-30 min-w-max">
           <span className="inline-block font-caveat italic text-[22px] sm:text-[26px] font-medium text-zinc-600 dark:text-zinc-400 leading-none whitespace-nowrap -rotate-[8deg] tracking-wide select-none mr-2">
-            say hi
+            connect
           </span>
           <svg
             width="36"
@@ -294,7 +294,7 @@ export function ProfileDetailsGrid() {
 
         {/* Mobile-only fallback */}
         <div className="flex sm:hidden items-center gap-1 font-caveat italic text-[16px] text-zinc-600 dark:text-zinc-400 select-none shrink-0 mr-2 -mt-0.5">
-          <span className="whitespace-nowrap -rotate-[4deg] inline-block">say hi ↘</span>
+          <span className="whitespace-nowrap -rotate-[4deg] inline-block">connect ↘</span>
         </div>
 
         {/* 5-Column Mathematical Blueprint Grid without pill outlines */}
