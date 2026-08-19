@@ -44,10 +44,10 @@ export function SwirlBackground() {
 
   return (
     <div 
-      className="absolute inset-0 z-0 overflow-hidden rounded-[8px] opacity-70 dark:opacity-55 pointer-events-auto" 
+      className="absolute inset-0 z-0 overflow-hidden rounded-[8px] opacity-50 dark:opacity-40 pointer-events-auto" 
       style={{ 
-        maskImage: 'radial-gradient(ellipse 70% 80% at 58% 50%, black 35%, transparent 95%)', 
-        WebkitMaskImage: 'radial-gradient(ellipse 70% 80% at 58% 50%, black 35%, transparent 95%)' 
+        maskImage: 'linear-gradient(to right, transparent 0%, transparent 46%, black 62%, black 82%, transparent 98%)', 
+        WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 46%, black 62%, black 82%, transparent 98%)' 
       }}
     >
       <ExperimentStage 

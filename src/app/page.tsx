@@ -50,7 +50,7 @@ export default function Home() {
           <div className="absolute left-0 right-0 md:left-[26%] md:right-[26%] top-[22vh] h-[112px] flex items-center px-2 sm:px-4 z-50 hide-cursor-particles">
             <SwirlBackground />
             <div className="flex w-full items-center justify-between relative z-10 pointer-events-none">
-              <div className="flex items-center gap-2 min-[360px]:gap-3 sm:gap-4 pointer-events-auto">
+              <div className="flex items-center gap-2 min-[360px]:gap-3 sm:gap-4 pointer-events-auto bg-gradient-to-r from-background via-background/90 to-transparent pr-6 sm:pr-10 py-1.5 rounded-l-lg">
                 <ProfilePictureScramble />
 
                 <div className="flex flex-col justify-center pt-2 sm:pt-4">
