@@ -86,8 +86,8 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this.shadowRoot!.innerHTML = `
       <style>
         :host {
-          --effort-accent: #8c73c9;
-          --effort-accent-deep: #a17ec2;
+          --effort-accent: #6495ed;
+          --effort-accent-deep: #4169e1;
           --effort-text: #64748b;
           --effort-text-strong: #0f172a;
           --effort-muted: #94a3b8;
@@ -114,8 +114,8 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
         :host-context(.dark),
         :host([data-theme="dark"]) {
-          --effort-accent: #a78bfa;
-          --effort-accent-deep: #c084fc;
+          --effort-accent: #6495ed;
+          --effort-accent-deep: #4169e1;
           --effort-text: #a3a3a3;
           --effort-text-strong: #f5f5f5;
           --effort-muted: #737373;
@@ -226,7 +226,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
         :host([data-ultra]) .level-current {
           color: var(--effort-accent) !important;
-          text-shadow: 0 0 10px rgba(140, 115, 201, 0.35);
+          text-shadow: 0 0 10px rgba(100, 149, 237, 0.4);
         }
 
         .help-wrap {
@@ -346,11 +346,11 @@ class ClaudeModelSelectorElement extends HTMLElement {
             90deg,
             #eeebe9 0%,
             #ece9e7 18%,
-            #e2dce3 32%,
-            #d9d0df 48%,
-            #d0c1da 68%,
-            #cdbcd9 82%,
-            #cbbad8 100%
+            #e0e7f1 32%,
+            #d4e0f5 48%,
+            #c3d5f7 68%,
+            #b5ccf5 82%,
+            #a5c2f2 100%
           );
           opacity: 0;
           transition: opacity 340ms ease-in;
@@ -360,13 +360,13 @@ class ClaudeModelSelectorElement extends HTMLElement {
         :host([data-theme="dark"]) .track::before {
           background: linear-gradient(
             90deg,
-            #1e1b4b 0%,
-            #2e1065 18%,
-            #3b0764 32%,
-            #4c1d95 48%,
-            #581c87 68%,
-            #6b21a8 82%,
-            #7e22ce 100%
+            #0f172a 0%,
+            #111c38 18%,
+            #172554 32%,
+            #1e3a8a 48%,
+            #1d4ed8 68%,
+            #2563eb 82%,
+            #3b82f6 100%
           );
         }
 
@@ -390,11 +390,11 @@ class ClaudeModelSelectorElement extends HTMLElement {
             90deg,
             #eeebe9 0%,
             #ece9e7 18%,
-            #e2dce3 32%,
-            #d5cadc 48%,
-            #c8b5d4 68%,
-            #bda6cc 82%,
-            #b59bc6 100%
+            #e0e7f1 32%,
+            #d4e0f5 48%,
+            #c3d5f7 68%,
+            #b5ccf5 82%,
+            #a5c2f2 100%
           );
         }
 
@@ -402,13 +402,13 @@ class ClaudeModelSelectorElement extends HTMLElement {
         :host([data-theme="dark"]) .ultra-fallback {
           background: linear-gradient(
             90deg,
-            #1e1b4b 0%,
-            #2e1065 18%,
-            #3b0764 32%,
-            #4c1d95 48%,
-            #581c87 68%,
-            #6b21a8 82%,
-            #7e22ce 100%
+            #0f172a 0%,
+            #111c38 18%,
+            #172554 32%,
+            #1e3a8a 48%,
+            #1d4ed8 68%,
+            #2563eb 82%,
+            #3b82f6 100%
           );
         }
 
@@ -1081,27 +1081,27 @@ class ClaudeModelSelectorElement extends HTMLElement {
         document.body?.classList.contains("dark") ||
         this.getAttribute("data-theme") === "dark");
 
-    // Ultracode track palette (share-weighted).
-    const leftColor = isDark ? [30, 41, 59] : [210, 206, 214];
-    const deepViolet = isDark ? [139, 92, 246] : [156, 120, 192];
-    const deepMid = isDark ? [147, 51, 234] : [156, 132, 192];
-    const midPurple = isDark ? [168, 85, 247] : [168, 144, 204];
-    const softMid = isDark ? [192, 132, 252] : [168, 156, 204];
-    const softLilac = isDark ? [216, 180, 254] : [180, 168, 204];
-    const paleCool = isDark ? [233, 213, 255] : [192, 180, 204];
-    const highlightColor = isDark ? [243, 232, 255] : [216, 204, 228];
+    // Ultracode track palette (cornflower blue weighted).
+    const leftColor = isDark ? [15, 23, 42] : [210, 218, 230];
+    const deepBlue = isDark ? [59, 130, 246] : [90, 135, 225];
+    const deepMid = isDark ? [100, 149, 237] : [100, 149, 237];
+    const midBlue = isDark ? [120, 165, 245] : [115, 160, 240];
+    const softMid = isDark ? [147, 197, 253] : [135, 178, 245];
+    const softSky = isDark ? [186, 220, 254] : [160, 198, 250];
+    const paleCool = isDark ? [219, 234, 254] : [188, 218, 252];
+    const highlightColor = isDark ? [239, 246, 255] : [218, 234, 255];
     const peakColor = [255, 255, 255];
     const tones = [
-      deepViolet,
-      deepViolet,
+      deepBlue,
+      deepBlue,
       deepMid,
       deepMid,
-      midPurple,
-      midPurple,
-      midPurple,
+      midBlue,
+      midBlue,
+      midBlue,
       softMid,
       softMid,
-      softLilac,
+      softSky,
       paleCool,
     ];
 
@@ -1123,7 +1123,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
         const revealAlpha = smoothstep(frontier - 0.1, frontier + 0.07, normalizedX);
         if (revealAlpha <= 0.002) continue;
 
-        const purpleAmount = smoothstep(0.1, 0.88, normalizedX);
+        const blueAmount = smoothstep(0.1, 0.88, normalizedX);
         const fieldIntensity = smoothstep(0.04, 0.38, normalizedX);
         const depthBias = smoothstep(0.35, 0.95, normalizedX);
 
@@ -1216,15 +1216,15 @@ class ClaudeModelSelectorElement extends HTMLElement {
         ];
 
         const chromaNudge = (chromaHash - 0.5) * 10 + depthBias * 12;
-        const variedPurple = [
-          clamp(cellTone[0] + chromaNudge * 0.35 - depthBias * 8, 140, 196),
-          clamp(cellTone[1] - depthBias * 16 + (baseHash - 0.5) * 8, 104, 168),
-          clamp(cellTone[2] + depthBias * 6 + (cycleHash - 0.5) * 6, 182, 216),
+        const variedBlue = [
+          clamp(cellTone[0] - depthBias * 16 + (baseHash - 0.5) * 8, 50, 190),
+          clamp(cellTone[1] + chromaNudge * 0.3 - depthBias * 8, 90, 215),
+          clamp(cellTone[2] + depthBias * 6 + (cycleHash - 0.5) * 6, 185, 255),
         ];
         const baseColor = [
-          mix(leftColor[0], variedPurple[0], purpleAmount),
-          mix(leftColor[1], variedPurple[1], purpleAmount),
-          mix(leftColor[2], variedPurple[2], purpleAmount),
+          mix(leftColor[0], variedBlue[0], blueAmount),
+          mix(leftColor[1], variedBlue[1], blueAmount),
+          mix(leftColor[2], variedBlue[2], blueAmount),
         ];
         const color = hottestHighlight
           ? mixColor(baseColor, peakColor, 0.95)
