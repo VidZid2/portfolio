@@ -44,9 +44,14 @@ const SOCIAL_LINKS = [
     ),
   },
   {
-    name: "Website",
+    name: "Projects",
     href: "https://josiahdeasis.dev",
-    icon: <Globe className="w-3.5 h-3.5" />,
+    icon: (
+      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="16 18 22 12 16 6" />
+        <polyline points="8 6 2 12 8 18" />
+      </svg>
+    ),
   },
   {
     name: "Discord",
@@ -242,26 +247,43 @@ export function ProfileDetailsGrid() {
         <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
       </div>
 
-      {/* Socials Row with "say hi" Annotation (Matching Reference Picture 1) */}
-      <div className="relative flex items-center gap-3 py-2.5">
-        {/* Handwritten Annotation */}
-        <div className="flex items-center gap-1 font-caveat italic text-[15px] text-zinc-400 dark:text-zinc-500 select-none shrink-0 -mt-0.5">
-          <span>say hi</span>
+      {/* Socials Row (Matching Reference Picture 2) */}
+      <div className="relative flex items-center py-2.5">
+        {/* Handwritten Annotation in Left Gutter outside the vertical line */}
+        <div className="absolute -left-14 sm:-left-16 md:-left-16 top-[-10px] hidden sm:flex flex-col items-end pointer-events-none select-none z-30">
+          <span className="font-caveat italic text-[16px] font-medium text-[#38bdf8] [text-shadow:1.2px_1.2px_0_#f97316] leading-none pr-1">
+            say hi
+          </span>
           <svg
-            viewBox="0 0 24 24"
+            width="28"
+            height="26"
+            viewBox="0 0 28 26"
             fill="none"
-            stroke="currentColor"
-            className="w-4 h-4 text-zinc-400 dark:text-zinc-500"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            xmlns="http://www.w3.org/2000/svg"
+            className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-0.5"
           >
-            <path d="M6 6 C12 6, 16 10, 16 16" />
-            <path d="M12 14 L16 16 L18 12" />
+            <path
+              d="M6 2 C12 6, 18 14, 24 18"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+            />
+            <path
+              d="M19 18.5 L24.5 18.5 L23.5 14"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </div>
 
-        {/* Social Icon Tiles */}
+        {/* Mobile-only fallback */}
+        <div className="flex sm:hidden items-center gap-1 font-caveat italic text-[14px] text-[#38bdf8] [text-shadow:1px_1px_0_#f97316] select-none shrink-0 mr-2 -mt-0.5">
+          <span>say hi ↘</span>
+        </div>
+
+        {/* Social Icon Tiles - Flush with left edge */}
         <div className="flex items-center gap-1.5 flex-wrap">
           {SOCIAL_LINKS.map((item) => (
             <motion.a
