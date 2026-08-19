@@ -198,8 +198,9 @@ function ProviderIcon({
     provider === "Our AI"
   ) {
     return (
-      <svg className={base} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M12 2C12 7.52 16.48 12 22 12C16.48 12 12 16.48 12 22C12 16.48 7.52 12 2 12C7.52 12 12 7.52 12 2Z" />
+      <svg className={base} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true">
+        <path d="M3.025,5.623c.068,.204,.26,.342,.475,.342s.406-.138,.475-.342l.421-1.263,1.263-.421c.204-.068,.342-.259,.342-.474s-.138-.406-.342-.474l-1.263-.421-.421-1.263c-.137-.408-.812-.408-.949,0l-.421,1.263-1.263,.421c-.204,.068-.342,.259-.342,.474s.138,.406,.342,.474l1.263,.421,.421,1.263Z" />
+        <path d="M16.525,8.803l-4.535-1.793-1.793-4.535c-.227-.572-1.168-.572-1.395,0l-1.793,4.535-4.535,1.793c-.286,.113-.475,.39-.475,.697s.188,.584,.475,.697l4.535,1.793,1.793,4.535c.113,.286,.39,.474,.697,.474s.584-.188,.697-.474l1.793-4.535,4.535-1.793c.286-.113,.475-.39,.475-.697s-.188-.584-.475-.697Z" />
       </svg>
     );
   }
@@ -1060,10 +1061,13 @@ export function ModelSelectorPrompt({
                             <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
                               <span className="flex min-w-0 items-center gap-1.5">
                                 <ProviderIcon
-                                  className="size-3 sm:size-3.5 shrink-0"
+                                  className="size-3.5 shrink-0"
                                   provider={selectedModel.provider}
                                 />
                                 <span className="truncate font-medium">{selectedModel.label}</span>
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold tracking-wider uppercase bg-zinc-200/90 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 select-none">
+                                  BETA 0.1
+                                </span>
                               </span>
                               <ModelConfigurationBadge
                                 configuration={getModelConfiguration(
