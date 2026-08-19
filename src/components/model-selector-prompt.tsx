@@ -274,15 +274,15 @@ function ModelConfigurationBadge({
               badgeClassName, 
               "whitespace-nowrap transition-colors duration-500",
               configuration.reasoning === "max" && "bg-[#6495ED]/15 text-[#6495ED] group-data-[selected]:bg-[#6495ED]/25 dark:bg-[#6495ED]/25 dark:text-[#6495ED] dark:group-data-[selected]:bg-[#6495ED]/35",
-              configuration.reasoning === "high" && "bg-[#6495ED]/15 text-[#6495ED] group-data-[selected]:bg-[#6495ED]/25 dark:bg-[#6495ED]/25 dark:text-[#6495ED] dark:group-data-[selected]:bg-[#6495ED]/35",
-              configuration.reasoning === "low" && "bg-[#10b981]/15 text-[#10b981] group-data-[selected]:bg-[#10b981]/25 dark:bg-[#10b981]/25 dark:text-[#10b981] dark:group-data-[selected]:bg-[#10b981]/35"
+              configuration.reasoning === "high" && "bg-[#a855f7]/15 text-[#a855f7] group-data-[selected]:bg-[#a855f7]/25 dark:bg-[#a855f7]/25 dark:text-[#c084fc] dark:group-data-[selected]:bg-[#a855f7]/35",
+              configuration.reasoning === "low" && "bg-[#eab308]/15 text-[#ca8a04] group-data-[selected]:bg-[#eab308]/25 dark:bg-[#eab308]/25 dark:text-[#facc15] dark:group-data-[selected]:bg-[#eab308]/35"
             )}>
               <BrainIcon 
                 className={cn(
                   "shrink-0 transition-colors duration-500", 
                   configuration.reasoning === "max" ? "text-[#6495ED]" :
-                  configuration.reasoning === "high" ? "text-[#6495ED]" :
-                  configuration.reasoning === "low" ? "text-[#10b981]" : "text-neutral-500 dark:text-neutral-400"
+                  configuration.reasoning === "high" ? "text-[#a855f7] dark:text-[#c084fc]" :
+                  configuration.reasoning === "low" ? "text-[#ca8a04] dark:text-[#facc15]" : "text-neutral-500 dark:text-neutral-400"
                 )} 
                 size={11} 
                 weight="fill" 
