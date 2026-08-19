@@ -763,15 +763,15 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
               </span>
             </div>
 
-            <div className="p-3 pt-2.5 pb-3 relative overflow-hidden">
+            <div className="p-2 pt-1.5 pb-2 relative overflow-hidden">
               <div
                 style={{
                   maskImage: "linear-gradient(to bottom, transparent 0%, black 10px, black calc(100% - 10px), transparent 100%)",
                   WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 10px, black calc(100% - 10px), transparent 100%)",
                 }}
-                className="max-h-[175px] overflow-y-auto pr-1 py-1 space-y-2 prompt-scrollbar"
+                className="max-h-[185px] overflow-y-auto pr-0.5 py-0.5 space-y-2 prompt-scrollbar"
               >
-                <div className="flex flex-col gap-3 rounded-xl bg-neutral-50/90 dark:bg-neutral-800/40 p-3.5 border border-neutral-200/60 dark:border-neutral-700/60">
+                <div className="flex flex-col gap-3 rounded-xl bg-neutral-100/70 dark:bg-neutral-800/50 p-3.5 border-0 outline-none shadow-none">
                   <div className="flex items-start gap-2.5">
                     <span className="flex size-4.5 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold mt-0.5">✦</span>
                     <div className="flex flex-col gap-0.5">
