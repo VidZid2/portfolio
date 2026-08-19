@@ -622,17 +622,17 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
     this._input.addEventListener(
       "pointerdown",
-      () => this._onPointerDown(),
+      (e) => this._onPointerDown(e as PointerEvent),
       { signal }
     );
     this._input.addEventListener(
       "pointerup",
-      () => this._onPointerUp(),
+      (e) => this._onPointerUp(e as PointerEvent),
       { signal }
     );
     this._input.addEventListener(
       "pointercancel",
-      () => this._onPointerUp(),
+      (e) => this._onPointerUp(e as PointerEvent),
       { signal }
     );
     this._input.addEventListener("input", () => this._onInput(), { signal });
@@ -759,15 +759,25 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this._helpButton.disabled = isDisabled;
   }
 
-  _onPointerDown() {
+  _onPointerDown(e?: PointerEvent) {
     if (this.disabled) return;
+    if (e && typeof e.pointerId === "number") {
+      try {
+        (e.target as HTMLElement)?.setPointerCapture?.(e.pointerId);
+      } catch {}
+    }
     cancelAnimationFrame(this._springFrame);
     this._springFrame = 0;
     this._dragging = true;
     this._pointerSamples = [{ time: performance.now(), value: this._value }];
   }
 
-  _onPointerUp() {
+  _onPointerUp(e?: PointerEvent) {
+    if (e && typeof e.pointerId === "number") {
+      try {
+        (e.target as HTMLElement)?.releasePointerCapture?.(e.pointerId);
+      } catch {}
+    }
     if (!this._dragging) return;
     this._dragging = false;
     this._snapToNearest();
@@ -862,7 +872,9 @@ class ClaudeModelSelectorElement extends HTMLElement {
     const nextIndex = clamp(Math.round(safeValue), 0, LEVELS.length - 1);
     const previousIndex = this._levelIndex;
     this._value = safeValue;
-    this._input.value = String(safeValue);
+    if (!this._dragging) {
+      this._input.value = String(safeValue);
+    }
     this._input.setAttribute("aria-valuetext", LEVELS[nextIndex]);
     this.style.setProperty(
       "--effort-progress",

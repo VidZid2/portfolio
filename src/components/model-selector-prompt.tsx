@@ -1355,7 +1355,7 @@ export function ModelSelectorPrompt({
                       {!isMobile && modelDropdownOpen ? (
                         <PreviewCard.Portal>
                           <PreviewCard.Positioner
-                            align="center"
+                            align="start"
                             className="z-[9999]"
                             side="right"
                             sideOffset={10}
