@@ -93,8 +93,8 @@ export default function Home() {
               {/* Sub-row 1: Top Action Buttons (36px) */}
               <div className="h-[36px] flex items-center justify-end px-2 sm:px-4 relative z-20 pointer-events-auto">
                 <div className="flex items-center gap-1.5 sm:gap-3">
-                  <CommandMenu />
                   <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300 shrink-0" />
+                  <CommandMenu />
                 </div>
                 {/* Horizontal Dotted Divider under Buttons */}
                 <div

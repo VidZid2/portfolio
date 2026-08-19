@@ -200,6 +200,21 @@ export function CommandMenu() {
             onTouchStart={dismissTooltip}
         >
             <button 
+                onClick={() => setOpen(true)}
+                className="relative group cursor-pointer transition-all duration-300 active:scale-95 shrink-0"
+                aria-label="Search portfolio"
+            >
+                {/* Outer border wrapper matching View All style */}
+                <div className="absolute -inset-[4.5px] border border-black/5 dark:border-white/5 rounded-[9px] pointer-events-none transition-colors duration-300 group-hover:border-black/10 dark:group-hover:border-white/10" />
+                
+                <div className="relative flex items-center justify-center gap-1.5 w-[34px] sm:w-auto px-0 sm:px-3 h-[21px] bg-zinc-50 hover:bg-zinc-100 dark:bg-[#09090b] dark:hover:bg-[#121214] text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 rounded-[5px] text-[11px] font-medium transition-all duration-300 border border-black/5 dark:border-white/5 shadow-sm shadow-black/20 dark:shadow-lg dark:shadow-black/80 font-mono whitespace-nowrap shrink-0">
+                    <Search className="w-3.5 h-3.5 sm:hidden" />
+                    <span className="hidden sm:inline leading-none mt-[0.5px]">⌘</span>
+                    <span className="hidden sm:inline leading-none mt-[0.5px]">K</span>
+                </div>
+            </button>
+
+            <button 
                 onClick={() => setAiOpen(true)}
                 onMouseEnter={preloadPromptBox}
                 onTouchStart={preloadPromptBox}
@@ -216,21 +231,6 @@ export function CommandMenu() {
                     <span className="leading-none mt-[0.5px] whitespace-nowrap inline-flex sm:hidden">
                         <JapaneseAsciiText text="AI" duration={3000} idleScramble={true} />
                     </span>
-                </div>
-            </button>
-
-            <button 
-                onClick={() => setOpen(true)}
-                className="relative group cursor-pointer transition-all duration-300 active:scale-95 shrink-0"
-                aria-label="Search portfolio"
-            >
-                {/* Outer border wrapper matching View All style */}
-                <div className="absolute -inset-[4.5px] border border-black/5 dark:border-white/5 rounded-[9px] pointer-events-none transition-colors duration-300 group-hover:border-black/10 dark:group-hover:border-white/10" />
-                
-                <div className="relative flex items-center justify-center gap-1.5 w-[34px] sm:w-auto px-0 sm:px-3 h-[21px] bg-zinc-50 hover:bg-zinc-100 dark:bg-[#09090b] dark:hover:bg-[#121214] text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 rounded-[5px] text-[11px] font-medium transition-all duration-300 border border-black/5 dark:border-white/5 shadow-sm shadow-black/20 dark:shadow-lg dark:shadow-black/80 font-mono whitespace-nowrap shrink-0">
-                    <Search className="w-3.5 h-3.5 sm:hidden" />
-                    <span className="hidden sm:inline leading-none mt-[0.5px]">⌘</span>
-                    <span className="hidden sm:inline leading-none mt-[0.5px]">K</span>
                 </div>
             </button>
 

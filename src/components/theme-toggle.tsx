@@ -142,8 +142,6 @@ export function ThemeToggle({ className }: { className?: string }) {
 
   return (
     <div className="flex items-center gap-2.5 sm:gap-3 mx-1 sm:mx-0">
-      <SoundToggle className={className} />
-      
       <button
         type="button"
         onClick={toggleTheme}
@@ -164,6 +162,8 @@ export function ThemeToggle({ className }: { className?: string }) {
           </div>
         </div>
       </button>
+
+      <SoundToggle className={className} />
     </div>
   );
 }
