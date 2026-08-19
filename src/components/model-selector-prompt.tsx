@@ -771,11 +771,6 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                 }}
                 className="max-h-[175px] overflow-y-auto pr-1 py-1 space-y-2 prompt-scrollbar"
               >
-                <div className="flex items-center justify-between text-[10px] text-neutral-400 dark:text-neutral-500 font-mono px-0.5 pt-0.5">
-                  <span>Sync AI v0.1-beta</span>
-                  <span>Initial Release</span>
-                </div>
-
                 <div className="flex flex-col gap-2 rounded-lg bg-neutral-50 dark:bg-neutral-800/40 p-2.5 border border-neutral-100 dark:border-neutral-800/80">
                   <div className="flex items-start gap-2">
                     <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">✦</span>
