@@ -276,22 +276,39 @@ class ClaudeModelSelectorElement extends HTMLElement {
           height: 0.8125rem;
         }
 
-        .quota-progress-arc {
-          color: #10b981;
-          transition: stroke-dashoffset 240ms ease, color 240ms ease;
+        .quota-track-circle,
+        .quota-tip-track-circle {
+          stroke: rgba(0, 0, 0, 0.1);
+        }
+
+        :host-context(.dark) .quota-track-circle,
+        :host([data-theme="dark"]) .quota-track-circle,
+        :host-context(.dark) .quota-tip-track-circle,
+        :host([data-theme="dark"]) .quota-tip-track-circle {
+          stroke: rgba(255, 255, 255, 0.15);
+        }
+
+        .quota-progress-arc,
+        .quota-tip-ring-arc {
+          stroke: rgb(16, 185, 129);
+          transition: stroke-dashoffset 0.6s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.4s ease;
         }
 
         :host([data-quota-tier="low"]) .quota-progress-arc,
-        :host([data-quota-tier="medium"]) .quota-progress-arc {
-          color: #10b981;
+        :host([data-quota-tier="medium"]) .quota-progress-arc,
+        :host([data-quota-tier="low"]) .quota-tip-ring-arc,
+        :host([data-quota-tier="medium"]) .quota-tip-ring-arc {
+          stroke: rgb(16, 185, 129);
         }
 
-        :host([data-quota-low]) .quota-progress-arc {
-          color: #f59e0b;
+        :host([data-quota-low]) .quota-progress-arc,
+        :host([data-quota-low]) .quota-tip-ring-arc {
+          stroke: rgb(245, 158, 11);
         }
 
-        :host([data-quota-empty]) .quota-progress-arc {
-          color: #ef4444;
+        :host([data-quota-empty]) .quota-progress-arc,
+        :host([data-quota-empty]) .quota-tip-ring-arc {
+          stroke: rgb(239, 68, 68);
         }
 
         .tooltip {
@@ -367,8 +384,9 @@ class ClaudeModelSelectorElement extends HTMLElement {
         .quota-tip-percent {
           font-size: 0.71875rem;
           font-weight: 600;
-          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+          font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
           color: #0f172a;
+          letter-spacing: -0.01em;
         }
 
         :host-context(.dark) .quota-tip-percent,
@@ -379,20 +397,6 @@ class ClaudeModelSelectorElement extends HTMLElement {
         .quota-tip-ring {
           width: 0.8125rem;
           height: 0.8125rem;
-          color: #10b981;
-        }
-
-        :host([data-quota-tier="low"]) .quota-tip-ring,
-        :host([data-quota-tier="medium"]) .quota-tip-ring {
-          color: #10b981;
-        }
-
-        :host([data-quota-low]) .quota-tip-ring {
-          color: #f59e0b;
-        }
-
-        :host([data-quota-empty]) .quota-tip-ring {
-          color: #ef4444;
         }
 
         .quota-tip-desc {
@@ -785,9 +789,9 @@ class ClaudeModelSelectorElement extends HTMLElement {
             <div class="header-actions">
               <div class="quota-wrap">
                 <button class="quota-button" type="button" aria-label="Daily reasoning limit" aria-describedby="${this._uid}-quota-tip">
-                  <svg viewBox="0 0 24 24" fill="none" class="quota-icon">
-                    <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="2" opacity="0.25"/>
-                    <circle class="quota-progress-arc" cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="47.12" stroke-dashoffset="0" transform="rotate(-90 12 12)"/>
+                  <svg viewBox="0 0 100 100" fill="none" class="quota-icon">
+                    <circle cx="50" cy="50" r="42" stroke-width="12" class="quota-track-circle" stroke-linecap="round" />
+                    <circle cx="50" cy="50" r="42" stroke-width="12" class="quota-progress-arc" stroke-linecap="round" stroke-dasharray="263.89" stroke-dashoffset="0" transform="rotate(-90 50 50)" />
                   </svg>
                 </button>
                 <div class="tooltip quota-tooltip" id="${this._uid}-quota-tip" role="tooltip">
@@ -796,9 +800,9 @@ class ClaudeModelSelectorElement extends HTMLElement {
                       <span class="quota-tip-title">Daily Limit Remaining</span>
                       <div class="quota-tip-metric">
                         <span class="quota-tip-percent">100%</span>
-                        <svg viewBox="0 0 20 20" class="quota-tip-ring">
-                          <circle cx="10" cy="10" r="6.5" stroke="currentColor" stroke-width="2" opacity="0.25" fill="none"/>
-                          <circle class="quota-tip-ring-arc" cx="10" cy="10" r="6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="40.84" stroke-dashoffset="0" transform="rotate(-90 10 10)" fill="none"/>
+                        <svg viewBox="0 0 100 100" fill="none" class="quota-tip-ring">
+                          <circle cx="50" cy="50" r="42" stroke-width="12" class="quota-tip-track-circle" stroke-linecap="round" />
+                          <circle cx="50" cy="50" r="42" stroke-width="12" class="quota-tip-ring-arc" stroke-linecap="round" stroke-dasharray="263.89" stroke-dashoffset="0" transform="rotate(-90 50 50)" />
                         </svg>
                       </div>
                     </div>
@@ -1023,15 +1027,15 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this.toggleAttribute("data-quota-empty", isEmpty);
     this.setAttribute("data-quota-tier", rawTier);
 
-    // Update progress arc in button (r=7.5, circumference ≈ 47.12)
+    // Update progress arc in button (r=42, circumference ≈ 263.89)
     if (this._quotaProgressArc) {
-      const offset = isUnlimited ? 0 : 47.12 * (1 - percent / 100);
+      const offset = isUnlimited ? 0 : 263.89 * (1 - percent / 100);
       this._quotaProgressArc.style.strokeDashoffset = String(offset);
     }
 
-    // Update tooltip ring arc (r=6.5, circumference ≈ 40.84)
+    // Update tooltip ring arc (r=42, circumference ≈ 263.89)
     if (this._quotaTipRingArc) {
-      const ringOffset = isUnlimited ? 0 : 40.84 * (1 - percent / 100);
+      const ringOffset = isUnlimited ? 0 : 263.89 * (1 - percent / 100);
       this._quotaTipRingArc.style.strokeDashoffset = String(ringOffset);
     }
 
