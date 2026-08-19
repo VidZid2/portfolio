@@ -2,7 +2,10 @@
 
 import * as React from "react";
 import { playReasoningSound } from "@/lib/synth-sounds";
-import { createSmokeRenderer, hexToRgb, type SmokeRenderer } from "./smoky-button";
+import {
+  createFaultyTerminalRenderer,
+  type FaultyTerminalRenderer,
+} from "./faulty-terminal";
 
 export const REASONING_EFFORT_LEVELS = [
   "Low",
@@ -38,7 +41,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
   private _reflectingValue!: boolean;
   private _reducedMotion!: MediaQueryList;
   private _events?: AbortController;
-  private _smokeRenderer: SmokeRenderer | null = null;
+  private _terminalRenderer: FaultyTerminalRenderer | null = null;
   private _themeObserver?: MutationObserver;
 
   private _panel!: HTMLElement;
@@ -706,10 +709,10 @@ class ClaudeModelSelectorElement extends HTMLElement {
       { signal }
     );
 
-    this._initSmokeRenderer();
+    this._initTerminalRenderer();
   }
 
-  _getThemeSmokeColors() {
+  _getThemeTerminalSettings() {
     const isDark =
       typeof document !== "undefined" &&
       (document.documentElement.classList.contains("dark") ||
@@ -718,39 +721,41 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
     if (isDark) {
       return {
-        primary: hexToRgb("#6495ED"), // Cornflower Blue
-        secondary: hexToRgb("#3B82F6"), // Electric Blue
-        shadow: hexToRgb("#050814"), // Obsidian Shadow
+        tint: "#6495ED",
+        brightness: 1.05,
+        scanlineIntensity: 0.3,
+        glitchAmount: 0.9,
+        flickerAmount: 0.5,
+        scale: 1.3,
+        gridMul: [3, 1] as [number, number],
       };
     } else {
       return {
-        primary: hexToRgb("#3B82F6"), // Electric Blue
-        secondary: hexToRgb("#60A5FA"), // Sky Blue
-        shadow: hexToRgb("#0F172A"), // Deep Slate Shadow for crisp contrast in light mode
+        tint: "#1D4ED8",
+        brightness: 1.2,
+        scanlineIntensity: 0.35,
+        glitchAmount: 0.8,
+        flickerAmount: 0.4,
+        scale: 1.3,
+        gridMul: [3, 1] as [number, number],
       };
     }
   }
 
   _syncThemeColors() {
-    if (!this._smokeRenderer) return;
-    const colors = this._getThemeSmokeColors();
-    this._smokeRenderer.update({
-      colors: [colors.primary, colors.secondary, colors.shadow],
-      speed: 1.25,
-    });
+    if (!this._terminalRenderer) return;
+    const settings = this._getThemeTerminalSettings();
+    this._terminalRenderer.update(settings);
   }
 
-  _initSmokeRenderer() {
-    if (this._smokeRenderer || !this._canvas) return;
+  _initTerminalRenderer() {
+    if (this._terminalRenderer || !this._canvas) return;
     try {
-      const colors = this._getThemeSmokeColors();
-      this._smokeRenderer = createSmokeRenderer(this._canvas, {
-        colors: [colors.primary, colors.secondary, colors.shadow],
-        speed: 1.25,
-      });
+      const settings = this._getThemeTerminalSettings();
+      this._terminalRenderer = createFaultyTerminalRenderer(this._canvas, settings);
 
       if (!this._isUltra) {
-        this._smokeRenderer.pause();
+        this._terminalRenderer.pause();
       }
 
       if (typeof MutationObserver !== "undefined" && typeof document !== "undefined") {
@@ -762,15 +767,15 @@ class ClaudeModelSelectorElement extends HTMLElement {
         });
       }
     } catch (e) {
-      console.warn("WebGL smoke renderer fallback for slider track.", e);
+      console.warn("WebGL FaultyTerminal renderer fallback for slider track.", e);
     }
   }
 
   disconnectedCallback() {
     this._themeObserver?.disconnect();
     this._themeObserver = undefined;
-    this._smokeRenderer?.destroy();
-    this._smokeRenderer = null;
+    this._terminalRenderer?.destroy();
+    this._terminalRenderer = null;
     this._events?.abort();
     cancelAnimationFrame(this._springFrame);
     cancelAnimationFrame(this._labelFrame);
@@ -1007,9 +1012,9 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this._isUltra = isUltra;
     this.toggleAttribute("data-ultra", isUltra);
     if (isUltra) {
-      this._smokeRenderer?.resume();
+      this._terminalRenderer?.resume();
     } else {
-      this._smokeRenderer?.pause();
+      this._terminalRenderer?.pause();
     }
   }
 
