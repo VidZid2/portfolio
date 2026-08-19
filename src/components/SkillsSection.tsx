@@ -195,7 +195,7 @@ export function SkillsSection({ hasSeenScrollAnimations = false }: { hasSeenScro
                       height={14}
                       loading="lazy"
                       decoding="async"
-                      className="h-3.5 w-3.5 object-contain shrink-0"
+                      className="h-3.5 w-3.5 object-contain shrink-0 grayscale opacity-80"
                     />
                   ) : (
                     <img
