@@ -18,19 +18,6 @@ const LEVELS = REASONING_EFFORT_LEVELS;
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
-const smoothstep = (edge0: number, edge1: number, value: number) => {
-  const x = clamp((value - edge0) / (edge1 - edge0), 0, 1);
-  return x * x * (3 - 2 * x);
-};
-
-const mix = (from: number, to: number, amount: number) =>
-  from + (to - from) * amount;
-
-const mixColor = (from: number[], to: number[], amount: number) =>
-  `rgb(${Math.round(mix(from[0], to[0], amount))} ${Math.round(
-    mix(from[1], to[1], amount)
-  )} ${Math.round(mix(from[2], to[2], amount))})`;
-
 let instanceCount = 0;
 
 class ClaudeModelSelectorElement extends HTMLElement {
@@ -44,19 +31,13 @@ class ClaudeModelSelectorElement extends HTMLElement {
   private _dragging!: boolean;
   private _pointerSamples!: { time: number; value: number }[];
   private _springFrame!: number;
-  private _canvasFrame!: number;
   private _labelFrame!: number;
   private _labelTimer!: number;
   private _closeTimer!: number;
-  private _lastCanvasFrame!: number;
-  private _ultraStartedAt!: number;
-  private _ultraFadeTimer!: number;
-  private _reveal!: number;
   private _isUltra!: boolean;
   private _reflectingValue!: boolean;
   private _reducedMotion!: MediaQueryList;
   private _events?: AbortController;
-  private _resizeObserver?: ResizeObserver;
   private _smokeRenderer: SmokeRenderer | null = null;
 
   private _panel!: HTMLElement;
@@ -65,8 +46,6 @@ class ClaudeModelSelectorElement extends HTMLElement {
   private _canvas!: HTMLCanvasElement;
   private _currentLabel!: HTMLElement;
   private _outgoingLabel!: HTMLElement;
-  private _trigger!: HTMLButtonElement;
-  private _triggerValue!: HTMLElement;
   private _helpWrap!: HTMLElement;
   private _helpButton!: HTMLButtonElement;
 
@@ -79,14 +58,9 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this._dragging = false;
     this._pointerSamples = [];
     this._springFrame = 0;
-    this._canvasFrame = 0;
     this._labelFrame = 0;
     this._labelTimer = 0;
     this._closeTimer = 0;
-    this._lastCanvasFrame = 0;
-    this._ultraStartedAt = 0;
-    this._ultraFadeTimer = 0;
-    this._reveal = 0;
     this._isUltra = false;
     this._reflectingValue = false;
     this._reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -311,12 +285,12 @@ class ClaudeModelSelectorElement extends HTMLElement {
         }
 
         :host([data-ultra]) .track {
-          background-color: #eef4fc;
+          background-color: #1e293b;
         }
 
         :host-context(.dark):host([data-ultra]) .track,
         :host([data-theme="dark"][data-ultra]) .track {
-          background-color: #1e293b;
+          background-color: #0f172a;
         }
 
         .track-fill {
@@ -340,56 +314,32 @@ class ClaudeModelSelectorElement extends HTMLElement {
           opacity: 0;
         }
 
-        .track::before {
-          content: "";
+        .smoke-container {
           position: absolute;
-          z-index: 0;
           inset: 0;
-          border-radius: inherit;
-          background: linear-gradient(
-            90deg,
-            #eef4fc 0%,
-            #e6f0fa 18%,
-            #d6e6f8 32%,
-            #bed8f6 48%,
-            #a1c7f4 68%,
-            #80b3f0 82%,
-            #6495ed 100%
+          width: calc(
+            (100% - var(--effort-thumb-w)) * var(--effort-progress, 0) +
+              (var(--effort-thumb-w) * 0.5)
           );
-          opacity: 0;
-          transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1);
+          overflow: hidden;
+          border-radius: inherit;
+          pointer-events: none;
+          opacity: 0.95;
+          transition: opacity 300ms ease;
         }
 
-        :host([data-ultra]) .track::before {
+        :host([data-ultra]) .smoke-container {
+          width: 100%;
           opacity: 1;
         }
 
-        .ultra-fallback,
-        .pixel-field {
+        .smoke-canvas {
           position: absolute;
-          inset: 0;
+          top: 0;
+          left: 0;
           width: 100%;
           height: 100%;
           pointer-events: none;
-          opacity: 0;
-          transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .ultra-fallback {
-          background: linear-gradient(
-            90deg,
-            #eef4fc 0%,
-            #e6f0fa 18%,
-            #d6e6f8 32%,
-            #bed8f6 48%,
-            #a1c7f4 68%,
-            #80b3f0 82%,
-            #6495ed 100%
-          );
-        }
-
-        :host([data-ultra]) .pixel-field {
-          opacity: 1;
         }
 
         .ticks {
@@ -419,10 +369,6 @@ class ClaudeModelSelectorElement extends HTMLElement {
         .tick:last-child {
           background: var(--effort-accent);
           opacity: 1;
-        }
-
-        :host([data-ultra]) .tick {
-          opacity: 0;
         }
 
         .range {
@@ -518,8 +464,9 @@ class ClaudeModelSelectorElement extends HTMLElement {
           <div class="track-shell">
             <div class="track" aria-hidden="true">
               <div class="track-fill"></div>
-              <div class="ultra-fallback"></div>
-              <canvas class="pixel-field"></canvas>
+              <div class="smoke-container">
+                <canvas class="smoke-canvas"></canvas>
+              </div>
               <div class="ticks">
                 ${LEVELS.map(() => '<span class="tick"></span>').join("")}
               </div>
@@ -544,13 +491,11 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this._panel = this.shadowRoot!.querySelector(".panel")!;
     this._input = this.shadowRoot!.querySelector(".range")!;
     this._track = this.shadowRoot!.querySelector(".track")!;
-    this._canvas = this.shadowRoot!.querySelector(".pixel-field")!;
+    this._canvas = this.shadowRoot!.querySelector(".smoke-canvas")!;
     this._currentLabel = this.shadowRoot!.querySelector(".level-current")!;
     this._outgoingLabel = this.shadowRoot!.querySelector(".level-outgoing")!;
     this._helpWrap = this.shadowRoot!.querySelector(".help-wrap")!;
     this._helpButton = this.shadowRoot!.querySelector(".help-button")!;
-
-    this._onReducedMotionChange = this._onReducedMotionChange.bind(this);
   }
 
   connectedCallback() {
@@ -594,12 +539,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
       { signal }
     );
 
-    this._reducedMotion.addEventListener("change", this._onReducedMotionChange);
-    this._resizeObserver = new ResizeObserver(() => this._resizeCanvas());
-    this._resizeObserver.observe(this._track);
-    this._resizeCanvas();
     this._initSmokeRenderer();
-    if (this._isUltra) this._ensureCanvasLoop();
   }
 
   _initSmokeRenderer() {
@@ -607,11 +547,11 @@ class ClaudeModelSelectorElement extends HTMLElement {
     try {
       this._smokeRenderer = createSmokeRenderer(this._canvas, {
         colors: [
-          hexToRgb("#6495ED"),
-          hexToRgb("#4169E1"),
-          hexToRgb("#0F172A"),
+          hexToRgb("#6495ED"), // Cornflower Blue
+          hexToRgb("#4169E1"), // Royal Blue
+          hexToRgb("#0F172A"), // Deep Slate Shadow
         ],
-        speed: 1.2,
+        speed: 1.25,
       });
     } catch (e) {
       console.warn("WebGL smoke renderer fallback for slider track.", e);
@@ -622,13 +562,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this._smokeRenderer?.destroy();
     this._smokeRenderer = null;
     this._events?.abort();
-    this._reducedMotion.removeEventListener(
-      "change",
-      this._onReducedMotionChange
-    );
-    this._resizeObserver?.disconnect();
     cancelAnimationFrame(this._springFrame);
-    cancelAnimationFrame(this._canvasFrame);
     cancelAnimationFrame(this._labelFrame);
     clearTimeout(this._labelTimer);
     clearTimeout(this._closeTimer);
@@ -721,7 +655,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
   _snapToNearest() {
     const target = Math.round(this._value);
-    if (this._reducedMotion.matches || Math.abs(target - this._value) < 0.001) {
+    if (Math.abs(target - this._value) < 0.001) {
       this._setValue(target, { animateLabel: false, reflect: true });
       this._emit("input");
       this._emit("change");
@@ -755,7 +689,6 @@ class ClaudeModelSelectorElement extends HTMLElement {
         return;
       }
 
-      // Smooth quintic ease out for soft, jitter-free lock-on
       const t = elapsed - 1;
       const easeOut = t * t * t * t * t + 1;
       const current = start + distance * easeOut;
@@ -850,310 +783,6 @@ class ClaudeModelSelectorElement extends HTMLElement {
     if (isUltra === this._isUltra) return;
     this._isUltra = isUltra;
     this.toggleAttribute("data-ultra", isUltra);
-    clearTimeout(this._ultraFadeTimer);
-    if (isUltra) {
-      this._ultraStartedAt = performance.now();
-      this._ensureCanvasLoop();
-    } else {
-      this._ultraFadeTimer = window.setTimeout(() => {
-        cancelAnimationFrame(this._canvasFrame);
-        this._canvasFrame = 0;
-      }, 350);
-    }
-  }
-
-  _cachedWidth = 0;
-  _cachedHeight = 0;
-
-  _onReducedMotionChange() {
-    if (this._isUltra) {
-      this._ultraStartedAt = performance.now();
-      this._ensureCanvasLoop();
-    }
-  }
-
-  _resizeCanvas() {
-    const track = this._track;
-    if (!track) return;
-    const rect = track.getBoundingClientRect();
-    const clientW = track.clientWidth || rect?.width || 0;
-    const clientH = track.clientHeight || rect?.height || 0;
-    if (!clientW || !clientH) return;
-    this._cachedWidth = clientW;
-    this._cachedHeight = clientH;
-
-    const isMobile =
-      typeof window !== "undefined" &&
-      (window.innerWidth <= 1024 ||
-        (window.matchMedia &&
-          window.matchMedia("(pointer: coarse)").matches));
-    const ratio = isMobile
-      ? 1.25
-      : Math.min(window.devicePixelRatio || 1, 2);
-
-    const width = Math.round(clientW * ratio);
-    const height = Math.round(clientH * ratio);
-    if (this._canvas.width !== width || this._canvas.height !== height) {
-      this._canvas.width = width;
-      this._canvas.height = height;
-      this._canvas.style.width = "100%";
-      this._canvas.style.height = "100%";
-      this._drawPixelField(performance.now());
-    }
-  }
-
-  _ensureCanvasLoop() {
-    if (this._canvasFrame || this._reducedMotion.matches) {
-      this._drawPixelField(performance.now());
-      return;
-    }
-
-    const isMobile =
-      typeof window !== "undefined" &&
-      (window.innerWidth <= 1024 ||
-        (window.matchMedia &&
-          window.matchMedia("(pointer: coarse)").matches));
-    const frameInterval = isMobile ? 33 : 24;
-
-    const frame = (time: number) => {
-      if (!this.isConnected) {
-        this._canvasFrame = 0;
-        return;
-      }
-      if (time - this._lastCanvasFrame >= frameInterval) {
-        this._lastCanvasFrame = time;
-        this._reveal = smoothstep(0, 1, (time - this._ultraStartedAt) / 800);
-        this._drawPixelField(time);
-      }
-      if (this._isUltra || performance.now() - this._lastCanvasFrame < 350) {
-        this._canvasFrame = requestAnimationFrame(frame);
-      } else {
-        this._canvasFrame = 0;
-      }
-    };
-    this._canvasFrame = requestAnimationFrame(frame);
-  }
-
-  _drawPixelField(time: number) {
-    const track = this._track;
-    const width = track?.clientWidth || track?.offsetWidth || this._cachedWidth || 280;
-    const height = track?.clientHeight || track?.offsetHeight || this._cachedHeight || 24;
-    if (!width || !height) return;
-
-    this._cachedWidth = width;
-    this._cachedHeight = height;
-
-    const isMobile =
-      typeof window !== "undefined" &&
-      (window.innerWidth <= 1024 ||
-        (window.matchMedia &&
-          window.matchMedia("(pointer: coarse)").matches));
-    const ratio = isMobile
-      ? 1.25
-      : Math.min(window.devicePixelRatio || 1, 2);
-    const targetWidth = Math.round(width * ratio);
-    const targetHeight = Math.round(height * ratio);
-
-    if (
-      this._canvas.width !== targetWidth ||
-      this._canvas.height !== targetHeight
-    ) {
-      this._canvas.width = targetWidth;
-      this._canvas.height = targetHeight;
-      this._canvas.style.width = "100%";
-      this._canvas.style.height = "100%";
-    }
-
-    const context = this._canvas.getContext("2d");
-    if (!context || !this._canvas.width || !this._canvas.height) return;
-
-    context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    context.clearRect(0, 0, width, height);
-
-    const reveal = this._reducedMotion.matches ? 1 : this._reveal;
-    const frontier = 1 - reveal;
-    const cell = isMobile ? 7 : width < 280 ? 5 : 6;
-    const gap = 1.1;
-    const columns = Math.ceil(width / cell) + 3;
-    const rows = Math.ceil(height / cell) + 1;
-    const elapsed = Math.max(0, time - this._ultraStartedAt);
-
-    const leftColor = [215, 230, 250];
-    const deepCornflower = [70, 115, 230];
-    const royalBlue = [60, 110, 235];
-    const electricBlue = [85, 145, 250];
-    const brightCornflower = [100, 155, 245];
-    const azureBlue = [135, 185, 255];
-    const skyGlow = [165, 210, 255];
-    const paleIce = [200, 230, 255];
-    const highlightColor = [225, 242, 255];
-    const peakColor = [255, 255, 255];
-    const tones = [
-      deepCornflower,
-      royalBlue,
-      electricBlue,
-      brightCornflower,
-      azureBlue,
-      skyGlow,
-      paleIce,
-      highlightColor,
-      peakColor,
-      electricBlue,
-    ];
-
-    const flowDuration = 3600;
-    const rawFlow = elapsed / flowDuration;
-    const flowCycle = Math.floor(rawFlow);
-    const easedFlow = flowCycle + smoothstep(0, 1, rawFlow - flowCycle);
-
-    context.save();
-
-    for (let row = 0; row < rows; row += 1) {
-      for (let column = 0; column < columns; column += 1) {
-        const x = column * cell;
-        const y = row * cell;
-        const normalizedX = clamp((x + cell * 0.5) / width, 0, 1.0);
-        const revealAlpha = this._reducedMotion.matches
-          ? 1
-          : smoothstep(frontier - 0.15, frontier + 0.05, normalizedX);
-        if (revealAlpha <= 0.002) continue;
-
-        const blueAmount = smoothstep(0.0, 0.9, normalizedX);
-        const fieldIntensity = 1;
-        const depthBias = smoothstep(0.1, 0.95, normalizedX);
-        const rightEdgeBoost = smoothstep(0.3, 1.0, normalizedX);
-
-        const baseHash =
-          Math.abs(Math.sin(column * 12.9898 + row * 78.233) * 43758.5453) % 1;
-        const tempoHash =
-          Math.abs(Math.sin(column * 7.13 + row * 19.41) * 19341.731) % 1;
-        const phaseHash =
-          Math.abs(Math.sin(column * 31.17 + row * 11.93) * 28437.123) % 1;
-        const chromaHash =
-          Math.abs(Math.sin(column * 9.47 + row * 67.13) * 15823.917) % 1;
-
-        const period = 450 + tempoHash * 1350;
-        const localTime = elapsed + phaseHash * period;
-        const cycle = Math.floor(localTime / period);
-        const cycleProgress = (localTime % period) / period;
-        const cycleHash =
-          Math.abs(
-            Math.sin(column * 17.17 + row * 41.73 + cycle * 13.11) * 24634.6345
-          ) % 1;
-        const widthHash =
-          Math.abs(
-            Math.sin(column * 5.37 + row * 29.11 + cycle * 7.43) * 17391.443
-          ) % 1;
-
-        const pulseCenter = 0.15 + cycleHash * 0.7;
-        const pulseWidth = 0.08 + widthHash * 0.09;
-        const pulseDistance = (cycleProgress - pulseCenter) / pulseWidth;
-        const pulseEnvelope = Math.exp(-pulseDistance * pulseDistance * 1.45);
-        const activeCycle = cycleHash > 0.1 ? 1 : 0.32;
-        const irregularFlicker = pulseEnvelope * activeCycle;
-
-        const flowCoordinate = (normalizedX + easedFlow) * 9;
-        const flowIndex = Math.floor(flowCoordinate);
-        const flowProgress = smoothstep(0, 1, flowCoordinate - flowIndex);
-        const flowHashA =
-          Math.abs(
-            Math.sin(flowIndex * 18.31 + row * 37.17) * 19283.173
-          ) % 1;
-        const flowHashB =
-          Math.abs(
-            Math.sin((flowIndex + 1) * 18.31 + row * 37.17) * 19283.173
-          ) % 1;
-        const clusterGate = smoothstep(
-          0.42,
-          0.82,
-          mix(flowHashA, flowHashB, flowProgress)
-        );
-        const wavePhase =
-          (normalizedX + easedFlow + row * 0.06 + baseHash * 0.02) * Math.PI * 2;
-        const directionalWave = Math.pow(0.5 + 0.5 * Math.cos(wavePhase), 5);
-        const directionalFlow = Math.max(clusterGate, directionalWave * 0.65);
-        const flowingFlicker = Math.max(
-          irregularFlicker * (0.52 + directionalFlow * 0.58),
-          directionalFlow * (0.42 + baseHash * 0.28)
-        );
-
-        const revealGlow =
-          reveal < 0.995
-            ? Math.exp(-((normalizedX - frontier) ** 2) / 0.012) *
-              (1 - smoothstep(0.7, 1, reveal))
-            : 0;
-        const lightAmount = Math.max(
-          flowingFlicker,
-          revealGlow * (0.4 + baseHash * 0.4)
-        );
-
-        const peakHighlight =
-          (lightAmount > 0.35 &&
-            irregularFlicker > 0.14 &&
-            cycleHash > 0.22) ||
-          (rightEdgeBoost > 0.35 && cycleHash > 0.48 && irregularFlicker > 0.08);
-        const hottestHighlight =
-          (lightAmount > 0.62 &&
-            irregularFlicker > 0.26 &&
-            cycleHash > 0.42) ||
-          (rightEdgeBoost > 0.55 && cycleHash > 0.68 && irregularFlicker > 0.18);
-        const highlightAmount = peakHighlight
-          ? 0.98
-          : clamp(lightAmount * (0.48 + cycleHash * 0.35) + rightEdgeBoost * 0.2, 0, 0.85);
-
-        const toneDrift =
-          baseHash * 0.28 +
-          depthBias * 0.32 +
-          cycleProgress * 0.38 +
-          easedFlow * 0.2 +
-          cycleHash * 0.2 +
-          Math.sin(elapsed * 0.00135 + phaseHash * Math.PI * 2) * 0.14;
-        const tonePosition = ((((toneDrift % 1) + 1) % 1) * tones.length);
-        const toneIndex = Math.floor(tonePosition);
-        const toneMix = tonePosition - toneIndex;
-        const toneA = tones[toneIndex % tones.length];
-        const toneB = tones[(toneIndex + 1) % tones.length];
-        const cellTone = [
-          mix(toneA[0], toneB[0], toneMix),
-          mix(toneA[1], toneB[1], toneMix),
-          mix(toneA[2], toneB[2], toneMix),
-        ];
-
-        const chromaNudge = (chromaHash - 0.5) * 12 + depthBias * 14;
-        const variedBlue = [
-          clamp(cellTone[0] - depthBias * 18 + (baseHash - 0.5) * 8, 45, 145),
-          clamp(cellTone[1] + chromaNudge * 0.3 - depthBias * 8, 105, 215),
-          clamp(cellTone[2] + depthBias * 6 + (cycleHash - 0.5) * 6, 210, 255),
-        ];
-        const baseColor = [
-          mix(leftColor[0], variedBlue[0], blueAmount),
-          mix(leftColor[1], variedBlue[1], blueAmount),
-          mix(leftColor[2], variedBlue[2], blueAmount),
-        ];
-        const color = hottestHighlight
-          ? mixColor(baseColor, peakColor, 0.98)
-          : peakHighlight
-          ? mixColor(baseColor, highlightColor, 0.88)
-          : mixColor(
-              baseColor,
-              highlightColor,
-              highlightAmount * (1 + rightEdgeBoost * 0.4)
-            );
-
-        const baseOpacity = 0.72 + baseHash * 0.22;
-        context.globalAlpha =
-          peakHighlight || hottestHighlight
-            ? revealAlpha * fieldIntensity
-            : revealAlpha *
-              fieldIntensity *
-              clamp(baseOpacity + flowingFlicker * 0.15 + rightEdgeBoost * 0.1, 0, 1);
-        context.fillStyle = color;
-        context.fillRect(x + gap * 0.5, y + gap * 0.5, cell - gap, cell - gap);
-      }
-    }
-
-    context.restore();
-    context.globalAlpha = 1;
   }
 
   _emit(type: string) {
