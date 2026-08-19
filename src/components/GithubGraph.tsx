@@ -28,19 +28,19 @@ export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScroll
   useEffect(() => {
     const checkSize = () => {
       if (window.matchMedia('(max-width: 768px)').matches) {
-        setCellSize(14);
-        setCellGap(4);
+        setCellSize(12);
+        setCellGap(3);
         setMonthsToShow(4); 
         setDeviceType("mobile");
       } else if (window.matchMedia('(max-width: 1024px)').matches) {
-        setCellSize(14);
-        setCellGap(4);
+        setCellSize(12);
+        setCellGap(3);
         setMonthsToShow(7);
         setDeviceType("tablet");
       } else {
-        setCellSize(10);
-        setCellGap(2);
-        setMonthsToShow(9); 
+        setCellSize(11);
+        setCellGap(2.5);
+        setMonthsToShow(12); // Full 52 weeks (12 full months) for PC/Desktop!
         setDeviceType("desktop");
       }
     };
@@ -98,7 +98,7 @@ export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScroll
           hidden: { opacity: 0, scale: 0.98, y: 10 },
           visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", bounce: 0.4 } }
         }}
-        className="relative pt-3 pb-2 w-full overflow-visible"
+        className="relative pt-3.5 pb-3 w-full px-2.5 sm:px-3 overflow-visible"
       >
         <GithubCalendar 
           username="VidZid2" 

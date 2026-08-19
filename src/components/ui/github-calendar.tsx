@@ -617,8 +617,8 @@ export const GithubCalendar = memo(function GithubCalendar({
 
   // ── Dimensions ────────────────────────────────────────────────────────
   const step = cellSize + cellGap;
-  const monthLabelHeight = showMonthLabels ? 20 : 0;
-  const leftMargin = showMonthLabels ? 28 : 0;
+  const monthLabelHeight = showMonthLabels ? 18 : 0;
+  const leftMargin = showMonthLabels ? 20 : 0;
   const svgWidth = leftMargin + weeks.length * step - cellGap;
   const svgHeight = monthLabelHeight + 7 * step - cellGap;
   // Auto-scroll to the right end (most recent months) — must be before early returns
@@ -717,13 +717,13 @@ export const GithubCalendar = memo(function GithubCalendar({
 
     // Canvas dimensions matching SVG viewBox with high-DPI retina sharpness
     const dpr = typeof window !== "undefined" ? Math.max(window.devicePixelRatio || 1, 2) : 2;
-    const canvasWidth = svgWidth + 48;
-    const canvasHeight = svgHeight + 8 + 80;
+    const canvasWidth = svgWidth;
+    const canvasHeight = svgHeight + 80;
     canvas.width = Math.round(canvasWidth * dpr);
     canvas.height = Math.round(canvasHeight * dpr);
 
     // Initial scale and translation for high-DPI rendering
-    ctx.setTransform(dpr, 0, 0, dpr, 24 * dpr, 4 * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
@@ -1325,9 +1325,9 @@ export const GithubCalendar = memo(function GithubCalendar({
       // Clean Transform with DPR scaling and screen shake
       const shakeX = screenShake > 0 ? (Math.random() - 0.5) * screenShake : 0;
       const shakeY = screenShake > 0 ? (Math.random() - 0.5) * screenShake : 0;
-      ctx.setTransform(dpr, 0, 0, dpr, (24 + shakeX) * dpr, (4 + shakeY) * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, shakeX * dpr, shakeY * dpr);
 
-      ctx.clearRect(-24, -4, canvasWidth, canvasHeight);
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
       // 1. Starry Space Background
       ctx.fillStyle = isDark ? "#ffffff" : "#94a3b8";
@@ -1563,21 +1563,20 @@ export const GithubCalendar = memo(function GithubCalendar({
         {/* Game and Calendar Container */}
         <div 
           className={cn(
-            "p-3 rounded-xl transition-all duration-500 border border-transparent",
-            gameActive ? (isDark ? "bg-black border-neutral-800" : "bg-neutral-100 border-neutral-200 shadow-inner") : ""
+            "p-0 transition-all duration-500 border border-transparent w-full",
+            gameActive ? (isDark ? "bg-black border-neutral-800 p-2 rounded-xl" : "bg-neutral-100 border-neutral-200 shadow-inner p-2 rounded-xl") : ""
           )}
         >
         <div
           ref={scrollRef}
           className="relative w-full max-w-full min-w-0 overflow-x-auto overflow-y-hidden transition-all duration-500 scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         >
-          <div className="grid">
+          <div className="grid w-full">
             <svg
-              width={svgWidth + 48}
-              height={svgHeight + 8}
-              viewBox={`-24 -4 ${svgWidth + 48} ${svgHeight + 8}`}
+              width="100%"
+              height="auto"
+              viewBox={`0 0 ${svgWidth} ${svgHeight}`}
               className="col-start-1 row-start-1 overflow-visible block w-full h-auto max-w-full"
-              style={deviceType === "desktop" ? { minWidth: svgWidth + 48 } : {}}
             >
             {/* month labels */}
             {showMonthLabels &&
@@ -1609,17 +1608,17 @@ export const GithubCalendar = memo(function GithubCalendar({
                 return validEntries.map(({ weekIndex, label, exactWeek }, i) => {
                   const xPos = leftMargin + exactWeek * step;
                   const isLast = i === validEntries.length - 1;
-                  const x = isLast && xPos > svgWidth - 30 ? svgWidth - 30 : xPos;
+                  const x = isLast && xPos > svgWidth - 24 ? svgWidth - 24 : xPos;
 
                   return (
                     <text
                       key={`${label}-${weekIndex}`}
                       x={x}
-                      y={15}
-                      fontSize={deviceType !== "desktop" ? 14 : 12}
-                      fill={isDark ? "#fafafa" : "#0a0a0a"}
+                      y={13}
+                      fontSize={deviceType !== "desktop" ? 11 : 10}
+                      fill={isDark ? "#a1a1aa" : "#71717a"}
                       fontFamily="inherit"
-                      className="transition-opacity duration-1000 ease-in-out"
+                      className="transition-opacity duration-1000 ease-in-out font-mono font-medium"
                       style={{ opacity: gameActive ? 0 : 1 }}
                     >
                       {label}
@@ -1638,12 +1637,12 @@ export const GithubCalendar = memo(function GithubCalendar({
                 return labels.map(({ di, label }) => (
                   <text
                     key={`day-${di}`}
-                    x={0}
-                    y={monthLabelHeight + di * step + cellSize / 2 + 4}
-                    fontSize={deviceType !== "desktop" ? 14 : 12}
-                    fill={isDark ? "#fafafa" : "#0a0a0a"}
+                    x={2}
+                    y={monthLabelHeight + di * step + cellSize / 2 + 3.5}
+                    fontSize={deviceType !== "desktop" ? 11 : 10}
+                    fill={isDark ? "#a1a1aa" : "#71717a"}
                     fontFamily="inherit"
-                    className="transition-opacity duration-1000 ease-in-out"
+                    className="transition-opacity duration-1000 ease-in-out font-mono font-medium"
                     style={{ opacity: gameActive ? 0 : 1 }}
                   >
                     {label}
@@ -1767,8 +1766,7 @@ export const GithubCalendar = memo(function GithubCalendar({
               gameActive ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
             )}
             style={{ 
-              minWidth: deviceType === "desktop" ? svgWidth + 48 : undefined,
-              aspectRatio: `${svgWidth + 48} / ${svgHeight + 8 + (gameActive ? 80 : 0)}` 
+              aspectRatio: `${svgWidth} / ${svgHeight + (gameActive ? 80 : 0)}` 
             }}
           />
           </div>
