@@ -612,7 +612,12 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                   <span className="sr-only">Changelog</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent
+                hideArrow={true}
+                side="top"
+                sideOffset={6}
+                className="px-2 py-0.5 text-[10.5px] font-medium rounded-md bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-none shadow-md"
+              >
                 <p>Changelog</p>
               </TooltipContent>
             </Tooltip>
