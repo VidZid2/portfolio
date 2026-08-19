@@ -22,9 +22,11 @@ export const experiences: ExperienceData[] = [
     dates: "2025 – Present",
     location: "Client Engagement (Remote)",
     type: "Commercial Project",
-    src: "/PRIMA Landing Page.png",
+    src: "/PRIMA.png",
+    screenshot: "/PRIMA Landing Page.png",
+    darkScreenshot: "/PRIMA Landing Page.png",
     imageFit: "cover",
-    imageZoom: 1,
+    imageZoom: 1.15,
     tldr: "Architected a high-conversion, performance-optimized digital agency platform with custom Framer Motion transitions and strict mobile budgets.",
     description: `
       **Partnered with an industry mentor** to engineer the complete digital presence for PRIMA Digital Agency—a real B2B firm requiring an ultra-polished, high-conversion web platform.
