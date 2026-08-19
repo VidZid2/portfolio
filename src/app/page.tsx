@@ -61,6 +61,7 @@ export default function Home() {
   return (
     <GlobalBootSequence>
       <BlueprintGrid
+        showRightNavbar={false}
         headerSlot={
           /* Cell 2: Profile Section - 112px height with mathematical dotted grid sub-cells */
           <div className="absolute left-0 right-0 md:left-[26%] md:right-[26%] top-[22vh] h-[112px] flex z-50 hide-cursor-particles">
