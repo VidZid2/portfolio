@@ -11,7 +11,7 @@ import {
   PaperPlaneTiltIcon,
   InfoIcon,
 } from "@phosphor-icons/react";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import {
   type ReactNode,
@@ -519,6 +519,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
   configuration: ModelConfiguration;
   onConfigurationChange: (update: Partial<ModelConfiguration>) => void;
 }) {
+  const [view, setView] = useState<"details" | "changelog">("details");
   const [animationCounter] = useState(() => Date.now());
   const { reasoning, speed } = configuration;
   const isMobile = useMediaQuery("(max-width: 1024px)");
@@ -570,157 +571,263 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
       onPointerDown={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
-      className="flex w-full flex-col divide-y divide-neutral-100 dark:divide-neutral-800"
+      className="flex w-full flex-col divide-y divide-neutral-100 dark:divide-neutral-800 overflow-hidden"
     >
-      <div className="flex flex-col gap-3 p-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-1.5">
-              <p className="font-medium text-neutral-900 text-sm dark:text-neutral-100">{model.label}</p>
-              <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold tracking-wider uppercase bg-zinc-200/90 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 select-none">
-                BETA 0.1
-              </span>
-            </div>
-            <ProviderLabel
-              className="text-neutral-500 text-xs dark:text-neutral-400"
-              provider={model.provider}
-            />
-          </div>
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href="/milestones"
-                  onClick={() => playSoftClick(0.04)}
-                  className="flex size-6 sm:size-6.5 items-center justify-center rounded-full border-0 outline-none shadow-none bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors group/changelog shrink-0"
-                  aria-label="Changelog"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 16 16"
-                    className="size-3.5 text-neutral-500 group-hover/changelog:text-neutral-800 dark:text-neutral-400 dark:group-hover/changelog:text-neutral-100 transition-colors shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M2.5 4h11M2.5 8h11M2.5 12h6" />
-                    <circle cx="12.5" cy="12" r="1.5" fill="currentColor" stroke="none" />
-                  </svg>
-                  <span className="sr-only">Changelog</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent
-                hideArrow={true}
-                side="top"
-                sideOffset={6}
-                className="px-2 py-0.5 text-[10.5px] font-medium rounded-md bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-none shadow-md"
-              >
-                <p>Changelog</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-        <p className="text-pretty text-neutral-500 text-xs leading-4 dark:text-neutral-400">
-          {model.description}
-        </p>
-        {/* Benchmark metrics hidden safely but preserved */}
-        {false && (
-          <div className="relative mt-2 overflow-hidden rounded-lg p-1">
-            <div
-              className={cn(
-                "grid grid-cols-2 gap-4 text-xs transition-all duration-300",
-                !isMetricsRevealed && "blur-[6px] select-none opacity-25 pointer-events-none"
-              )}
-            >
-              <MetricBar
-                animationKey={`${model.value}-${animationCounter}`}
-                label="Intelligence"
-                value={adjustedMetrics.intelligence}
-              />
-              <MetricBar
-                animationKey={`${model.value}-${animationCounter}`}
-                label="Speed"
-                value={adjustedMetrics.speed}
-              />
-              <MetricBar
-                animationKey={`${model.value}-${animationCounter}`}
-                info={`${model.contextWindow} context window`}
-                label="Context"
-                value={adjustedMetrics.context}
-                forceOpenTooltip={activeTooltip === "Context"}
-              />
-              <MetricBar
-                animationKey={`${model.value}-${animationCounter}`}
-                info={model.inputPrice === "Free" && model.outputPrice === "Free" ? "Free" : `${model.inputPrice} input · ${model.outputPrice} output`}
-                invert
-                label="Cost"
-                value={adjustedMetrics.cost}
-                forceOpenTooltip={activeTooltip === "Cost"}
-              />
-            </div>
-
-            {!isMetricsRevealed && (
-              <div
-                onClick={() => {
-                  playSoftClick(0.04);
-                  setIsMetricsRevealed(true);
-                }}
-                className="absolute inset-0 flex flex-col items-center justify-center p-2 text-center z-10 cursor-pointer rounded-lg bg-white/40 dark:bg-neutral-900/40 backdrop-blur-[2px] transition-all hover:bg-white/60 dark:hover:bg-neutral-900/60"
-              >
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-900/90 dark:bg-neutral-100/90 text-white dark:text-neutral-900 shadow-md text-xs font-medium active:scale-95 transition-transform">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 18 18"
-                    className="size-3 shrink-0"
-                    fill="currentColor"
-                  >
-                    <path d="M3.025,5.623c.068,.204,.26,.342,.475,.342s.406-.138,.475-.342l.421-1.263,1.263-.421c.204-.068,.342-.259,.342-.474s-.138-.406-.342-.474l-1.263-.421-.421-1.263c-.137-.408-.812-.408-.949,0l-.421,1.263-1.263,.421c-.204,.068-.342,.259-.342,.474s.138,.406,.342,.474l1.263,.421,.421,1.263Z" />
-                    <path d="M16.525,8.803l-4.535-1.793-1.793-4.535c-.227-.572-1.168-.572-1.395,0l-1.793,4.535-4.535,1.793c-.286,.113-.475,.39-.475,.697s.188,.584,.475,.697l4.535,1.793,1.793,4.535c.113,.286,.39,.474,.697,.474s.584-.188,.697-.474l1.793-4.535,4.535-1.793c.286-.113,.475-.39,.475-.697s-.188-.584-.475-.697Z" />
-                  </svg>
-                  <span>Telemetry Protected</span>
+      <AnimatePresence mode="wait" initial={false}>
+        {view === "details" ? (
+          <motion.div
+            key="details-view"
+            initial={{ opacity: 0, x: -8, filter: "blur(2px)" }}
+            animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, x: -8, filter: "blur(2px)" }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col divide-y divide-neutral-100 dark:divide-neutral-800"
+          >
+            <div className="flex flex-col gap-3 p-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-medium text-neutral-900 text-sm dark:text-neutral-100">{model.label}</p>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold tracking-wider uppercase bg-zinc-200/90 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 select-none">
+                      BETA 0.1
+                    </span>
+                  </div>
+                  <ProviderLabel
+                    className="text-neutral-500 text-xs dark:text-neutral-400"
+                    provider={model.provider}
+                  />
                 </div>
-                <p className="mt-1 text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">
-                  Click to inspect benchmark metrics
-                </p>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          playSoftClick(0.04);
+                          setView("changelog");
+                        }}
+                        className="flex size-6 sm:size-6.5 items-center justify-center rounded-full border-0 outline-none shadow-none bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors group/changelog shrink-0 cursor-pointer"
+                        aria-label="View Changelog"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 16 16"
+                          className="size-3.5 text-neutral-500 group-hover/changelog:text-neutral-800 dark:text-neutral-400 dark:group-hover/changelog:text-neutral-100 transition-colors shrink-0"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M2.5 4h11M2.5 8h11M2.5 12h6" />
+                          <circle cx="12.5" cy="12" r="1.5" fill="currentColor" stroke="none" />
+                        </svg>
+                        <span className="sr-only">Changelog</span>
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      hideArrow={true}
+                      side="top"
+                      sideOffset={6}
+                      className="px-2 py-0.5 text-[10.5px] font-medium rounded-md bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-none shadow-md"
+                    >
+                      <p>Changelog</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
-            )}
-          </div>
-        )}
-      </div>
-      <div className="flex flex-col gap-3 p-3">
-        <p className="font-mono font-medium text-[10px] text-neutral-500 uppercase leading-none dark:text-neutral-400">
-          Configuration
-        </p>
-        <div className="flex flex-col gap-1">
-          <ClaudeModelSelector
-            value={LEVEL_TO_INDEX[reasoning] ?? 1}
-            onLevelChange={(_level: EffortLevel, index: number) => {
-              const nextReasoning = INDEX_TO_LEVEL[index] ?? "medium";
-              onConfigurationChange({ reasoning: nextReasoning });
-            }}
-          />
-        </div>
-        {model.hasSpeedConfiguration ? (
-          <div className="flex flex-col gap-2 pt-1">
-            <p className="text-neutral-500 text-xs leading-none dark:text-neutral-400">Speed</p>
-            <SegmentedRadio<SpeedLevel>
-              ariaLabel="Speed"
-              onValueChange={(speedValue) => {
+              <p className="text-pretty text-neutral-500 text-xs leading-4 dark:text-neutral-400">
+                {model.description}
+              </p>
+              {/* Benchmark metrics hidden safely but preserved */}
+              {false && (
+                <div className="relative mt-2 overflow-hidden rounded-lg p-1">
+                  <div
+                    className={cn(
+                      "grid grid-cols-2 gap-4 text-xs transition-all duration-300",
+                      !isMetricsRevealed && "blur-[6px] select-none opacity-25 pointer-events-none"
+                    )}
+                  >
+                    <MetricBar
+                      animationKey={`${model.value}-${animationCounter}`}
+                      label="Intelligence"
+                      value={adjustedMetrics.intelligence}
+                    />
+                    <MetricBar
+                      animationKey={`${model.value}-${animationCounter}`}
+                      label="Speed"
+                      value={adjustedMetrics.speed}
+                    />
+                    <MetricBar
+                      animationKey={`${model.value}-${animationCounter}`}
+                      info={`${model.contextWindow} context window`}
+                      label="Context"
+                      value={adjustedMetrics.context}
+                      forceOpenTooltip={activeTooltip === "Context"}
+                    />
+                    <MetricBar
+                      animationKey={`${model.value}-${animationCounter}`}
+                      info={model.inputPrice === "Free" && model.outputPrice === "Free" ? "Free" : `${model.inputPrice} input · ${model.outputPrice} output`}
+                      invert
+                      label="Cost"
+                      value={adjustedMetrics.cost}
+                      forceOpenTooltip={activeTooltip === "Cost"}
+                    />
+                  </div>
+
+                  {!isMetricsRevealed && (
+                    <div
+                      onClick={() => {
+                        playSoftClick(0.04);
+                        setIsMetricsRevealed(true);
+                      }}
+                      className="absolute inset-0 flex flex-col items-center justify-center p-2 text-center z-10 cursor-pointer rounded-lg bg-white/40 dark:bg-neutral-900/40 backdrop-blur-[2px] transition-all hover:bg-white/60 dark:hover:bg-neutral-900/60"
+                    >
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-900/90 dark:bg-neutral-100/90 text-white dark:text-neutral-900 shadow-md text-xs font-medium active:scale-95 transition-transform">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 18 18"
+                          className="size-3 shrink-0"
+                          fill="currentColor"
+                        >
+                          <path d="M3.025,5.623c.068,.204,.26,.342,.475,.342s.406-.138,.475-.342l.421-1.263,1.263-.421c.204-.068,.342-.259,.342-.474s-.138-.406-.342-.474l-1.263-.421-.421-1.263c-.137-.408-.812-.408-.949,0l-.421,1.263-1.263,.421c-.204,.068-.342,.259-.342,.474s.138,.406,.342,.474l1.263,.421,.421,1.263Z" />
+                          <path d="M16.525,8.803l-4.535-1.793-1.793-4.535c-.227-.572-1.168-.572-1.395,0l-1.793,4.535-4.535,1.793c-.286,.113-.475,.39-.475,.697s.188,.584,.475,.697l4.535,1.793,1.793,4.535c.113,.286,.39,.474,.697,.474s.584-.188,.697-.474l1.793-4.535,4.535-1.793c.286-.113,.475-.39,.475-.697s-.188-.584-.475-.697Z" />
+                        </svg>
+                        <span>Telemetry Protected</span>
+                      </div>
+                      <p className="mt-1 text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">
+                        Click to inspect benchmark metrics
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col gap-3 p-3">
+              <p className="font-mono font-medium text-[10px] text-neutral-500 uppercase leading-none dark:text-neutral-400">
+                Configuration
+              </p>
+              <div className="flex flex-col gap-1">
+                <ClaudeModelSelector
+                  value={LEVEL_TO_INDEX[reasoning] ?? 1}
+                  onLevelChange={(_level: EffortLevel, index: number) => {
+                    const nextReasoning = INDEX_TO_LEVEL[index] ?? "medium";
+                    onConfigurationChange({ reasoning: nextReasoning });
+                  }}
+                />
+              </div>
+              {model.hasSpeedConfiguration ? (
+                <div className="flex flex-col gap-2 pt-1">
+                  <p className="text-neutral-500 text-xs leading-none dark:text-neutral-400">Speed</p>
+                  <SegmentedRadio<SpeedLevel>
+                    ariaLabel="Speed"
+                    onValueChange={(speedValue) => {
+                      playSoftClick(0.04);
+                      onConfigurationChange({ speed: speedValue });
+                    }}
+                    options={[
+                      { label: "Standard", value: "standard" },
+                      { label: "Fast", value: "fast" },
+                    ]}
+                    value={speed}
+                  />
+                </div>
+              ) : null}
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="changelog-view"
+            initial={{ opacity: 0, x: 8, filter: "blur(2px)" }}
+            animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, x: 8, filter: "blur(2px)" }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col p-3 gap-3"
+          >
+            <div className="flex items-center justify-between gap-2 pb-2 border-b border-neutral-100 dark:border-neutral-800">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    playSoftClick(0.04);
+                    setView("details");
+                  }}
+                  className="flex size-6 items-center justify-center rounded-full bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-300 transition-colors shrink-0 cursor-pointer"
+                  aria-label="Back to details"
+                >
+                  <ChevronLeft className="size-3.5" />
+                </button>
+                <div className="flex items-center gap-1.5 truncate">
+                  <span className="font-semibold text-neutral-900 dark:text-neutral-100 text-xs sm:text-sm">Changelog</span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold tracking-wider uppercase bg-zinc-200/90 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 select-none">
+                    BETA 0.1
+                  </span>
+                </div>
+              </div>
+
+              <Link
+                href="/milestones"
+                onClick={() => playSoftClick(0.04)}
+                className="text-[11px] font-medium text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 underline decoration-neutral-300 dark:decoration-neutral-700 underline-offset-2 transition-colors shrink-0"
+              >
+                Milestones →
+              </Link>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between text-[11px] text-neutral-400 dark:text-neutral-500 font-mono">
+                <span>Sync AI v0.1-beta</span>
+                <span>Initial Release</span>
+              </div>
+
+              <div className="flex flex-col gap-2 rounded-lg bg-neutral-50 dark:bg-neutral-800/40 p-2.5 border border-neutral-100 dark:border-neutral-800/80">
+                <div className="flex items-start gap-2">
+                  <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">✦</span>
+                  <div className="flex flex-col gap-0.5">
+                    <p className="font-medium text-neutral-900 dark:text-neutral-100 text-xs">128k Context Window</p>
+                    <p className="text-neutral-500 dark:text-neutral-400 text-[11px] leading-relaxed">
+                      Deep real-time indexing of portfolio projects, engineering case studies, and stack architecture.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2">
+                  <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold">✦</span>
+                  <div className="flex flex-col gap-0.5">
+                    <p className="font-medium text-neutral-900 dark:text-neutral-100 text-xs">Adaptive Reasoning Pipeline</p>
+                    <p className="text-neutral-500 dark:text-neutral-400 text-[11px] leading-relaxed">
+                      Multi-tier reasoning depth with collapsible thought process, time latency tracker, and morphing animations.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2">
+                  <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[10px] font-bold">✦</span>
+                  <div className="flex flex-col gap-0.5">
+                    <p className="font-medium text-neutral-900 dark:text-neutral-100 text-xs">Acoustic & Action Telemetry</p>
+                    <p className="text-neutral-500 dark:text-neutral-400 text-[11px] leading-relaxed">
+                      Interactive Good/Bad response rating icons with tactile synthesis sound design.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
                 playSoftClick(0.04);
-                onConfigurationChange({ speed: speedValue });
+                setView("details");
               }}
-              options={[
-                { label: "Standard", value: "standard" },
-                { label: "Fast", value: "fast" },
-              ]}
-              value={speed}
-            />
-          </div>
-        ) : null}
-      </div>
+              className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 text-xs font-medium transition-colors cursor-pointer"
+            >
+              <ChevronLeft className="size-3.5" />
+              <span>Back to Model Info</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 });
