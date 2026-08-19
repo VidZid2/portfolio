@@ -192,6 +192,42 @@ const AttachmentItem = memo(({ attachment, onRemove }: AttachmentItemProps) => {
 });
 AttachmentItem.displayName = "AttachmentItem";
 
+function LikeIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 18 18"
+      className={cn("size-4 shrink-0", className)}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M5.25,7.494c0-.48,.173-.944,.486-1.307L10,1.25h0c.854,.427,1.25,1.428,.92,2.324l-1.17,3.176h4.402c1.313,0,2.269,1.243,1.933,2.512l-1.191,4.5c-.232,.877-1.026,1.488-1.933,1.488H7.25c-1.105,0-2-.895-2-2" />
+      <rect x="1.75" y="6.75" width="3.5" height="8.5" rx="1" ry="1" />
+    </svg>
+  );
+}
+
+function DislikeIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 18 18"
+      className={cn("size-4 shrink-0 [transform:scaleY(-1)]", className)}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M5.25,7.494c0-.48,.173-.944,.486-1.307L10,1.25h0c.854,.427,1.25,1.428,.92,2.324l-1.17,3.176h4.402c1.313,0,2.269,1.243,1.933,2.512l-1.191,4.5c-.232,.877-1.026,1.488-1.933,1.488H7.25c-1.105,0-2-.895-2-2" />
+      <rect x="1.75" y="6.75" width="3.5" height="8.5" rx="1" ry="1" />
+    </svg>
+  );
+}
+
 interface ChatMessageItemProps {
   m: any;
   index: number;
@@ -207,6 +243,7 @@ const ChatMessageItem = memo(function ChatMessageItem({
   isLoading,
   triggerReload,
 }: ChatMessageItemProps) {
+  const [feedback, setFeedback] = useState<"like" | "dislike" | null>(null);
   const role = m.role;
   const id = m.id;
   const textContent = m.content || m.parts?.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('') || '';
@@ -324,6 +361,34 @@ const ChatMessageItem = memo(function ChatMessageItem({
                   tooltip="Copy to clipboard"
                 >
                   <CopyIcon className="size-4" />
+                </MessageAction>
+                <MessageAction
+                  label="Good response"
+                  onClick={() => {
+                    playSoftClick(0.04);
+                    setFeedback((prev) => (prev === "like" ? null : "like"));
+                  }}
+                  tooltip="Good response"
+                  className={cn(
+                    "transition-colors",
+                    feedback === "like" && "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20"
+                  )}
+                >
+                  <LikeIcon />
+                </MessageAction>
+                <MessageAction
+                  label="Bad response"
+                  onClick={() => {
+                    playSoftClick(0.04);
+                    setFeedback((prev) => (prev === "dislike" ? null : "dislike"));
+                  }}
+                  tooltip="Bad response"
+                  className={cn(
+                    "transition-colors",
+                    feedback === "dislike" && "text-rose-600 dark:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20"
+                  )}
+                >
+                  <DislikeIcon />
                 </MessageAction>
               </MessageActions>
             </motion.div>
