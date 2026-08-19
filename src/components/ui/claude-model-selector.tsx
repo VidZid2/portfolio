@@ -402,12 +402,10 @@ class ClaudeModelSelectorElement extends HTMLElement {
         :host([data-theme="dark"]) .ultra-fallback {
           background: linear-gradient(
             90deg,
-            #0f172a 0%,
-            #111c38 18%,
-            #172554 32%,
-            #1e3a8a 48%,
-            #1d4ed8 68%,
-            #2563eb 82%,
+            #1e293b 0%,
+            #1e3a8a 22%,
+            #1d4ed8 45%,
+            #2563eb 72%,
             #3b82f6 100%
           );
         }
@@ -1108,7 +1106,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
         this.getAttribute("data-theme") === "dark");
 
     // Ultracode track palette (cornflower blue weighted).
-    const leftColor = isDark ? [15, 23, 42] : [210, 218, 230];
+    const leftColor = isDark ? [70, 105, 160] : [210, 218, 230];
     const deepBlue = isDark ? [59, 130, 246] : [90, 135, 225];
     const deepMid = isDark ? [100, 149, 237] : [100, 149, 237];
     const midBlue = isDark ? [120, 165, 245] : [115, 160, 240];
@@ -1150,7 +1148,9 @@ class ClaudeModelSelectorElement extends HTMLElement {
         if (revealAlpha <= 0.002) continue;
 
         const blueAmount = smoothstep(0.1, 0.88, normalizedX);
-        const fieldIntensity = smoothstep(0.04, 0.38, normalizedX);
+        const fieldIntensity = isDark
+          ? 0.65 + 0.35 * smoothstep(0, 0.45, normalizedX)
+          : smoothstep(0.04, 0.38, normalizedX);
         const depthBias = smoothstep(0.35, 0.95, normalizedX);
 
         const baseHash = Math.abs(Math.sin(column * 12.9898 + row * 78.233) * 43758.5453) % 1;
