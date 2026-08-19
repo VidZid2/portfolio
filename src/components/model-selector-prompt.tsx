@@ -571,7 +571,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
       onPointerDown={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
-      className="flex w-full flex-col divide-y divide-neutral-100 dark:divide-neutral-800 overflow-hidden"
+      className="flex w-full flex-col divide-y divide-neutral-200 dark:divide-neutral-700/80 overflow-hidden"
     >
       <AnimatePresence mode="wait" initial={false}>
         {view === "details" ? (
@@ -581,7 +581,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
             animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, x: -8, filter: "blur(2px)" }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col divide-y divide-neutral-100 dark:divide-neutral-800"
+            className="flex flex-col divide-y divide-neutral-200 dark:divide-neutral-700/80"
           >
             <div className="flex flex-col gap-3 p-3">
               <div className="flex items-start justify-between gap-2">
@@ -1286,7 +1286,7 @@ export function ModelSelectorPrompt({
                               >
                                 {/* Mobile / Tablet: render model details on top inside the modal card */}
                                 {isMobile && (
-                                  <div className="overflow-hidden border-b border-neutral-100 dark:border-neutral-800">
+                                  <div className="overflow-hidden border-b border-neutral-200 dark:border-neutral-700/80">
                                     <ModelPreviewPanel
                                       key={`${activeModel.value}-${previewOpenCounter}`}
                                       configuration={getModelConfiguration(
@@ -1303,7 +1303,7 @@ export function ModelSelectorPrompt({
                                     />
                                   </div>
                                 )}
-                                <Combobox.InputGroup className="flex items-center gap-1.5 rounded-none border-0 border-b border-neutral-100 bg-transparent px-2.5 dark:border-neutral-800">
+                                <Combobox.InputGroup className="flex items-center gap-1.5 rounded-none border-0 border-b border-neutral-200 bg-transparent px-2.5 dark:border-neutral-700/80">
                                   <Combobox.Input
                                     className="w-full bg-transparent px-0 py-2 text-sm outline-none placeholder:text-neutral-400 dark:text-neutral-100"
                                     onFocus={closeModelPreview}
