@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 
 const DOT_SIZE = 6;
 
+// A compact, lightly underdamped spring gives the dot a quick landing without
+// turning the sidebar into a playful toy. The sideways arc carries the bounce.
 const BOUNCE_SPRING = {
   type: "spring",
   stiffness: 280,
@@ -84,11 +86,14 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
 
   const listRef = useRef<HTMLUListElement>(null);
   const itemRefs = useRef<Map<string, HTMLLIElement>>(new Map());
+  const selectedValue = ABOUT_BULLETS[activeIndex]?.id ?? ABOUT_BULLETS[0].id;
+  const selectedValueRef = useRef(selectedValue);
   const previousIndexRef = useRef(activeIndex);
   const hasPositionRef = useRef(false);
   const animationRef = useRef<ReturnType<typeof animate> | null>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
+  selectedValueRef.current = selectedValue;
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -111,25 +116,21 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
   }, [isHovered]);
 
   const snapIndicator = useCallback(() => {
-    const currentItem = ABOUT_BULLETS[activeIndex];
-    if (!currentItem) return;
-    const node = itemRefs.current.get(currentItem.id);
-    if (!node) return;
+    const selectedItem = itemRefs.current.get(selectedValueRef.current);
+    if (!selectedItem) return;
 
     animationRef.current?.stop();
     x.set(0);
-    y.set(node.offsetTop + 8);
+    y.set(selectedItem.offsetTop + 9);
     hasPositionRef.current = true;
-  }, [activeIndex, x, y]);
+  }, [x, y]);
 
   const positionIndicator = useCallback(
     (shouldAnimate: boolean) => {
-      const currentItem = ABOUT_BULLETS[activeIndex];
-      if (!currentItem) return;
-      const node = itemRefs.current.get(currentItem.id);
-      if (!node) return;
+      const selectedItem = itemRefs.current.get(selectedValue);
+      if (!selectedItem) return;
 
-      const destinationY = node.offsetTop + 8;
+      const destinationY = selectedItem.offsetTop + 9;
       animationRef.current?.stop();
 
       if (!hasPositionRef.current || reduce || !shouldAnimate) {
@@ -143,17 +144,17 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
       const startY = y.get();
       const distance = destinationY - startY;
       const travel = Math.abs(distance);
-      const longJumpProgress = Math.min(1, Math.max(0, (travel - 30) / 80));
-      const controlX = -Math.min(18, Math.max(6, travel * 0.2));
+      const longJumpProgress = Math.min(1, Math.max(0, (travel - 48) / 120));
+      const controlX = -Math.min(36, Math.max(12, travel * 0.3));
       const midpointY = (startY + destinationY) / 2;
       const controlY =
         destinationY + (midpointY - destinationY) * longJumpProgress;
 
       animationRef.current = animate(0, 1, {
         ...BOUNCE_SPRING,
-        stiffness: BOUNCE_SPRING.stiffness - 40 * longJumpProgress,
+        stiffness: BOUNCE_SPRING.stiffness - 60 * longJumpProgress,
         damping: BOUNCE_SPRING.damping + longJumpProgress,
-        mass: BOUNCE_SPRING.mass + 0.1 * longJumpProgress,
+        mass: BOUNCE_SPRING.mass + 0.15 * longJumpProgress,
         onUpdate: (progress) => {
           x.set(quadraticBezier(0, controlX, 0, progress));
           y.set(quadraticBezier(startY, controlY, destinationY, progress));
@@ -166,7 +167,7 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
 
       previousIndexRef.current = activeIndex;
     },
-    [activeIndex, reduce, x, y],
+    [activeIndex, reduce, selectedValue, x, y],
   );
 
   useLayoutEffect(() => {
@@ -225,23 +226,23 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
 
       {/* High-Precision Bouncing Highlight Bulleted List */}
       <div
-        className="relative py-3.5 sm:py-4 px-1 sm:px-1.5"
+        className="relative py-3.5 sm:py-4 px-1 sm:px-1.5 overflow-visible"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <ul
           ref={listRef}
-          className="relative flex flex-col gap-3.5 list-none pl-4 text-[14px] sm:text-[15px] leading-relaxed select-text"
+          className="relative flex flex-col gap-3.5 list-none pl-5 overflow-visible text-[14px] sm:text-[15px] leading-relaxed select-text"
         >
-          {/* Bouncing Dot Indicator */}
+          {/* Bouncing Solid Dot Indicator (No glow, solid Black / White) */}
           <li
             aria-hidden="true"
             role="presentation"
-            className="pointer-events-none absolute inset-0 list-none"
+            className="pointer-events-none absolute inset-0 list-none overflow-visible"
           >
             <motion.span
               style={{ x, y }}
-              className="absolute top-0 left-0 h-1.5 w-1.5 rounded-full bg-[#6495ED] shadow-[0_0_8px_rgba(100,149,237,0.7)] z-20"
+              className="absolute top-0 left-[3px] h-1.5 w-1.5 rounded-full bg-zinc-900 dark:bg-zinc-100 z-20 shadow-none"
             />
           </li>
 
@@ -262,23 +263,23 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
                   if (idx !== activeIndex) playHoverTick(0.015);
                 }}
                 className={cn(
-                  "relative flex items-start gap-2.5 cursor-pointer transition-all duration-700 ease-out group",
+                  "relative flex items-start cursor-pointer transition-colors duration-500 group",
                   isActive
-                    ? "text-zinc-900 dark:text-zinc-100 opacity-100"
-                    : "text-zinc-400 dark:text-zinc-500 opacity-40 hover:opacity-75"
+                    ? "text-zinc-900 dark:text-zinc-100"
+                    : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-400"
                 )}
               >
-                {/* Static Background Dot Slot */}
+                {/* Static Background Track Dot (Gray initially, no glow) */}
                 <span
                   aria-hidden="true"
                   className={cn(
-                    "absolute -left-4 top-2 h-1.5 w-1.5 rounded-full transition-colors duration-500 shrink-0 pointer-events-none",
+                    "absolute -left-4 top-[9px] h-1.5 w-1.5 rounded-full transition-colors duration-500 shrink-0 pointer-events-none",
                     isActive
-                      ? "bg-[#6495ED]/30"
-                      : "bg-zinc-300 dark:bg-zinc-700/60"
+                      ? "bg-zinc-400/40 dark:bg-zinc-600/40"
+                      : "bg-zinc-300 dark:bg-zinc-700"
                   )}
                 />
-                <p className="flex-1 transition-colors duration-700">
+                <p className="flex-1 transition-colors duration-500">
                   {bullet.content}
                 </p>
               </li>
