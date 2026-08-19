@@ -66,7 +66,6 @@ const STACK_CATEGORIES: StackCategory[] = [
     name: "Backend & Database",
     items: [
       { name: "Node.js", icon: "nodedotjs", href: "https://nodejs.org" },
-      { name: "Bun", icon: "bun", href: "https://bun.sh" },
       { name: "Supabase", icon: "supabase", href: "https://supabase.com" },
       { name: "PostgreSQL", icon: "postgresql", href: "https://www.postgresql.org" },
       { name: "Redis", icon: "redis", href: "https://redis.io" },
@@ -82,7 +81,6 @@ const STACK_CATEGORIES: StackCategory[] = [
       { name: "ChatGPT", isLobeOpenAI: true, href: "https://chatgpt.com" },
       { name: "Git", icon: "git", href: "https://git-scm.com" },
       { name: "GitHub", icon: "github", href: "https://github.com" },
-      { name: "Docker", icon: "docker", href: "https://www.docker.com" },
       { name: "Vercel", icon: "vercel", href: "https://vercel.com" },
     ],
   },
