@@ -1,278 +1,302 @@
 ﻿"use client";
 
-import React from "react";
-
-// Isometric Projection Math
-// theta = 30 deg
-const COS30 = 0.86602540378;
-const SIN30 = 0.5;
-
-interface Point3D {
-  x: number;
-  y: number;
-  z: number;
-}
-
-interface Point2D {
-  x: number;
-  y: number;
-}
-
-const ox = 330;
-const oy = 105;
-const u = 32;
-
-function project(x: number, y: number, z: number): Point2D {
-  return {
-    x: ox + (x - y) * COS30 * u,
-    y: oy + (x + y) * SIN30 * u - z,
-  };
-}
-
-function toSvgPath(pts: Point2D[]): string {
-  if (pts.length === 0) return "";
-  return pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ") + " Z";
-}
-
-// Generate rounded triangle vertices in 3D (X, Y plane)
-function getRoundedTriangle3D(
-  cx: number,
-  cy: number,
-  z: number,
-  radius: number,
-  cornerR: number,
-  angleOffset = -Math.PI / 2,
-  numPts = 6
-): Point3D[] {
-  const angles = [
-    angleOffset,
-    angleOffset + (2 * Math.PI) / 3,
-    angleOffset + (4 * Math.PI) / 3,
-  ];
-
-  const sharpVerts = angles.map((a) => ({
-    x: cx + radius * Math.cos(a),
-    y: cy + radius * Math.sin(a),
-  }));
-
-  const pts: Point3D[] = [];
-
-  for (let i = 0; i < 3; i++) {
-    const prev = sharpVerts[(i + 2) % 3];
-    const curr = sharpVerts[i];
-    const next = sharpVerts[(i + 1) % 3];
-
-    const vPrev = { x: prev.x - curr.x, y: prev.y - curr.y };
-    const lenPrev = Math.hypot(vPrev.x, vPrev.y);
-    const uPrev = { x: vPrev.x / lenPrev, y: vPrev.y / lenPrev };
-
-    const vNext = { x: next.x - curr.x, y: next.y - curr.y };
-    const lenNext = Math.hypot(vNext.x, vNext.y);
-    const uNext = { x: vNext.x / lenNext, y: vNext.y / lenNext };
-
-    const pStart = { x: curr.x + uPrev.x * cornerR, y: curr.y + uPrev.y * cornerR };
-    const pEnd = { x: curr.x + uNext.x * cornerR, y: curr.y + uNext.y * cornerR };
-
-    for (let s = 0; s <= numPts; s++) {
-      const t = s / numPts;
-      const bx = (1 - t) * (1 - t) * pStart.x + 2 * (1 - t) * t * curr.x + t * t * pEnd.x;
-      const by = (1 - t) * (1 - t) * pStart.y + 2 * (1 - t) * t * curr.y + t * t * pEnd.y;
-      pts.push({ x: bx, y: by, z });
-    }
-  }
-
-  return pts;
-}
+import React, { useEffect, useRef } from "react";
+import * as THREE from "three";
+import { useTheme } from "next-themes";
 
 export function IsometricBlueprint({ className = "" }: { className?: string }) {
-  // -----------------------------------------------------------------
-  // 1. MODULE 1: LOWER-LEFT TRIANGULAR BLOCK (Pod A)
-  // -----------------------------------------------------------------
-  const H1 = 15;
-  const podA_top = getRoundedTriangle3D(-2.2, 2.6, H1, 1.4, 0.45, -Math.PI / 2).map((p) => project(p.x, p.y, p.z));
-  const podA_bot = getRoundedTriangle3D(-2.2, 2.6, 0, 1.4, 0.45, -Math.PI / 2).map((p) => project(p.x, p.y, p.z));
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { resolvedTheme } = useTheme();
+  const themeRef = useRef(resolvedTheme);
+  themeRef.current = resolvedTheme;
 
-  const podA_sideQuads: string[] = [];
-  for (let i = 0; i < podA_top.length; i++) {
-    const next = (i + 1) % podA_top.length;
-    podA_sideQuads.push(toSvgPath([podA_top[i], podA_top[next], podA_bot[next], podA_bot[i]]));
-  }
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
 
-  // -----------------------------------------------------------------
-  // 2. MODULE 2: MIDDLE/UPPER-RIGHT COURTYARD COMPLEX (Pod B)
-  // -----------------------------------------------------------------
-  const H2 = 18;
-  const podB_outer_top = getRoundedTriangle3D(1.4, -1.6, H2, 2.4, 0.65, -Math.PI / 2).map((p) => project(p.x, p.y, p.z));
-  const podB_outer_bot = getRoundedTriangle3D(1.4, -1.6, 0, 2.4, 0.65, -Math.PI / 2).map((p) => project(p.x, p.y, p.z));
+    let scene: THREE.Scene;
+    let camera: THREE.OrthographicCamera;
+    let renderer: THREE.WebGLRenderer;
+    let deltaGroup: THREE.Group | null = null;
+    let gridHelper: THREE.GridHelper | null = null;
+    let axisLinesGroup: THREE.Group | null = null;
+    let hatchTexture: THREE.CanvasTexture | null = null;
+    let animationFrameId = 0;
+    let isDisposed = false;
 
-  const podB_inner_top = getRoundedTriangle3D(1.4, -1.6, H2, 1.15, 0.35, -Math.PI / 2).map((p) => project(p.x, p.y, p.z));
-  const podB_inner_bot = getRoundedTriangle3D(1.4, -1.6, 0, 1.15, 0.35, -Math.PI / 2).map((p) => project(p.x, p.y, p.z));
+    // Theme color palettes matching the blueprint generator
+    const getThemeColors = (isDark: boolean) => {
+      if (isDark) {
+        return {
+          bg: 0x000000,
+          grid: 0x27272a,
+          axis: 0x3f3f46,
+          lineColor: 0xf4f4f5,
+          hatchColor: "#a1a1aa",
+          topFill: "#27272a",
+          sideFill: 0x202023,
+          textColor: "#a1a1aa",
+        };
+      }
+      return {
+        bg: 0xffffff,
+        grid: 0xe2dfd7,
+        axis: 0xd3cebe,
+        lineColor: 0x2c2825,
+        hatchColor: "#635e58",
+        topFill: "#ffffff",
+        sideFill: 0xf2efe6,
+        textColor: "#5a554d",
+      };
+    };
 
-  const podB_outer_sides: string[] = [];
-  for (let i = 0; i < podB_outer_top.length; i++) {
-    const next = (i + 1) % podB_outer_top.length;
-    podB_outer_sides.push(toSvgPath([podB_outer_top[i], podB_outer_top[next], podB_outer_bot[next], podB_outer_bot[i]]));
-  }
+    // 1. Create Diagonal 45-degree Technical Hatch Texture
+    function createHatchTexture(hatchColorHex: string, bgColorHex: string) {
+      const canvas = document.createElement("canvas");
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
 
-  const podB_inner_sides: string[] = [];
-  for (let i = 0; i < podB_inner_top.length; i++) {
-    const next = (i + 1) % podB_inner_top.length;
-    podB_inner_sides.push(toSvgPath([podB_inner_top[i], podB_inner_top[next], podB_inner_bot[next], podB_inner_bot[i]]));
-  }
+      ctx.fillStyle = bgColorHex;
+      ctx.fillRect(0, 0, 512, 512);
 
-  // -----------------------------------------------------------------
-  // 3. MODULE 3: UPPER-RIGHT STEPPED WING (Pod C)
-  // -----------------------------------------------------------------
-  const H3 = 15;
-  const podC_top = getRoundedTriangle3D(3.2, -3.4, H3, 1.35, 0.42, -Math.PI / 2).map((p) => project(p.x, p.y, p.z));
-  const podC_bot = getRoundedTriangle3D(3.2, -3.4, 0, 1.35, 0.42, -Math.PI / 2).map((p) => project(p.x, p.y, p.z));
+      ctx.strokeStyle = hatchColorHex;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
 
-  const podC_sideQuads: string[] = [];
-  for (let i = 0; i < podC_top.length; i++) {
-    const next = (i + 1) % podC_top.length;
-    podC_sideQuads.push(toSvgPath([podC_top[i], podC_top[next], podC_bot[next], podC_bot[i]]));
-  }
+      const rad = (45 * Math.PI) / 180;
+      const cos = Math.cos(rad);
+      const sin = Math.sin(rad);
+      const spacing = 24 * 1.2;
 
-  // -----------------------------------------------------------------
-  // 4. ISOMETRIC CONSTRUCTION GUIDELINES (Dashed)
-  // -----------------------------------------------------------------
-  const g1_start = project(-6.0, 2.6, 0);
-  const g1_end = project(6.0, 2.6, 0);
+      for (let d = -1024; d < 1024; d += spacing) {
+        const x1 = d * cos - 1024 * sin + 256;
+        const y1 = d * sin + 1024 * cos + 256;
+        const x2 = d * cos + 1024 * sin + 256;
+        const y2 = d * sin - 1024 * cos + 256;
 
-  const g2_start = project(-6.0, -1.6, 0);
-  const g2_end = project(6.0, -1.6, 0);
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+      }
+      ctx.stroke();
 
-  const g3_start = project(-6.0, -3.4, 0);
-  const g3_end = project(6.0, -3.4, 0);
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(0.12, 0.12);
+      tex.needsUpdate = true;
+      return tex;
+    }
 
-  const g4_start = project(-2.2, -6.0, 0);
-  const g4_end = project(-2.2, 6.0, 0);
+    // 2. Create Rounded Triangle Vector Shape
+    function createRoundedTriangleShape(size: number, cornerRadius: number) {
+      const shape = new THREE.Shape();
+      const radius = Math.min(cornerRadius * 0.8, size * 0.35);
+      const h = size * (Math.sqrt(3) / 2);
 
-  const g5_start = project(1.4, -6.0, 0);
-  const g5_end = project(1.4, 6.0, 0);
+      // Vertices of equilateral triangle pointing upwards
+      const v0 = { x: 0, y: (2 / 3) * h };
+      const v1 = { x: -size / 2, y: -(1 / 3) * h };
+      const v2 = { x: size / 2, y: -(1 / 3) * h };
 
-  const g6_start = project(3.2, -6.0, 0);
-  const g6_end = project(3.2, 6.0, 0);
+      const pts = [v0, v1, v2];
+      const n = pts.length;
+
+      for (let i = 0; i < n; i++) {
+        const prev = pts[(i + n - 1) % n];
+        const curr = pts[i];
+        const next = pts[(i + 1) % n];
+
+        const vPrev = { x: prev.x - curr.x, y: prev.y - curr.y };
+        const lenPrev = Math.hypot(vPrev.x, vPrev.y);
+        const normPrev = { x: vPrev.x / lenPrev, y: vPrev.y / lenPrev };
+
+        const vNext = { x: next.x - curr.x, y: next.y - curr.y };
+        const lenNext = Math.hypot(vNext.x, vNext.y);
+        const normNext = { x: vNext.x / lenNext, y: vNext.y / lenNext };
+
+        const d = radius * 1.2;
+        const startPt = { x: curr.x + normPrev.x * d, y: curr.y + normPrev.y * d };
+        const endPt = { x: curr.x + normNext.x * d, y: curr.y + normNext.y * d };
+
+        if (i === 0) {
+          shape.moveTo(startPt.x, startPt.y);
+        } else {
+          shape.lineTo(startPt.x, startPt.y);
+        }
+        shape.quadraticCurveTo(curr.x, curr.y, endPt.x, endPt.y);
+      }
+      shape.closePath();
+      return shape;
+    }
+
+    // 3. Build 3D Extruded Delta Structure
+    function build3DStructure(colors: ReturnType<typeof getThemeColors>) {
+      if (deltaGroup) scene.remove(deltaGroup);
+      deltaGroup = new THREE.Group();
+
+      const triangleSize = 2.4;
+      const cornerRadius = 0.55;
+      const height = 0.8;
+      const shape = createRoundedTriangleShape(triangleSize, cornerRadius);
+
+      const extrudeSettings: THREE.ExtrudeGeometryOptions = {
+        steps: 1,
+        depth: height,
+        bevelEnabled: true,
+        bevelThickness: 0.04,
+        bevelSize: 0.04,
+        bevelSegments: 3,
+      };
+
+      const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+      geometry.center();
+
+      const sideMaterial = new THREE.MeshBasicMaterial({ color: colors.sideFill });
+
+      if (hatchTexture) hatchTexture.dispose();
+      hatchTexture = createHatchTexture(colors.hatchColor, colors.topFill);
+      const topCapMaterial = new THREE.MeshBasicMaterial({ map: hatchTexture });
+
+      const materials = [sideMaterial, topCapMaterial];
+      const edgesGeo = new THREE.EdgesGeometry(geometry, 12);
+      const lineMat = new THREE.LineBasicMaterial({
+        color: colors.lineColor,
+        linewidth: 1.8,
+      });
+
+      const dist = 1.35 + 0.25;
+      const positions = [
+        { x: 0, z: -dist * 0.866, y: 0, rotY: 0 },
+        { x: -dist * 0.866, z: dist * 0.5, y: 0, rotY: 0 },
+        { x: dist * 0.866, z: dist * 0.5, y: 0, rotY: 0 },
+      ];
+
+      positions.forEach((pos) => {
+        const mesh = new THREE.Mesh(geometry, materials);
+        mesh.rotation.x = -Math.PI / 2;
+        mesh.rotation.z = pos.rotY;
+        mesh.position.set(pos.x, pos.y + height / 2, pos.z);
+
+        const lineSegments = new THREE.LineSegments(edgesGeo, lineMat);
+        mesh.add(lineSegments);
+        deltaGroup?.add(mesh);
+      });
+
+      scene.add(deltaGroup);
+    }
+
+    // 4. Build Floor Grid & Dashed Construction Axes
+    function buildFloorGrid(colors: ReturnType<typeof getThemeColors>) {
+      if (gridHelper) scene.remove(gridHelper);
+      gridHelper = new THREE.GridHelper(18, 18, colors.axis, colors.grid);
+      gridHelper.position.y = -0.01;
+      scene.add(gridHelper);
+    }
+
+    function buildAxisLines(colors: ReturnType<typeof getThemeColors>) {
+      if (axisLinesGroup) scene.remove(axisLinesGroup);
+      axisLinesGroup = new THREE.Group();
+
+      const lineMat = new THREE.LineDashedMaterial({
+        color: colors.axis,
+        dashSize: 0.2,
+        gapSize: 0.15,
+        linewidth: 1,
+      });
+
+      const points1 = [new THREE.Vector3(-10, 0, -10), new THREE.Vector3(10, 0, 10)];
+      const geo1 = new THREE.BufferGeometry().setFromPoints(points1);
+      const line1 = new THREE.Line(geo1, lineMat);
+      line1.computeLineDistances();
+
+      const points2 = [new THREE.Vector3(-10, 0, 10), new THREE.Vector3(10, 0, -10)];
+      const geo2 = new THREE.BufferGeometry().setFromPoints(points2);
+      const line2 = new THREE.Line(geo2, lineMat);
+      line2.computeLineDistances();
+
+      axisLinesGroup.add(line1);
+      axisLinesGroup.add(line2);
+      scene.add(axisLinesGroup);
+    }
+
+    // Initialize Three.js Scene
+    const isDark = themeRef.current === "dark";
+    const colors = getThemeColors(isDark);
+
+    const width = container.clientWidth || 720;
+    const height = container.clientHeight || 220;
+    const aspect = width / Math.max(1, height);
+    const d = 4.2;
+
+    scene = new THREE.Scene();
+    scene.background = null; // Transparent to blend seamlessly with banner background
+
+    // True Isometric Camera Setup
+    camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 1, 1000);
+    camera.position.set(20, 20, 20);
+    camera.lookAt(0, 0, 0);
+
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: false });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+    container.innerHTML = "";
+    container.appendChild(renderer.domElement);
+
+    buildFloorGrid(colors);
+    buildAxisLines(colors);
+    build3DStructure(colors);
+
+    const onWindowResize = () => {
+      if (!container || !renderer || !camera) return;
+      const w = container.clientWidth || 720;
+      const h = container.clientHeight || 220;
+      const asp = w / Math.max(1, h);
+
+      camera.left = -d * asp;
+      camera.right = d * asp;
+      camera.top = d;
+      camera.bottom = -d;
+      camera.updateProjectionMatrix();
+
+      renderer.setSize(w, h);
+      renderer.render(scene, camera);
+    };
+
+    window.addEventListener("resize", onWindowResize);
+
+    // Static render (or clean RAF loop)
+    const animate = () => {
+      if (isDisposed) return;
+      renderer.render(scene, camera);
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      isDisposed = true;
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener("resize", onWindowResize);
+      if (hatchTexture) hatchTexture.dispose();
+      renderer.dispose();
+      container.innerHTML = "";
+    };
+  }, [resolvedTheme]);
 
   return (
-    <div className={`relative w-full h-full overflow-hidden select-none pointer-events-none flex items-center justify-center ${className}`}>
-      <svg
-        viewBox="0 0 680 230"
-        className="w-full h-full max-h-[220px]"
-        preserveAspectRatio="xMidYMid meet"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <defs>
-          {/* Light Mode 45-degree Technical Blueprint Hatch Pattern */}
-          <pattern
-            id="iso-hatch-light"
-            width="6"
-            height="6"
-            patternTransform="rotate(45 0 0)"
-            patternUnits="userSpaceOnUse"
-          >
-            <line x1="0" y1="0" x2="0" y2="6" stroke="#52525b" strokeWidth="0.85" opacity="0.35" />
-          </pattern>
+    <div className={`relative w-full h-full overflow-hidden select-none pointer-events-none ${className}`}>
+      {/* 3D WebGL Canvas Container */}
+      <div ref={containerRef} className="absolute inset-0 w-full h-full block" />
 
-          {/* Dark Mode 45-degree Technical Blueprint Hatch Pattern */}
-          <pattern
-            id="iso-hatch-dark"
-            width="6"
-            height="6"
-            patternTransform="rotate(45 0 0)"
-            patternUnits="userSpaceOnUse"
-          >
-            <line x1="0" y1="0" x2="0" y2="6" stroke="#cbd5e1" strokeWidth="0.85" opacity="0.4" />
-          </pattern>
-        </defs>
-
-        {/* 1. Isometric Faint Dashed Construction Lines */}
-        <g className="stroke-zinc-300/60 dark:stroke-zinc-800/80" strokeWidth="0.8" strokeDasharray="3 3">
-          <line x1={g1_start.x} y1={g1_start.y} x2={g1_end.x} y2={g1_end.y} />
-          <line x1={g2_start.x} y1={g2_start.y} x2={g2_end.x} y2={g2_end.y} />
-          <line x1={g3_start.x} y1={g3_start.y} x2={g3_end.x} y2={g3_end.y} />
-          <line x1={g4_start.x} y1={g4_start.y} x2={g4_end.x} y2={g4_end.y} />
-          <line x1={g5_start.x} y1={g5_start.y} x2={g5_end.x} y2={g5_end.y} />
-          <line x1={g6_start.x} y1={g6_start.y} x2={g6_end.x} y2={g6_end.y} />
-        </g>
-
-        {/* --------------------------------------------- */}
-        {/* 2. MODULE 3: UPPER-RIGHT WING (Backmost) */}
-        {/* --------------------------------------------- */}
-        <g className="stroke-zinc-600 dark:stroke-zinc-400 fill-white dark:fill-[#0a0a0c]" strokeWidth="1.1" strokeLinejoin="round">
-          {podC_sideQuads.map((d, i) => (
-            <path key={i} d={d} />
-          ))}
-        </g>
-        <path d={toSvgPath(podC_top)} className="fill-white dark:fill-[#0a0a0c]" />
-        <path
-          d={toSvgPath(podC_top)}
-          className="fill-[url(#iso-hatch-light)] dark:fill-[url(#iso-hatch-dark)] stroke-zinc-600 dark:stroke-zinc-400"
-          strokeWidth="1.1"
-          strokeLinejoin="round"
-        />
-
-        {/* --------------------------------------------- */}
-        {/* 3. MODULE 2: MIDDLE/UPPER-RIGHT COURTYARD */}
-        {/* --------------------------------------------- */}
-        {/* Outer Side Walls */}
-        <g className="stroke-zinc-600 dark:stroke-zinc-400 fill-white dark:fill-[#0a0a0c]" strokeWidth="1.1" strokeLinejoin="round">
-          {podB_outer_sides.map((d, i) => (
-            <path key={i} d={d} />
-          ))}
-        </g>
-
-        {/* Inner Floor */}
-        <path d={toSvgPath(podB_inner_bot)} className="fill-white dark:fill-[#0a0a0c] stroke-zinc-400/40 dark:stroke-zinc-600/40" strokeWidth="0.8" />
-
-        {/* Inner Recessed Walls */}
-        <g className="stroke-zinc-600 dark:stroke-zinc-400 fill-white dark:fill-[#0a0a0c]" strokeWidth="1.1" strokeLinejoin="round">
-          {podB_inner_sides.map((d, i) => (
-            <path key={i} d={d} />
-          ))}
-        </g>
-
-        {/* Top Ring Face (Hatched outer) */}
-        <path d={toSvgPath(podB_outer_top)} className="fill-white dark:fill-[#0a0a0c]" />
-        <path
-          d={toSvgPath(podB_outer_top)}
-          className="fill-[url(#iso-hatch-light)] dark:fill-[url(#iso-hatch-dark)] stroke-zinc-600 dark:stroke-zinc-400"
-          strokeWidth="1.1"
-          strokeLinejoin="round"
-        />
-
-        {/* Knockout inner hole to reveal recessed courtyard floor */}
-        <path d={toSvgPath(podB_inner_top)} className="fill-white dark:fill-[#0a0a0c] stroke-zinc-600 dark:stroke-zinc-400" strokeWidth="1.1" strokeLinejoin="round" />
-
-        {/* --------------------------------------------- */}
-        {/* 4. MODULE 1: LOWER-LEFT BLOCK (Frontmost) */}
-        {/* --------------------------------------------- */}
-        <g className="stroke-zinc-600 dark:stroke-zinc-400 fill-white dark:fill-[#0a0a0c]" strokeWidth="1.1" strokeLinejoin="round">
-          {podA_sideQuads.map((d, i) => (
-            <path key={i} d={d} />
-          ))}
-        </g>
-        <path d={toSvgPath(podA_top)} className="fill-white dark:fill-[#0a0a0c]" />
-        <path
-          d={toSvgPath(podA_top)}
-          className="fill-[url(#iso-hatch-light)] dark:fill-[url(#iso-hatch-dark)] stroke-zinc-600 dark:stroke-zinc-400"
-          strokeWidth="1.1"
-          strokeLinejoin="round"
-        />
-
-        {/* --------------------------------------------- */}
-        {/* 5. "Fig. 1." TECHNICAL CAPTION */}
-        {/* --------------------------------------------- */}
-        <text
-          x="650"
-          y="214"
-          textAnchor="end"
-          className="fill-zinc-400 dark:fill-zinc-500 font-mono text-[11px] font-medium tracking-tight select-none"
-        >
-          Fig. 1.
-        </text>
-      </svg>
+      {/* Fig. 1. Architectural Label */}
+      <div className="absolute bottom-3 left-4 pointer-events-none text-left z-20">
+        <span className="font-mono text-[11px] font-medium tracking-tight text-zinc-400 dark:text-zinc-500">
+          Fig. 1. 3D Extruded Delta Emblem & Hatch Projection
+        </span>
+      </div>
     </div>
   );
 }
