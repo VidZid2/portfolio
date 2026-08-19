@@ -922,7 +922,17 @@ class ClaudeModelSelectorElement extends HTMLElement {
       0,
       LEVELS.length - 1
     );
-    const nextIndex = clamp(Math.round(safeValue), 0, LEVELS.length - 1);
+    let nextIndex: number;
+    if (safeValue <= 0.15) {
+      nextIndex = 0;
+    } else if (safeValue < 1.5) {
+      nextIndex = 1;
+    } else if (safeValue < 2.85) {
+      nextIndex = 2;
+    } else {
+      nextIndex = 3;
+    }
+
     const previousIndex = this._levelIndex;
     this._value = safeValue;
     if (!this._dragging) {
@@ -946,8 +956,10 @@ class ClaudeModelSelectorElement extends HTMLElement {
       this._currentLabel.textContent = LEVELS[nextIndex];
     }
 
-    this._setUltra(nextIndex === LEVELS.length - 1);
-    this.toggleAttribute("data-low", nextIndex === 0);
+    const isUltra = safeValue >= 2.85;
+    const isLow = safeValue <= 0.15;
+    this._setUltra(isUltra);
+    this.toggleAttribute("data-low", isLow);
     this._updateTicks(safeValue);
 
     if (reflect) {
@@ -962,8 +974,12 @@ class ClaudeModelSelectorElement extends HTMLElement {
       this._ticks = Array.from(this.shadowRoot!.querySelectorAll(".tick"));
     }
     this._ticks.forEach((tick, i) => {
-      // Cleanly hide dots when at Medium (index 1), High (index 2), Max (index 3), or when passed during drag
-      const isPassed = currentValue >= i - 0.25;
+      let isPassed = false;
+      if (i === 3) {
+        isPassed = currentValue >= 2.85;
+      } else {
+        isPassed = currentValue >= i - 0.25;
+      }
       tick.style.opacity = isPassed ? "0" : "";
     });
   }
