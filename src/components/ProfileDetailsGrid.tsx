@@ -283,17 +283,17 @@ export function ProfileDetailsGrid() {
           <span className="whitespace-nowrap -rotate-[4deg] inline-block">say hi ↘</span>
         </div>
 
-        {/* Social Buttons with Text - Flush with left edge */}
-        <div className="flex items-center gap-1.5 flex-wrap">
+        {/* Social Buttons with Text - Full-width mathematical 5-column grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 sm:gap-2 w-full">
           {SOCIAL_LINKS.map((item) =>
             item.disabled ? (
               <div
                 key={item.name}
                 aria-label={`${item.name} (inactive)`}
-                className="h-7 px-2.5 rounded-md border border-dashed border-black/15 dark:border-white/[0.08] bg-zinc-100/40 dark:bg-zinc-900/30 text-zinc-400 dark:text-zinc-600 opacity-60 grayscale cursor-not-allowed flex items-center gap-1.5 text-[12px] font-mono select-none"
+                className="h-8 px-2 rounded-lg border border-dashed border-black/15 dark:border-white/[0.08] bg-zinc-100/40 dark:bg-zinc-900/30 text-zinc-400 dark:text-zinc-600 opacity-60 grayscale cursor-not-allowed flex items-center justify-center gap-1.5 text-[12px] font-mono select-none w-full"
               >
                 {item.icon}
-                <span>{item.label}</span>
+                <span className="truncate">{item.label}</span>
               </div>
             ) : (
               <motion.a
@@ -304,12 +304,12 @@ export function ProfileDetailsGrid() {
                 aria-label={item.name}
                 onMouseEnter={() => playHoverTick(0.02)}
                 onClick={() => playSoftClick(0.04)}
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-                className="h-7 px-2.5 rounded-md border border-black/20 dark:border-white/[0.12] bg-zinc-100/80 dark:bg-zinc-900/80 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors flex items-center gap-1.5 shadow-sm text-[12px] font-mono font-medium"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="h-8 px-2 rounded-lg border border-black/20 dark:border-white/[0.12] bg-zinc-100/80 dark:bg-zinc-900/80 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors flex items-center justify-center gap-1.5 shadow-sm text-[12px] font-mono font-medium w-full"
               >
                 {item.icon}
-                <span>{item.label}</span>
+                <span className="truncate">{item.label}</span>
               </motion.a>
             )
           )}
