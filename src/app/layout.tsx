@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Doto } from "next/font/google";
+import { Geist, Geist_Mono, Doto, Caveat } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -29,6 +29,12 @@ const doto = Doto({
   variable: "--font-doto",
   subsets: ["latin"],
   weight: ["400", "700", "900"],
+  display: "swap",
+});
+
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin"],
   display: "swap",
 });
 
@@ -72,7 +78,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${doto.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${doto.variable} ${caveat.variable} h-full antialiased`}
     >
       <head>
         <meta name="color-scheme" content="light dark" />

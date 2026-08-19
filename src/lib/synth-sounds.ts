@@ -1335,4 +1335,67 @@ export function playReasoningSound(level: "low" | "medium" | "high" | "max" | st
   }
 }
 
+let popNoteIndex = 0;
+const POP_PENTATONIC = [523.25, 587.33, 659.25, 783.99, 880.0, 1046.5]; // C5, D5, E5, G5, A5, C6
+
+/**
+ * Delightful, organic bubbly "pop" sound effect for the interactive cursor follower.
+ * Cycles sequentially through a melodic pentatonic scale with velvety tactile attack.
+ */
+export function playCursorFollowSound(volume: number = 0.05) {
+  if (!getSoundEnabled()) return;
+
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === "suspended") ctx.resume().catch(() => {});
+
+    const t = ctx.currentTime;
+    const baseFreq = POP_PENTATONIC[popNoteIndex % POP_PENTATONIC.length];
+    popNoteIndex++;
+
+    // 1. Primary melodic bell-bubble oscillator
+    const osc = ctx.createOscillator();
+    const filter = ctx.createBiquadFilter();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(baseFreq * 1.5, t);
+    osc.frequency.exponentialRampToValueAtTime(baseFreq, t + 0.04);
+
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(baseFreq * 3, t);
+    filter.Q.setValueAtTime(2.0, t);
+
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(volume, t + 0.003);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.13);
+
+    // 2. Subtle soft tactile click transient underneath
+    const clickOsc = ctx.createOscillator();
+    const clickGain = ctx.createGain();
+    clickOsc.type = "triangle";
+    clickOsc.frequency.setValueAtTime(240, t);
+    clickOsc.frequency.exponentialRampToValueAtTime(60, t + 0.015);
+
+    clickGain.gain.setValueAtTime(volume * 0.7, t);
+    clickGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.018);
+
+    clickOsc.connect(clickGain);
+    clickGain.connect(ctx.destination);
+
+    clickOsc.start(t);
+    clickOsc.stop(t + 0.02);
+  } catch {
+    // Ignore audio errors
+  }
+}
+
+
 
