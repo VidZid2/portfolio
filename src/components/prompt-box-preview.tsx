@@ -780,7 +780,7 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                               return (
                                 <ReasoningSteps
                                   className="mb-4"
-                                  defaultOpen={isThinkingActive}
+                                  defaultOpen={false}
                                 >
                                   <ReasoningStepsTrigger>Thought Process</ReasoningStepsTrigger>
                                   <ReasoningStepsContent>
