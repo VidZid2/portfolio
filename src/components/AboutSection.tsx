@@ -29,7 +29,9 @@ const ABOUT_BULLETS = [
     id: "bio",
     content: (
       <>
-        I&apos;m <strong className="font-semibold text-inherit">Josiah De Asis</strong> (call me Josiah) — a <strong className="font-semibold text-inherit">Full-Stack Front-End Engineer & UI Systems Architect</strong>, known for pixel-perfect execution and an obsessive attention to detail.
+        I&apos;m <strong className="font-semibold text-inherit">Josiah De Asis</strong> (call me Josiah) — a{" "}
+        <strong className="font-semibold text-inherit">Full-Stack Front-End Engineer & UI Systems Architect</strong>{" "}
+        specializing in React 19, Next.js 16, and crafting high-performance web applications with obsessive attention to detail.
       </>
     ),
   },
@@ -37,7 +39,7 @@ const ABOUT_BULLETS = [
     id: "passion",
     content: (
       <>
-        Passionate about exploring new technologies and turning ideas into reality through polished, thoughtfully crafted projects with fluid micro-interactions and tactile sound design.
+        Driven by an intense curiosity to master modern technologies, gain deep real-world engineering expertise through complex hands-on builds, and craft polished digital experiences with fluid micro-interactions.
       </>
     ),
   },
@@ -45,7 +47,30 @@ const ABOUT_BULLETS = [
     id: "creations",
     content: (
       <>
-        Creator of <span className="underline decoration-zinc-400 dark:decoration-zinc-600 underline-offset-4 font-medium text-inherit">Sync AI</span> (autonomous multi-model reasoning agent), <span className="underline decoration-zinc-400 dark:decoration-zinc-600 underline-offset-4 font-medium text-inherit">Enterprise ELMS</span>, and high-performance UI systems with mathematical accuracy.
+        Creator of{" "}
+        <a
+          href="/projects/prima-digital-agency"
+          className="underline decoration-zinc-400 dark:decoration-zinc-600 underline-offset-4 font-medium text-inherit hover:text-[#6495ED] dark:hover:text-[#6495ED] transition-colors"
+        >
+          PRIMA
+        </a>{" "}
+        (B2B digital platform with Gemini AI),{" "}
+        <a
+          href="/projects/sti-elms"
+          className="underline decoration-zinc-400 dark:decoration-zinc-600 underline-offset-4 font-medium text-inherit hover:text-[#6495ED] dark:hover:text-[#6495ED] transition-colors"
+        >
+          STI eLMS 2.0
+        </a>{" "}
+        (React 19 &amp; Supabase encrypted learning system), and{" "}
+        <a
+          href="https://github.com/VidZid2/portfolio"
+          target="_blank"
+          rel="noreferrer"
+          className="underline decoration-zinc-400 dark:decoration-zinc-600 underline-offset-4 font-medium text-inherit hover:text-[#6495ED] dark:hover:text-[#6495ED] transition-colors"
+        >
+          Project SYNC
+        </a>{" "}
+        (custom WebGL &amp; blueprint UI architecture).
       </>
     ),
   },
