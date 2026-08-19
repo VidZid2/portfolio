@@ -216,29 +216,29 @@ export function CommandMenu() {
 
             <div className="relative group/ai inline-flex items-center">
                 {/* Handwritten Annotation: talk to my AI / ask me anything pointing to Ask AI */}
-                <div className="absolute left-full ml-5 sm:ml-7 -top-12 sm:-top-14 hidden sm:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
-                    <div className="flex flex-col text-left font-caveat italic text-[19px] sm:text-[23px] leading-[1.05] font-medium text-zinc-600 dark:text-zinc-400 select-none -rotate-[6deg] tracking-wide ml-2">
+                <div className="absolute left-full ml-4 sm:ml-6 -top-15 sm:-top-17 hidden sm:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
+                    <div className="flex flex-col text-left font-caveat italic text-[16px] sm:text-[19px] leading-[1.05] font-medium text-zinc-600 dark:text-zinc-400 select-none -rotate-[6deg] tracking-wide ml-2">
                         <span>talk to my AI</span>
                         <span>ask me anything</span>
                     </div>
                     <svg
                         width="44"
-                        height="28"
-                        viewBox="0 0 44 28"
+                        height="32"
+                        viewBox="0 0 44 32"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
                         className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-0.5"
                     >
                         <path
-                            d="M 28 2 C 26 12, 10 20, -14 20"
+                            d="M 24 2 C 24 16, 6 28, -14 24"
                             stroke="currentColor"
-                            strokeWidth="1.35"
+                            strokeWidth="1.3"
                             strokeLinecap="round"
                         />
                         <path
-                            d="M -7 14 L -14 20 L -8 26"
+                            d="M -6 18 L -14 24 L -7 30"
                             stroke="currentColor"
-                            strokeWidth="1.35"
+                            strokeWidth="1.3"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                         />
