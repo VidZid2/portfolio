@@ -480,11 +480,14 @@ class ClaudeModelSelectorElement extends HTMLElement {
           margin-top: 0px;
           appearance: none;
           -webkit-appearance: none;
+          box-sizing: border-box;
           border: 1px solid rgba(0, 0, 0, 0.08);
           border-radius: 0.375rem;
           background: #ffffff;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04);
           cursor: grab;
+          transform: translateZ(0);
+          will-change: transform;
         }
 
         :host-context(.dark) .range::-webkit-slider-thumb,
@@ -494,7 +497,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
         }
 
         :host([data-ultra]) .range::-webkit-slider-thumb {
-          border: none !important;
+          border: 1px solid transparent !important;
           outline: none !important;
           box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18), 0 0 1px rgba(0, 0, 0, 0.12) !important;
         }
@@ -515,15 +518,18 @@ class ClaudeModelSelectorElement extends HTMLElement {
         .range::-moz-range-thumb {
           width: var(--effort-thumb-w);
           height: var(--effort-thumb-h);
+          box-sizing: border-box;
           border: 1px solid rgba(0, 0, 0, 0.08);
           border-radius: 0.375rem;
           background: #ffffff;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
           cursor: grab;
+          transform: translateZ(0);
+          will-change: transform;
         }
 
         :host([data-ultra]) .range::-moz-range-thumb {
-          border: none !important;
+          border: 1px solid transparent !important;
           outline: none !important;
           box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18), 0 0 1px rgba(0, 0, 0, 0.12) !important;
         }
@@ -836,10 +842,8 @@ class ClaudeModelSelectorElement extends HTMLElement {
   }
 
   _onInput() {
-    let nextValue = Number.parseFloat(this._input.value);
+    const nextValue = Number.parseFloat(this._input.value);
     if (this._dragging) {
-      nextValue = this._applyMagnet(nextValue);
-      this._input.value = String(nextValue);
       const now = performance.now();
       this._pointerSamples.push({ time: now, value: nextValue });
       this._pointerSamples = this._pointerSamples
