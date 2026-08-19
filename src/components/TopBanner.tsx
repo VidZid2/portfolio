@@ -11,16 +11,16 @@ export function TopBanner() {
 
   return (
     <div className="absolute left-0 right-0 md:left-[26%] md:right-[26%] top-0 h-[22vh] -z-0 pointer-events-auto overflow-hidden bg-white dark:bg-black shadow-[0_4px_12px_rgba(2,6,23,0.04)] dark:shadow-[0_4px_12px_rgba(2,6,23,0.10)]">
-      {/* Volumetric WebGL Light Bloom Background */}
+      {/* Volumetric WebGL Light Bloom Background (Aura Cascading from Above) */}
       <LightBloom
         variant="shafts"
-        direction="bottom"
+        direction="top"
         background={isDark ? "#000000" : "#FFFFFF"}
         baseColor={isDark ? "#6B2BF5" : "#DDD6FE"}
         accentColor={isDark ? "#EFE6FF" : "#6B2BF5"}
         speed={100}
         hover={114}
-        light={{ rise: 79, spread: 72 }}
+        light={{ rise: 82, spread: 75 }}
         shafts={{ count: 17, amount: 70, drift: 79 }}
         finish={{
           grain: isDark ? 12 : 0,
@@ -29,11 +29,12 @@ export function TopBanner() {
         className="w-full h-full"
       />
 
-      {/* Subtle bottom blend for seamless blueprint grid transition */}
-      <div className="absolute inset-x-0 bottom-0 h-6 pointer-events-none z-[6] bg-gradient-to-t from-white to-transparent dark:from-black dark:to-transparent" />
+      {/* Edge blending for seamless blueprint grid framing */}
+      <div className="absolute inset-x-0 top-0 h-4 pointer-events-none z-[6] bg-gradient-to-b from-white/20 to-transparent dark:from-black/20 dark:to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-8 pointer-events-none z-[6] bg-gradient-to-t from-white to-transparent dark:from-black dark:to-transparent" />
 
-      {/* Live Digital Clock */}
-      <div className="absolute bottom-3 right-3 z-30 pointer-events-auto">
+      {/* Live Digital Clock with proper margins */}
+      <div className="absolute bottom-3.5 right-4 sm:bottom-4 sm:right-5 z-30 pointer-events-auto">
         <CurrentTime />
       </div>
     </div>
