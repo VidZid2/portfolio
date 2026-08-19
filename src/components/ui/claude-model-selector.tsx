@@ -67,8 +67,8 @@ class ClaudeModelSelectorElement extends HTMLElement {
     super();
     this.attachShadow({ mode: "open" });
     this._uid = `claude-effort-${++instanceCount}`;
-    this._value = 0;
-    this._levelIndex = 0;
+    this._value = 1;
+    this._levelIndex = 1;
     this._dragging = false;
     this._pointerSamples = [];
     this._springFrame = 0;
@@ -93,7 +93,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
           --effort-muted: #94a3b8;
           --effort-track: #edeae8;
           --effort-track-fill: #e0dbd6;
-          --effort-progress: 0;
+          --effort-progress: 0.3333;
           --effort-thumb-w: 1.375rem;
           --effort-thumb-h: 1.5rem;
           --effort-track-pad: 0px;
@@ -323,7 +323,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
           left: 0;
           width: calc(
             (100% - var(--effort-thumb-w))
-              * var(--effort-progress, 0)
+              * var(--effort-progress, 0.3333)
             + (var(--effort-thumb-w) * 0.5)
           );
           border-radius: inherit;
@@ -628,7 +628,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
               <span>Reasoning</span>
               <span class="level-stage" aria-live="polite" aria-atomic="true">
                 <span class="level-outgoing" aria-hidden="true"></span>
-                <span class="level-current">Low</span>
+                <span class="level-current">Medium</span>
               </span>
             </div>
             <div class="help-wrap">
@@ -660,11 +660,11 @@ class ClaudeModelSelectorElement extends HTMLElement {
               min="0"
               max="${LEVELS.length - 1}"
               step="0.001"
-              value="0"
+              value="1"
               aria-label="Effort level"
               aria-valuemin="0"
               aria-valuemax="${LEVELS.length - 1}"
-              aria-valuetext="Low"
+              aria-valuetext="Medium"
             />
           </div>
 
@@ -694,8 +694,9 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this._events?.abort();
     this._events = new AbortController();
     const { signal } = this._events;
-    const initialValue = Number.parseFloat(this.getAttribute("value") ?? "0");
-    this._setValue(Number.isFinite(initialValue) ? initialValue : 0, {
+    const attrValue = this.getAttribute("value");
+    const initialValue = attrValue !== null ? Number.parseFloat(attrValue) : this._value;
+    this._setValue(Number.isFinite(initialValue) ? initialValue : 1, {
       animateLabel: false,
       reflect: false,
     });
@@ -1356,6 +1357,7 @@ const ClaudeModelSelector = React.forwardRef<
   return React.createElement("claude-model-selector", {
     ref: innerRef,
     class: className,
+    value: Number.isFinite(value) ? String(value) : "1",
   });
 });
 
