@@ -74,15 +74,6 @@ const STACK_CATEGORIES: StackCategory[] = [
       { name: "Vercel", icon: "vercel" },
     ],
   },
-  {
-    id: "design",
-    index: "05",
-    name: "Design",
-    items: [
-      { name: "Figma", icon: "figma" },
-      { name: "Photoshop", icon: "adobephotoshop" },
-    ],
-  },
 ];
 
 export function SkillsSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
