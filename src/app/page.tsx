@@ -94,10 +94,12 @@ export default function Home() {
               {/* Sub-row 2: Name & Badge (42px) */}
               <div className="h-[42px] flex items-center px-2.5 sm:px-4 relative z-20 pointer-events-auto">
                 <div className="flex items-center gap-1.5 sm:gap-2">
-                  <h1 className="whitespace-nowrap text-[16px] min-[360px]:text-[19px] sm:text-[22px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight leading-none mb-0.5">
+                  <h1 className="whitespace-nowrap text-[16px] min-[360px]:text-[18px] sm:text-[20px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight leading-none">
                     Josiah De Asis
                   </h1>
-                  <VerifiedBadge size={18} tone="brand" variant="shimmer" className="shrink-0 text-[#6495ED]" />
+                  <div className="flex items-center justify-center shrink-0">
+                    <VerifiedBadge size={15} tone="brand" variant="shimmer" className="shrink-0 text-[#6495ED]" />
+                  </div>
                   <button
                     type="button"
                     onClick={() => {
@@ -108,10 +110,10 @@ export default function Home() {
                         window.speechSynthesis.speak(utterance);
                       }
                     }}
-                    className="p-1 rounded-md text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors"
+                    className="inline-flex items-center justify-center p-0.5 rounded text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors"
                     aria-label="Pronounce name"
                   >
-                    <Volume2 className="w-3.5 h-3.5" />
+                    <Volume2 className="w-[14px] h-[14px] sm:w-[15px] sm:h-[15px]" strokeWidth={1.8} />
                   </button>
                 </div>
                 {/* Horizontal Dotted Divider under Name */}
