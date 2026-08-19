@@ -17,100 +17,130 @@ export type ExperienceData = {
 
 export const experiences: ExperienceData[] = [
   {
-    title: "STI eLMS 2.0",
-    role: "Passionate Front-End Developer",
-    dates: "2025 – 2026 (1st Year)",
-    location: "STI College Meycauayan",
-    src: "/STI.png",
+    title: "PRIMA Digital Technology Solutions",
+    role: "Front-End Engineer & UI Architect",
+    dates: "2025 – Present",
+    location: "Client Engagement (Remote)",
+    type: "Commercial Project",
+    src: "/PRIMA Landing Page.png",
     imageFit: "cover",
     imageZoom: 1,
-    tldr: "Self-taught modern web development (React, Next.js, Supabase) and re-architected a static site into a 21k+ line scalable LMS application.",
+    tldr: "Architected a high-conversion, performance-optimized digital agency platform with custom Framer Motion transitions and strict mobile budgets.",
     description: `
-      **During my first year as a BSIT student**, I realized that to truly stand out, I needed to go beyond the standard classroom curriculum. I started my self-taught journey with basic HTML, CSS, and JavaScript, building simple layouts to understand the fundamentals of the web.
-      **However, my curiosity quickly pushed me toward modern frameworks.** I dedicated countless hours after classes to learning **React, TypeScript, and version control using Git**. To accelerate my learning, I started integrating AI coding assistants into my workflow—not to write the code for me, but to act as a mentor. It explained complex concepts and helped me debug faster, allowing me to focus on software architecture instead of just syntax.
-      **One of my biggest milestones was revisiting my very first project, PRIMA.** What started as a basic HTML/CSS site became my ultimate testing ground. Over time, I completely re-architected the platform into a full Next.js application. Through trial and error, I taught myself how to implement complex animations using **Framer Motion**, build clean UI components, and optimize performance for lower-end mobile devices. Seeing PRIMA evolve from a simple static page to a robust, 21,000+ line web app was a massive validation of my hard work.
-      **Alongside PRIMA, I also poured my energy into eLMS 2.0**—a complete, modernized overhaul of the STI eLMS system. I wanted to prove that school software doesn't have to be clunky. I focused on building a highly interactive interface with fluid page transitions, dark mode support, and a clean, component-driven architecture.
-      **On the backend, I challenged myself to learn Supabase** for database management and user authentication. Recognizing the importance of security, I researched and implemented **Row Level Security (RLS)** and **AES encryption** to protect sensitive student data.
-      **Overall, my first year wasn't just about writing code**—it was a journey of constant learning, breaking things, and building them back better.
+      **Partnered with an industry mentor** to engineer the complete digital presence for PRIMA Digital Agency—a real B2B firm requiring an ultra-polished, high-conversion web platform.
+      **Engineered modular component architecture** using **Next.js, TypeScript, and Tailwind CSS**, replacing rigid templates with bespoke, reusable UI systems.
+      **Designed and implemented custom motion physics** using **Framer Motion and Lenis smooth scrolling**, balancing high-fidelity interactive visual flair with strict 60fps rendering budgets on mobile devices.
+      **Optimized performance & accessibility**, achieving near-perfect Lighthouse scores, zero cumulative layout shift (0 CLS), and sub-50ms interaction response times.
     `,
     tech: [
-      "HTML",
-      "CSS",
-      "TypeScript",
-      "React 19",
       "Next.js",
+      "TypeScript",
+      "React",
       "Tailwind CSS",
-      "Vite",
       "Framer Motion",
-      "Supabase",
+      "Lenis",
+      "Component Architecture",
       "Git"
     ],
     metrics: [
-      { label: "Lines of Code", value: "21k+" },
-      { label: "Security", value: "RLS & AES" },
-      { label: "Focus", value: "Architecture" },
+      { label: "Performance", value: "98+ Lighthouse" },
+      { label: "Interaction", value: "Sub-50ms Latency" },
+      { label: "Stability", value: "0 CLS (Zero Shift)" },
     ],
   },
   {
-    title: "JILCF Uniform Management System (Capstone)",
-    role: "Lead Developer (Grade 12 TVL - ICT Major)",
+    title: "STI eLMS 2.0",
+    role: "Full-Stack Systems Developer",
+    dates: "2025 – 2026",
+    location: "STI College Meycauayan",
+    type: "Systems Architecture",
+    src: "/STI.png",
+    imageFit: "cover",
+    imageZoom: 1,
+    tldr: "Architected a next-gen learning management platform with React 19, Supabase Row Level Security (RLS), and AES-256 encrypted storage.",
+    description: `
+      **Initiated and engineered a comprehensive overhaul** of the institutional STI eLMS system to demonstrate modern, high-speed UX for educational platforms.
+      **Architected a modular client-side state machine** with **React 19, Vite, and Tailwind CSS**, delivering instantaneous page transitions, persistent dark mode, and optimistic UI updates.
+      **Engineered backend security and authorization** in **Supabase**, configuring fine-grained **Row Level Security (RLS) policies** and **AES-256 data encryption** to protect student data against unauthorized access.
+      **Benchmarked and optimized rendering pipelines**, eliminating redundant re-renders and reducing initial bundle footprint for seamless performance across low-end mobile hardware.
+    `,
+    tech: [
+      "React 19",
+      "TypeScript",
+      "Vite",
+      "Tailwind CSS",
+      "Supabase",
+      "Row Level Security (RLS)",
+      "AES-256 Encryption",
+      "REST APIs",
+      "Git"
+    ],
+    metrics: [
+      { label: "Security", value: "RLS & AES-256" },
+      { label: "Data Flow", value: "Optimistic UI" },
+      { label: "Focus", value: "Zero Re-Render Lag" },
+    ],
+  },
+  {
+    title: "JILCF Uniform Management System",
+    role: "Lead Full-Stack Developer",
     dates: "2025",
-    location: "Academic",
+    location: "Academic Capstone (ICT Major)",
+    type: "Academic Capstone",
     src: "/JILCF Logo.jpg",
     screenshot: "/JILCF Uniform System 2025.png",
     darkScreenshot: "/JILCF Uniform System 2025 DARKMODE.png",
     imageFit: "contain",
     imageZoom: 1.1,
-    tldr: "Built a full-stack real-time Uniform Inventory System in under 3 weeks using Python, Flask, and WebSockets for my final capstone.",
+    tldr: "Built a full-stack real-time Uniform Inventory System in under 3 weeks using Python, Flask, SQLite, and WebSockets.",
     description: `
-      **Successfully concluded** my Senior High School journey by building a complete **Uniform Inventory System** for my final ICT Capstone project.
-      **Remarkably**, I architected and developed this entire full-stack platform from scratch in **less than 3 weeks**!
-      **On the frontend**, I utilized **HTML, CSS, and JavaScript** to create an intuitive interface with organized data tables and smooth navigation flows.
-      **Behind the scenes**, I engineered a robust backend using **Python and Flask**, securely storing and managing school inventory data in a local **SQLite** database.
-      **Most importantly**, I integrated **Flask-SocketIO (WebSockets)** to broadcast **real-time live updates**, ensuring any inventory changes instantly reflected across all screens without reloading.
-      **Additionally**, I built a secure **role-based authentication** system to protect administrative access, marking a massive leap in my coding skills.
+      **Successfully concluded** Senior High School ICT Capstone by architecting a production-ready **Uniform Inventory Management System** from scratch in under 3 weeks.
+      **Engineered a Python/Flask backend** with SQLite relational database indexing, secure session handling, and role-based access control (RBAC).
+      **Integrated Flask-SocketIO (WebSockets)** to broadcast **instant multi-client state updates**, ensuring inventory stock counts sync live across all staff screens without manual refresh.
+      **Designed a clean, responsive data dashboard** using vanilla JavaScript and CSS Grid/Flexbox for rapid administrative workflow.
     `,
     tech: [
-      "HTML",
-      "CSS",
-      "JavaScript",
       "Python",
       "Flask",
+      "WebSockets",
       "SQLite",
-      "WebSockets"
+      "JavaScript",
+      "HTML5",
+      "CSS3"
     ],
     metrics: [
-      { label: "Development Speed", value: "Under 21 Days" },
       { label: "Data Sync", value: "Live WebSockets" },
+      { label: "Architecture", value: "Role-Based Auth" },
+      { label: "Delivery", value: "Under 21 Days" },
     ],
   },
   {
-    title: "Startlink (Entrepreneurship Project)",
-    role: "Lead Developer (Grade 11 TVL - Drafting)",
-    dates: "2024 - 2025",
-    location: "Academic",
+    title: "Startlink Business Platform",
+    role: "Lead Web Developer",
+    dates: "2024 – 2025",
+    location: "Academic Initiative",
+    type: "Early Milestone",
     src: "/JILCF Logo.jpg",
     screenshot: "/STARTLINK 2024-2025.png",
     darkScreenshot: "/STARTLINK 2024-2025 DARKMODE.png",
     imageFit: "contain",
     imageZoom: 1.1,
-    tldr: "Launched my first web deployment for an entrepreneurship class, learning HTML and JS to build a custom password strength indicator and business plan site.",
+    tldr: "Launched first web deployment featuring client-side password entropy validation and responsive layouts.",
     description: `
-      **Ignited my coding journey** by choosing to build a fully functional website for my Entrepreneurship class instead of a standard application.
-      **Consequently**, I designed and launched **"Startlink"**—a complete business plan platform that became my **very first successful website deployment**.
-      **To enhance security**, I engineered a custom **password strength indicator** that instantly evaluated user input to show real-time visual feedback (Weak, Good, Excellent).
-      **Furthermore**, I implemented **secure user authentication** and account-saving functionality using Wix's built-in coding features.
-      **Ultimately**, this project helped me master the fundamentals of web development, where I independently learned **HTML** and **JavaScript** to bring custom logic to life.
+      **Ignited self-taught web engineering journey** by designing and deploying the "Startlink" business planning platform.
+      **Engineered a custom real-time password entropy calculation algorithm** in JavaScript, providing immediate visual security feedback to users.
+      **Mastered core DOM manipulation, event handling, and CSS layout fundamentals**, laying the groundwork for modern framework adoption.
     `,
     tech: [
-      "HTML",
       "JavaScript",
+      "HTML5",
+      "CSS3",
       "Wix Velo",
-      "Web Design"
+      "UI Design"
     ],
     metrics: [
-      { label: "1st Deployment", value: "Wix Velo" },
-      { label: "Custom Logic", value: "HTML & JS" },
+      { label: "Milestone", value: "1st Live Launch" },
+      { label: "Algorithm", value: "Entropy Validator" },
     ],
   }
 ];

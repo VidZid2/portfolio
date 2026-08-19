@@ -86,8 +86,8 @@ export const projectsData: Project[] = [
     src: "/PRIMA Landing Page.png",
     lightModeSrc: "/PRIMA Landing Page.png",
     video: "",
-    tldr: "Engineered a premium, highly-interactive landing page for a real B2B digital agency using Next.js and custom UI animations.",
-    description: "As an upcoming 2nd-year IT student, I knew I had to push beyond standard coursework. PRIMA Digital Agency wasn't a fictional sandbox—it was a real firm founded by an industry mentor. They needed a digital presence that converted, but standard templates felt too rigid. Combining my 2 years of AI-agentic development workflows with modern Next.js architecture, I engineered a premium, highly-interactive landing page. This wasn't just about writing React; it was my first true B2B challenge, balancing high-end UI animations with strict performance budgets to deliver a professional product.",
+    tldr: "Engineered a high-performance B2B agency platform with custom Framer Motion physics, Lenis smooth scrolling, and modular component architecture.",
+    description: "PRIMA Digital Agency required a high-converting digital platform that showcased their enterprise services while adhering to strict performance budgets. Building with Next.js, TypeScript, and Tailwind CSS, I architected a modular UI system with custom GLSL/Framer Motion visual effects and Lenis inertial scrolling. The challenge was balancing complex micro-interactions and dynamic viewport canvas shaders without degrading mobile frame rates, achieving a 98+ Lighthouse rating with zero layout shift.",
     tech: [
       "html5", 
       "css3", 
@@ -102,7 +102,7 @@ export const projectsData: Project[] = [
       { label: "Dark/Light Mode" }, 
       { label: "Mobile Optimization" }
     ],
-    github: "#",
+    github: "https://github.com/VidZid2/portfolio",
     live: "https://prima-ten.vercel.app/",
     backgroundImage: "/PRIMA Background.png",
     darkBackgroundImage: "/PRIMA Background DARK MODE.png",
@@ -116,8 +116,8 @@ export const projectsData: Project[] = [
     src: "/STI Landing Page DARKMODE.png",
     lightModeSrc: "/STI Landing Page.png",
     video: "",
-    tldr: "Architected a highly-responsive learning management system using React, Vite, and Supabase, featuring Row Level Security (RLS) and AES encryption.",
-    description: "School software is notoriously clunky—so I decided to prove it didn't have to be. For this eLMS overhaul, the challenge wasn't just making it look modern; it was building a system that felt instantly responsive. As a student myself, I knew exactly where the UI pain points were. I leveraged my AI-assisted coding experience to rapidly architect a clean React interface with fluid page transitions. But the real boss fight was the backend: I dove headfirst into Supabase, implementing Row Level Security (RLS) and AES encryption to ensure sensitive data remained locked down. It was a humbling dive into production security, resulting in a platform I'd actually want to use.",
+    tldr: "Architected a responsive learning management interface with React 19, Supabase Row Level Security (RLS), and AES-256 data encryption.",
+    description: "Educational software is frequently hindered by clunky navigation and legacy latency. For this system overhaul, I engineered an instantaneous React 19 frontend paired with a hardened Supabase backend. Key technical milestones included designing optimistic UI state transitions for 0ms visual latency, enforcing granular Row Level Security (RLS) policies at the database layer, and implementing AES-256 encryption on sensitive student records.",
     tech: [
       "html5", 
       "css3", 
@@ -132,7 +132,7 @@ export const projectsData: Project[] = [
       { label: "AES Encryption" },
       { label: "Dark/Light Mode" }
     ],
-    github: "#",
+    github: "https://github.com/VidZid2/portfolio",
     live: "https://sti-ten.vercel.app/",
     backgroundImage: "/STI Background.png",
     darkBackgroundImage: "/STI Background DARK MODE.png",

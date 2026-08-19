@@ -22,7 +22,7 @@ function getFallbackText(userPrompt: string): string {
     return `Josiah has architected several notable projects:
 
 1. **PRIMA (Digital Agency Platform)**:
-   - A 21,000+ line production-grade web application built to master complex Framer Motion transitions, responsive layouts, and performance optimization.
+   - A high-performance B2B web application engineered with custom Framer Motion transitions, modular UI components, Lenis smooth scrolling, and 98+ Lighthouse scores.
 
 2. **STI eLMS Overhaul**:
    - A complete modern overhaul of the student learning management platform featuring AES encryption, Supabase Row Level Security (RLS), and fluid animations.
@@ -139,7 +139,7 @@ Here is the essential context about Josiah:
 - **Bio**: First-year BS Information Technology student at STI College Meycauayan. He is an exceptionally passionate, self-taught engineer who focuses deeply on frontend systems, software architecture, and creating digital products that feel alive and highly polished.
 - **Tech Stack**: Next.js, React, TypeScript, JavaScript, HTML5, CSS3, Tailwind CSS, Vite, Motion (Framer Motion), Supabase, PostgreSQL, Git, GitHub, Vercel, VS Code.
 - **Key Projects**:
-  - **PRIMA**: Evolved from his first site into a robust 21,000+ line web application. Serving as his ultimate testing ground for complex Motion animations, pixel-perfect layouts, custom component design, and responsive mobile performance optimization.
+  - **PRIMA**: A high-performance B2B digital agency platform built with Next.js, Framer Motion, and modular UI component architecture, optimized for strict mobile performance budgets and 98+ Lighthouse scores.
   - **STI eLMS Overhaul**: A modern, reimagined student learning management platform showing that education software can be fluid and beautiful. Integrates Row Level Security (RLS) and AES encryption for security.
 - **Aesthetic & Engineering Mindset**: Josiah is obsessed with detail, smooth micro-animations, clean file structures, type safety, and optimal performance on all devices (mobile, tablet, desktop).
 

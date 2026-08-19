@@ -249,7 +249,7 @@ export default async function HowItsMadePage({ params }: { params: Promise<{ slu
                     <AsciiText text="Part 7: The Future Roadmap & Brutal Honesty" delay={0} />
                   </h2>
                   <p className="mb-6">
-                    While designing and coding a 21,000-line Next.js platform in 4 days is an incredible personal milestone for a 2nd-year student, I know that true enterprise software is never truly "done." The current architecture is a highly polished front-end, but to scale this into a fully finished, deployed product, my roadmap includes:
+                    While engineering a comprehensive Next.js platform under tight timelines was an intensive technical milestone, I know that true enterprise software is never truly "done." The current architecture is a high-fidelity front-end, but to scale this into a fully finished, multi-tenant product, my roadmap includes:
                   </p>
                   <AnimatedRoadmap />
                   <p className="italic text-zinc-500 dark:text-zinc-400">
