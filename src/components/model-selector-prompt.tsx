@@ -743,9 +743,9 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
             animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, x: 8, filter: "blur(2px)" }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col p-3 gap-3"
+            className="flex flex-col p-3 gap-2.5"
           >
-            <div className="flex items-center justify-between gap-2 pb-2 border-b border-neutral-100 dark:border-neutral-800">
+            <div className="flex items-center justify-between gap-1.5 pb-2 border-b border-neutral-100 dark:border-neutral-800">
               <div className="flex items-center gap-1.5 min-w-0">
                 <button
                   type="button"
@@ -758,25 +758,23 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                 >
                   <ChevronLeft className="size-3.5" />
                 </button>
-                <div className="flex items-center gap-1.5 truncate">
-                  <span className="font-semibold text-neutral-900 dark:text-neutral-100 text-xs sm:text-sm">Changelog</span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold tracking-wider uppercase bg-zinc-200/90 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 select-none">
-                    BETA 0.1
-                  </span>
-                </div>
+                <span className="font-semibold text-neutral-900 dark:text-neutral-100 text-xs sm:text-sm truncate">Changelog</span>
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold tracking-wider uppercase bg-zinc-200/90 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 select-none shrink-0">
+                  BETA 0.1
+                </span>
               </div>
 
               <Link
                 href="/milestones"
                 onClick={() => playSoftClick(0.04)}
-                className="text-[11px] font-medium text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 underline decoration-neutral-300 dark:decoration-neutral-700 underline-offset-2 transition-colors shrink-0"
+                className="text-[11px] font-medium text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors shrink-0"
               >
                 Milestones →
               </Link>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between text-[11px] text-neutral-400 dark:text-neutral-500 font-mono">
+            <div className="max-h-[140px] overflow-y-auto pr-1 space-y-2 prompt-scrollbar">
+              <div className="flex items-center justify-between text-[10.5px] text-neutral-400 dark:text-neutral-500 font-mono">
                 <span>Sync AI v0.1-beta</span>
                 <span>Initial Release</span>
               </div>
@@ -820,7 +818,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                 playSoftClick(0.04);
                 setView("details");
               }}
-              className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 text-xs font-medium transition-colors cursor-pointer"
+              className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 text-xs font-medium transition-colors cursor-pointer shrink-0"
             >
               <ChevronLeft className="size-3.5" />
               <span>Back to Model Info</span>
