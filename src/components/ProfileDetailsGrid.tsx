@@ -264,10 +264,11 @@ export function ProfileDetailsGrid() {
       {/* Socials Row (Matching Blueprint Grid Design) */}
       <div className="relative flex items-center py-0">
         {/* Handwritten Annotation in Left Gutter outside the vertical line */}
-        <div className="absolute right-full top-[-20px] sm:top-[-24px] pr-4 sm:pr-5 hidden sm:flex flex-col items-end pointer-events-none select-none z-30 min-w-max">
-          <span className="inline-block font-caveat italic text-[22px] sm:text-[26px] font-medium text-zinc-600 dark:text-zinc-400 leading-none whitespace-nowrap -rotate-[8deg] tracking-wide select-none mr-2">
-            connect
-          </span>
+        <div className="absolute right-full top-[-30px] sm:top-[-36px] pr-4 sm:pr-5 hidden sm:flex flex-col items-end pointer-events-none select-none z-30 min-w-max">
+          <div className="flex flex-col text-right font-caveat italic text-[20px] sm:text-[24px] leading-[1.05] font-medium text-zinc-600 dark:text-zinc-400 select-none mr-2 -rotate-[6deg] tracking-wide">
+            <span>feel free to reach out</span>
+            <span>say hi or connect</span>
+          </div>
           <svg
             width="36"
             height="28"
@@ -293,8 +294,8 @@ export function ProfileDetailsGrid() {
         </div>
 
         {/* Mobile-only fallback */}
-        <div className="flex sm:hidden items-center gap-1 font-caveat italic text-[16px] text-zinc-600 dark:text-zinc-400 select-none shrink-0 mr-2 -mt-0.5">
-          <span className="whitespace-nowrap -rotate-[4deg] inline-block">connect ↘</span>
+        <div className="flex sm:hidden items-center gap-1 font-caveat italic text-[15px] text-zinc-600 dark:text-zinc-400 select-none shrink-0 mr-2 -mt-0.5">
+          <span className="whitespace-nowrap -rotate-[4deg] inline-block">say hi ↘</span>
         </div>
 
         {/* 5-Column Mathematical Blueprint Grid without pill outlines */}
