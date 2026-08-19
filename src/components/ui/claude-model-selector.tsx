@@ -821,51 +821,29 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
   _onPointerDown(e?: PointerEvent) {
     if (this.disabled) return;
-    if (e && this._input.setPointerCapture) {
-      try {
-        this._input.setPointerCapture(e.pointerId);
-      } catch {}
-    }
     cancelAnimationFrame(this._springFrame);
+    this._springFrame = 0;
     this._dragging = true;
     this._pointerSamples = [{ time: performance.now(), value: this._value }];
   }
 
   _onPointerUp(e?: PointerEvent) {
     if (!this._dragging) return;
-    if (e && this._input.releasePointerCapture) {
-      try {
-        this._input.releasePointerCapture(e.pointerId);
-      } catch {}
-    }
     this._dragging = false;
     this._snapToNearest();
   }
 
   _onInput() {
     const rawValue = Number.parseFloat(this._input.value);
-    let nextValue = rawValue;
     if (this._dragging) {
-      nextValue = this._applyMagnet(rawValue);
       const now = performance.now();
       this._pointerSamples.push({ time: now, value: rawValue });
       this._pointerSamples = this._pointerSamples
         .filter((sample) => now - sample.time < 90)
         .slice(-5);
     }
-    this._setValue(nextValue, { animateLabel: true, reflect: false });
+    this._setValue(rawValue, { animateLabel: true, reflect: false });
     this._emit("input");
-  }
-
-  _applyMagnet(value: number) {
-    const nearest = Math.round(value);
-    const delta = value - nearest;
-    const distance = Math.abs(delta);
-    const radius = 0.35;
-    if (distance < 0.001 || distance > radius) return value;
-    const t = 1 - distance / radius;
-    const strength = 0.55;
-    return value - delta * strength * (t * t);
   }
 
   _onKeyDown(event: KeyboardEvent) {
@@ -1364,7 +1342,10 @@ const ClaudeModelSelector = React.forwardRef<
   React.useEffect(() => {
     const el = innerRef.current;
     if (el && Number.isFinite(value)) {
-      el.setAttribute("value", String(value));
+      const currentVal = Number.parseFloat(el.getAttribute("value") ?? "");
+      if (currentVal !== value) {
+        el.setAttribute("value", String(value));
+      }
     }
   }, [value]);
 
