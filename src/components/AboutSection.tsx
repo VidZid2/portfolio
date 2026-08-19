@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { animate, motion, useMotionValue, useReducedMotion } from "framer-motion";
 import { MotionContainer } from "@/components/motion-container";
+import { DrawUnderlineLink } from "@/components/sora-ui/texts/draw-underline-link";
 import { playHoverTick, playSoftClick } from "@/lib/synth-sounds";
 import { cn } from "@/lib/utils";
 
@@ -50,28 +51,34 @@ const ABOUT_BULLETS = [
     content: (
       <>
         Creator of{" "}
-        <a
+        <DrawUnderlineLink
           href="/projects/prima-digital-agency"
-          className="underline decoration-zinc-400 dark:decoration-zinc-600 underline-offset-4 font-medium text-inherit hover:text-[#6495ED] dark:hover:text-[#6495ED] transition-colors"
-        >
-          PRIMA
-        </a>{" "}
+          label="PRIMA"
+          underlineColor="#6495ED"
+          duration={0.4}
+          className="inline-flex align-baseline !text-[1em] text-inherit hover:text-[#6495ED] dark:hover:text-[#6495ED] font-semibold"
+          underlineClassName="h-[0.35em] -mt-0.5"
+        />{" "}
         (B2B digital platform with Gemini AI),{" "}
-        <a
+        <DrawUnderlineLink
           href="/projects/sti-elms"
-          className="underline decoration-zinc-400 dark:decoration-zinc-600 underline-offset-4 font-medium text-inherit hover:text-[#6495ED] dark:hover:text-[#6495ED] transition-colors"
-        >
-          STI eLMS 2.0
-        </a>{" "}
+          label="STI eLMS 2.0"
+          underlineColor="#6495ED"
+          duration={0.4}
+          className="inline-flex align-baseline !text-[1em] text-inherit hover:text-[#6495ED] dark:hover:text-[#6495ED] font-semibold"
+          underlineClassName="h-[0.35em] -mt-0.5"
+        />{" "}
         (React 19 &amp; Supabase encrypted learning system), and{" "}
-        <a
+        <DrawUnderlineLink
           href="https://github.com/VidZid2/portfolio"
           target="_blank"
           rel="noreferrer"
-          className="underline decoration-zinc-400 dark:decoration-zinc-600 underline-offset-4 font-medium text-inherit hover:text-[#6495ED] dark:hover:text-[#6495ED] transition-colors"
-        >
-          Project SYNC
-        </a>{" "}
+          label="Project SYNC"
+          underlineColor="#6495ED"
+          duration={0.4}
+          className="inline-flex align-baseline !text-[1em] text-inherit hover:text-[#6495ED] dark:hover:text-[#6495ED] font-semibold"
+          underlineClassName="h-[0.35em] -mt-0.5"
+        />{" "}
         (custom WebGL &amp; blueprint UI architecture).
       </>
     ),
@@ -79,7 +86,8 @@ const ABOUT_BULLETS = [
 ];
 
 export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: boolean }) {
-  const [greeting, setGreeting] = useState("Good day");
+  const [greeting, setGreeting] = useState("Good evening");
+  const [timeOfDay, setTimeOfDay] = useState<"morning" | "afternoon" | "evening">("evening");
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const reduce = useReducedMotion();
@@ -99,10 +107,13 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
     const hour = new Date().getHours();
     if (hour >= 5 && hour < 12) {
       setGreeting("Good morning");
+      setTimeOfDay("morning");
     } else if (hour >= 12 && hour < 18) {
       setGreeting("Good afternoon");
+      setTimeOfDay("afternoon");
     } else {
       setGreeting("Good evening");
+      setTimeOfDay("evening");
     }
   }, []);
 
@@ -198,7 +209,11 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
   };
 
   return (
-    <div className="relative flex flex-col z-10 w-full">
+    <motion.div 
+      layout
+      transition={{ type: "spring", stiffness: 240, damping: 28 }}
+      className="relative flex flex-col z-10 w-full"
+    >
       {/* Top dashed boundary line */}
       <div
         className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
@@ -210,7 +225,14 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
       {/* Greeting Sub-Row (Framed by top & bottom dotted lines) */}
       <div className="relative h-[38px] sm:h-[42px] flex items-center px-1 sm:px-1.5">
         <MotionContainer delay={0} skipAnimation={hasSeenAboutMe}>
-          <h2 className="font-caveat italic text-[24px] sm:text-[28px] font-semibold text-zinc-900 dark:text-zinc-100 tracking-wide select-none leading-none -mt-0.5">
+          <h2
+            className={cn(
+              "font-caveat italic text-[24px] sm:text-[28px] font-semibold tracking-wide select-none leading-none -mt-0.5 transition-colors duration-500",
+              timeOfDay === "morning" && "text-amber-600 dark:text-amber-300",
+              timeOfDay === "afternoon" && "text-sky-600 dark:text-sky-400",
+              timeOfDay === "evening" && "text-violet-600 dark:text-violet-300"
+            )}
+          >
             {greeting}
           </h2>
         </MotionContainer>
@@ -287,7 +309,7 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
           })}
         </ul>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

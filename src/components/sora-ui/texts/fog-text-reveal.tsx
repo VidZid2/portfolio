@@ -6,24 +6,26 @@ import { cn } from "@/lib/utils";
 
 export interface FogTextRevealProps {
   text: string | string[];
-  holdDuration?: number; // duration to hold before switching (in ms, default 2000)
-  transitionDuration?: number; // fade in/out duration in seconds
+  holdDuration?: number; // shimmer duration in ms (default 3200)
+  transitionDuration?: number; // in-animation duration in seconds (default 0.5)
   maxBlur?: number; // max blur in px (default 12)
   loop?: boolean;
   startOnView?: boolean;
   className?: string;
   splitBy?: "word" | "character";
+  enableShimmer?: boolean;
 }
 
 export function FogTextReveal({
   text,
-  holdDuration = 2000,
-  transitionDuration = 0.7,
+  holdDuration = 5200,
+  transitionDuration = 0.55,
   maxBlur = 12,
   loop = true,
   startOnView = true,
   className,
   splitBy = "word",
+  enableShimmer = true,
 }: FogTextRevealProps) {
   const containerRef = useRef<HTMLSpanElement>(null);
   const isInView = useInView(containerRef, { once: !loop });
@@ -31,16 +33,23 @@ export function FogTextReveal({
   const [currentIndex, setCurrentIndex] = useState(0);
   const reduce = useReducedMotion();
 
-  useEffect(() => {
+  const handleShimmerComplete = () => {
     if (!loop || texts.length <= 1) return;
+    if (startOnView && !isInView) return;
+    // Advance to next phrase immediately after shimmer completes its single pass to the right
+    setCurrentIndex((prev) => (prev + 1) % texts.length);
+  };
+
+  useEffect(() => {
+    if (enableShimmer || !loop || texts.length <= 1) return;
     if (startOnView && !isInView) return;
 
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % texts.length);
-    }, holdDuration + transitionDuration * 1000);
+    }, transitionDuration * 1000 + holdDuration + 500);
 
     return () => clearInterval(timer);
-  }, [holdDuration, loop, texts.length, transitionDuration, startOnView, isInView]);
+  }, [enableShimmer, holdDuration, loop, texts.length, transitionDuration, startOnView, isInView]);
 
   if (texts.length === 0) return null;
 
@@ -51,6 +60,7 @@ export function FogTextReveal({
   }
 
   const units = splitBy === "character" ? currentText.split("") : currentText.split(" ");
+  const shimmerSeconds = holdDuration / 1000;
 
   return (
     <span
@@ -71,7 +81,7 @@ export function FogTextReveal({
             visible: {
               opacity: 1,
               transition: {
-                staggerChildren: splitBy === "character" ? 0.02 : 0.04,
+                staggerChildren: splitBy === "character" ? 0.02 : 0.035,
                 delayChildren: 0.02,
               },
             },
@@ -88,32 +98,81 @@ export function FogTextReveal({
           }}
           className="inline-flex flex-wrap items-center gap-[0.28em] whitespace-nowrap"
         >
-          {units.map((unit, unitIdx) => (
+          {enableShimmer ? (
             <motion.span
-              key={`${unit}-${unitIdx}`}
-              variants={{
-                hidden: {
-                  opacity: 0,
-                  filter: `blur(${maxBlur}px)`,
-                  y: 4,
-                  scale: 0.96,
-                },
-                visible: {
-                  opacity: 1,
-                  filter: "blur(0px)",
-                  y: 0,
-                  scale: 1,
-                  transition: {
-                    duration: transitionDuration,
-                    ease: [0.16, 1, 0.3, 1],
-                  },
-                },
+              initial={{ backgroundPosition: "120% center" }}
+              animate={{ backgroundPosition: "-20% center" }}
+              transition={{
+                duration: shimmerSeconds,
+                delay: transitionDuration + 0.1,
+                ease: [0.25, 0.1, 0.25, 1],
+                repeat: 0,
               }}
-              className="inline-block"
+              onAnimationComplete={handleShimmerComplete}
+              style={{
+                backgroundSize: "300% 100%",
+                backgroundImage:
+                  "linear-gradient(90deg, var(--shimmer-base) 0%, var(--shimmer-base) 38%, var(--shimmer-highlight) 50%, var(--shimmer-base) 62%, var(--shimmer-base) 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+              className="inline-flex flex-wrap items-center gap-[0.28em] [--shimmer-base:#71717a] [--shimmer-highlight:#09090b] dark:[--shimmer-base:#a1a1aa] dark:[--shimmer-highlight:#ffffff]"
             >
-              {unit === " " ? "\u00A0" : unit}
+              {units.map((unit, unitIdx) => (
+                <motion.span
+                  key={`${unit}-${unitIdx}`}
+                  variants={{
+                    hidden: {
+                      opacity: 0,
+                      filter: `blur(${maxBlur}px)`,
+                      y: 4,
+                      scale: 0.96,
+                    },
+                    visible: {
+                      opacity: 1,
+                      filter: "blur(0px)",
+                      y: 0,
+                      scale: 1,
+                      transition: {
+                        duration: transitionDuration,
+                        ease: [0.16, 1, 0.3, 1],
+                      },
+                    },
+                  }}
+                  className="inline-block"
+                >
+                  {unit === " " ? "\u00A0" : unit}
+                </motion.span>
+              ))}
             </motion.span>
-          ))}
+          ) : (
+            units.map((unit, unitIdx) => (
+              <motion.span
+                key={`${unit}-${unitIdx}`}
+                variants={{
+                  hidden: {
+                    opacity: 0,
+                    filter: `blur(${maxBlur}px)`,
+                    y: 4,
+                    scale: 0.96,
+                  },
+                  visible: {
+                    opacity: 1,
+                    filter: "blur(0px)",
+                    y: 0,
+                    scale: 1,
+                    transition: {
+                      duration: transitionDuration,
+                      ease: [0.16, 1, 0.3, 1],
+                    },
+                  },
+                }}
+                className="inline-block"
+              >
+                {unit === " " ? "\u00A0" : unit}
+              </motion.span>
+            ))
+          )}
         </motion.span>
       </AnimatePresence>
     </span>

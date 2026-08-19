@@ -30,6 +30,7 @@ function Command({
 }
 
 import { AnimatePresence, motion } from "framer-motion"
+import { createPortal } from "react-dom"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { BottomSheet } from "@/components/ui/bottom-sheet"
 
@@ -53,9 +54,14 @@ function CommandDialog({
   onValueChange?: (value: string) => void
 }) {
   const isDesktop = useMediaQuery("(min-width: 768px)")
+  const [mounted, setMounted] = React.useState(false)
   const enterY = 20;
   const enterScale = 0.97;
   const SPRING_PANEL = { type: "spring", stiffness: 350, damping: 25 } as any;
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   React.useEffect(() => {
     if (!open) return;
@@ -65,6 +71,8 @@ function CommandDialog({
       document.body.style.overflow = prev;
     };
   }, [open]);
+
+  if (!mounted) return null;
 
   if (!isDesktop) {
     return (
@@ -76,11 +84,11 @@ function CommandDialog({
     )
   }
 
-  return (
+  return createPortal(
     <div
       aria-hidden={!open}
       className={cn(
-        "fixed inset-0 z-[80]",
+        "fixed inset-0 z-[9999]",
         open ? "pointer-events-auto" : "pointer-events-none"
       )}
     >
@@ -91,7 +99,7 @@ function CommandDialog({
              animate={{ opacity: 1 }}
              exit={{ opacity: 0, transition: { duration: 0.2 } }}
              onClick={() => onOpenChange?.(false)}
-             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
            />
         )}
       </AnimatePresence>
@@ -111,7 +119,7 @@ function CommandDialog({
               }}
               transition={SPRING_PANEL}
               className={cn(
-                "pointer-events-auto relative w-full max-w-lg overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0a0a0a] shadow-2xl will-change-transform focus:outline-none focus-visible:outline-none",
+                "pointer-events-auto relative w-full max-w-lg overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0a0a0a] shadow-2xl will-change-transform focus:outline-none focus-visible:outline-none z-10",
                 className
               )}
             >
@@ -122,7 +130,8 @@ function CommandDialog({
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 

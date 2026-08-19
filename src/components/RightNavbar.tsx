@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 export const homeItems = [
   { id: "experience", label: "Experience", icon: "briefcase" },
   { id: "projects", label: "Projects", icon: "folder" },
-  { id: "opensource", label: "Open Source", icon: "code" },
+  // { id: "opensource", label: "Open Source", icon: "code" }, // Temporarily hidden
   { id: "skills", label: "Skills", icon: "wrench" },
   { id: "blogs", label: "Blog", icon: "book" },
 ];
@@ -162,7 +162,7 @@ export function RightNavbar() {
       className="fixed inset-0 z-50 pointer-events-none hidden lg:block"
       style={{ width: 'calc(100vw - var(--removed-body-scroll-bar-size, 0px))' }}
     >
-      <nav className="absolute top-[22vh] right-[26%] translate-x-full pl-8 pointer-events-auto flex flex-col mt-2 hide-cursor-particles">
+      <nav className="absolute top-[22vh] right-[24.5%] translate-x-full pl-8 pointer-events-auto flex flex-col mt-2 hide-cursor-particles">
         <h3 className="text-[10px] font-bold tracking-[0.2em] text-zinc-400 dark:text-zinc-600 uppercase mb-6 ml-2">Index</h3>
         
         {/* Timeline Container */}

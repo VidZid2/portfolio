@@ -13,7 +13,8 @@ import {
   User,
   Globe
 } from "lucide-react";
-import { playSoftClick, playHoverTick } from "@/lib/synth-sounds";
+import { cn } from "@/lib/utils";
+import { playHoverTick, playSoftClick, playToastError } from "@/lib/synth-sounds";
 
 const SOCIAL_LINKS = [
   {
@@ -107,6 +108,15 @@ export function ProfileDetailsGrid() {
     return () => clearInterval(timer);
   }, []);
 
+  const [xErrorGrid, setXErrorGrid] = useState(false);
+
+  const handleDisabledClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    playToastError(0.045);
+    setXErrorGrid(true);
+    setTimeout(() => setXErrorGrid(false), 500);
+  };
+
   const dashedMask = {
     maskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
     WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
@@ -124,8 +134,8 @@ export function ProfileDetailsGrid() {
         className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
         style={dashedMask}
       />
-      <div className="absolute top-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-      <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+      <div className="absolute top-0 -left-3 sm:-left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+      <div className="absolute top-0 -right-3 sm:-right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
 
       {/* 2-Column Info Grid (Mathematical 4x2 Blueprint Matrix) */}
       <div className="relative flex flex-col w-full text-[13px] font-mono">
@@ -233,13 +243,13 @@ export function ProfileDetailsGrid() {
               <Link2 className="w-3.5 h-3.5" />
             </div>
             <a
-              href="https://josiahdeasis.dev"
+              href="https://sync-portfolio-jd.vercel.app"
               target="_blank"
               rel="noreferrer"
               onClick={() => playSoftClick(0.04)}
               className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors truncate"
             >
-              josiahdeasis.dev
+              sync-portfolio-jd.vercel.app
             </a>
           </div>
           <div className="flex items-center gap-2.5 px-3 sm:px-4 group mt-2.5 sm:mt-0">
@@ -261,30 +271,30 @@ export function ProfileDetailsGrid() {
         <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
       </div>
 
-      {/* Socials Row (Matching Blueprint Grid Design) */}
-      <div className="relative flex items-center py-0">
-        {/* Handwritten Annotation in Left Gutter outside the vertical line */}
-        <div className="absolute right-full top-[-52px] sm:top-[-58px] pr-5 sm:pr-6 hidden sm:flex flex-col items-end pointer-events-none select-none z-30 min-w-max">
-          <div className="flex flex-col text-right font-caveat italic text-[20px] sm:text-[24px] leading-[1.05] font-medium text-zinc-600 dark:text-zinc-400 select-none mr-2 -rotate-[6deg] tracking-wide">
+      {/* Socials Row (5-Column Mathematical Blueprint Grid) */}
+      <div className="relative flex items-center py-0 w-full">
+        {/* Handwritten Annotation in Left Gutter outside the vertical line - PC/Desktop only */}
+        <div className="absolute right-full top-[-42px] sm:top-[-46px] pr-4 sm:pr-5 hidden md:flex flex-col items-end pointer-events-none select-none z-30 min-w-max">
+          <div className="flex flex-col text-right font-caveat italic text-[16px] sm:text-[19px] leading-[1.05] font-medium text-zinc-600 dark:text-zinc-400 select-none mr-2 -rotate-[6deg] tracking-wide">
             <span>feel free to reach out</span>
             <span>say hi or connect</span>
           </div>
           <svg
-            width="34"
+            width="36"
             height="26"
-            viewBox="0 0 34 26"
+            viewBox="0 0 36 26"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-1 -translate-x-0.5"
+            className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-1 translate-x-1.5"
           >
             <path
-              d="M 4 2 C 4 10, 14 18, 28 18"
+              d="M 4 2 C 4 10, 16 18, 34 18"
               stroke="currentColor"
               strokeWidth="1.35"
               strokeLinecap="round"
             />
             <path
-              d="M 21 12 L 28 18 L 22 24"
+              d="M 26 12 L 34 18 L 27 24"
               stroke="currentColor"
               strokeWidth="1.35"
               strokeLinecap="round"
@@ -293,23 +303,26 @@ export function ProfileDetailsGrid() {
           </svg>
         </div>
 
-        {/* Mobile-only fallback */}
-        <div className="flex sm:hidden items-center gap-1 font-caveat italic text-[15px] text-zinc-600 dark:text-zinc-400 select-none shrink-0 mr-2 -mt-0.5">
-          <span className="whitespace-nowrap -rotate-[4deg] inline-block">say hi ↘</span>
-        </div>
-
-        {/* 5-Column Mathematical Blueprint Grid without pill outlines */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 w-full relative">
+        <div className="grid grid-cols-5 w-full relative">
           {SOCIAL_LINKS.map((item, idx) => (
             <div key={item.name} className="relative flex items-center justify-center">
               {item.disabled ? (
-                <div
+                <motion.button
+                  type="button"
+                  onClick={handleDisabledClick}
                   aria-label={`${item.name} (inactive)`}
-                  className="h-9 px-2 flex items-center justify-center gap-2 text-zinc-400 dark:text-zinc-600 opacity-40 grayscale cursor-not-allowed select-none text-[12px] sm:text-[13px] font-mono w-full"
+                  animate={xErrorGrid ? { x: [-3, 3, -2, 2, 0] } : { x: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className={cn(
+                    "h-9 px-1 sm:px-2 flex items-center justify-center gap-1.5 sm:gap-2 cursor-not-allowed select-none text-[12px] sm:text-[13px] font-mono w-full transition-colors outline-none",
+                    xErrorGrid
+                      ? "text-red-500 dark:text-red-500 scale-105"
+                      : "text-zinc-400/40 dark:text-zinc-600/50 hover:text-red-500/80 dark:hover:text-red-400/80 active:text-red-500"
+                  )}
                 >
-                  {item.icon}
-                  <span className="truncate">{item.label}</span>
-                </div>
+                  <span className="shrink-0">{item.icon}</span>
+                  <span className="hidden sm:inline truncate">{item.label}</span>
+                </motion.button>
               ) : (
                 <a
                   href={item.href}
@@ -318,22 +331,22 @@ export function ProfileDetailsGrid() {
                   aria-label={item.name}
                   onMouseEnter={() => playHoverTick(0.02)}
                   onClick={() => playSoftClick(0.04)}
-                  className="h-9 px-2 flex items-center justify-center gap-2 text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100/50 dark:hover:bg-zinc-900/50 transition-colors text-[12px] sm:text-[13px] font-mono font-medium w-full"
+                  className="h-9 px-1 sm:px-2 flex items-center justify-center gap-1.5 sm:gap-2 text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100/50 dark:hover:bg-zinc-900/50 transition-colors text-[12px] sm:text-[13px] font-mono font-medium w-full"
                 >
-                  {item.icon}
-                  <span className="truncate">{item.label}</span>
+                  <span className="shrink-0">{item.icon}</span>
+                  <span className="hidden sm:inline truncate">{item.label}</span>
                 </a>
               )}
 
-              {/* Vertical Dotted Divider Line on right of each cell except the last on desktop */}
+              {/* Vertical Dotted Divider Line on right of each cell except the last */}
               {idx < SOCIAL_LINKS.length - 1 && (
                 <>
                   <div
-                    className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
+                    className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
                     style={dashedVerticalMask}
                   />
-                  <div className="hidden sm:block absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-                  <div className="hidden sm:block absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+                  <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+                  <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
                 </>
               )}
             </div>
@@ -347,8 +360,8 @@ export function ProfileDetailsGrid() {
           className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
           style={dashedMask}
         />
-        <div className="absolute top-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+        <div className="absolute top-0 -left-3 sm:-left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+        <div className="absolute top-0 -right-3 sm:-right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
       </div>
     </div>
   );

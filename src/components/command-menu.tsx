@@ -222,23 +222,24 @@ export function CommandMenu() {
                         <span>ask me anything</span>
                     </div>
                     <svg
-                        width="44"
-                        height="30"
-                        viewBox="0 0 44 30"
+                        width="54"
+                        height="38"
+                        viewBox="0 0 54 38"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
-                        className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-2 sm:mt-2.5"
+                        className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-2"
                     >
+                        {/* Deep organic J/U-curve starting on right under anything and sweeping left into Ask AI button */}
                         <path
-                            d="M 24 2 C 24 14, 8 24, -14 20"
+                            d="M 48 2 C 50 18, 22 32, -14 30"
                             stroke="currentColor"
-                            strokeWidth="1.3"
+                            strokeWidth="1.35"
                             strokeLinecap="round"
                         />
                         <path
-                            d="M -6 14 L -14 20 L -7 26"
+                            d="M -5 24 L -14 30 L -6 36"
                             stroke="currentColor"
-                            strokeWidth="1.3"
+                            strokeWidth="1.35"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                         />
@@ -325,14 +326,14 @@ export function CommandMenu() {
                                 <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">shift + B</CommandShortcut>
                             </div>
                         </CommandItem>
-                        <CommandItem value="opensource" onSelect={() => runCommand(() => navigateToSection("#opensource"))} className="relative rounded-lg py-3 cursor-pointer">
+                        {/* <CommandItem value="opensource" onSelect={() => runCommand(() => navigateToSection("#opensource"))} className="relative rounded-lg py-3 cursor-pointer">
                             {value === "opensource" && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
                             <div className="relative z-10 flex items-center w-full">
                                 <SiGithub className="mr-2 h-4 w-4 text-zinc-500" />
                                 <span>Open Source</span>
                                 <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">shift + O</CommandShortcut>
                             </div>
-                        </CommandItem>
+                        </CommandItem> */}
                         <CommandItem value="skills" onSelect={() => runCommand(() => navigateToSection("#skills"))} className="relative rounded-lg py-3 cursor-pointer">
                             {value === "skills" && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
                             <div className="relative z-10 flex items-center w-full">

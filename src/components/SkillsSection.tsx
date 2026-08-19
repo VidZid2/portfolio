@@ -104,12 +104,13 @@ export function SkillsSection({ hasSeenScrollAnimations = false }: { hasSeenScro
   return (
     <motion.div
       id="skills"
+      layout
+      transition={{ type: "spring", stiffness: 240, damping: 28 }}
       className="mt-0 flex flex-col relative z-10 scroll-mt-24 w-full"
       initial={skip ? "visible" : "hidden"}
       whileInView={skip ? undefined : (phase === "done" ? "visible" : "hidden")}
       animate={skip ? "visible" : undefined}
       viewport={{ once: true, amount: 0.1 }}
-      transition={isLowTier ? { duration: 0 } : undefined}
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren: 0.08 } },

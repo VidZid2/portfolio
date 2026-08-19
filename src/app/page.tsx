@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useState } from "react";
+import { LayoutGroup } from "framer-motion";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Signature } from "@/components/Signature";
 import { GithubGraph } from "@/components/GithubGraph";
@@ -17,6 +18,7 @@ import { ComponentsSection } from "@/components/ComponentsSection";
 import { BlogsSection } from "@/components/BlogsSection";
 import { AboutSection } from "@/components/AboutSection";
 import { GoalMilestoneSection } from "@/components/GoalMilestoneSection";
+import { ColophonSection } from "@/components/ColophonSection";
 import { SwirlQuote } from "@/components/swirl/SwirlQuote";
 import { SwirlBackground } from "@/components/swirl/SwirlBackground";
 import { GlobalBootSequence } from "@/components/GlobalBootSequence";
@@ -64,7 +66,7 @@ export default function Home() {
         showRightNavbar={false}
         headerSlot={
           /* Cell 2: Profile Section - 112px height with mathematical dotted grid sub-cells */
-          <div className="absolute left-0 right-0 md:left-[26%] md:right-[26%] top-[22vh] h-[112px] flex z-50 hide-cursor-particles">
+          <div className="absolute left-3 right-3 sm:left-4 sm:right-4 md:left-[24.5%] md:right-[24.5%] top-[22vh] h-[112px] flex z-50 hide-cursor-particles">
             {/* 1. Left Avatar Box (Framed by Dotted Lines with Diagonal Hatch Background) */}
             <div className="w-[84px] min-[360px]:w-[96px] sm:w-[112px] h-[112px] shrink-0 flex items-center justify-center relative overflow-hidden">
               {/* Diagonal Slanted Blueprint Hatch Pattern */}
@@ -141,17 +143,18 @@ export default function Home() {
               {/* Sub-row 3: Tagline with FogTextReveal (34px, 2s lifespan) */}
               <div className="h-[34px] flex items-center px-2.5 sm:px-4 relative z-20 overflow-hidden">
                 <FogTextReveal
-                  holdDuration={2000}
+                  holdDuration={5200}
+                  transitionDuration={0.55}
                   loop={true}
                   maxBlur={14}
                   startOnView={true}
                   className="text-[11px] min-[360px]:text-[12px] sm:text-[13px] text-zinc-500 dark:text-zinc-400 font-mono leading-none"
                   text={[
-                    "Creating with code. Small details matter.",
-                    "Full-Stack Front-End Engineer.",
-                    "UI Systems Architect & Design Engineer.",
-                    "Crafting fluid micro-interactions.",
-                    "Obsessed with mathematical precision.",
+                    "Building what I love, one line at a time.",
+                    "Crafting digital experiences with soul.",
+                    "Curious by nature. Driven by passion.",
+                    "Turning bold ideas into real software.",
+                    "Small details make all the difference.",
                   ]}
                 />
               </div>
@@ -160,112 +163,127 @@ export default function Home() {
         }
       >
         {/* Flowing Content Section */}
-        <div className="ml-0 mr-0 md:ml-[26%] md:mr-[26%] pt-[calc(22vh+112px)] pb-0 px-4 flex flex-col z-10 relative min-h-screen">
-          {/* 1. Profile 2-Column Details Grid + Socials (Matching Reference Picture 1) */}
-          <ProfileDetailsGrid />
+        <LayoutGroup id="flowing-sections">
+          <div className="ml-3 mr-3 sm:ml-4 sm:mr-4 md:ml-[24.5%] md:mr-[24.5%] pt-[calc(22vh+112px)] pb-0 px-3 sm:px-4 flex flex-col z-10 relative min-h-screen">
+            {/* 1. Profile 2-Column Details Grid + Socials (Matching Reference Picture 1) */}
+            <ProfileDetailsGrid />
 
-          {/* 2. Github Activity (Matching Reference Picture 1) */}
-          <GithubGraph key={`github-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+            {/* 2. Github Activity (Matching Reference Picture 1) */}
+            <GithubGraph key={`github-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
-          {/* 3. About Me Section (Matching Reference Picture 2) */}
-          <AboutSection key={`about-${hasPlayed}`} hasSeenAboutMe={hasPlayed} />
+            {/* 3. About Me Section (Matching Reference Picture 2) */}
+            <AboutSection key={`about-${hasPlayed}`} hasSeenAboutMe={hasPlayed} />
 
-          {/* 4. Skills & Technologies Section */}
-          <SkillsSection key={`skills-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+            {/* 4. Skills & Technologies Section */}
+            <SkillsSection key={`skills-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
-          {/* 5. Let's Connect Section */}
-          <div className="mt-8 flex flex-col relative z-10 py-6">
-            {/* Top full-width line */}
-            <div
-              className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
-              style={{
-                maskImage:
-                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-                WebkitMaskImage:
-                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-              }}
-            />
-            {/* Top Line Intersections */}
-            <div className="absolute top-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-            <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+            {/* Slanted Blueprint Hatch Spacer between Stack and Let's Connect (Full-bleed across entire viewport) */}
+            <div className="relative w-full h-8 sm:h-9">
+              <div
+                className="absolute inset-y-0 left-[-100vw] right-[-100vw] pointer-events-none opacity-70 dark:opacity-40"
+                style={DIAGONAL_HATCH_PATTERN}
+              />
+            </div>
 
-            <LetsConnect key={`connect-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+            {/* 5. Let's Connect Section */}
+            <div className="flex flex-col relative z-10 py-6">
+              {/* Top full-width line */}
+              <div
+                className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
+                style={{
+                  maskImage:
+                    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                  WebkitMaskImage:
+                    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                }}
+              />
+              {/* Top Line Intersections */}
+              <div className="absolute top-0 -left-3 sm:-left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+              <div className="absolute top-0 -right-3 sm:-right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
 
-            {/* Bottom full-width line */}
-            <div
-              className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-              style={{
-                maskImage:
-                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-                WebkitMaskImage:
-                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-              }}
-            />
-            {/* Bottom Line Intersections */}
-            <div className="absolute bottom-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-            <div className="absolute bottom-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-          </div>
+              <LetsConnect key={`connect-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
-          {/* 6. Milestone Goals, Experience, Projects, Open Source */}
-          <GoalMilestoneSection key={`goals-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
-          <ExperienceSection key={`exp-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
-          <ProjectsSection key={`projects-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+              {/* Bottom full-width line */}
+              <div
+                className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+                style={{
+                  maskImage:
+                    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                  WebkitMaskImage:
+                    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                }}
+              />
+              {/* Bottom Line Intersections */}
+              <div className="absolute bottom-0 -left-3 sm:-left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+              <div className="absolute bottom-0 -right-3 sm:-right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+            </div>
 
-          {/* Open Source Contributions */}
-          <div id="opensource" className="scroll-mt-24">
-            <OpenSourceContributions key={`oss-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
-          </div>
+            {/* 6. Milestone Goals, Experience, Projects, Open Source */}
+            <GoalMilestoneSection key={`goals-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+            <ExperienceSection key={`exp-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+            <ProjectsSection key={`projects-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
-          <ComponentsSection key={`components-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+            {/* Open Source Contributions (Temporarily hidden safely) */}
+            {/* 
+            <div id="opensource" className="scroll-mt-24">
+              <OpenSourceContributions key={`oss-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+            </div>
+            */}
 
-          <BlogsSection key={`blogs-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+            <ComponentsSection key={`components-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
-          {/* Fading Grid Filler */}
-          <div className="flex-grow w-[calc(100%+32px)] -mx-4 h-[400px] relative mt-0 overflow-hidden">
-            {/* Top full-width line */}
-            <div
-              className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
-              style={{
-                maskImage:
-                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-                WebkitMaskImage:
-                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-              }}
-            />
-            {/* Intersections */}
-            <div className="absolute top-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-            <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+            <BlogsSection key={`blogs-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
-            {/* Quote Footer */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0 select-none px-6 text-center">
-              {/* Signature above Quote */}
-              <div className="z-10 mb-6 md:mb-8 translate-x-8 md:translate-x-12">
-                <div className="w-32 sm:w-48 text-zinc-400 dark:text-zinc-600">
-                  <Signature duration={2.5} strokeWidth={6} delay={3} />
+            {/* Fading Grid Filler */}
+            <div className="flex-grow w-[calc(100%+24px)] -mx-3 sm:w-[calc(100%+32px)] sm:-mx-4 h-[400px] relative mt-0 overflow-hidden">
+              {/* Top full-width line */}
+              <div
+                className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
+                style={{
+                  maskImage:
+                    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                  WebkitMaskImage:
+                    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                }}
+              />
+              {/* Intersections */}
+              <div className="absolute top-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+              <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+
+              {/* Quote Footer */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0 select-none px-6 text-center">
+                {/* Signature above Quote */}
+                <div className="z-10 mb-6 md:mb-8 translate-x-8 md:translate-x-12">
+                  <div className="w-32 sm:w-48 text-zinc-400 dark:text-zinc-600">
+                    <Signature duration={2.5} strokeWidth={6} delay={3} />
+                  </div>
+                </div>
+
+                <div className="relative flex items-center justify-center w-full max-w-2xl">
+                  <p className="text-xl md:text-2xl font-medium tracking-tight text-zinc-600 dark:text-zinc-400 leading-relaxed italic">
+                    <TextReveal
+                      text="Life is not a race. It's a journey you take at your own pace. Trust your timing, keep building, and remember that the most meaningful work takes time to grow."
+                      delay={0.5}
+                      stagger={0.015}
+                      whileInView={true}
+                      once={false}
+                    />
+                  </p>
                 </div>
               </div>
 
-              <div className="relative flex items-center justify-center w-full max-w-2xl">
-                <p className="text-xl md:text-2xl font-medium tracking-tight text-zinc-600 dark:text-zinc-400 leading-relaxed italic">
-                  <TextReveal
-                    text="Life is not a race. It's a journey you take at your own pace. Trust your timing, keep building, and remember that the most meaningful work takes time to grow."
-                    delay={0.5}
-                    stagger={0.015}
-                    whileInView={true}
-                    once={false}
-                  />
-                </p>
-              </div>
+              <FooterBackground />
             </div>
 
-            <FooterBackground />
-          </div>
+            {/* Colophon & Portfolio Metadata Table */}
+            <ColophonSection />
 
-          {/* Swirl Quote Section */}
-          <div className="mt-4 hide-cursor-particles">
-            <SwirlQuote />
+            {/* Swirl Quote Section */}
+            <div className="mt-0 hide-cursor-particles">
+              <SwirlQuote />
+            </div>
           </div>
-        </div>
+        </LayoutGroup>
       </BlueprintGrid>
     </GlobalBootSequence>
   );

@@ -1,7 +1,9 @@
 "use client";
 
 import { memo, useMemo, useState, useEffect, useId, useRef } from "react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { DrawUnderlineLink } from "@/components/sora-ui/texts/draw-underline-link";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -557,8 +559,8 @@ export const GithubCalendar = memo(function GithubCalendar({
 
   // ── Animation Grid ────────────────────────────────────────────────────────
   const { highlightedCells, cellAnimations } = useMemo(() => {
-    const text = deviceType === "mobile" ? "JD" : deviceType === "tablet" ? "JOSH" : "JOSIAH";
-    const textWidth = deviceType === "mobile" ? 11 : deviceType === "tablet" ? 22 : 35;
+    const text = deviceType === "mobile" ? "JD" : (weeks.length < 35 ? "JOSH" : "JOSIAH");
+    const textWidth = deviceType === "mobile" ? 11 : (weeks.length < 35 ? 22 : 35);
     const startCol = Math.max(Math.floor((weeks.length - textWidth) / 2), 0);
     const highlighted = generateTextPattern(text, startCol);
     
@@ -617,16 +619,14 @@ export const GithubCalendar = memo(function GithubCalendar({
 
   // ── Dimensions ────────────────────────────────────────────────────────
   const step = cellSize + cellGap;
-  const monthLabelHeight = showMonthLabels ? 18 : 0;
-  const leftMargin = showMonthLabels ? 20 : 0;
-  const svgWidth = leftMargin + weeks.length * step - cellGap;
-  const svgHeight = monthLabelHeight + 7 * step - cellGap;
-  // Auto-scroll to the right end (most recent months) — must be before early returns
+  const monthLabelHeight = showMonthLabels ? 22 : 0;
+  const leftMargin = showMonthLabels ? 22 : 0;
+  const svgWidth = leftMargin + weeks.length * step - cellGap + 6;
+  const svgHeight = monthLabelHeight + 7 * step + 4;
+  // Auto-scroll to the right end (most recent months) on compact viewports
   useEffect(() => {
     const scrollToRight = () => {
-      if (scrollRef.current) {
-        // Set scrollLeft to a very high number to ensure it hits the end, 
-        // or use scrollWidth.
+      if (scrollRef.current && typeof window !== "undefined" && window.innerWidth <= 768) {
         scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
       }
     };
@@ -718,7 +718,7 @@ export const GithubCalendar = memo(function GithubCalendar({
     // Canvas dimensions matching SVG viewBox with high-DPI retina sharpness
     const dpr = typeof window !== "undefined" ? Math.max(window.devicePixelRatio || 1, 2) : 2;
     const canvasWidth = svgWidth;
-    const canvasHeight = svgHeight + 80;
+    const canvasHeight = svgHeight + 36;
     canvas.width = Math.round(canvasWidth * dpr);
     canvas.height = Math.round(canvasHeight * dpr);
 
@@ -728,7 +728,7 @@ export const GithubCalendar = memo(function GithubCalendar({
     ctx.imageSmoothingQuality = "high";
 
     const logicalWidth = svgWidth;
-    const logicalHeight = svgHeight + 80;
+    const logicalHeight = svgHeight + 36;
 
     // Local mutable map for dynamic cell levels
     const cellLevels = new Map<string, number>();
@@ -757,9 +757,9 @@ export const GithubCalendar = memo(function GithubCalendar({
     const player = {
       x: logicalWidth / 2 - 16,
       targetX: logicalWidth / 2 - 16,
-      y: logicalHeight - 26,
+      y: logicalHeight - 22,
       width: 32,
-      height: 22,
+      height: 20,
       speed: 2.8,
       direction: 1, // 1 = right, -1 = left
       color: "#38bdf8",
@@ -771,7 +771,7 @@ export const GithubCalendar = memo(function GithubCalendar({
     const handlePointerMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       const scaleX = canvasWidth / rect.width;
-      const canvasX = (e.clientX - rect.left) * scaleX - 24;
+      const canvasX = (e.clientX - rect.left) * scaleX;
       player.targetX = canvasX - player.width / 2;
       player.userControlled = true;
       player.lastUserInteraction = Date.now();
@@ -781,7 +781,7 @@ export const GithubCalendar = memo(function GithubCalendar({
       if (!e.touches[0]) return;
       const rect = canvas.getBoundingClientRect();
       const scaleX = canvasWidth / rect.width;
-      const canvasX = (e.touches[0].clientX - rect.left) * scaleX - 24;
+      const canvasX = (e.touches[0].clientX - rect.left) * scaleX;
       player.targetX = canvasX - player.width / 2;
       player.userControlled = true;
       player.lastUserInteraction = Date.now();
@@ -892,8 +892,8 @@ export const GithubCalendar = memo(function GithubCalendar({
 
     // Stars background (Deep Space parallax effect)
     const stars = Array.from({ length: 120 }).map(() => ({
-      x: Math.random() * canvasWidth - 24,
-      y: Math.random() * canvasHeight - 4,
+      x: Math.random() * canvasWidth,
+      y: Math.random() * canvasHeight,
       speed: Math.random() * 0.35 + 0.1,
       size: Math.random() * 1.2 + 0.5,
       alpha: Math.random() * 0.5 + 0.1,
@@ -1116,7 +1116,7 @@ export const GithubCalendar = memo(function GithubCalendar({
         s.y += s.speed;
         if (s.y > canvasHeight - 4) {
           s.y = -4;
-          s.x = Math.random() * canvasWidth - 24;
+          s.x = Math.random() * canvasWidth;
         }
       });
 
@@ -1560,23 +1560,29 @@ export const GithubCalendar = memo(function GithubCalendar({
     >
       <div className="relative w-full mx-auto max-w-full min-w-0 block overflow-visible">
         
-        {/* Game and Calendar Container */}
-        <div 
+        {/* Game and Calendar Container with Smooth Spring Layout Morphing */}
+        <motion.div 
+          layout
+          transition={{ type: "spring", stiffness: 240, damping: 28 }}
           className={cn(
-            "p-0 transition-all duration-500 border border-transparent w-full",
-            gameActive ? (isDark ? "bg-black border-neutral-800 p-2 rounded-xl" : "bg-neutral-100 border-neutral-200 shadow-inner p-2 rounded-xl") : ""
+            "p-0 transition-colors duration-500 ease-out w-full overflow-visible",
+            gameActive ? (isDark ? "bg-black/70 rounded-xl ring-1 ring-neutral-800" : "bg-neutral-900/[0.04] rounded-xl ring-1 ring-neutral-200") : ""
           )}
         >
         <div
           ref={scrollRef}
-          className="relative w-full max-w-full min-w-0 overflow-x-auto overflow-y-hidden transition-all duration-500 scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          className="relative w-full max-w-full min-w-0 overflow-x-auto overflow-y-visible py-1 transition-all duration-500 scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         >
-          <div className="grid w-full">
+          <motion.div 
+            layout
+            transition={{ type: "spring", stiffness: 240, damping: 28 }}
+            className="grid w-full"
+          >
             <svg
               width="100%"
               height="auto"
-              viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-              className="col-start-1 row-start-1 overflow-visible block w-full h-auto max-w-full"
+              viewBox={`0 0 ${svgWidth} ${svgHeight + (gameActive ? 36 : 0)}`}
+              className="col-start-1 row-start-1 overflow-visible block w-full h-auto"
             >
             {/* month labels */}
             {showMonthLabels &&
@@ -1608,17 +1614,17 @@ export const GithubCalendar = memo(function GithubCalendar({
                 return validEntries.map(({ weekIndex, label, exactWeek }, i) => {
                   const xPos = leftMargin + exactWeek * step;
                   const isLast = i === validEntries.length - 1;
-                  const x = isLast && xPos > svgWidth - 24 ? svgWidth - 24 : xPos;
+                  const x = isLast && xPos > svgWidth - 28 ? svgWidth - 28 : xPos;
 
                   return (
                     <text
                       key={`${label}-${weekIndex}`}
                       x={x}
-                      y={13}
-                      fontSize={deviceType !== "desktop" ? 11 : 10}
+                      y={15}
+                      fontSize={deviceType !== "desktop" ? 13 : 12}
                       fill={isDark ? "#a1a1aa" : "#71717a"}
                       fontFamily="inherit"
-                      className="transition-opacity duration-1000 ease-in-out font-mono font-medium"
+                      className="transition-opacity duration-1000 ease-in-out font-mono font-medium select-none"
                       style={{ opacity: gameActive ? 0 : 1 }}
                     >
                       {label}
@@ -1638,11 +1644,11 @@ export const GithubCalendar = memo(function GithubCalendar({
                   <text
                     key={`day-${di}`}
                     x={2}
-                    y={monthLabelHeight + di * step + cellSize / 2 + 3.5}
-                    fontSize={deviceType !== "desktop" ? 11 : 10}
+                    y={monthLabelHeight + di * step + cellSize / 2 + 4.5}
+                    fontSize={deviceType !== "desktop" ? 12.5 : 11.5}
                     fill={isDark ? "#a1a1aa" : "#71717a"}
                     fontFamily="inherit"
-                    className="transition-opacity duration-1000 ease-in-out font-mono font-medium"
+                    className="transition-opacity duration-1000 ease-in-out font-mono font-medium select-none"
                     style={{ opacity: gameActive ? 0 : 1 }}
                   >
                     {label}
@@ -1761,17 +1767,19 @@ export const GithubCalendar = memo(function GithubCalendar({
           {/* Game canvas overlay */}
           <canvas
             ref={canvasRef}
+            width={svgWidth}
+            height={svgHeight + (gameActive ? 36 : 0)}
             className={cn(
-              "col-start-1 row-start-1 block w-full h-auto max-w-full z-10 cursor-crosshair transition-all duration-1000 ease-in-out",
+              "col-start-1 row-start-1 block w-full h-auto z-10 cursor-crosshair transition-opacity duration-500 ease-in-out",
               gameActive ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
             )}
             style={{ 
-              aspectRatio: `${svgWidth} / ${svgHeight + (gameActive ? 80 : 0)}` 
+              aspectRatio: `${svgWidth} / ${svgHeight + (gameActive ? 36 : 0)}` 
             }}
           />
-          </div>
+          </motion.div>
         </div>
-        </div>
+        </motion.div>
 
         {/* custom tooltip — rendered OUTSIDE the scroll container to avoid clipping */}
         {(() => {
@@ -1783,6 +1791,15 @@ export const GithubCalendar = memo(function GithubCalendar({
               ? `No contributions on ${formattedDate}.`
               : `${count} contribution${count !== 1 ? "s" : ""} on ${formattedDate}.`;
 
+          let transformPercent = 50;
+          if (tooltip.visible && typeof window !== "undefined") {
+            if (tooltip.x > window.innerWidth - 130) {
+              transformPercent = 85;
+            } else if (tooltip.x < 130) {
+              transformPercent = 15;
+            }
+          }
+
           return (
             <div
               className={cn(
@@ -1792,7 +1809,7 @@ export const GithubCalendar = memo(function GithubCalendar({
               style={{
                 left: tooltip.x,
                 top: tooltip.y,
-                transform: `translate(-50%, calc(-100% - ${tooltip.visible ? '6px' : '2px'})) scale(${tooltip.visible ? 1 : 0.95})`,
+                transform: `translate(-${transformPercent}%, calc(-100% - ${tooltip.visible ? '6px' : '2px'})) scale(${tooltip.visible ? 1 : 0.95})`,
               }}
             >
               {tooltip.date ? tooltipText : ""}
@@ -1802,7 +1819,7 @@ export const GithubCalendar = memo(function GithubCalendar({
                 style={{
                   width: 6,
                   height: 6,
-                  left: "50%",
+                  left: `${transformPercent}%`,
                   bottom: 0,
                   transform: "translateX(-50%) translateY(50%) rotate(45deg)",
                 }}
@@ -1811,7 +1828,11 @@ export const GithubCalendar = memo(function GithubCalendar({
           );
         })()}
 
-        <div className="relative w-full h-0 mt-4 mb-7">
+        <motion.div 
+          layout
+          transition={{ type: "spring", stiffness: 240, damping: 28 }}
+          className="relative w-full h-0 mt-4 mb-7"
+        >
           <div 
             className="absolute left-[-100vw] right-[-100vw] top-0 h-0 border-b border-black/30 dark:border-white/[0.15]" 
             style={{ 
@@ -1819,9 +1840,13 @@ export const GithubCalendar = memo(function GithubCalendar({
               WebkitMaskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)' 
             }} 
           />
-        </div>
+        </motion.div>
 
-        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 px-3">
+        <motion.div 
+          layout
+          transition={{ type: "spring", stiffness: 240, damping: 28 }}
+          className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 px-3"
+        >
           {/* legend (left) */}
           {showLegend && (
             <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground shrink-0">
@@ -1841,8 +1866,7 @@ export const GithubCalendar = memo(function GithubCalendar({
               </div>
 
               {/* Game Mode Switch */}
-              <div className="flex items-center gap-2 border-l border-neutral-300 dark:border-neutral-800 pl-4">
-                <span className="text-[11px] text-neutral-500 dark:text-neutral-400 select-none">Game Mode</span>
+              <div className="flex items-center border-l border-neutral-300 dark:border-neutral-800 pl-3 sm:pl-4">
                 <button
                   onClick={() => {
                     if (animationPhase === "animating" || animationPhase === "fading") {
@@ -1854,18 +1878,38 @@ export const GithubCalendar = memo(function GithubCalendar({
                   }}
                   aria-label="Toggle Game Mode"
                   className={cn(
-                    "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-all duration-200 ease-in-out focus:outline-none",
-                    gameActive ? "bg-emerald-500" : "bg-neutral-300 dark:bg-neutral-800",
-                    (animationPhase === "animating" || animationPhase === "fading") && "opacity-75 cursor-not-allowed",
-                    shakeError && "ring-2 ring-red-500 ring-offset-1 dark:ring-offset-black translate-x-[2px]"
+                    "group flex items-center gap-2 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md text-[11px] font-mono transition-all duration-200 select-none cursor-pointer outline-none",
+                    gameActive
+                      ? "bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 dark:border-emerald-500/30 shadow-[0_1px_2px_rgba(16,185,129,0.08)]"
+                      : "bg-zinc-100/90 dark:bg-zinc-800/80 hover:bg-zinc-200/80 dark:hover:bg-zinc-700/70 text-zinc-600 dark:text-zinc-400 border border-zinc-200/80 dark:border-zinc-700/60 shadow-[0_1px_2px_rgba(0,0,0,0.03)]",
+                    (animationPhase === "animating" || animationPhase === "fading") && "opacity-60 cursor-not-allowed",
+                    shakeError && "ring-2 ring-red-500"
                   )}
                 >
+                  <span className="flex items-center gap-1.5 font-medium">
+                    <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="6" y1="12" x2="10" y2="12" />
+                      <line x1="8" y1="10" x2="8" y2="14" />
+                      <line x1="15" y1="13" x2="15.01" y2="13" />
+                      <line x1="18" y1="11" x2="18.01" y2="11" />
+                      <rect x="2" y="6" width="20" height="12" rx="2" />
+                    </svg>
+                    <span>Game Mode</span>
+                  </span>
+
                   <span
                     className={cn(
-                      "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-                      gameActive ? "translate-x-4" : "translate-x-0"
+                      "relative inline-flex h-3.5 w-6 shrink-0 rounded-full p-[2px] transition-colors duration-200 ease-in-out pointer-events-none",
+                      gameActive ? "bg-emerald-500 dark:bg-emerald-500" : "bg-zinc-300 dark:bg-zinc-600"
                     )}
-                  />
+                  >
+                    <span
+                      className={cn(
+                        "inline-block h-2.5 w-2.5 rounded-full bg-white shadow-xs transform transition-transform duration-200 ease-in-out",
+                        gameActive ? "translate-x-2.5" : "translate-x-0"
+                      )}
+                    />
+                  </span>
                 </button>
               </div>
             </div>
@@ -1888,13 +1932,13 @@ export const GithubCalendar = memo(function GithubCalendar({
                   {stats.total.toLocaleString()}
                 </span>
                 <span>this year on</span>
-                <span className="font-semibold text-black dark:text-neutral-200 underline decoration-neutral-400 dark:decoration-neutral-400 underline-offset-4">
+                <DrawUnderlineLink className="font-semibold text-black dark:text-neutral-200 hover:text-[#6495ED] dark:hover:text-[#6495ED] transition-colors">
                   GitHub
-                </span>
+                </DrawUnderlineLink>
               </a>
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
     </div>
   );

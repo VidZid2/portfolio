@@ -16,7 +16,7 @@ export default function AllMilestonesPage() {
       }
     >
       {/* Content Section */}
-      <div className="ml-0 mr-0 md:ml-[26%] md:mr-[26%] pt-[calc(22vh+112px)] pb-16 px-4 flex flex-col z-10 relative">
+      <div className="ml-3 mr-3 sm:ml-4 sm:mr-4 md:ml-[24.5%] md:mr-[24.5%] md:mx-0 pt-[calc(22vh+112px)] pb-16 px-3 sm:px-4 flex flex-col z-10 relative">
         <div className="relative pt-6 pb-6">
           <GoalMilestoneList showAll={true} />
         </div>

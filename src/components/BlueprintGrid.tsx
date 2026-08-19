@@ -23,10 +23,10 @@ const DOT_MASK_HORIZONTAL = {
 };
 
 const INTERSECTION_NODES = [
-  { top: "22vh", left: "26%" },
-  { top: "22vh", right: "26%" },
-  { top: "calc(22vh + 112px)", left: "26%" },
-  { top: "calc(22vh + 112px)", right: "26%" },
+  { top: "22vh", left: "24.5%" },
+  { top: "22vh", right: "24.5%" },
+  { top: "calc(22vh + 112px)", left: "24.5%" },
+  { top: "calc(22vh + 112px)", right: "24.5%" },
 ];
 
 export function BlueprintGrid({
@@ -41,13 +41,13 @@ export function BlueprintGrid({
       {/* Right Side Blueprint Navigation */}
       {showRightNavbar && <RightNavbar />}
 
-      {/* Vertical Lines - Ultra-fine Micro Dots */}
+      {/* Vertical Lines - Ultra-fine Micro Dots (Visible on Mobile, Tablet, and Desktop) */}
       <div
-        className="absolute top-0 bottom-0 left-[26%] w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none hidden md:block"
+        className="absolute top-0 bottom-0 left-3 sm:left-4 md:left-[24.5%] w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
         style={DOT_MASK_VERTICAL}
       />
       <div
-        className="absolute top-0 bottom-0 right-[26%] w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none hidden md:block"
+        className="absolute top-0 bottom-0 right-3 sm:right-4 md:right-[24.5%] w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
         style={DOT_MASK_VERTICAL}
       />
 
@@ -62,18 +62,10 @@ export function BlueprintGrid({
       />
 
       {/* Ultra-Tiny Solid Nodes */}
-      {INTERSECTION_NODES.map((pos, i) => (
-        <div
-          key={i}
-          className="absolute w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] pointer-events-none z-10 hidden md:block"
-          style={{
-            top: pos.top,
-            left: pos.left,
-            right: pos.right,
-            transform: `translate(${pos.right ? "50%" : "-50%"}, -50%)`,
-          }}
-        />
-      ))}
+      <div className="absolute top-[22vh] left-3 sm:left-4 md:left-[24.5%] w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10" />
+      <div className="absolute top-[22vh] right-3 sm:right-4 md:right-[24.5%] w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-10" />
+      <div className="absolute top-[calc(22vh+112px)] left-3 sm:left-4 md:left-[24.5%] w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10" />
+      <div className="absolute top-[calc(22vh+112px)] right-3 sm:right-4 md:right-[24.5%] w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-10" />
 
       {/* Cell 1: Top Banner */}
       {bannerSlot ?? <TopBanner />}

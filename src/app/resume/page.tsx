@@ -24,7 +24,7 @@ export default function ResumePage() {
         />
       }
     >
-      <section className="relative z-10 ml-0 mr-0 flex min-h-screen flex-col px-4 pb-12 pt-[calc(22vh+112px)] md:ml-[26%] md:mr-[26%]">
+      <section className="relative z-10 ml-3 mr-3 sm:ml-4 sm:mr-4 md:ml-[24.5%] md:mr-[24.5%] md:mx-0 flex min-h-screen flex-col px-3 sm:px-4 pb-12 pt-[calc(22vh+112px)]">
         <div className="flex flex-wrap items-center justify-between gap-3 py-4">
           <div className="flex min-w-0 items-center gap-3">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[6px] border border-black/10 bg-zinc-50 text-zinc-500 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-zinc-400">

@@ -30,7 +30,7 @@ export default async function HowItsMadePage({ params }: { params: Promise<{ slu
   return (
     <BlueprintGrid
       headerSlot={
-        <div className="absolute left-0 right-0 md:left-[26%] md:right-[26%] top-[22vh] h-[112px] flex items-center px-2 sm:px-4 z-50">
+        <div className="absolute left-3 right-3 sm:left-4 sm:right-4 md:left-[24.5%] md:right-[24.5%] top-[22vh] h-[112px] flex items-center px-2 sm:px-4 z-50">
           <div className="flex w-full items-center justify-between">
             {/* Left: Back + Title */}
             <div className="flex items-center gap-3 sm:gap-5 min-w-0 pr-2">
@@ -81,7 +81,7 @@ export default async function HowItsMadePage({ params }: { params: Promise<{ slu
         </div>
       }
     >
-        <div className="ml-0 mr-0 md:ml-[26%] md:mr-[26%] pt-[calc(22vh+112px)] pb-16 px-4 flex flex-col z-10 relative">
+        <div className="ml-3 mr-3 sm:ml-4 sm:mr-4 md:ml-[24.5%] md:mr-[24.5%] md:mx-0 pt-[calc(22vh+112px)] pb-16 px-3 sm:px-4 flex flex-col z-10 relative">
           <div className="w-full max-w-3xl mx-auto text-zinc-800 dark:text-zinc-300 space-y-12 leading-relaxed mt-16">
             
             {slug === 'prima-digital-agency' ? (

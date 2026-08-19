@@ -15,9 +15,9 @@ export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScroll
   const skip = hasSeenScrollAnimations || isLowTier;
   const { resolvedTheme } = useTheme();
   const [isDark, setIsDark] = useState(false);
-  const [cellSize, setCellSize] = useState(12);
-  const [cellGap, setCellGap] = useState(3);
-  const [monthsToShow, setMonthsToShow] = useState(9);
+  const [cellSize, setCellSize] = useState(14.5);
+  const [cellGap, setCellGap] = useState(3.5);
+  const [monthsToShow, setMonthsToShow] = useState(7);
   const [deviceType, setDeviceType] = useState<"mobile" | "tablet" | "desktop">("desktop");
   const [dataStatus, setDataStatus] = useState<"live" | "down" | "loading">("loading");
 
@@ -28,19 +28,19 @@ export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScroll
   useEffect(() => {
     const checkSize = () => {
       if (window.matchMedia('(max-width: 768px)').matches) {
-        setCellSize(12);
+        setCellSize(12.5);
         setCellGap(3);
         setMonthsToShow(4); 
         setDeviceType("mobile");
       } else if (window.matchMedia('(max-width: 1024px)').matches) {
-        setCellSize(12);
-        setCellGap(3);
-        setMonthsToShow(7);
+        setCellSize(13.5);
+        setCellGap(3.5);
+        setMonthsToShow(6);
         setDeviceType("tablet");
       } else {
-        setCellSize(11);
-        setCellGap(2.5);
-        setMonthsToShow(12); // Full 52 weeks (12 full months) for PC/Desktop!
+        setCellSize(14.5);
+        setCellGap(3.5);
+        setMonthsToShow(7); // 7 full months for PC/Desktop
         setDeviceType("desktop");
       }
     };
@@ -75,6 +75,8 @@ export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScroll
 
   return (
     <motion.section
+      layout
+      transition={{ type: "spring", stiffness: 240, damping: 28 }}
       className="relative z-10 mt-0 flex flex-col scroll-mt-24"
       aria-labelledby="github-activity-title"
       aria-describedby="github-activity-summary"
@@ -82,7 +84,6 @@ export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScroll
       whileInView={skip ? undefined : (phase === "done" ? "visible" : "hidden")}
       animate={skip ? "visible" : undefined}
       viewport={{ once: true, amount: 0.1 }}
-      transition={isLowTier ? { duration: 0 } : undefined}
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren: 0.15 } }
@@ -94,11 +95,13 @@ export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScroll
 
       {/* Graph content — sits directly below Socials separator (Matching Reference Picture 1) */}
       <motion.div 
+        layout
+        transition={{ type: "spring", stiffness: 240, damping: 28 }}
         variants={{
           hidden: { opacity: 0, scale: 0.98, y: 10 },
           visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", bounce: 0.4 } }
         }}
-        className="relative pt-3.5 pb-3 w-full px-2.5 sm:px-3 overflow-visible"
+        className="relative pt-3.5 pb-4 sm:pb-5 w-full px-2.5 sm:px-3 overflow-visible"
       >
         <GithubCalendar 
           username="VidZid2" 

@@ -729,8 +729,8 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
 
   const chatContent = (
     <>
-      {/* Mobile/Tablet Action Group */}
-      <div className="absolute top-4 right-4 z-[99] md:hidden">
+      {/* Mobile/Tablet Action Group (Far Left) */}
+      <div className="absolute top-4 left-4 z-[99] md:hidden">
         {showMessages && messages.length > 0 ? (
           <div 
             className="relative flex items-center bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl shadow-none select-none"

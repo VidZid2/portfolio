@@ -20,7 +20,7 @@ export function SubpageHeader({
   extraControls,
 }: SubpageHeaderProps) {
   return (
-    <div className="absolute left-0 right-0 md:left-[26%] md:right-[26%] top-[22vh] h-[112px] flex items-center px-4 z-50">
+    <div className="absolute left-3 right-3 sm:left-4 sm:right-4 md:left-[24.5%] md:right-[24.5%] top-[22vh] h-[112px] flex items-center px-4 z-50">
       <div className="flex w-full items-center justify-between">
         {/* Left: Back + Title */}
         <div className="flex items-center gap-5">

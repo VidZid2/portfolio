@@ -112,7 +112,7 @@ export function BottomSheet({
   return createPortal(
     <AnimatePresence>
       {open ? (
-        <div className="pointer-events-none fixed inset-0 z-[100]">
+        <div className="pointer-events-none fixed inset-0 z-[9999]">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

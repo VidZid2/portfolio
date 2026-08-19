@@ -130,7 +130,7 @@ export default function ContactPage() {
         }
       >
         {/* Content Section */}
-        <div className="ml-0 mr-0 md:ml-[26%] md:mr-[26%] pt-[calc(22vh+112px)] pb-16 md:pb-24 px-4 flex flex-col z-10 relative">
+        <div className="ml-3 mr-3 sm:ml-4 sm:mr-4 md:ml-[24.5%] md:mr-[24.5%] md:mx-0 pt-[calc(22vh+112px)] pb-16 md:pb-24 px-3 sm:px-4 flex flex-col z-10 relative">
           {/* Form */}
           <div className="mt-12 flex justify-center w-full px-0">
             <GlassForm onSubmit={handleSubmit} style={{ margin: "0 auto", width: "100%", maxWidth: "480px" }}>

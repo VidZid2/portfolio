@@ -422,10 +422,17 @@ class ClaudeModelSelectorElement extends HTMLElement {
           background: rgba(255, 255, 255, 0.1);
         }
 
-        .help-wrap:hover .tooltip,
+        @media (hover: hover) and (pointer: fine) {
+          .help-wrap:hover .tooltip,
+          .quota-wrap:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+          }
+        }
+
         .help-button:focus-visible + .tooltip,
         .help-wrap[data-tip-open] .tooltip,
-        .quota-wrap:hover .tooltip,
         .quota-button:focus-visible + .tooltip,
         .quota-wrap[data-tip-open] .tooltip {
           opacity: 1;
@@ -935,11 +942,18 @@ class ClaudeModelSelectorElement extends HTMLElement {
     );
     this._quotaButton.addEventListener(
       "click",
-      () => {
+      (e) => {
         if (this.disabled) return;
-        this._quotaWrap.toggleAttribute("data-tip-open");
-        this._helpWrap.removeAttribute("data-tip-open");
-        this._emitTooltipState(this._quotaWrap.hasAttribute("data-tip-open"));
+        e.stopPropagation();
+        const isOpen = this._quotaWrap.hasAttribute("data-tip-open");
+        if (isOpen) {
+          this._quotaWrap.removeAttribute("data-tip-open");
+          this._quotaButton.blur();
+        } else {
+          this._quotaWrap.setAttribute("data-tip-open", "");
+          this._helpWrap.removeAttribute("data-tip-open");
+        }
+        this._emitTooltipState(!isOpen);
       },
       { signal }
     );
@@ -959,14 +973,43 @@ class ClaudeModelSelectorElement extends HTMLElement {
     );
     this._helpButton.addEventListener(
       "click",
-      () => {
+      (e) => {
         if (this.disabled) return;
-        this._helpWrap.toggleAttribute("data-tip-open");
-        this._quotaWrap.removeAttribute("data-tip-open");
-        this._emitTooltipState(this._helpWrap.hasAttribute("data-tip-open"));
+        e.stopPropagation();
+        const isOpen = this._helpWrap.hasAttribute("data-tip-open");
+        if (isOpen) {
+          this._helpWrap.removeAttribute("data-tip-open");
+          this._helpButton.blur();
+        } else {
+          this._helpWrap.setAttribute("data-tip-open", "");
+          this._quotaWrap.removeAttribute("data-tip-open");
+        }
+        this._emitTooltipState(!isOpen);
       },
       { signal }
     );
+
+    // Global outside click / tap dismiss for mobile/tablet
+    const handleOutsideDismiss = (e: Event) => {
+      const path = e.composedPath ? e.composedPath() : [];
+      const isInsideQuota = path.includes(this._quotaWrap);
+      const isInsideHelp = path.includes(this._helpWrap);
+
+      if (!isInsideQuota && this._quotaWrap.hasAttribute("data-tip-open")) {
+        this._quotaWrap.removeAttribute("data-tip-open");
+        this._quotaButton.blur();
+        this._emitTooltipState(false);
+      }
+      if (!isInsideHelp && this._helpWrap.hasAttribute("data-tip-open")) {
+        this._helpWrap.removeAttribute("data-tip-open");
+        this._helpButton.blur();
+        this._emitTooltipState(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handleOutsideDismiss, { signal, passive: true });
+    document.addEventListener("touchstart", handleOutsideDismiss, { signal, passive: true });
+    window.addEventListener("scroll", handleOutsideDismiss, { signal, passive: true });
 
     this._reducedMotion.addEventListener("change", () => {
       if (this._isUltra) {
