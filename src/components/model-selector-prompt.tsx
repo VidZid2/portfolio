@@ -523,6 +523,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
   const [measureRef, { height }] = useMeasure();
   const [hasMounted, setHasMounted] = useState(false);
   const [view, setView] = useState<"details" | "changelog">("details");
+  const [hasTransitionedView, setHasTransitionedView] = useState(false);
   const [animationCounter] = useState(() => Date.now());
   const { reasoning, speed } = configuration;
   const isMobile = useMediaQuery("(max-width: 1024px)");
@@ -531,6 +532,12 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
   useEffect(() => {
     setHasMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (view !== "details") {
+      setHasTransitionedView(true);
+    }
+  }, [view]);
 
   useEffect(() => {
     if (isMobile) {
@@ -572,12 +579,13 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
 
   return (
     <motion.div
-      animate={hasMounted && height > 0 ? { height } : undefined}
+      initial={false}
+      animate={hasTransitionedView && height > 0 ? { height } : undefined}
       transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
       onPointerDown={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
-      className="flex w-full flex-col overflow-hidden"
+      className={cn("flex w-full flex-col", hasTransitionedView && "overflow-hidden")}
     >
       <div
         ref={measureRef as any}
