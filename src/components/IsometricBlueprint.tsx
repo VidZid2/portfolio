@@ -1,267 +1,252 @@
 ﻿"use client";
 
-import React, { useEffect, useRef } from "react";
-import { useTheme } from "next-themes";
+import React from "react";
 
-interface Box3D {
-  x: number;
-  y: number;
-  z: number;
-  w: number;
-  l: number;
-  h: number;
-  hatched?: boolean;
+// Isometric 3D -> 2D projection
+// theta = 30 deg (0.5235987756 rad)
+const COS30 = 0.86602540378;
+const SIN30 = 0.5;
+
+function pt(x: number, y: number, z: number, ox: number, oy: number, u: number): string {
+  const px = ox + (x - y) * COS30 * u;
+  const py = oy + (x + y) * SIN30 * u - z;
+  return `${px.toFixed(1)},${py.toFixed(1)}`;
 }
 
-const BOXES: Box3D[] = [
-  // Left Cluster (3 interlocking extruded blocks)
-  { x: -2.3, y: 0.9, z: 0, w: 1.35, l: 0.68, h: 0.36, hatched: true },
-  { x: -2.3, y: -0.35, z: 0, w: 1.35, l: 0.68, h: 0.36, hatched: true },
-  { x: -0.95, y: -0.35, z: 0, w: 1.35, l: 0.68, h: 0.36, hatched: true },
-
-  // Right Raised Courtyard Structure
-  { x: 0.7, y: -0.6, z: 0, w: 2.8, l: 0.7, h: 0.46, hatched: true },
-  { x: 0.7, y: 1.5, z: 0, w: 2.8, l: 0.7, h: 0.46, hatched: true },
-  { x: 0.7, y: 0.1, z: 0, w: 0.7, l: 1.4, h: 0.46, hatched: true },
-  { x: 2.8, y: 0.1, z: 0, w: 0.7, l: 1.4, h: 0.46, hatched: true },
-
-  // Rear Step Wings
-  { x: 2.1, y: 2.2, z: 0, w: 1.4, l: 0.8, h: 0.34, hatched: true },
-  { x: 0.4, y: 2.2, z: 0, w: 1.3, l: 0.8, h: 0.34, hatched: true },
-];
+function p(x: number, y: number, z: number, ox: number, oy: number, u: number): { x: number; y: number } {
+  return {
+    x: ox + (x - y) * COS30 * u,
+    y: oy + (x + y) * SIN30 * u - z,
+  };
+}
 
 export function IsometricBlueprint({ className = "" }: { className?: string }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { resolvedTheme } = useTheme();
-  const themeRef = useRef(resolvedTheme);
-  themeRef.current = resolvedTheme;
+  // Base origin and scale tuned for a 720x240 viewBox
+  const ox = 320;
+  const oy = 115;
+  const u = 32;
+  const H1 = 14; // Left blocks height
+  const H2 = 18; // Right platform height
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+  // ----------------------------------------------------
+  // 1. LEFT C-BRACKET (3 Rectangular Extrusions)
+  // ----------------------------------------------------
+  // Block A (Top-Left arm): x in [-3.6, -2.4], y in [0.0, 1.8]
+  // Block B (Corner):       x in [-3.6, -2.4], y in [-1.4, 0.0]
+  // Block C (Bottom-Right): x in [-2.4, -0.6], y in [-1.4, 0.0]
 
-    let raf = 0;
-    let running = true;
+  // Top faces (z = H1)
+  const topA = `${pt(-3.6, 0.0, H1, ox, oy, u)} ${pt(-2.4, 0.0, H1, ox, oy, u)} ${pt(-2.4, 1.8, H1, ox, oy, u)} ${pt(-3.6, 1.8, H1, ox, oy, u)}`;
+  const topB = `${pt(-3.6, -1.4, H1, ox, oy, u)} ${pt(-2.4, -1.4, H1, ox, oy, u)} ${pt(-2.4, 0.0, H1, ox, oy, u)} ${pt(-3.6, 0.0, H1, ox, oy, u)}`;
+  const topC = `${pt(-2.4, -1.4, H1, ox, oy, u)} ${pt(-0.6, -1.4, H1, ox, oy, u)} ${pt(-0.6, 0.0, H1, ox, oy, u)} ${pt(-2.4, 0.0, H1, ox, oy, u)}`;
 
-    let targetRotX = 0;
-    let targetRotY = 0;
-    let currentRotX = 0;
-    let currentRotY = 0;
+  // Vertical visible side walls for Left group:
+  // Block A right wall (x = -2.4, y in [0, 1.8])
+  const wallA_right = `${pt(-2.4, 0.0, H1, ox, oy, u)} ${pt(-2.4, 1.8, H1, ox, oy, u)} ${pt(-2.4, 1.8, 0, ox, oy, u)} ${pt(-2.4, 0.0, 0, ox, oy, u)}`;
+  // Block A top wall (y = 1.8, x in [-3.6, -2.4])
+  const wallA_top = `${pt(-3.6, 1.8, H1, ox, oy, u)} ${pt(-2.4, 1.8, H1, ox, oy, u)} ${pt(-2.4, 1.8, 0, ox, oy, u)} ${pt(-3.6, 1.8, 0, ox, oy, u)}`;
+  // Block A left wall (x = -3.6, y in [0, 1.8])
+  const wallA_left = `${pt(-3.6, 0.0, H1, ox, oy, u)} ${pt(-3.6, 1.8, H1, ox, oy, u)} ${pt(-3.6, 1.8, 0, ox, oy, u)} ${pt(-3.6, 0.0, 0, ox, oy, u)}`;
 
-    const handlePointerMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / Math.max(1, rect.width) - 0.5;
-      const y = (e.clientY - rect.top) / Math.max(1, rect.height) - 0.5;
-      targetRotX = y * 0.12;
-      targetRotY = x * 0.16;
-    };
+  // Block B left wall (x = -3.6, y in [-1.4, 0])
+  const wallB_left = `${pt(-3.6, -1.4, H1, ox, oy, u)} ${pt(-3.6, 0.0, H1, ox, oy, u)} ${pt(-3.6, 0.0, 0, ox, oy, u)} ${pt(-3.6, -1.4, 0, ox, oy, u)}`;
+  // Block B front wall (y = -1.4, x in [-3.6, -2.4])
+  const wallB_front = `${pt(-3.6, -1.4, H1, ox, oy, u)} ${pt(-2.4, -1.4, H1, ox, oy, u)} ${pt(-2.4, -1.4, 0, ox, oy, u)} ${pt(-3.6, -1.4, 0, ox, oy, u)}`;
 
-    const handlePointerLeave = () => {
-      targetRotX = 0;
-      targetRotY = 0;
-    };
+  // Block C front wall (y = -1.4, x in [-2.4, -0.6])
+  const wallC_front = `${pt(-2.4, -1.4, H1, ox, oy, u)} ${pt(-0.6, -1.4, H1, ox, oy, u)} ${pt(-0.6, -1.4, 0, ox, oy, u)} ${pt(-2.4, -1.4, 0, ox, oy, u)}`;
+  // Block C right wall (x = -0.6, y in [-1.4, 0.0])
+  const wallC_right = `${pt(-0.6, -1.4, H1, ox, oy, u)} ${pt(-0.6, 0.0, H1, ox, oy, u)} ${pt(-0.6, 0.0, 0, ox, oy, u)} ${pt(-0.6, -1.4, 0, ox, oy, u)}`;
+  // Block C back inner wall (y = 0.0, x in [-2.4, -0.6])
+  const wallC_back = `${pt(-2.4, 0.0, H1, ox, oy, u)} ${pt(-0.6, 0.0, H1, ox, oy, u)} ${pt(-0.6, 0.0, 0, ox, oy, u)} ${pt(-2.4, 0.0, 0, ox, oy, u)}`;
 
-    window.addEventListener("mousemove", handlePointerMove);
-    document.addEventListener("mouseleave", handlePointerLeave);
+  // ----------------------------------------------------
+  // 2. RIGHT COURTYARD COMPLEX
+  // ----------------------------------------------------
+  // Outer boundary: x in [0.8, 4.4], y in [-0.4, 3.2], z = H2
+  // Inner courtyard hole: x in [1.8, 3.4], y in [0.6, 2.2], depth = H2 (down to 0)
 
-    const render = () => {
-      if (!running) return;
+  // Outer front wall (y = -0.4, x in [0.8, 4.4])
+  const plat_front = `${pt(0.8, -0.4, H2, ox, oy, u)} ${pt(4.4, -0.4, H2, ox, oy, u)} ${pt(4.4, -0.4, 0, ox, oy, u)} ${pt(0.8, -0.4, 0, ox, oy, u)}`;
+  // Outer left wall (x = 0.8, y in [-0.4, 3.2])
+  const plat_left = `${pt(0.8, -0.4, H2, ox, oy, u)} ${pt(0.8, 3.2, H2, ox, oy, u)} ${pt(0.8, 3.2, 0, ox, oy, u)} ${pt(0.8, -0.4, 0, ox, oy, u)}`;
+  // Outer right wall (x = 4.4, y in [-0.4, 3.2])
+  const plat_right = `${pt(4.4, -0.4, H2, ox, oy, u)} ${pt(4.4, 3.2, H2, ox, oy, u)} ${pt(4.4, 3.2, 0, ox, oy, u)} ${pt(4.4, -0.4, 0, ox, oy, u)}`;
 
-      currentRotX += (targetRotX - currentRotX) * 0.08;
-      currentRotY += (targetRotY - currentRotY) * 0.08;
+  // Courtyard Top 4 Ring Slabs (Hatched)
+  // Front slab: x in [0.8, 4.4], y in [-0.4, 0.6]
+  const ring_front = `${pt(0.8, -0.4, H2, ox, oy, u)} ${pt(4.4, -0.4, H2, ox, oy, u)} ${pt(4.4, 0.6, H2, ox, oy, u)} ${pt(0.8, 0.6, H2, ox, oy, u)}`;
+  // Back slab: x in [0.8, 4.4], y in [2.2, 3.2]
+  const ring_back = `${pt(0.8, 2.2, H2, ox, oy, u)} ${pt(4.4, 2.2, H2, ox, oy, u)} ${pt(4.4, 3.2, H2, ox, oy, u)} ${pt(0.8, 3.2, H2, ox, oy, u)}`;
+  // Left slab: x in [0.8, 1.8], y in [0.6, 2.2]
+  const ring_left = `${pt(0.8, 0.6, H2, ox, oy, u)} ${pt(1.8, 0.6, H2, ox, oy, u)} ${pt(1.8, 2.2, H2, ox, oy, u)} ${pt(0.8, 2.2, H2, ox, oy, u)}`;
+  // Right slab: x in [3.4, 4.4], y in [0.6, 2.2]
+  const ring_right = `${pt(3.4, 0.6, H2, ox, oy, u)} ${pt(4.4, 0.6, H2, ox, oy, u)} ${pt(4.4, 2.2, H2, ox, oy, u)} ${pt(3.4, 2.2, H2, ox, oy, u)}`;
 
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const w = canvas.clientWidth || 800;
-      const h = canvas.clientHeight || 200;
+  // Inner Courtyard Recessed Visible Walls:
+  // Inside Left Wall (facing right): along x = 1.8, y in [0.6, 2.2], from z = H2 down to z = 0
+  const inner_left = `${pt(1.8, 0.6, H2, ox, oy, u)} ${pt(1.8, 2.2, H2, ox, oy, u)} ${pt(1.8, 2.2, 0, ox, oy, u)} ${pt(1.8, 0.6, 0, ox, oy, u)}`;
+  // Inside Back Wall (facing front): along y = 2.2, x in [1.8, 3.4], from z = H2 down to z = 0
+  const inner_back = `${pt(1.8, 2.2, H2, ox, oy, u)} ${pt(3.4, 2.2, H2, ox, oy, u)} ${pt(3.4, 2.2, 0, ox, oy, u)} ${pt(1.8, 2.2, 0, ox, oy, u)}`;
+  // Inside Courtyard Floor (z = 0)
+  const inner_floor = `${pt(1.8, 0.6, 0, ox, oy, u)} ${pt(3.4, 0.6, 0, ox, oy, u)} ${pt(3.4, 2.2, 0, ox, oy, u)} ${pt(1.8, 2.2, 0, ox, oy, u)}`;
 
-      if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
-        canvas.width = Math.round(w * dpr);
-        canvas.height = Math.round(h * dpr);
-      }
+  // ----------------------------------------------------
+  // 3. ATTACHED REAR STEP WING
+  // ----------------------------------------------------
+  // Positioned at x in [2.6, 4.4], y in [3.2, 4.6], z in [0, H2]
+  const step_top = `${pt(2.6, 3.2, H2, ox, oy, u)} ${pt(4.4, 3.2, H2, ox, oy, u)} ${pt(4.4, 4.6, H2, ox, oy, u)} ${pt(2.6, 4.6, H2, ox, oy, u)}`;
+  const step_right = `${pt(4.4, 3.2, H2, ox, oy, u)} ${pt(4.4, 4.6, H2, ox, oy, u)} ${pt(4.4, 4.6, 0, ox, oy, u)} ${pt(4.4, 3.2, 0, ox, oy, u)}`;
+  const step_back = `${pt(2.6, 4.6, H2, ox, oy, u)} ${pt(4.4, 4.6, H2, ox, oy, u)} ${pt(4.4, 4.6, 0, ox, oy, u)} ${pt(2.6, 4.6, 0, ox, oy, u)}`;
 
-      ctx.save();
-      ctx.scale(dpr, dpr);
-      ctx.clearRect(0, 0, w, h);
+  // ----------------------------------------------------
+  // 4. ISOMETRIC CONSTRUCTION GUIDELINES (Dashed)
+  // ----------------------------------------------------
+  const guide1_start = p(-5.5, -1.4, 0, ox, oy, u);
+  const guide1_end = p(6.5, -1.4, 0, ox, oy, u);
 
-      const isDark = themeRef.current === "dark";
-      const strokeColor = isDark ? "rgba(226, 232, 240, 0.42)" : "rgba(51, 65, 85, 0.55)";
-      const hatchColor = isDark ? "rgba(226, 232, 240, 0.18)" : "rgba(51, 65, 85, 0.22)";
-      const faceBgColor = isDark ? "rgba(10, 10, 12, 0.94)" : "rgba(255, 255, 255, 0.94)";
-      const gridColor = isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)";
+  const guide2_start = p(-3.6, -3.0, 0, ox, oy, u);
+  const guide2_end = p(-3.6, 5.0, 0, ox, oy, u);
 
-      const centerX = w * 0.48;
-      const centerY = h * 0.56;
-      const scale = Math.min(w * 0.09, h * 0.36, 42);
+  const guide3_start = p(0.8, -2.5, 0, ox, oy, u);
+  const guide3_end = p(0.8, 5.5, 0, ox, oy, u);
 
-      const isoAngle = Math.PI / 6 + currentRotY * 0.4;
-      const cosA = Math.cos(isoAngle);
-      const sinA = Math.sin(isoAngle);
-      const pitch = 0.56 + currentRotX * 0.4;
+  const guide4_start = p(-5.0, 3.2, 0, ox, oy, u);
+  const guide4_end = p(6.0, 3.2, 0, ox, oy, u);
 
-      const project = (x: number, y: number, z: number) => {
-        const px = centerX + (x - y) * cosA * scale;
-        const py = centerY + (x + y) * sinA * scale * pitch - z * scale * 1.15;
-        return { x: px, y: py, depth: (x + y) * 10 + z * 2 };
-      };
-
-      // 1. Draw subtle isometric ground construction grid lines
-      ctx.strokeStyle = gridColor;
-      ctx.lineWidth = 1;
-      ctx.setLineDash([3, 4]);
-
-      for (let g = -6; g <= 6; g += 1.5) {
-        const p1 = project(-5, g, 0);
-        const p2 = project(5, g, 0);
-        ctx.beginPath();
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
-        ctx.stroke();
-
-        const p3 = project(g, -5, 0);
-        const p4 = project(g, 5, 0);
-        ctx.beginPath();
-        ctx.moveTo(p3.x, p3.y);
-        ctx.lineTo(p4.x, p4.y);
-        ctx.stroke();
-      }
-      ctx.setLineDash([]);
-
-      // 2. Build 3D Box faces for depth sorting
-      interface Face {
-        type: "top" | "front" | "right" | "left" | "back";
-        pts: { x: number; y: number }[];
-        depth: number;
-        hatched?: boolean;
-      }
-
-      const faces: Face[] = [];
-
-      BOXES.forEach((b) => {
-        const { x, y, z, w: bw, l: bl, h: bh, hatched } = b;
-
-        const v000 = project(x, y, z);
-        const v100 = project(x + bw, y, z);
-        const v110 = project(x + bw, y + bl, z);
-        const v010 = project(x, y + bl, z);
-        const v001 = project(x, y, z + bh);
-        const v101 = project(x + bw, y, z + bh);
-        const v111 = project(x + bw, y + bl, z + bh);
-        const v011 = project(x, y + bl, z + bh);
-
-        // Top face (Z+)
-        faces.push({
-          type: "top",
-          pts: [v001, v101, v111, v011],
-          depth: (v001.depth + v101.depth + v111.depth + v011.depth) / 4 + 3,
-          hatched,
-        });
-
-        // Front Face (Y-)
-        faces.push({
-          type: "front",
-          pts: [v000, v100, v101, v001],
-          depth: (v000.depth + v100.depth + v101.depth + v001.depth) / 4 + 1,
-        });
-
-        // Right Face (X+)
-        faces.push({
-          type: "right",
-          pts: [v100, v110, v111, v101],
-          depth: (v100.depth + v110.depth + v111.depth + v101.depth) / 4 + 1,
-        });
-
-        // Left Face (X-)
-        faces.push({
-          type: "left",
-          pts: [v000, v010, v011, v001],
-          depth: (v000.depth + v010.depth + v011.depth + v001.depth) / 4 - 3,
-        });
-
-        // Back Face (Y+)
-        faces.push({
-          type: "back",
-          pts: [v010, v110, v111, v011],
-          depth: (v010.depth + v110.depth + v111.depth + v011.depth) / 4 - 3,
-        });
-      });
-
-      // Painter's Algorithm: Sort faces back to front
-      faces.sort((a, b) => a.depth - b.depth);
-
-      // 3. Render Faces
-      faces.forEach((f) => {
-        ctx.beginPath();
-        ctx.moveTo(f.pts[0].x, f.pts[0].y);
-        for (let i = 1; i < f.pts.length; i++) {
-          ctx.lineTo(f.pts[i].x, f.pts[i].y);
-        }
-        ctx.closePath();
-
-        // Solid face background to occlude geometry behind it
-        ctx.fillStyle = faceBgColor;
-        ctx.fill();
-
-        // If top face and hatched, draw 45-degree diagonal blueprint lines
-        if (f.type === "top" && f.hatched) {
-          ctx.save();
-          ctx.clip();
-          ctx.strokeStyle = hatchColor;
-          ctx.lineWidth = 1;
-
-          let minX = f.pts[0].x,
-            maxX = f.pts[0].x,
-            minY = f.pts[0].y,
-            maxY = f.pts[0].y;
-          f.pts.forEach((p) => {
-            if (p.x < minX) minX = p.x;
-            if (p.x > maxX) maxX = p.x;
-            if (p.y < minY) minY = p.y;
-            if (p.y > maxY) maxY = p.y;
-          });
-
-          const step = 5;
-          const diagLen = maxX - minX + (maxY - minY);
-          for (let d = -diagLen; d <= diagLen; d += step) {
-            ctx.beginPath();
-            ctx.moveTo(minX + d, minY - 10);
-            ctx.lineTo(minX + d + (maxY - minY + 20), maxY + 10);
-            ctx.stroke();
-          }
-          ctx.restore();
-        }
-
-        // Face outline
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = 1.1;
-        ctx.stroke();
-      });
-
-      // 4. "Fig. 1." technical blueprint caption (positioned cleanly on bottom-left)
-      ctx.font = '500 11px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace';
-      ctx.fillStyle = isDark ? "rgba(148, 163, 184, 0.6)" : "rgba(100, 116, 139, 0.7)";
-      ctx.textAlign = "left";
-      ctx.fillText("Fig. 1.", 24, h - 14);
-
-      ctx.restore();
-
-      raf = requestAnimationFrame(render);
-    };
-
-    raf = requestAnimationFrame(render);
-
-    return () => {
-      running = false;
-      cancelAnimationFrame(raf);
-      window.removeEventListener("mousemove", handlePointerMove);
-      document.removeEventListener("mouseleave", handlePointerLeave);
-    };
-  }, [resolvedTheme]);
+  const guide5_start = p(4.4, -2.5, 0, ox, oy, u);
+  const guide5_end = p(4.4, 6.0, 0, ox, oy, u);
 
   return (
-    <div className={`relative w-full h-full overflow-hidden select-none ${className}`}>
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block pointer-events-auto" />
+    <div className={`relative w-full h-full overflow-hidden select-none flex items-center justify-center ${className}`}>
+      <svg
+        viewBox="0 0 680 230"
+        className="w-full h-full max-h-[220px]"
+        preserveAspectRatio="xMidYMid meet"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          {/* Light Mode 45-degree Technical Blueprint Hatch Pattern */}
+          <pattern
+            id="iso-hatch-light"
+            width="6"
+            height="6"
+            patternTransform="rotate(45 0 0)"
+            patternUnits="userSpaceOnUse"
+          >
+            <line x1="0" y1="0" x2="0" y2="6" stroke="#52525b" strokeWidth="0.85" opacity="0.35" />
+          </pattern>
+
+          {/* Dark Mode 45-degree Technical Blueprint Hatch Pattern */}
+          <pattern
+            id="iso-hatch-dark"
+            width="6"
+            height="6"
+            patternTransform="rotate(45 0 0)"
+            patternUnits="userSpaceOnUse"
+          >
+            <line x1="0" y1="0" x2="0" y2="6" stroke="#cbd5e1" strokeWidth="0.85" opacity="0.4" />
+          </pattern>
+        </defs>
+
+        {/* 1. Isometric Faint Dashed Construction Lines */}
+        <g className="stroke-zinc-300/60 dark:stroke-zinc-800/80" strokeWidth="0.8" strokeDasharray="3 3">
+          <line x1={guide1_start.x} y1={guide1_start.y} x2={guide1_end.x} y2={guide1_end.y} />
+          <line x1={guide2_start.x} y1={guide2_start.y} x2={guide2_end.x} y2={guide2_end.y} />
+          <line x1={guide3_start.x} y1={guide3_start.y} x2={guide3_end.x} y2={guide3_end.y} />
+          <line x1={guide4_start.x} y1={guide4_start.y} x2={guide4_end.x} y2={guide4_end.y} />
+          <line x1={guide5_start.x} y1={guide5_start.y} x2={guide5_end.x} y2={guide5_end.y} />
+        </g>
+
+        {/* --------------------------------------------- */}
+        {/* 2. REAR STEP WING */}
+        {/* --------------------------------------------- */}
+        <g className="stroke-zinc-600 dark:stroke-zinc-400 fill-white dark:fill-[#0a0a0c]" strokeWidth="1.1" strokeLinejoin="round">
+          <polygon points={step_back} />
+          <polygon points={step_right} />
+        </g>
+        {/* Rear Step Top Hatch */}
+        <polygon points={step_top} className="fill-white dark:fill-[#0a0a0c]" />
+        <polygon points={step_top} className="fill-[url(#iso-hatch-light)] dark:fill-[url(#iso-hatch-dark)] stroke-zinc-600 dark:stroke-zinc-400" strokeWidth="1.1" strokeLinejoin="round" />
+
+        {/* --------------------------------------------- */}
+        {/* 3. RIGHT COURTYARD COMPLEX */}
+        {/* --------------------------------------------- */}
+        {/* Outer Solid Side Walls */}
+        <g className="stroke-zinc-600 dark:stroke-zinc-400 fill-white dark:fill-[#0a0a0c]" strokeWidth="1.1" strokeLinejoin="round">
+          <polygon points={plat_left} />
+          <polygon points={plat_front} />
+          <polygon points={plat_right} />
+        </g>
+
+        {/* Inner Courtyard Floor */}
+        <polygon points={inner_floor} className="fill-white dark:fill-[#0a0a0c] stroke-zinc-400/40 dark:stroke-zinc-600/40" strokeWidth="0.8" strokeLinejoin="round" />
+
+        {/* Inner Courtyard Recessed Walls */}
+        <g className="stroke-zinc-600 dark:stroke-zinc-400 fill-white dark:fill-[#0a0a0c]" strokeWidth="1.1" strokeLinejoin="round">
+          <polygon points={inner_back} />
+          <polygon points={inner_left} />
+        </g>
+
+        {/* Courtyard 4 Top Ring Slabs (Hatched) */}
+        <g className="fill-white dark:fill-[#0a0a0c]">
+          <polygon points={ring_front} />
+          <polygon points={ring_back} />
+          <polygon points={ring_left} />
+          <polygon points={ring_right} />
+        </g>
+        <g className="fill-[url(#iso-hatch-light)] dark:fill-[url(#iso-hatch-dark)] stroke-zinc-600 dark:stroke-zinc-400" strokeWidth="1.1" strokeLinejoin="round">
+          <polygon points={ring_front} />
+          <polygon points={ring_back} />
+          <polygon points={ring_left} />
+          <polygon points={ring_right} />
+        </g>
+
+        {/* --------------------------------------------- */}
+        {/* 4. LEFT C-BRACKET (3 BLOCKS) */}
+        {/* --------------------------------------------- */}
+        {/* Side Walls */}
+        <g className="stroke-zinc-600 dark:stroke-zinc-400 fill-white dark:fill-[#0a0a0c]" strokeWidth="1.1" strokeLinejoin="round">
+          {/* Block A */}
+          <polygon points={wallA_left} />
+          <polygon points={wallA_top} />
+          <polygon points={wallA_right} />
+
+          {/* Block B */}
+          <polygon points={wallB_left} />
+          <polygon points={wallB_front} />
+
+          {/* Block C */}
+          <polygon points={wallC_front} />
+          <polygon points={wallC_right} />
+          <polygon points={wallC_back} />
+        </g>
+
+        {/* Top Faces with 45-degree Technical Hatching */}
+        <g className="fill-white dark:fill-[#0a0a0c]">
+          <polygon points={topA} />
+          <polygon points={topB} />
+          <polygon points={topC} />
+        </g>
+        <g className="fill-[url(#iso-hatch-light)] dark:fill-[url(#iso-hatch-dark)] stroke-zinc-600 dark:stroke-zinc-400" strokeWidth="1.1" strokeLinejoin="round">
+          <polygon points={topA} />
+          <polygon points={topB} />
+          <polygon points={topC} />
+        </g>
+
+        {/* --------------------------------------------- */}
+        {/* 5. "Fig. 1." TECHNICAL CAPTION */}
+        {/* --------------------------------------------- */}
+        <text
+          x="650"
+          y="214"
+          textAnchor="end"
+          className="fill-zinc-400 dark:fill-zinc-500 font-mono text-[11px] font-medium tracking-tight select-none"
+        >
+          Fig. 1.
+        </text>
+      </svg>
     </div>
   );
 }
