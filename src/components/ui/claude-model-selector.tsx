@@ -1024,15 +1024,15 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
   _resizeCanvas() {
     const rect = this._track.getBoundingClientRect();
-    if (!rect.width || !rect.height) return;
+    const trackWidth = rect.width || this._track.clientWidth;
+    const trackHeight = rect.height || this._track.clientHeight;
+    if (!trackWidth || !trackHeight) return;
     const ratio = Math.min(window.devicePixelRatio || 1, 2);
-    const width = Math.round(rect.width * ratio);
-    const height = Math.round(rect.height * ratio);
+    const width = Math.round(trackWidth * ratio);
+    const height = Math.round(trackHeight * ratio);
     if (this._canvas.width !== width || this._canvas.height !== height) {
       this._canvas.width = width;
       this._canvas.height = height;
-      this._canvas.style.width = `${rect.width}px`;
-      this._canvas.style.height = `${rect.height}px`;
       this._drawPixelField(performance.now());
     }
   }
@@ -1060,10 +1060,19 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
   _drawPixelField(time: number) {
     const context = this._canvas.getContext("2d");
-    if (!context || !this._canvas.width || !this._canvas.height) return;
+    if (!context) return;
+    const rect = this._track.getBoundingClientRect();
+    const width = rect.width || this._track.clientWidth || 240;
+    const height = rect.height || this._track.clientHeight || 24;
     const ratio = Math.min(window.devicePixelRatio || 1, 2);
-    const width = this._canvas.width / ratio;
-    const height = this._canvas.height / ratio;
+    const widthPx = Math.round(width * ratio);
+    const heightPx = Math.round(height * ratio);
+
+    if (this._canvas.width !== widthPx || this._canvas.height !== heightPx) {
+      this._canvas.width = widthPx;
+      this._canvas.height = heightPx;
+    }
+
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
     context.clearRect(0, 0, width, height);
     if (!this._isUltra) return;
@@ -1072,7 +1081,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
     const frontier = 1 - reveal;
     const cell = width < 280 ? 5 : 6;
     const gap = 1.1;
-    const columns = Math.ceil(width / cell);
+    const columns = Math.ceil(width / cell) + 2;
     const rows = Math.ceil(height / cell);
     const elapsed = Math.max(0, time - this._ultraStartedAt);
 
