@@ -216,27 +216,27 @@ export function CommandMenu() {
 
             <div className="relative group/ai inline-flex items-center">
                 {/* Handwritten Annotation: talk to my AI / ask me anything pointing to Ask AI */}
-                <div className="absolute left-full ml-2 -top-10 sm:-top-12 hidden sm:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
+                <div className="absolute left-full ml-1 -top-11 sm:-top-13 hidden sm:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
                     <div className="flex flex-col text-left font-caveat italic text-[19px] sm:text-[23px] leading-[1.05] font-medium text-zinc-600 dark:text-zinc-400 select-none -rotate-[6deg] tracking-wide ml-2">
                         <span>talk to my AI</span>
                         <span>ask me anything</span>
                     </div>
                     <svg
                         width="36"
-                        height="28"
-                        viewBox="0 0 36 28"
+                        height="26"
+                        viewBox="0 0 36 26"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
-                        className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-0.5"
+                        className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-1 -translate-x-2 sm:-translate-x-2.5"
                     >
                         <path
-                            d="M 28 2 C 28 11, 15 20, 2 20"
+                            d="M 32 2 C 32 10, 18 18, 2 18"
                             stroke="currentColor"
                             strokeWidth="1.35"
                             strokeLinecap="round"
                         />
                         <path
-                            d="M 10 14 L 2 20 L 9 26"
+                            d="M 10 12 L 2 18 L 9 24"
                             stroke="currentColor"
                             strokeWidth="1.35"
                             strokeLinecap="round"
