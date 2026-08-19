@@ -75,38 +75,7 @@ export default function AllExperiencePage() {
                       <div className="flex min-w-0 flex-col gap-0.5 pr-2 sm:pr-4">
                         <div className="flex items-center gap-2">
                           <span className="text-[14px] font-bold leading-tight sm:text-[17px] text-zinc-900 dark:text-zinc-100 truncate">
-                            {item.title === "STI eLMS 2.0" ? (
-                              <>
-                                <span className="sm:hidden">STI eLMS 2.0 x PRIMA</span>
-                                <span className="hidden flex-wrap items-center gap-x-2 gap-y-1 align-middle sm:inline-flex">
-                                  <span className="inline-flex h-10 items-center">
-                                    STI eLMS 2.0
-                                  </span>
-                                  <span className="inline-flex h-10 items-center text-[13px] font-semibold leading-none text-zinc-500 dark:text-zinc-500">
-                                    x
-                                  </span>
-                                  <span className="inline-flex h-10 items-center gap-2 leading-none">
-                                  <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-[10px] border border-black/10 bg-zinc-50 p-[2px] shadow-sm shadow-black/15 dark:border-zinc-800 dark:bg-[#111111] dark:shadow-md dark:shadow-black/50">
-                                      <span className="inline-flex size-full items-center justify-center overflow-hidden rounded-[7px] border border-black/5 bg-black dark:bg-black dark:border-black/20">
-                                        <Image
-                                          src="/PRIMA.png"
-                                          alt="PRIMA"
-                                          width={113}
-                                          height={96}
-                                          sizes="40px"
-                                          quality={60}
-                                          aria-hidden="true"
-                                          className="w-full h-full object-cover scale-[1.2]"
-                                        />
-                                      </span>
-                                    </span>
-                                    <span className="inline-flex h-10 items-center">
-                                      PRIMA
-                                    </span>
-                                  </span>
-                                </span>
-                              </>
-                            ) : item.title === "Vercel OSS Program x VengenceUI" ? (
+                            {item.title === "Vercel OSS Program x VengenceUI" ? (
                               <>
                                 <span className="sm:hidden">Vercel OSS Program x VengenceUI</span>
                                 <span className="hidden flex-wrap items-center gap-x-2 gap-y-1 align-middle sm:inline-flex">
