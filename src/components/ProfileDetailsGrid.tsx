@@ -247,44 +247,14 @@ export function ProfileDetailsGrid() {
         <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
       </div>
 
-      {/* Socials Row (Matching Reference Picture 2) */}
-      <div className="relative flex items-center py-2.5">
-        {/* Handwritten Annotation in Left Gutter outside the vertical line */}
-        <div className="absolute right-full top-[-14px] pr-4 sm:pr-5 hidden sm:flex flex-col items-end pointer-events-none select-none z-30 min-w-max">
-          <span className="inline-block font-caveat italic text-[17px] sm:text-[19px] font-medium text-zinc-600 dark:text-zinc-400 leading-none whitespace-nowrap -rotate-[8deg] tracking-wide select-none mr-1">
-            say hi
-          </span>
-          <svg
-            width="28"
-            height="24"
-            viewBox="0 0 28 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-0.5"
-          >
-            <path
-              d="M 4 2 C 4 9, 10 17, 24 17"
-              stroke="currentColor"
-              strokeWidth="1.1"
-              strokeLinecap="round"
-            />
-            <path
-              d="M 18 13.5 L 25 17 L 19 20.5"
-              stroke="currentColor"
-              strokeWidth="1.1"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
+      {/* Socials Row (Matching User Picture 2) */}
+      <div className="relative flex flex-col py-3">
+        <h2 className="text-[13px] text-zinc-500 dark:text-zinc-400 mb-2.5 select-none">
+          Find me on my <strong className="font-semibold text-zinc-800 dark:text-zinc-200">socials</strong>
+        </h2>
 
-        {/* Mobile-only fallback */}
-        <div className="flex sm:hidden items-center gap-1 font-caveat italic text-[14px] text-zinc-600 dark:text-zinc-400 select-none shrink-0 mr-2 -mt-0.5">
-          <span className="whitespace-nowrap -rotate-[4deg] inline-block">say hi ↘</span>
-        </div>
-
-        {/* Social Icon Tiles - Flush with left edge */}
-        <div className="flex items-center gap-1.5 flex-wrap">
+        {/* Social Buttons */}
+        <div className="flex items-center gap-2 flex-wrap">
           {SOCIAL_LINKS.map((item) => (
             <motion.a
               key={item.name}
@@ -294,11 +264,14 @@ export function ProfileDetailsGrid() {
               aria-label={item.name}
               onMouseEnter={() => playHoverTick(0.02)}
               onClick={() => playSoftClick(0.04)}
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.92 }}
-              className="w-8 h-8 rounded-lg border border-black/20 dark:border-white/[0.12] bg-zinc-100/80 dark:bg-zinc-900/80 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors flex items-center justify-center shadow-sm"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="px-3.5 py-1.5 rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900/90 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-all flex items-center gap-2 text-[13px] font-medium shadow-sm"
             >
-              {item.icon}
+              <span className="w-3.5 h-3.5 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
+                {item.icon}
+              </span>
+              <span>{item.name === "X" ? "Twitter" : item.name}</span>
             </motion.a>
           ))}
         </div>
