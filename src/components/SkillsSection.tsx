@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 import { usePerformance } from "@/hooks/usePerformance";
 import ScrambleText from "@/components/ruixen/scramble-text";
+import { playSoftClick } from "@/lib/synth-sounds";
 
 function OpenAIIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
   return (
@@ -23,6 +24,7 @@ interface StackItem {
   icon?: string;
   customSrc?: string;
   isLobeOpenAI?: boolean;
+  href: string;
 }
 
 interface StackCategory {
@@ -38,11 +40,11 @@ const STACK_CATEGORIES: StackCategory[] = [
     index: "01",
     name: "Language",
     items: [
-      { name: "TypeScript", icon: "typescript" },
-      { name: "JavaScript", customSrc: "/SVG's/Stack SVG's/JavaScript.png" },
-      { name: "Python", icon: "python" },
-      { name: "HTML5", customSrc: "/SVG's/Stack SVG's/HTML.svg" },
-      { name: "CSS3", customSrc: "/SVG's/Stack SVG's/CSS3.svg" },
+      { name: "TypeScript", icon: "typescript", href: "https://www.typescriptlang.org" },
+      { name: "JavaScript", customSrc: "/SVG's/Stack SVG's/JavaScript.png", href: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
+      { name: "Python", icon: "python", href: "https://www.python.org" },
+      { name: "HTML5", customSrc: "/SVG's/Stack SVG's/HTML.svg", href: "https://developer.mozilla.org/en-US/docs/Web/HTML" },
+      { name: "CSS3", customSrc: "/SVG's/Stack SVG's/CSS3.svg", href: "https://developer.mozilla.org/en-US/docs/Web/CSS" },
     ],
   },
   {
@@ -50,12 +52,12 @@ const STACK_CATEGORIES: StackCategory[] = [
     index: "02",
     name: "Frontend",
     items: [
-      { name: "React", icon: "react" },
-      { name: "Next.js", icon: "nextdotjs" },
-      { name: "Tailwind CSS", icon: "tailwindcss" },
-      { name: "Motion", icon: "framer" },
-      { name: "Three.js", icon: "threedotjs" },
-      { name: "Vite", icon: "vite" },
+      { name: "React", icon: "react", href: "https://react.dev" },
+      { name: "Next.js", icon: "nextdotjs", href: "https://nextjs.org" },
+      { name: "Tailwind CSS", icon: "tailwindcss", href: "https://tailwindcss.com" },
+      { name: "Motion", icon: "framer", href: "https://motion.dev" },
+      { name: "Three.js", icon: "threedotjs", href: "https://threejs.org" },
+      { name: "Vite", icon: "vite", href: "https://vite.dev" },
     ],
   },
   {
@@ -63,12 +65,12 @@ const STACK_CATEGORIES: StackCategory[] = [
     index: "03",
     name: "Backend & Database",
     items: [
-      { name: "Node.js", icon: "nodedotjs" },
-      { name: "Bun", icon: "bun" },
-      { name: "Supabase", icon: "supabase" },
-      { name: "PostgreSQL", icon: "postgresql" },
-      { name: "Redis", icon: "redis" },
-      { name: "Flask", icon: "flask" },
+      { name: "Node.js", icon: "nodedotjs", href: "https://nodejs.org" },
+      { name: "Bun", icon: "bun", href: "https://bun.sh" },
+      { name: "Supabase", icon: "supabase", href: "https://supabase.com" },
+      { name: "PostgreSQL", icon: "postgresql", href: "https://www.postgresql.org" },
+      { name: "Redis", icon: "redis", href: "https://redis.io" },
+      { name: "Flask", icon: "flask", href: "https://flask.palletsprojects.com" },
     ],
   },
   {
@@ -76,12 +78,12 @@ const STACK_CATEGORIES: StackCategory[] = [
     index: "04",
     name: "Workflow & AI",
     items: [
-      { name: "Gemini", icon: "googlegemini" },
-      { name: "ChatGPT", isLobeOpenAI: true },
-      { name: "Git", icon: "git" },
-      { name: "GitHub", icon: "github" },
-      { name: "Docker", icon: "docker" },
-      { name: "Vercel", icon: "vercel" },
+      { name: "Gemini", icon: "googlegemini", href: "https://gemini.google.com" },
+      { name: "ChatGPT", isLobeOpenAI: true, href: "https://chatgpt.com" },
+      { name: "Git", icon: "git", href: "https://git-scm.com" },
+      { name: "GitHub", icon: "github", href: "https://github.com" },
+      { name: "Docker", icon: "docker", href: "https://www.docker.com" },
+      { name: "Vercel", icon: "vercel", href: "https://vercel.com" },
     ],
   },
 ];
@@ -174,12 +176,16 @@ export function SkillsSection({ hasSeenScrollAnimations = false }: { hasSeenScro
               </span>
             </div>
 
-            {/* Smooth curved squircle tiles (No outline) */}
+            {/* Smooth curved squircle tiles (Links) */}
             <div className="flex-1 flex flex-wrap items-center gap-1.5 sm:gap-2 sm:pl-4">
               {category.items.map((item) => (
-                <div
+                <a
                   key={item.name}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-[6px] bg-zinc-100/90 dark:bg-zinc-800/70 hover:bg-zinc-200/80 dark:hover:bg-zinc-700/80 text-zinc-700 dark:text-zinc-300 text-[12px] sm:text-[13px] font-medium transition-colors cursor-default select-none shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => playSoftClick()}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-[6px] bg-zinc-100/90 dark:bg-zinc-800/70 hover:bg-zinc-200/90 dark:hover:bg-zinc-700/90 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 text-[12px] sm:text-[13px] font-medium transition-all duration-150 cursor-pointer select-none shadow-[0_1px_2px_rgba(0,0,0,0.04)] active:scale-[0.98]"
                 >
                   {item.isLobeOpenAI ? (
                     <OpenAIIcon className="h-3.5 w-3.5 opacity-80 shrink-0" />
@@ -205,7 +211,7 @@ export function SkillsSection({ hasSeenScrollAnimations = false }: { hasSeenScro
                     />
                   )}
                   <span className="text-inherit font-medium leading-none">{item.name}</span>
-                </div>
+                </a>
               ))}
             </div>
 
