@@ -324,12 +324,18 @@ class ClaudeModelSelectorElement extends HTMLElement {
           pointer-events: none;
           opacity: 0;
           visibility: hidden;
-          transition: opacity 350ms cubic-bezier(0.16, 1, 0.3, 1), visibility 350ms cubic-bezier(0.16, 1, 0.3, 1);
+          clip-path: inset(0 0 0 100%);
+          transition: 
+            clip-path 750ms cubic-bezier(0.16, 1, 0.3, 1),
+            opacity 300ms ease,
+            visibility 750ms cubic-bezier(0.16, 1, 0.3, 1);
+          will-change: clip-path, opacity;
         }
 
         :host([data-ultra]) .smoke-container {
           opacity: 1;
           visibility: visible;
+          clip-path: inset(0 0 0 0%);
         }
 
         .smoke-canvas {
