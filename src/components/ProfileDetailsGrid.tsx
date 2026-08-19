@@ -264,28 +264,28 @@ export function ProfileDetailsGrid() {
       {/* Socials Row (Matching Blueprint Grid Design) */}
       <div className="relative flex items-center py-0">
         {/* Handwritten Annotation in Left Gutter outside the vertical line */}
-        <div className="absolute right-full top-[-14px] pr-4 sm:pr-5 hidden sm:flex flex-col items-end pointer-events-none select-none z-30 min-w-max">
-          <span className="inline-block font-caveat italic text-[17px] sm:text-[19px] font-medium text-zinc-600 dark:text-zinc-400 leading-none whitespace-nowrap -rotate-[8deg] tracking-wide select-none mr-1">
+        <div className="absolute right-full top-[-20px] sm:top-[-24px] pr-4 sm:pr-5 hidden sm:flex flex-col items-end pointer-events-none select-none z-30 min-w-max">
+          <span className="inline-block font-caveat italic text-[22px] sm:text-[26px] font-medium text-zinc-600 dark:text-zinc-400 leading-none whitespace-nowrap -rotate-[8deg] tracking-wide select-none mr-2">
             say hi
           </span>
           <svg
-            width="28"
-            height="24"
-            viewBox="0 0 28 24"
+            width="36"
+            height="28"
+            viewBox="0 0 36 28"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-0.5"
           >
             <path
-              d="M 4 2 C 4 9, 10 17, 24 17"
+              d="M 4 2 C 4 11, 14 20, 30 20"
               stroke="currentColor"
-              strokeWidth="1.1"
+              strokeWidth="1.35"
               strokeLinecap="round"
             />
             <path
-              d="M 18 13.5 L 25 17 L 19 20.5"
+              d="M 22 14 L 30 20 L 23 26"
               stroke="currentColor"
-              strokeWidth="1.1"
+              strokeWidth="1.35"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
@@ -293,7 +293,7 @@ export function ProfileDetailsGrid() {
         </div>
 
         {/* Mobile-only fallback */}
-        <div className="flex sm:hidden items-center gap-1 font-caveat italic text-[14px] text-zinc-600 dark:text-zinc-400 select-none shrink-0 mr-2 -mt-0.5">
+        <div className="flex sm:hidden items-center gap-1 font-caveat italic text-[16px] text-zinc-600 dark:text-zinc-400 select-none shrink-0 mr-2 -mt-0.5">
           <span className="whitespace-nowrap -rotate-[4deg] inline-block">say hi ↘</span>
         </div>
 
