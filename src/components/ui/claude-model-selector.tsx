@@ -783,6 +783,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     if (oldValue === newValue) return;
     if (name === "value" && !this._reflectingValue && this._input) {
+      if (this._dragging || this._springFrame !== 0) return;
       const next = Number.parseFloat(newValue ?? "0");
       this._setValue(Number.isFinite(next) ? next : 0, {
         animateLabel: this.isConnected,
@@ -842,10 +843,12 @@ class ClaudeModelSelectorElement extends HTMLElement {
   }
 
   _onInput() {
-    const nextValue = Number.parseFloat(this._input.value);
+    const rawValue = Number.parseFloat(this._input.value);
+    let nextValue = rawValue;
     if (this._dragging) {
+      nextValue = this._applyMagnet(rawValue);
       const now = performance.now();
-      this._pointerSamples.push({ time: now, value: nextValue });
+      this._pointerSamples.push({ time: now, value: rawValue });
       this._pointerSamples = this._pointerSamples
         .filter((sample) => now - sample.time < 90)
         .slice(-5);
@@ -858,11 +861,11 @@ class ClaudeModelSelectorElement extends HTMLElement {
     const nearest = Math.round(value);
     const delta = value - nearest;
     const distance = Math.abs(delta);
-    const radius = 0.5;
+    const radius = 0.35;
     if (distance < 0.001 || distance > radius) return value;
     const t = 1 - distance / radius;
-    const strength = 0.68 + 0.42 * t;
-    return value - delta * strength * t * t;
+    const strength = 0.55;
+    return value - delta * strength * (t * t);
   }
 
   _onKeyDown(event: KeyboardEvent) {
