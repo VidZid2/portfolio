@@ -28,6 +28,16 @@ import { playSoftClick } from "@/lib/synth-sounds";
 
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
+const DOT_MASK_VERTICAL = {
+  maskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
+  WebkitMaskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
+};
+
+const DOT_MASK_HORIZONTAL = {
+  maskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+  WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+};
+
 export default function Home() {
   const [hasPlayed, setHasPlayed] = useState(false);
 
@@ -46,46 +56,79 @@ export default function Home() {
     <GlobalBootSequence>
       <BlueprintGrid
         headerSlot={
-          /* Cell 2: Profile Section - 112px height to wrap the framed image (13px gap top/bottom) */
-          <div className="absolute left-0 right-0 md:left-[26%] md:right-[26%] top-[22vh] h-[112px] flex items-center px-3 sm:px-4.5 z-50 hide-cursor-particles">
-            <SwirlBackground />
-            <div className="flex w-full items-center justify-between relative z-10 pointer-events-none">
-              <div className="flex items-center gap-3 sm:gap-4.5 pointer-events-auto bg-gradient-to-r from-background via-background/90 to-transparent pr-6 sm:pr-10 py-1.5 rounded-l-full">
-                <ProfilePictureScramble />
+          /* Cell 2: Profile Section - 112px height with mathematical dotted grid sub-cells */
+          <div className="absolute left-0 right-0 md:left-[26%] md:right-[26%] top-[22vh] h-[112px] flex z-50 hide-cursor-particles">
+            {/* 1. Left Avatar Box (Framed by Dotted Lines) */}
+            <div className="w-[84px] min-[360px]:w-[96px] sm:w-[112px] h-[112px] shrink-0 flex items-center justify-center relative">
+              <ProfilePictureScramble />
 
-                <div className="flex flex-col justify-center pt-2 sm:pt-4">
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <h1 className="whitespace-nowrap text-[17px] min-[360px]:text-[20px] sm:text-[24px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight leading-none mb-0.5">
-                      Josiah De Asis
-                    </h1>
-                    <VerifiedBadge size={19} tone="brand" variant="shimmer" className="shrink-0 text-[#6495ED]" />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        playSoftClick(0.04);
-                        if (typeof window !== "undefined" && "speechSynthesis" in window) {
-                          const utterance = new SpeechSynthesisUtterance("Josiah De Asis");
-                          utterance.rate = 0.9;
-                          window.speechSynthesis.speak(utterance);
-                        }
-                      }}
-                      className="p-1 rounded-md text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors"
-                      aria-label="Pronounce name"
-                    >
-                      <Volume2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                  <p className="text-[12px] sm:text-[13px] text-zinc-500 dark:text-zinc-400 font-mono mt-0.5 sm:mt-1">
-                    Creating with code. Small details matter.
-                  </p>
-                </div>
-              </div>
+              {/* Vertical Dotted Divider Line */}
+              <div
+                className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
+                style={DOT_MASK_VERTICAL}
+              />
+              {/* Intersection Nodes */}
+              <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+              <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
             </div>
 
-            {/* Top-right absolute buttons container */}
-            <div className="absolute top-1.5 right-2 sm:top-3 sm:right-4 flex items-center gap-1.5 sm:gap-3 pointer-events-auto z-20">
-              <CommandMenu />
-              <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300 shrink-0" />
+            {/* 2. Right Content Column (With Dotted Sub-Row Dividers & WebGL Swirl) */}
+            <div className="flex-1 h-[112px] relative flex flex-col justify-between overflow-hidden">
+              <SwirlBackground />
+
+              {/* Sub-row 1: Top Action Buttons (36px) */}
+              <div className="h-[36px] flex items-center justify-end px-2 sm:px-4 relative z-20 pointer-events-auto">
+                <div className="flex items-center gap-1.5 sm:gap-3">
+                  <CommandMenu />
+                  <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300 shrink-0" />
+                </div>
+                {/* Horizontal Dotted Divider under Buttons */}
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+                  style={DOT_MASK_HORIZONTAL}
+                />
+                <div className="absolute bottom-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+                <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+              </div>
+
+              {/* Sub-row 2: Name & Badge (42px) */}
+              <div className="h-[42px] flex items-center px-2.5 sm:px-4 relative z-20 pointer-events-auto">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <h1 className="whitespace-nowrap text-[16px] min-[360px]:text-[19px] sm:text-[22px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight leading-none mb-0.5">
+                    Josiah De Asis
+                  </h1>
+                  <VerifiedBadge size={18} tone="brand" variant="shimmer" className="shrink-0 text-[#6495ED]" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playSoftClick(0.04);
+                      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+                        const utterance = new SpeechSynthesisUtterance("Josiah De Asis");
+                        utterance.rate = 0.9;
+                        window.speechSynthesis.speak(utterance);
+                      }
+                    }}
+                    className="p-1 rounded-md text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors"
+                    aria-label="Pronounce name"
+                  >
+                    <Volume2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                {/* Horizontal Dotted Divider under Name */}
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+                  style={DOT_MASK_HORIZONTAL}
+                />
+                <div className="absolute bottom-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+                <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+              </div>
+
+              {/* Sub-row 3: Tagline (34px) */}
+              <div className="h-[34px] flex items-center px-2.5 sm:px-4 relative z-20">
+                <p className="text-[11px] min-[360px]:text-[12px] sm:text-[13px] text-zinc-500 dark:text-zinc-400 font-mono leading-none truncate">
+                  Creating with code. Small details matter.
+                </p>
+              </div>
             </div>
           </div>
         }
