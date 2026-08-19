@@ -39,7 +39,7 @@ const STACK_CATEGORIES: StackCategory[] = [
     name: "Language",
     items: [
       { name: "TypeScript", icon: "typescript" },
-      { name: "JavaScript", icon: "javascript" },
+      { name: "JavaScript", customSrc: "/SVG's/Stack SVG's/JavaScript.png" },
       { name: "Python", icon: "python" },
       { name: "HTML5", customSrc: "/SVG's/Stack SVG's/HTML.svg" },
       { name: "CSS3", customSrc: "/SVG's/Stack SVG's/CSS3.svg" },
