@@ -1,10 +1,9 @@
 ﻿"use client";
 
-import React, { useEffect, useRef } from "react";
-import { useTheme } from "next-themes";
-import { playSoftClick } from "@/lib/synth-sounds";
+import React from "react";
 
-// 3D Isometric Projection Helper
+// Isometric Projection Math
+// theta = 30 deg
 const COS30 = 0.86602540378;
 const SIN30 = 0.5;
 
@@ -19,6 +18,23 @@ interface Point2D {
   y: number;
 }
 
+const ox = 330;
+const oy = 105;
+const u = 32;
+
+function project(x: number, y: number, z: number): Point2D {
+  return {
+    x: ox + (x - y) * COS30 * u,
+    y: oy + (x + y) * SIN30 * u - z,
+  };
+}
+
+function toSvgPath(pts: Point2D[]): string {
+  if (pts.length === 0) return "";
+  return pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ") + " Z";
+}
+
+// Generate rounded triangle vertices in 3D (X, Y plane)
 function getRoundedTriangle3D(
   cx: number,
   cy: number,
@@ -26,7 +42,7 @@ function getRoundedTriangle3D(
   radius: number,
   cornerR: number,
   angleOffset = -Math.PI / 2,
-  numPts = 8
+  numPts = 6
 ): Point3D[] {
   const angles = [
     angleOffset,
@@ -69,263 +85,194 @@ function getRoundedTriangle3D(
 }
 
 export function IsometricBlueprint({ className = "" }: { className?: string }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { resolvedTheme } = useTheme();
-  const themeRef = useRef(resolvedTheme);
-  themeRef.current = resolvedTheme;
+  // -----------------------------------------------------------------
+  // 1. MODULE 1: LOWER-LEFT TRIANGULAR BLOCK (Pod A)
+  // -----------------------------------------------------------------
+  const H1 = 15;
+  const podA_top = getRoundedTriangle3D(-2.2, 2.6, H1, 1.4, 0.45, -Math.PI / 2).map((p) => project(p.x, p.y, p.z));
+  const podA_bot = getRoundedTriangle3D(-2.2, 2.6, 0, 1.4, 0.45, -Math.PI / 2).map((p) => project(p.x, p.y, p.z));
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+  const podA_sideQuads: string[] = [];
+  for (let i = 0; i < podA_top.length; i++) {
+    const next = (i + 1) % podA_top.length;
+    podA_sideQuads.push(toSvgPath([podA_top[i], podA_top[next], podA_bot[next], podA_bot[i]]));
+  }
 
-    let raf = 0;
-    let running = true;
+  // -----------------------------------------------------------------
+  // 2. MODULE 2: MIDDLE/UPPER-RIGHT COURTYARD COMPLEX (Pod B)
+  // -----------------------------------------------------------------
+  const H2 = 18;
+  const podB_outer_top = getRoundedTriangle3D(1.4, -1.6, H2, 2.4, 0.65, -Math.PI / 2).map((p) => project(p.x, p.y, p.z));
+  const podB_outer_bot = getRoundedTriangle3D(1.4, -1.6, 0, 2.4, 0.65, -Math.PI / 2).map((p) => project(p.x, p.y, p.z));
 
-    let targetTiltX = 0;
-    let targetTiltY = 0;
-    let curTiltX = 0;
-    let curTiltY = 0;
-    let clickPulse = 0;
+  const podB_inner_top = getRoundedTriangle3D(1.4, -1.6, H2, 1.15, 0.35, -Math.PI / 2).map((p) => project(p.x, p.y, p.z));
+  const podB_inner_bot = getRoundedTriangle3D(1.4, -1.6, 0, 1.15, 0.35, -Math.PI / 2).map((p) => project(p.x, p.y, p.z));
 
-    const handlePointerMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / Math.max(1, rect.width) - 0.5;
-      const y = (e.clientY - rect.top) / Math.max(1, rect.height) - 0.5;
-      targetTiltX = y * 0.08;
-      targetTiltY = x * 0.1;
-    };
+  const podB_outer_sides: string[] = [];
+  for (let i = 0; i < podB_outer_top.length; i++) {
+    const next = (i + 1) % podB_outer_top.length;
+    podB_outer_sides.push(toSvgPath([podB_outer_top[i], podB_outer_top[next], podB_outer_bot[next], podB_outer_bot[i]]));
+  }
 
-    const handlePointerLeave = () => {
-      targetTiltX = 0;
-      targetTiltY = 0;
-    };
+  const podB_inner_sides: string[] = [];
+  for (let i = 0; i < podB_inner_top.length; i++) {
+    const next = (i + 1) % podB_inner_top.length;
+    podB_inner_sides.push(toSvgPath([podB_inner_top[i], podB_inner_top[next], podB_inner_bot[next], podB_inner_bot[i]]));
+  }
 
-    const handleClick = () => {
-      clickPulse = 1.0;
-      playSoftClick(0.04);
-    };
+  // -----------------------------------------------------------------
+  // 3. MODULE 3: UPPER-RIGHT STEPPED WING (Pod C)
+  // -----------------------------------------------------------------
+  const H3 = 15;
+  const podC_top = getRoundedTriangle3D(3.2, -3.4, H3, 1.35, 0.42, -Math.PI / 2).map((p) => project(p.x, p.y, p.z));
+  const podC_bot = getRoundedTriangle3D(3.2, -3.4, 0, 1.35, 0.42, -Math.PI / 2).map((p) => project(p.x, p.y, p.z));
 
-    window.addEventListener("mousemove", handlePointerMove);
-    document.addEventListener("mouseleave", handlePointerLeave);
-    canvas.addEventListener("click", handleClick);
+  const podC_sideQuads: string[] = [];
+  for (let i = 0; i < podC_top.length; i++) {
+    const next = (i + 1) % podC_top.length;
+    podC_sideQuads.push(toSvgPath([podC_top[i], podC_top[next], podC_bot[next], podC_bot[i]]));
+  }
 
-    const render = () => {
-      if (!running) return;
+  // -----------------------------------------------------------------
+  // 4. ISOMETRIC CONSTRUCTION GUIDELINES (Dashed)
+  // -----------------------------------------------------------------
+  const g1_start = project(-6.0, 2.6, 0);
+  const g1_end = project(6.0, 2.6, 0);
 
-      curTiltX += (targetTiltX - curTiltX) * 0.08;
-      curTiltY += (targetTiltY - curTiltY) * 0.08;
-      clickPulse *= 0.88;
+  const g2_start = project(-6.0, -1.6, 0);
+  const g2_end = project(6.0, -1.6, 0);
 
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const w = canvas.clientWidth || 720;
-      const h = canvas.clientHeight || 220;
+  const g3_start = project(-6.0, -3.4, 0);
+  const g3_end = project(6.0, -3.4, 0);
 
-      if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
-        canvas.width = Math.round(w * dpr);
-        canvas.height = Math.round(h * dpr);
-      }
+  const g4_start = project(-2.2, -6.0, 0);
+  const g4_end = project(-2.2, 6.0, 0);
 
-      ctx.save();
-      ctx.scale(dpr, dpr);
-      ctx.clearRect(0, 0, w, h);
+  const g5_start = project(1.4, -6.0, 0);
+  const g5_end = project(1.4, 6.0, 0);
 
-      const isDark = themeRef.current === "dark";
-      const strokeColor = isDark ? "rgba(226, 232, 240, 0.48)" : "rgba(51, 65, 85, 0.58)";
-      const hatchColor = isDark ? "rgba(226, 232, 240, 0.22)" : "rgba(51, 65, 85, 0.25)";
-      const faceBgColor = isDark ? "rgba(8, 8, 10, 0.94)" : "rgba(255, 255, 255, 0.94)";
-      const gridColor = isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(0, 0, 0, 0.06)";
-
-      // Isometric Canvas Center & Scaling (grand, balanced composition across banner)
-      const centerX = w * 0.48;
-      const centerY = h * 0.54;
-      const baseScale = Math.min(w * 0.1, h * 0.38, 45);
-      const scale = baseScale * (1 + clickPulse * 0.03);
-
-      const isoAngle = Math.PI / 6 + curTiltY * 0.3;
-      const cosA = Math.cos(isoAngle);
-      const sinA = Math.sin(isoAngle);
-      const pitch = 0.58 + curTiltX * 0.3;
-
-      const project = (pt: Point3D): Point2D & { depth: number } => {
-        const px = centerX + (pt.x - pt.y) * cosA * scale;
-        const py = centerY + (pt.x + pt.y) * sinA * scale * pitch - pt.z * scale * 1.1;
-        return { x: px, y: py, depth: (pt.x + pt.y) * 10 + pt.z * 2 };
-      };
-
-      // 1. Draw Subtle Isometric Construction Guidelines (spanning full banner width)
-      ctx.strokeStyle = gridColor;
-      ctx.lineWidth = 0.85;
-      ctx.setLineDash([3, 4]);
-
-      for (let g = -8; g <= 8; g += 2.0) {
-        const p1 = project({ x: -7, y: g, z: 0 });
-        const p2 = project({ x: 7, y: g, z: 0 });
-        ctx.beginPath();
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
-        ctx.stroke();
-
-        const p3 = project({ x: g, y: -7, z: 0 });
-        const p4 = project({ x: g, y: 7, z: 0 });
-        ctx.beginPath();
-        ctx.moveTo(p3.x, p3.y);
-        ctx.lineTo(p4.x, p4.y);
-        ctx.stroke();
-      }
-      ctx.setLineDash([]);
-
-      // -----------------------------------------------------------------
-      // 2. BUILD 3-TRIANGLE ARCHITECTURAL BLUEPRINT PODS (SYNC LOGO FORMATION)
-      // -----------------------------------------------------------------
-      interface RenderFace {
-        pts: (Point2D & { depth: number })[];
-        depth: number;
-        hatched?: boolean;
-      }
-
-      const faces: RenderFace[] = [];
-
-      const addPolygon = (poly3D: Point3D[], hatched = false, depthBias = 0) => {
-        const pts = poly3D.map(project);
-        const avgDepth = pts.reduce((sum, p) => sum + p.depth, 0) / pts.length + depthBias;
-        faces.push({ pts, depth: avgDepth, hatched });
-      };
-
-      const addExtrudedPrism = (
-        cx: number,
-        cy: number,
-        radius: number,
-        cornerR: number,
-        h: number,
-        hatched = true,
-        angleOffset = -Math.PI / 2
-      ) => {
-        const top3D = getRoundedTriangle3D(cx, cy, h, radius, cornerR, angleOffset);
-        const bot3D = getRoundedTriangle3D(cx, cy, 0, radius, cornerR, angleOffset);
-
-        // Side walls
-        for (let i = 0; i < top3D.length; i++) {
-          const next = (i + 1) % top3D.length;
-          addPolygon([top3D[i], top3D[next], bot3D[next], bot3D[i]], false, 0);
-        }
-
-        // Top face
-        addPolygon(top3D, hatched, 4);
-      };
-
-      // Pod 1: Left Triangular Block (Matching Left Group in Picture 2)
-      addExtrudedPrism(-2.2, 0.4, 1.45, 0.45, 0.42, true);
-
-      // Pod 2: Top/Center Raised Courtyard Structure (with recessed inner hole!)
-      const topCourtyardOuter = getRoundedTriangle3D(0.6, -1.6, 0.52, 2.35, 0.6, -Math.PI / 2);
-      const botCourtyardOuter = getRoundedTriangle3D(0.6, -1.6, 0.0, 2.35, 0.6, -Math.PI / 2);
-      const topCourtyardInner = getRoundedTriangle3D(0.6, -1.6, 0.52, 1.1, 0.3, -Math.PI / 2);
-      const botCourtyardInner = getRoundedTriangle3D(0.6, -1.6, 0.0, 1.1, 0.3, -Math.PI / 2);
-
-      // Outer side walls of Pod 2
-      for (let i = 0; i < topCourtyardOuter.length; i++) {
-        const next = (i + 1) % topCourtyardOuter.length;
-        addPolygon([topCourtyardOuter[i], topCourtyardOuter[next], botCourtyardOuter[next], botCourtyardOuter[i]], false, 0);
-      }
-
-      // Inner courtyard recessed walls
-      for (let i = 0; i < topCourtyardInner.length; i++) {
-        const next = (i + 1) % topCourtyardInner.length;
-        addPolygon([topCourtyardInner[i], topCourtyardInner[next], botCourtyardInner[next], botCourtyardInner[i]], false, 2);
-      }
-
-      // Inner floor
-      addPolygon(botCourtyardInner, false, 1);
-
-      // Top Ring Face (Hatched outer)
-      addPolygon(topCourtyardOuter, true, 3);
-
-      // Inner courtyard knockout polygon (removes hatching in the center to reveal the sunken floor)
-      addPolygon(topCourtyardInner, false, 4);
-
-      // Pod 3: Right Extended Stepped Platform
-      addExtrudedPrism(2.5, 1.0, 1.45, 0.45, 0.42, true);
-
-      // Painter's Algorithm: Sort faces back to front
-      faces.sort((a, b) => a.depth - b.depth);
-
-      // 3. Render Sorted Faces
-      faces.forEach((f) => {
-        if (f.pts.length < 3) return;
-
-        ctx.beginPath();
-        ctx.moveTo(f.pts[0].x, f.pts[0].y);
-        for (let i = 1; i < f.pts.length; i++) {
-          ctx.lineTo(f.pts[i].x, f.pts[i].y);
-        }
-        ctx.closePath();
-
-        // Opaque face fill to occlude background/rear lines
-        ctx.fillStyle = faceBgColor;
-        ctx.fill();
-
-        // 45-degree Technical Blueprint Hatching on top surfaces
-        if (f.hatched) {
-          ctx.save();
-          ctx.clip();
-          ctx.strokeStyle = hatchColor;
-          ctx.lineWidth = 0.9;
-
-          let minX = f.pts[0].x,
-            maxX = f.pts[0].x,
-            minY = f.pts[0].y,
-            maxY = f.pts[0].y;
-          f.pts.forEach((p) => {
-            if (p.x < minX) minX = p.x;
-            if (p.x > maxX) maxX = p.x;
-            if (p.y < minY) minY = p.y;
-            if (p.y > maxY) maxY = p.y;
-          });
-
-          const step = 5;
-          const diagLen = maxX - minX + (maxY - minY);
-          for (let d = -diagLen; d <= diagLen; d += step) {
-            ctx.beginPath();
-            ctx.moveTo(minX + d, minY - 10);
-            ctx.lineTo(minX + d + (maxY - minY + 20), maxY + 10);
-            ctx.stroke();
-          }
-          ctx.restore();
-        }
-
-        // Crisp wireframe outline
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = 1.15;
-        ctx.stroke();
-      });
-
-      // 4. "Fig. 1." Blueprint Caption (Bottom-Left corner for clear visibility)
-      ctx.font = '500 11px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace';
-      ctx.fillStyle = isDark ? "rgba(148, 163, 184, 0.6)" : "rgba(100, 116, 139, 0.7)";
-      ctx.textAlign = "left";
-      ctx.fillText("Fig. 1.", 24, h - 14);
-
-      ctx.restore();
-
-      raf = requestAnimationFrame(render);
-    };
-
-    raf = requestAnimationFrame(render);
-
-    return () => {
-      running = false;
-      cancelAnimationFrame(raf);
-      window.removeEventListener("mousemove", handlePointerMove);
-      document.removeEventListener("mouseleave", handlePointerLeave);
-      canvas.removeEventListener("click", handleClick);
-    };
-  }, [resolvedTheme]);
+  const g6_start = project(3.2, -6.0, 0);
+  const g6_end = project(3.2, 6.0, 0);
 
   return (
-    <div className={`relative w-full h-full overflow-hidden select-none cursor-pointer ${className}`}>
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block pointer-events-auto" />
+    <div className={`relative w-full h-full overflow-hidden select-none pointer-events-none flex items-center justify-center ${className}`}>
+      <svg
+        viewBox="0 0 680 230"
+        className="w-full h-full max-h-[220px]"
+        preserveAspectRatio="xMidYMid meet"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          {/* Light Mode 45-degree Technical Blueprint Hatch Pattern */}
+          <pattern
+            id="iso-hatch-light"
+            width="6"
+            height="6"
+            patternTransform="rotate(45 0 0)"
+            patternUnits="userSpaceOnUse"
+          >
+            <line x1="0" y1="0" x2="0" y2="6" stroke="#52525b" strokeWidth="0.85" opacity="0.35" />
+          </pattern>
+
+          {/* Dark Mode 45-degree Technical Blueprint Hatch Pattern */}
+          <pattern
+            id="iso-hatch-dark"
+            width="6"
+            height="6"
+            patternTransform="rotate(45 0 0)"
+            patternUnits="userSpaceOnUse"
+          >
+            <line x1="0" y1="0" x2="0" y2="6" stroke="#cbd5e1" strokeWidth="0.85" opacity="0.4" />
+          </pattern>
+        </defs>
+
+        {/* 1. Isometric Faint Dashed Construction Lines */}
+        <g className="stroke-zinc-300/60 dark:stroke-zinc-800/80" strokeWidth="0.8" strokeDasharray="3 3">
+          <line x1={g1_start.x} y1={g1_start.y} x2={g1_end.x} y2={g1_end.y} />
+          <line x1={g2_start.x} y1={g2_start.y} x2={g2_end.x} y2={g2_end.y} />
+          <line x1={g3_start.x} y1={g3_start.y} x2={g3_end.x} y2={g3_end.y} />
+          <line x1={g4_start.x} y1={g4_start.y} x2={g4_end.x} y2={g4_end.y} />
+          <line x1={g5_start.x} y1={g5_start.y} x2={g5_end.x} y2={g5_end.y} />
+          <line x1={g6_start.x} y1={g6_start.y} x2={g6_end.x} y2={g6_end.y} />
+        </g>
+
+        {/* --------------------------------------------- */}
+        {/* 2. MODULE 3: UPPER-RIGHT WING (Backmost) */}
+        {/* --------------------------------------------- */}
+        <g className="stroke-zinc-600 dark:stroke-zinc-400 fill-white dark:fill-[#0a0a0c]" strokeWidth="1.1" strokeLinejoin="round">
+          {podC_sideQuads.map((d, i) => (
+            <path key={i} d={d} />
+          ))}
+        </g>
+        <path d={toSvgPath(podC_top)} className="fill-white dark:fill-[#0a0a0c]" />
+        <path
+          d={toSvgPath(podC_top)}
+          className="fill-[url(#iso-hatch-light)] dark:fill-[url(#iso-hatch-dark)] stroke-zinc-600 dark:stroke-zinc-400"
+          strokeWidth="1.1"
+          strokeLinejoin="round"
+        />
+
+        {/* --------------------------------------------- */}
+        {/* 3. MODULE 2: MIDDLE/UPPER-RIGHT COURTYARD */}
+        {/* --------------------------------------------- */}
+        {/* Outer Side Walls */}
+        <g className="stroke-zinc-600 dark:stroke-zinc-400 fill-white dark:fill-[#0a0a0c]" strokeWidth="1.1" strokeLinejoin="round">
+          {podB_outer_sides.map((d, i) => (
+            <path key={i} d={d} />
+          ))}
+        </g>
+
+        {/* Inner Floor */}
+        <path d={toSvgPath(podB_inner_bot)} className="fill-white dark:fill-[#0a0a0c] stroke-zinc-400/40 dark:stroke-zinc-600/40" strokeWidth="0.8" />
+
+        {/* Inner Recessed Walls */}
+        <g className="stroke-zinc-600 dark:stroke-zinc-400 fill-white dark:fill-[#0a0a0c]" strokeWidth="1.1" strokeLinejoin="round">
+          {podB_inner_sides.map((d, i) => (
+            <path key={i} d={d} />
+          ))}
+        </g>
+
+        {/* Top Ring Face (Hatched outer) */}
+        <path d={toSvgPath(podB_outer_top)} className="fill-white dark:fill-[#0a0a0c]" />
+        <path
+          d={toSvgPath(podB_outer_top)}
+          className="fill-[url(#iso-hatch-light)] dark:fill-[url(#iso-hatch-dark)] stroke-zinc-600 dark:stroke-zinc-400"
+          strokeWidth="1.1"
+          strokeLinejoin="round"
+        />
+
+        {/* Knockout inner hole to reveal recessed courtyard floor */}
+        <path d={toSvgPath(podB_inner_top)} className="fill-white dark:fill-[#0a0a0c] stroke-zinc-600 dark:stroke-zinc-400" strokeWidth="1.1" strokeLinejoin="round" />
+
+        {/* --------------------------------------------- */}
+        {/* 4. MODULE 1: LOWER-LEFT BLOCK (Frontmost) */}
+        {/* --------------------------------------------- */}
+        <g className="stroke-zinc-600 dark:stroke-zinc-400 fill-white dark:fill-[#0a0a0c]" strokeWidth="1.1" strokeLinejoin="round">
+          {podA_sideQuads.map((d, i) => (
+            <path key={i} d={d} />
+          ))}
+        </g>
+        <path d={toSvgPath(podA_top)} className="fill-white dark:fill-[#0a0a0c]" />
+        <path
+          d={toSvgPath(podA_top)}
+          className="fill-[url(#iso-hatch-light)] dark:fill-[url(#iso-hatch-dark)] stroke-zinc-600 dark:stroke-zinc-400"
+          strokeWidth="1.1"
+          strokeLinejoin="round"
+        />
+
+        {/* --------------------------------------------- */}
+        {/* 5. "Fig. 1." TECHNICAL CAPTION */}
+        {/* --------------------------------------------- */}
+        <text
+          x="650"
+          y="214"
+          textAnchor="end"
+          className="fill-zinc-400 dark:fill-zinc-500 font-mono text-[11px] font-medium tracking-tight select-none"
+        >
+          Fig. 1.
+        </text>
+      </svg>
     </div>
   );
 }
