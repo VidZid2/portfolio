@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { playReasoningSound } from "@/lib/synth-sounds";
+import { createSmokeRenderer, hexToRgb, type SmokeRenderer } from "./smoky-button";
 
 export const REASONING_EFFORT_LEVELS = [
   "Low",
@@ -56,6 +57,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
   private _reducedMotion!: MediaQueryList;
   private _events?: AbortController;
   private _resizeObserver?: ResizeObserver;
+  private _smokeRenderer: SmokeRenderer | null = null;
 
   private _panel!: HTMLElement;
   private _input!: HTMLInputElement;
@@ -596,10 +598,29 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this._resizeObserver = new ResizeObserver(() => this._resizeCanvas());
     this._resizeObserver.observe(this._track);
     this._resizeCanvas();
+    this._initSmokeRenderer();
     if (this._isUltra) this._ensureCanvasLoop();
   }
 
+  _initSmokeRenderer() {
+    if (this._smokeRenderer || !this._canvas) return;
+    try {
+      this._smokeRenderer = createSmokeRenderer(this._canvas, {
+        colors: [
+          hexToRgb("#6495ED"),
+          hexToRgb("#4169E1"),
+          hexToRgb("#0F172A"),
+        ],
+        speed: 1.2,
+      });
+    } catch (e) {
+      console.warn("WebGL smoke renderer fallback for slider track.", e);
+    }
+  }
+
   disconnectedCallback() {
+    this._smokeRenderer?.destroy();
+    this._smokeRenderer = null;
     this._events?.abort();
     this._reducedMotion.removeEventListener(
       "change",
