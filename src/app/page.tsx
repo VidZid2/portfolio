@@ -22,7 +22,8 @@ import { SwirlBackground } from "@/components/swirl/SwirlBackground";
 import { GlobalBootSequence } from "@/components/GlobalBootSequence";
 import { BlueprintGrid } from "@/components/BlueprintGrid";
 import { ProfileDetailsGrid } from "@/components/ProfileDetailsGrid";
-import { CheckCircle2, Volume2 } from "lucide-react";
+import { Volume2 } from "lucide-react";
+import { VerifiedBadge } from "@/components/ui/verified-badge";
 import { playSoftClick } from "@/lib/synth-sounds";
 
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -57,7 +58,7 @@ export default function Home() {
                     <h1 className="whitespace-nowrap text-[17px] min-[360px]:text-[20px] sm:text-[24px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight leading-none mb-0.5">
                       Josiah De Asis
                     </h1>
-                    <CheckCircle2 className="w-4 h-4 text-sky-500 fill-sky-500/20 shrink-0" />
+                    <VerifiedBadge size={19} tone="brand" variant="shimmer" className="shrink-0 text-[#6495ED]" />
                     <button
                       type="button"
                       onClick={() => {
