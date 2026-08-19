@@ -250,28 +250,28 @@ export function ProfileDetailsGrid() {
       {/* Socials Row (Matching Reference Picture 2) */}
       <div className="relative flex items-center py-2.5">
         {/* Handwritten Annotation in Left Gutter outside the vertical line */}
-        <div className="absolute -left-14 sm:-left-16 md:-left-16 top-[-10px] hidden sm:flex flex-col items-end pointer-events-none select-none z-30">
-          <span className="font-caveat italic text-[16px] font-medium text-[#38bdf8] [text-shadow:1.2px_1.2px_0_#f97316] leading-none pr-1">
+        <div className="absolute -left-[72px] sm:-left-[80px] md:-left-[86px] top-[-14px] hidden sm:flex flex-col items-end pointer-events-none select-none z-30">
+          <span className="font-caveat italic text-[20px] sm:text-[22px] font-semibold text-zinc-600 dark:text-zinc-400 leading-none pr-1 tracking-wide">
             say hi
           </span>
           <svg
-            width="28"
-            height="26"
-            viewBox="0 0 28 26"
+            width="38"
+            height="34"
+            viewBox="0 0 38 34"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-0.5"
+            className="text-zinc-500 dark:text-zinc-400 overflow-visible mt-1"
           >
             <path
-              d="M6 2 C12 6, 18 14, 24 18"
+              d="M8 2 C8 13, 15 22, 33 26"
               stroke="currentColor"
-              strokeWidth="1.2"
+              strokeWidth="1.4"
               strokeLinecap="round"
             />
             <path
-              d="M19 18.5 L24.5 18.5 L23.5 14"
+              d="M24 27 L33.5 26.5 L31.5 19.5"
               stroke="currentColor"
-              strokeWidth="1.2"
+              strokeWidth="1.4"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
@@ -279,7 +279,7 @@ export function ProfileDetailsGrid() {
         </div>
 
         {/* Mobile-only fallback */}
-        <div className="flex sm:hidden items-center gap-1 font-caveat italic text-[14px] text-[#38bdf8] [text-shadow:1px_1px_0_#f97316] select-none shrink-0 mr-2 -mt-0.5">
+        <div className="flex sm:hidden items-center gap-1 font-caveat italic text-[16px] text-zinc-600 dark:text-zinc-400 select-none shrink-0 mr-2 -mt-0.5">
           <span>say hi ↘</span>
         </div>
 
