@@ -282,47 +282,52 @@ const ChatMessageItem = memo(function ChatMessageItem({
                 )
               )}
             </AnimatePresence>
-            {textContent.trim().length > 0 && (
-              <MessageResponse>{textContent}</MessageResponse>
-            )}
+            <MessageResponse>{textContent}</MessageResponse>
           </>
         ) : (
           <div>{textContent}</div>
         )}
       </MessageContent>
-      {role === "assistant" && textContent.trim().length > 0 && (
+      {role === "assistant" && (
         <AnimatePresence>
-          <motion.div
-            initial={{ opacity: 0, y: 4, scale: 0.95, filter: "blur(2px)" }}
-            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: 4, scale: 0.95, filter: "blur(2px)" }}
-            transition={{ type: "spring", stiffness: 400, damping: 28 }}
-          >
-            <MessageActions>
-              {triggerReload && (
+          {textContent.trim().length > 0 && (
+            <motion.div
+              key="message-actions"
+              initial={{ opacity: 0, y: 4, scale: 0.95, filter: "blur(2px)" }}
+              animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: 4, scale: 0.95, filter: "blur(2px)" }}
+              transition={{
+                type: "spring",
+                stiffness: 400,
+                damping: 28,
+              }}
+            >
+              <MessageActions>
+                {triggerReload && (
+                  <MessageAction
+                    label="Retry"
+                    onClick={() => {
+                      playSoftClick(0.04);
+                      triggerReload();
+                    }}
+                    tooltip="Regenerate response"
+                  >
+                    <RefreshCcwIcon className="size-4" />
+                  </MessageAction>
+                )}
                 <MessageAction
-                  label="Retry"
+                  label="Copy"
                   onClick={() => {
-                    playSoftClick(0.04);
-                    triggerReload();
+                    navigator.clipboard.writeText(textContent);
+                    playCopySuccess(0.035);
                   }}
-                  tooltip="Regenerate response"
+                  tooltip="Copy to clipboard"
                 >
-                  <RefreshCcwIcon className="size-4" />
+                  <CopyIcon className="size-4" />
                 </MessageAction>
-              )}
-              <MessageAction
-                label="Copy"
-                onClick={() => {
-                  navigator.clipboard.writeText(textContent);
-                  playCopySuccess(0.035);
-                }}
-                tooltip="Copy to clipboard"
-              >
-                <CopyIcon className="size-4" />
-              </MessageAction>
-            </MessageActions>
-          </motion.div>
+              </MessageActions>
+            </motion.div>
+          )}
         </AnimatePresence>
       )}
     </Message>
