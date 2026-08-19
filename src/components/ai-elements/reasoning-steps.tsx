@@ -323,7 +323,7 @@ function TriggerPreview({
   }
 
   return (
-    <span className="mt-0.5 block overflow-hidden">
+    <span className="mt-0.5 md:mt-0 block md:inline-flex overflow-hidden max-w-[220px] md:max-w-[320px]">
       <AnimatePresence initial={false} mode="popLayout">
         <motion.span
           animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
@@ -368,8 +368,8 @@ function TriggerLabel({
   title: ReactNode;
 }) {
   return (
-    <span className="min-w-0 flex-1">
-      <span className="flex items-center gap-1.5">
+    <span className="min-w-0 flex-1 flex flex-col md:flex-row md:items-center gap-0.5 md:gap-2">
+      <span className="flex items-center gap-1.5 shrink-0">
         <ShimmerLabel
           active={activeStep !== undefined}
           reduceMotion={reduceMotion}
@@ -390,7 +390,14 @@ function TriggerLabel({
         </motion.span>
       </span>
       {isOpen ? null : (
-        <TriggerPreview activeStep={activeStep} reduceMotion={reduceMotion} />
+        <>
+          {activeStep && (
+            <span className="hidden md:inline-block text-zinc-300 dark:text-zinc-700 text-[11px] select-none font-bold">
+              •
+            </span>
+          )}
+          <TriggerPreview activeStep={activeStep} reduceMotion={reduceMotion} />
+        </>
       )}
     </span>
   );
