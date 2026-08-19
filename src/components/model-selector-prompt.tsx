@@ -587,27 +587,36 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
             />
           </div>
 
-          <Link
-            href="/milestones"
-            onClick={() => playSoftClick(0.04)}
-            className="flex items-center gap-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800/90 hover:bg-neutral-200 dark:hover:bg-neutral-700 px-2.5 py-1 text-[11px] font-medium text-neutral-600 dark:text-neutral-300 transition-colors border border-neutral-200/70 dark:border-neutral-700/70 shadow-xs group/changelog shrink-0"
-            title="View Changelog & Milestones"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 16 16"
-              className="size-3 text-neutral-500 group-hover/changelog:text-neutral-800 dark:text-neutral-400 dark:group-hover/changelog:text-neutral-100 transition-colors shrink-0"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M2.5 4h11M2.5 8h11M2.5 12h6" />
-              <circle cx="12.5" cy="12" r="1.5" fill="currentColor" stroke="none" />
-            </svg>
-            <span>Changelog</span>
-          </Link>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/milestones"
+                  onClick={() => playSoftClick(0.04)}
+                  className="flex size-6 sm:size-6.5 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors border border-neutral-200/70 dark:border-neutral-700/70 shadow-xs group/changelog shrink-0"
+                  aria-label="Changelog"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 16 16"
+                    className="size-3.5 text-neutral-500 group-hover/changelog:text-neutral-800 dark:text-neutral-400 dark:group-hover/changelog:text-neutral-100 transition-colors shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M2.5 4h11M2.5 8h11M2.5 12h6" />
+                    <circle cx="12.5" cy="12" r="1.5" fill="currentColor" stroke="none" />
+                  </svg>
+                  <span className="sr-only">Changelog</span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Changelog</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
         <p className="text-pretty text-neutral-500 text-xs leading-4 dark:text-neutral-400">
           {model.description}
