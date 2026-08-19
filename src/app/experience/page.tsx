@@ -73,7 +73,7 @@ export default function AllExperiencePage() {
                         </div>
                       </div>
                       <div className="flex min-w-0 flex-col gap-0.5 pr-2 sm:pr-4">
-                        <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex items-center gap-2">
                           <span className="text-[14px] font-bold leading-tight sm:text-[17px] text-zinc-900 dark:text-zinc-100 truncate">
                             {item.title === "STI eLMS 2.0" ? (
                               <>
@@ -141,17 +141,19 @@ export default function AllExperiencePage() {
                               item.title
                             )}
                           </span>
+                        </div>
+                        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                          <span
+                            className={`${item.title === "Vercel OSS Program x VengenceUI" ? "sm:-mt-2" : ""} truncate text-[14px] text-zinc-600 dark:text-zinc-400 sm:text-[15px]`}
+                          >
+                            {item.role}
+                          </span>
                           {item.type && (
-                            <span className="self-center whitespace-nowrap px-1.5 py-[1px] rounded-[4px] text-[11px] font-medium text-zinc-600 dark:text-zinc-400 bg-zinc-200/50 dark:bg-zinc-800/50 border border-zinc-300/50 dark:border-zinc-700/50">
+                            <span className="inline-flex items-center self-center whitespace-nowrap px-1.5 py-[1px] rounded-[4px] text-[10px] sm:text-[11px] font-medium text-zinc-600 dark:text-zinc-400 bg-zinc-200/50 dark:bg-zinc-800/50 border border-zinc-300/50 dark:border-zinc-700/50 shrink-0">
                               {item.type}
                             </span>
                           )}
                         </div>
-                        <span
-                          className={`${item.title === "Vercel OSS Program x VengenceUI" ? "sm:-mt-2" : ""} truncate text-[14px] text-zinc-600 dark:text-zinc-400 sm:text-[15px]`}
-                        >
-                          {item.role}
-                        </span>
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-0.5 text-right shrink-0 relative z-10">
