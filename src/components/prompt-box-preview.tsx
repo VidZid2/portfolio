@@ -772,38 +772,55 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                     <MessageContent>
                       {role === "assistant" ? (
                         <>
-                          {reasoningContent ? (
-                            (() => {
-                              const parsedSteps = parseReasoningSteps(reasoningContent);
-                              const isThinkingActive = isLoading && index === messages.length - 1;
-                              
-                              return (
-                                <ReasoningSteps
-                                  className="mb-4"
-                                  defaultOpen={false}
+                          <AnimatePresence mode="wait" initial={false}>
+                            {reasoningContent ? (
+                              <motion.div
+                                key="reasoning-steps-block"
+                                initial={{ opacity: 0, y: 3, filter: "blur(2px)" }}
+                                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                                exit={{ opacity: 0, y: -3, filter: "blur(2px)" }}
+                                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                              >
+                                {(() => {
+                                  const parsedSteps = parseReasoningSteps(reasoningContent);
+                                  const isThinkingActive = isLoading && index === messages.length - 1;
+                                  
+                                  return (
+                                    <ReasoningSteps
+                                      className="mb-4"
+                                      defaultOpen={false}
+                                    >
+                                      <ReasoningStepsTrigger>Thought Process</ReasoningStepsTrigger>
+                                      <ReasoningStepsContent>
+                                        {parsedSteps.map((step, stepIdx) => (
+                                          <ReasoningStep
+                                            key={stepIdx}
+                                            label={step.label}
+                                            status={isThinkingActive && stepIdx === parsedSteps.length - 1 ? "active" : "done"}
+                                          >
+                                            {step.content}
+                                          </ReasoningStep>
+                                        ))}
+                                      </ReasoningStepsContent>
+                                    </ReasoningSteps>
+                                  );
+                                })()}
+                              </motion.div>
+                            ) : (
+                              isLoading && index === messages.length - 1 && (
+                                <motion.div
+                                  key="standalone-thinking-block"
+                                  initial={{ opacity: 0, y: 3, filter: "blur(2px)" }}
+                                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                                  exit={{ opacity: 0, y: -3, filter: "blur(2px)" }}
+                                  transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                                  className="mb-3"
                                 >
-                                  <ReasoningStepsTrigger>Thought Process</ReasoningStepsTrigger>
-                                  <ReasoningStepsContent>
-                                    {parsedSteps.map((step, stepIdx) => (
-                                      <ReasoningStep
-                                        key={stepIdx}
-                                        label={step.label}
-                                        status={isThinkingActive && stepIdx === parsedSteps.length - 1 ? "active" : "done"}
-                                      >
-                                        {step.content}
-                                      </ReasoningStep>
-                                    ))}
-                                  </ReasoningStepsContent>
-                                </ReasoningSteps>
-                              );
-                            })()
-                          ) : (
-                            isLoading && index === messages.length - 1 && (
-                              <div className="mb-3">
-                                <ThinkingIndicator words={["Thinking", "Reasoning", "Planning"]} />
-                              </div>
-                            )
-                          )}
+                                  <ThinkingIndicator words={["Thinking", "Reasoning", "Planning"]} />
+                                </motion.div>
+                              )
+                            )}
+                          </AnimatePresence>
                           <MessageResponse>{textContent}</MessageResponse>
                         </>
                       ) : (
@@ -846,13 +863,23 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                   </MessageContent>
                 </Message>
               )}
-              {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
-                <Message from="assistant" key="loading">
-                  <MessageContent>
-                    <ThinkingIndicator words={["Thinking", "Reasoning", "Planning"]} />
-                  </MessageContent>
-                </Message>
-              )}
+              <AnimatePresence mode="popLayout" initial={false}>
+                {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
+                  <motion.div
+                    key="initial-loading-message"
+                    initial={{ opacity: 0, y: 6, filter: "blur(3px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, y: -4, filter: "blur(2px)", transition: { duration: 0.2 } }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  >
+                    <Message from="assistant">
+                      <MessageContent>
+                        <ThinkingIndicator words={["Thinking", "Reasoning", "Planning"]} />
+                      </MessageContent>
+                    </Message>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               <div className="h-24 shrink-0" />
             </ConversationContent>
             <ConversationScrollButton className="z-20 bottom-24" />
