@@ -743,9 +743,9 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
             animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, x: 8, filter: "blur(2px)" }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col p-3 gap-2"
+            className="flex flex-col divide-y divide-neutral-200 dark:divide-neutral-700/80"
           >
-            <div className="flex items-center gap-1.5 pb-2 border-b border-neutral-100 dark:border-neutral-800">
+            <div className="flex items-center gap-1.5 px-3 py-2">
               <button
                 type="button"
                 onClick={() => {
@@ -763,7 +763,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
               </span>
             </div>
 
-            <div className="relative overflow-hidden">
+            <div className="p-3 pt-2 relative overflow-hidden">
               <div
                 style={{
                   maskImage: "linear-gradient(to bottom, transparent 0%, black 10px, black calc(100% - 10px), transparent 100%)",
