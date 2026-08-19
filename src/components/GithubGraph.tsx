@@ -75,83 +75,30 @@ export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScroll
 
   return (
     <motion.section
-      className="relative z-10 mt-6 flex flex-col scroll-mt-24"
+      className="relative z-10 mt-0 flex flex-col scroll-mt-24"
       aria-labelledby="github-activity-title"
       aria-describedby="github-activity-summary"
       initial={skip ? "visible" : "hidden"}
       whileInView={skip ? undefined : (phase === "done" ? "visible" : "hidden")}
       animate={skip ? "visible" : undefined}
       viewport={{ once: true, amount: 0.1 }}
-      
       transition={isLowTier ? { duration: 0 } : undefined}
-      
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren: 0.15 } }
       }}
     >
-      {/* Top full-width dashed line */}
-      <div
-        className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 pointer-events-none dark:border-white/[0.15]"
-        style={dashedLineMask}
-      />
-      <div className="absolute top-0 -left-4 z-20 size-[2px] -translate-x-1/2 -translate-y-1/2 bg-black/50 pointer-events-none dark:bg-white/[0.25]" />
-      <div className="absolute top-0 -right-4 z-20 size-[2px] translate-x-1/2 -translate-y-1/2 bg-black/50 pointer-events-none dark:bg-white/[0.25]" />
-
-      {/* Heading */}
-      <motion.div 
-        variants={{
-          hidden: { opacity: 0, y: -20, filter: "blur(8px)" },
-          visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { type: "spring", bounce: 0.4 } }
-        }}
-        className="relative py-2"
-      >
-        <div className="flex items-center justify-between gap-3">
-          <div id="github-activity-title">
-            <ScrambleText as="h2" className="text-[18px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
-              GitHub Activity
-            </ScrambleText>
-          </div>
-          <div className="flex items-center gap-1.5 text-right text-[11px] font-medium">
-            {dataStatus === "down" ? (
-              <div className="flex items-center gap-1 text-red-500 dark:text-red-400">
-                <StatusDot state="ERROR" size="sm" animate={false} />
-                <span className="font-semibold">Down</span>
-              </div>
-            ) : dataStatus === "loading" ? (
-              <div className="flex items-center gap-1 text-amber-500 dark:text-amber-400">
-                <StatusDot state="BUILDING" size="sm" animate={true} />
-                <span className="text-zinc-500 dark:text-zinc-400">Connecting...</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 text-zinc-500 dark:text-zinc-400">
-                <StatusDot state="READY" size="sm" animate={true} />
-                <span>Live Data</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Bottom full-width dashed line under heading */}
-        <div
-          className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 pointer-events-none dark:border-white/[0.15]"
-          style={dashedLineMask}
-        />
-        <div className="absolute bottom-0 -left-4 z-20 size-[2px] -translate-x-1/2 translate-y-1/2 bg-black/50 pointer-events-none dark:bg-white/[0.25]" />
-        <div className="absolute bottom-0 -right-4 z-20 size-[2px] translate-x-1/2 translate-y-1/2 bg-black/50 pointer-events-none dark:bg-white/[0.25]" />
-      </motion.div>
-
       <p id="github-activity-summary" className="sr-only">
         Calendar heatmap showing daily GitHub contribution counts for Josiah De Asis over the last year. Scroll horizontally to inspect all weeks.
       </p>
 
-      {/* Graph content — sits directly on the page background */}
+      {/* Graph content — sits directly below Socials separator (Matching Reference Picture 1) */}
       <motion.div 
         variants={{
-          hidden: { opacity: 0, scale: 0.95, y: 20 },
+          hidden: { opacity: 0, scale: 0.98, y: 10 },
           visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", bounce: 0.4 } }
         }}
-        className="relative py-4 w-full overflow-visible"
+        className="relative pt-3 pb-2 w-full overflow-visible"
       >
         <GithubCalendar 
           username="VidZid2" 
@@ -166,7 +113,7 @@ export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScroll
         />
       </motion.div>
 
-      {/* Bottom full-width dashed line */}
+      {/* Bottom full-width dashed line before AboutSection */}
       <div
         className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 pointer-events-none dark:border-white/[0.15]"
         style={dashedLineMask}

@@ -123,7 +123,7 @@ export function ProfileDetailsGrid() {
       <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
 
       {/* 2-Column Info Grid */}
-      <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 py-4 text-[13px] font-mono">
+      <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 py-3 text-[13px] font-mono">
         {/* Vertical divider line for desktop */}
         <div
           className="hidden sm:block absolute top-0 bottom-0 left-1/2 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
@@ -232,16 +232,20 @@ export function ProfileDetailsGrid() {
         </div>
       </div>
 
-      {/* Divider line before Socials Bar */}
-      <div
-        className="absolute bottom-[52px] left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-        style={dashedMask}
-      />
+      {/* Full-width dashed separator between Info Grid & Socials */}
+      <div className="relative w-full h-0">
+        <div
+          className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={dashedMask}
+        />
+        <div className="absolute top-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+        <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+      </div>
 
       {/* Socials Row with "say hi" Annotation (Matching Reference Picture 1) */}
-      <div className="relative flex items-center gap-3 py-3">
+      <div className="relative flex items-center gap-3 py-2.5">
         {/* Handwritten Annotation */}
-        <div className="flex items-center gap-1 font-caveat italic text-[15px] text-zinc-400 dark:text-zinc-500 select-none shrink-0 -mt-1">
+        <div className="flex items-center gap-1 font-caveat italic text-[15px] text-zinc-400 dark:text-zinc-500 select-none shrink-0 -mt-0.5">
           <span>say hi</span>
           <svg
             viewBox="0 0 24 24"
@@ -276,6 +280,16 @@ export function ProfileDetailsGrid() {
             </motion.a>
           ))}
         </div>
+      </div>
+
+      {/* Full-width dashed separator between Socials & GitHub Activity */}
+      <div className="relative w-full h-0">
+        <div
+          className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={dashedMask}
+        />
+        <div className="absolute top-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+        <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
       </div>
     </div>
   );
