@@ -206,6 +206,12 @@ class ClaudeModelSelectorElement extends HTMLElement {
         }
 
         :host([data-ultra]) .level-current {
+          color: #2563eb !important;
+          text-shadow: 0 0 10px rgba(37, 99, 235, 0.25);
+        }
+
+        :host-context(.dark):host([data-ultra]) .level-current,
+        :host([data-theme="dark"][data-ultra]) .level-current {
           color: #6495ed !important;
           text-shadow: 0 0 10px rgba(100, 149, 237, 0.4);
         }
@@ -444,8 +450,9 @@ class ClaudeModelSelectorElement extends HTMLElement {
         }
 
         :host([data-ultra]) .range::-webkit-slider-thumb {
-          border-color: #6495ed !important;
-          box-shadow: 0 0 0 2px rgba(100, 149, 237, 0.4), 0 0 12px rgba(100, 149, 237, 0.5), 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+          border: none !important;
+          outline: none !important;
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18), 0 0 1px rgba(0, 0, 0, 0.12) !important;
         }
 
         :host([data-low]) .range::-webkit-slider-thumb {
@@ -469,6 +476,12 @@ class ClaudeModelSelectorElement extends HTMLElement {
           background: #ffffff;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
           cursor: grab;
+        }
+
+        :host([data-ultra]) .range::-moz-range-thumb {
+          border: none !important;
+          outline: none !important;
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18), 0 0 1px rgba(0, 0, 0, 0.12) !important;
         }
 
         :host([data-low]) .range::-moz-range-thumb {
