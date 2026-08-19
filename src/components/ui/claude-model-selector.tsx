@@ -120,7 +120,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
         .panel {
           position: relative;
           width: 100%;
-          padding: 0;
+          padding: 0 0 2px 0;
           border: none;
           background: transparent;
           box-shadow: none;

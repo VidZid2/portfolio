@@ -8,7 +8,11 @@ export function useMeasure() {
   useLayoutEffect(() => {
     if (!ref) return;
     const observer = new ResizeObserver(([entry]) => {
-      setBounds(entry.target.getBoundingClientRect());
+      const el = entry.target as HTMLElement;
+      const rect = el.getBoundingClientRect();
+      const height = Math.ceil(el.offsetHeight || el.scrollHeight || entry.contentRect.height || rect.height);
+      const width = Math.ceil(el.offsetWidth || el.scrollWidth || entry.contentRect.width || rect.width);
+      setBounds({ left: rect.left, top: rect.top, width, height });
     });
     observer.observe(ref);
     return () => observer.disconnect();

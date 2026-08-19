@@ -708,7 +708,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                 </div>
               )}
             </div>
-            <div className="flex flex-col gap-2.5 p-3">
+            <div className="flex flex-col gap-2.5 p-3 pb-3.5">
               <div className="flex flex-col gap-1">
                 <ClaudeModelSelector
                   value={LEVEL_TO_INDEX[reasoning] ?? 1}
