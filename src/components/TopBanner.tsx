@@ -16,15 +16,21 @@ export function TopBanner() {
         variant="shafts"
         direction="bottom"
         background={isDark ? "#000000" : "#FFFFFF"}
-        baseColor={isDark ? "#6B2BF5" : "#818CF8"}
-        accentColor="#EFE6FF"
+        baseColor={isDark ? "#6B2BF5" : "#DDD6FE"}
+        accentColor={isDark ? "#EFE6FF" : "#6B2BF5"}
         speed={100}
         hover={114}
         light={{ rise: 79, spread: 72 }}
         shafts={{ count: 17, amount: 70, drift: 79 }}
-        finish={{ grain: 12, vignette: 25 }}
+        finish={{
+          grain: isDark ? 12 : 0,
+          vignette: isDark ? 25 : 0,
+        }}
         className="w-full h-full"
       />
+
+      {/* Subtle bottom blend for seamless blueprint grid transition */}
+      <div className="absolute inset-x-0 bottom-0 h-6 pointer-events-none z-[6] bg-gradient-to-t from-white to-transparent dark:from-black dark:to-transparent" />
 
       {/* Live Digital Clock */}
       <div className="absolute bottom-3 right-3 z-30 pointer-events-auto">
