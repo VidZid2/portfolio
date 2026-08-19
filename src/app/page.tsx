@@ -87,7 +87,7 @@ export default function Home() {
             </div>
 
             {/* 2. Right Content Column (With Dotted Sub-Row Dividers & WebGL Swirl) */}
-            <div className="flex-1 h-[112px] relative flex flex-col justify-between overflow-hidden">
+            <div className="flex-1 h-[112px] relative flex flex-col justify-between overflow-visible">
               <SwirlBackground />
 
               {/* Sub-row 1: Top Action Buttons (36px) */}

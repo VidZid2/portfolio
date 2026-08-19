@@ -214,25 +214,56 @@ export function CommandMenu() {
                 </div>
             </button>
 
-            <button 
-                onClick={() => setAiOpen(true)}
-                onMouseEnter={preloadPromptBox}
-                onTouchStart={preloadPromptBox}
-                className="relative group cursor-pointer transition-all duration-300 active:scale-95 shrink-0"
-                aria-label="Ask AI Assistant"
-            >
-                {/* Outer border wrapper matching View All style */}
-                <div className="absolute -inset-[4.5px] border border-black/5 dark:border-white/5 rounded-[9px] pointer-events-none transition-colors duration-300 group-hover:border-black/10 dark:group-hover:border-white/10" />
-                
-                <div className="relative flex items-center justify-center w-[34px] sm:w-[72px] h-[21px] bg-zinc-50 hover:bg-zinc-100 dark:bg-[#09090b] dark:hover:bg-[#121214] text-[#6495ED] dark:text-[#6495ED] hover:text-[#4b7deb] dark:hover:text-[#87afff] rounded-[5px] text-[11px] font-bold transition-all duration-300 border border-black/5 dark:border-white/5 shadow-sm shadow-black/20 dark:shadow-lg dark:shadow-black/80 font-mono whitespace-nowrap shrink-0">
-                    <span className="leading-none mt-[0.5px] whitespace-nowrap hidden sm:inline-flex">
-                        <JapaneseAsciiText text="Ask AI" duration={3000} idleScramble={true} />
+            <div className="relative group/ai inline-flex items-center">
+                {/* Handwritten Annotation: interact with curved arrow pointing to Ask AI */}
+                <div className="absolute -top-6 right-1 hidden sm:flex items-center gap-1 pointer-events-none select-none z-30">
+                    <span className="font-caveat italic text-[16px] sm:text-[18px] font-semibold text-zinc-600 dark:text-zinc-400 leading-none whitespace-nowrap -rotate-[6deg] tracking-wide">
+                        interact
                     </span>
-                    <span className="leading-none mt-[0.5px] whitespace-nowrap inline-flex sm:hidden">
-                        <JapaneseAsciiText text="AI" duration={3000} idleScramble={true} />
-                    </span>
+                    <svg
+                        width="20"
+                        height="18"
+                        viewBox="0 0 28 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="text-zinc-400 dark:text-zinc-500 overflow-visible translate-y-1"
+                    >
+                        <path
+                            d="M 4 2 C 4 10, 12 17, 24 17"
+                            stroke="currentColor"
+                            strokeWidth="1.2"
+                            strokeLinecap="round"
+                        />
+                        <path
+                            d="M 18 12 L 24 17 L 18 22"
+                            stroke="currentColor"
+                            strokeWidth="1.2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        />
+                    </svg>
                 </div>
-            </button>
+
+                <button 
+                    onClick={() => setAiOpen(true)}
+                    onMouseEnter={preloadPromptBox}
+                    onTouchStart={preloadPromptBox}
+                    className="relative group cursor-pointer transition-all duration-300 active:scale-95 shrink-0"
+                    aria-label="Ask AI Assistant"
+                >
+                    {/* Outer border wrapper matching View All style */}
+                    <div className="absolute -inset-[4.5px] border border-black/5 dark:border-white/5 rounded-[9px] pointer-events-none transition-colors duration-300 group-hover:border-black/10 dark:group-hover:border-white/10" />
+                    
+                    <div className="relative flex items-center justify-center w-[34px] sm:w-[72px] h-[21px] bg-zinc-50 hover:bg-zinc-100 dark:bg-[#09090b] dark:hover:bg-[#121214] text-[#6495ED] dark:text-[#6495ED] hover:text-[#4b7deb] dark:hover:text-[#87afff] rounded-[5px] text-[11px] font-bold transition-all duration-300 border border-black/5 dark:border-white/5 shadow-sm shadow-black/20 dark:shadow-lg dark:shadow-black/80 font-mono whitespace-nowrap shrink-0">
+                        <span className="leading-none mt-[0.5px] whitespace-nowrap hidden sm:inline-flex">
+                            <JapaneseAsciiText text="Ask AI" duration={3000} idleScramble={true} />
+                        </span>
+                        <span className="leading-none mt-[0.5px] whitespace-nowrap inline-flex sm:hidden">
+                            <JapaneseAsciiText text="AI" duration={3000} idleScramble={true} />
+                        </span>
+                    </div>
+                </button>
+            </div>
 
             <AnimatePresence>
                 {showTooltip && (
