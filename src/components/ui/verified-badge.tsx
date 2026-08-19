@@ -16,7 +16,7 @@ const componentThemeClassName =
 
 export type VerifiedBadgeVariant = "shimmer" | "static";
 export type VerifiedBadgeSize = "sm" | "md" | "lg";
-export type VerifiedBadgeTone = "brand" | "gold" | "neutral" | "white";
+export type VerifiedBadgeTone = "brand" | "gold" | "neutral";
 
 const verifiedBadgeSizePixels = {
   sm: 18,
@@ -28,7 +28,6 @@ const verifiedBadgeToneClassNames = {
   brand: "text-[var(--verified-badge-color,#6495ED)]",
   gold: "text-[var(--verified-badge-gold)]",
   neutral: "text-[var(--verified-badge-neutral)]",
-  white: "text-zinc-900 dark:text-white",
 } as const satisfies Record<VerifiedBadgeTone, string>;
 
 export function resolveVerifiedBadgePixelSize(
@@ -192,12 +191,9 @@ const VerifiedBadge = forwardRef<HTMLSpanElement, VerifiedBadgeProps>(
 
         <svg
           aria-hidden="true"
-          className={cn(
-            "absolute inset-0 z-10 m-auto",
-            tone === "white" ? "text-white dark:text-black" : "text-white"
-          )}
+          className="absolute inset-0 z-10 m-auto"
           fill="none"
-          stroke="currentColor"
+          stroke="white"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokeWidth}
