@@ -127,16 +127,18 @@ export function ProfileDetailsGrid() {
       <div className="absolute top-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
       <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
 
-      {/* 2-Column Info Grid */}
-      <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 py-3 text-[13px] font-mono">
+      {/* 2-Column Info Grid (Balanced 4x2 Mathematical Layout) */}
+      <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-x-0 gap-y-2.5 sm:gap-y-3 py-3.5 sm:py-4 text-[13px] font-mono">
         {/* Vertical divider line for desktop */}
         <div
           className="hidden sm:block absolute top-0 bottom-0 left-1/2 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
           style={dashedVerticalMask}
         />
+        <div className="hidden sm:block absolute top-0 left-1/2 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+        <div className="hidden sm:block absolute bottom-0 left-1/2 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
 
-        {/* Left Column */}
-        <div className="flex flex-col gap-2">
+        {/* Left Column (4 items) */}
+        <div className="flex flex-col gap-2.5 sm:gap-3 pl-3 sm:pl-4 pr-3 sm:pr-4">
           {/* Row 1: Role */}
           <div className="flex items-center gap-2.5 group">
             <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
@@ -147,17 +149,7 @@ export function ProfileDetailsGrid() {
             </span>
           </div>
 
-          {/* Row 2: Secondary Role */}
-          <div className="flex items-center gap-2.5 group">
-            <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
-              <Lightbulb className="w-3.5 h-3.5" />
-            </div>
-            <span className="text-zinc-700 dark:text-zinc-300 font-medium truncate">
-              UI Systems Architect
-            </span>
-          </div>
-
-          {/* Row 3: Location */}
+          {/* Row 2: Location */}
           <div className="flex items-center gap-2.5 group">
             <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
               <MapPin className="w-3.5 h-3.5" />
@@ -167,7 +159,7 @@ export function ProfileDetailsGrid() {
             </span>
           </div>
 
-          {/* Row 4: Phone / Contact */}
+          {/* Row 3: Phone / Contact */}
           <div className="flex items-center gap-2.5 group">
             <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
               <Phone className="w-3.5 h-3.5" />
@@ -181,7 +173,7 @@ export function ProfileDetailsGrid() {
             </a>
           </div>
 
-          {/* Row 5: Domain URL */}
+          {/* Row 4: Domain URL */}
           <div className="flex items-center gap-2.5 group">
             <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
               <Link2 className="w-3.5 h-3.5" />
@@ -198,9 +190,19 @@ export function ProfileDetailsGrid() {
           </div>
         </div>
 
-        {/* Right Column */}
-        <div className="flex flex-col gap-2 sm:pl-4">
-          {/* Row 1: Time */}
+        {/* Right Column (4 items) */}
+        <div className="flex flex-col gap-2.5 sm:gap-3 pl-3 sm:pl-4 pr-3 sm:pr-4">
+          {/* Row 1: Secondary Role */}
+          <div className="flex items-center gap-2.5 group">
+            <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
+              <Lightbulb className="w-3.5 h-3.5" />
+            </div>
+            <span className="text-zinc-700 dark:text-zinc-300 font-medium truncate">
+              UI Systems Architect
+            </span>
+          </div>
+
+          {/* Row 2: Time */}
           <div className="flex items-center gap-2.5 group">
             <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
               <Clock className="w-3.5 h-3.5" />
@@ -213,7 +215,7 @@ export function ProfileDetailsGrid() {
             </span>
           </div>
 
-          {/* Row 2: Email */}
+          {/* Row 3: Email */}
           <div className="flex items-center gap-2.5 group">
             <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
               <Mail className="w-3.5 h-3.5" />
@@ -227,7 +229,7 @@ export function ProfileDetailsGrid() {
             </a>
           </div>
 
-          {/* Row 3: Pronouns */}
+          {/* Row 4: Pronouns */}
           <div className="flex items-center gap-2.5 group">
             <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
               <User className="w-3.5 h-3.5" />
