@@ -323,7 +323,7 @@ function TriggerPreview({
   }
 
   return (
-    <span className="mt-0.5 md:mt-0 block md:inline-flex overflow-hidden max-w-[220px] md:max-w-[320px]">
+    <span className="mt-0.5 block overflow-hidden">
       <AnimatePresence initial={false} mode="popLayout">
         <motion.span
           animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
@@ -368,8 +368,23 @@ function TriggerLabel({
   title: ReactNode;
 }) {
   return (
-    <span className="min-w-0 flex-1 flex flex-col md:flex-row md:items-center gap-0.5 md:gap-2">
-      <span className="flex items-center gap-1.5 shrink-0">
+    <span className="min-w-0 flex-1">
+      <span className="flex items-center gap-1.5">
+        {activeStep !== undefined && (
+          <span className="inline-flex items-center text-muted-foreground mr-0.5 animate-pulse">
+            <svg
+              aria-hidden="true"
+              className="size-3.5 shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M 12 3 C 12.9 7.4 16.6 11.1 21 12 C 16.6 12.9 12.9 16.6 12 21 C 11.1 16.6 7.4 12.9 3 12 C 7.4 11.1 11.1 7.4 12 3 Z"
+                fill="currentColor"
+              />
+            </svg>
+          </span>
+        )}
         <ShimmerLabel
           active={activeStep !== undefined}
           reduceMotion={reduceMotion}
@@ -389,16 +404,6 @@ function TriggerLabel({
           <ChevronDown className="size-4 text-muted-foreground" />
         </motion.span>
       </span>
-      {isOpen ? null : (
-        <>
-          {activeStep && (
-            <span className="hidden md:inline-block text-zinc-300 dark:text-zinc-700 text-[11px] select-none font-bold">
-              •
-            </span>
-          )}
-          <TriggerPreview activeStep={activeStep} reduceMotion={reduceMotion} />
-        </>
-      )}
     </span>
   );
 }

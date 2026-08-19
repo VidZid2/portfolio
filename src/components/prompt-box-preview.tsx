@@ -782,15 +782,7 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                                   className="mb-4"
                                   defaultOpen={false}
                                 >
-                                  <div className="flex items-center gap-2.5 flex-wrap">
-                                    {isThinkingActive && (
-                                      <>
-                                        <ThinkingIndicator words={["Thinking", "Reasoning", "Planning"]} />
-                                        <span className="text-zinc-300 dark:text-zinc-700 text-[11px] select-none font-bold">•</span>
-                                      </>
-                                    )}
-                                    <ReasoningStepsTrigger className="w-auto py-1">Thought Process</ReasoningStepsTrigger>
-                                  </div>
+                                  <ReasoningStepsTrigger>Thought Process</ReasoningStepsTrigger>
                                   <ReasoningStepsContent>
                                     {parsedSteps.map((step, stepIdx) => (
                                       <ReasoningStep
