@@ -456,8 +456,8 @@ function TriggerLabel({
   const isThinking = activeStep !== undefined;
 
   return (
-    <motion.span layout="position" className="min-w-0 flex-1 block">
-      <motion.span layout="position" className="flex items-center gap-1.5">
+    <span className="min-w-0 flex-1 block">
+      <span className="flex items-center gap-1.5 transition-transform duration-300 ease-out">
         <AnimatePresence mode="popLayout" initial={false}>
           {isThinking && (
             <motion.span
@@ -468,24 +468,21 @@ function TriggerLabel({
                 reduceMotion
                   ? { opacity: 0, width: 0 }
                   : {
-                      scale: [1, 1.3, 0],
-                      opacity: [1, 0.9, 0],
-                      filter: ["blur(0px)", "blur(1.5px)", "blur(4px)"],
+                      scale: 0,
+                      opacity: 0,
                       width: 0,
                       marginRight: 0,
                       transition: {
-                        duration: 0.45,
-                        ease: [0.16, 1, 0.3, 1],
-                        width: { duration: 0.4, delay: 0.08, ease: [0.16, 1, 0.3, 1] },
-                        marginRight: { duration: 0.4, delay: 0.08, ease: [0.16, 1, 0.3, 1] },
+                        duration: 0.25,
+                        ease: "easeOut",
                       },
                     }
               }
               transition={{
-                type: "spring",
-                stiffness: 420,
-                damping: 28,
+                duration: 0.25,
+                ease: "easeOut",
               }}
+              style={{ willChange: "transform, opacity, width" }}
               className="inline-flex items-center shrink-0 overflow-visible relative"
             >
               <MorphingSparkleGlyph reduceMotion={reduceMotion} />
@@ -493,15 +490,7 @@ function TriggerLabel({
           )}
         </AnimatePresence>
 
-        <motion.span
-          layout="position"
-          transition={{
-            type: "spring",
-            stiffness: 380,
-            damping: 30,
-          }}
-          className="inline-flex items-center gap-1.5"
-        >
+        <span className="inline-flex items-center gap-1.5 transition-all duration-300 ease-out">
           <ShimmerLabel
             active={isThinking}
             reduceMotion={reduceMotion}
@@ -509,24 +498,20 @@ function TriggerLabel({
             {title}
           </ShimmerLabel>
           {shownDuration > 0 ? (
-            <motion.span
-              layout="position"
-              className="text-[12px] text-muted-foreground tabular-nums"
-            >
+            <span className="text-[12px] text-muted-foreground tabular-nums">
               {shownDuration}s
-            </motion.span>
+            </span>
           ) : null}
           <motion.span
-            layout="position"
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.2 }}
             className="ml-1 flex items-center"
           >
             <ChevronDown className="size-4 text-muted-foreground" />
           </motion.span>
-        </motion.span>
-      </motion.span>
-    </motion.span>
+        </span>
+      </span>
+    </span>
   );
 }
 

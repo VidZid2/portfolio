@@ -776,10 +776,11 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                             {reasoningContent ? (
                               <motion.div
                                 key="reasoning-steps-block"
-                                initial={{ opacity: 0, y: 3, filter: "blur(2px)" }}
-                                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                                exit={{ opacity: 0, y: -3, filter: "blur(2px)" }}
-                                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                                initial={{ opacity: 0, y: 3 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -3 }}
+                                transition={{ duration: 0.2, ease: "easeOut" }}
+                                style={{ willChange: "opacity, transform" }}
                               >
                                 {(() => {
                                   const parsedSteps = parseReasoningSteps(reasoningContent);
@@ -810,10 +811,11 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                               isLoading && index === messages.length - 1 && (
                                 <motion.div
                                   key="standalone-thinking-block"
-                                  initial={{ opacity: 0, y: 3, filter: "blur(2px)" }}
-                                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                                  exit={{ opacity: 0, y: -3, filter: "blur(2px)" }}
-                                  transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                                  initial={{ opacity: 0, y: 3 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0, y: -3 }}
+                                  transition={{ duration: 0.2, ease: "easeOut" }}
+                                  style={{ willChange: "opacity, transform" }}
                                   className="mb-3"
                                 >
                                   <ThinkingIndicator words={["Thinking", "Reasoning", "Planning"]} />
@@ -867,10 +869,11 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                 {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
                   <motion.div
                     key="initial-loading-message"
-                    initial={{ opacity: 0, y: 6, filter: "blur(3px)" }}
-                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                    exit={{ opacity: 0, y: -4, filter: "blur(2px)", transition: { duration: 0.2 } }}
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -3, transition: { duration: 0.15 } }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    style={{ willChange: "opacity, transform" }}
                   >
                     <Message from="assistant">
                       <MessageContent>
@@ -888,8 +891,8 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
           )}
           </AnimatePresence>
         </div>
-        <ProgressiveBlur position="bottom" height="15%" className="z-10 pointer-events-none -inset-x-8 opacity-60" />
-        <ProgressiveBlur position="top" height="8%" className="z-10 pointer-events-none -inset-x-8 opacity-60" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background to-transparent z-10 opacity-80" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-background to-transparent z-10 opacity-80" />
         </div>
         
         <motion.div 
