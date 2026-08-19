@@ -1,4 +1,4 @@
-﻿// Light Bloom — Originkit
+// Light Bloom — Originkit
 "use client";
 
 import * as React from "react";
@@ -231,9 +231,7 @@ export default function LightBloom(props: LightBloomProps) {
         drift: num(S.drift, 79) / 100,
         grain: num(F.grain, 12) / 100,
         vignette: num(F.vignette, 25) / 100,
-    };
-
-    const ptrRef = useRef({ x: 0.5, target: 0.5, on: 0, onTarget: 0 });
+    };    const ptrRef = useRef({ x: 0.5, target: 0.5, on: 1, onTarget: 1 });
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -310,12 +308,12 @@ export default function LightBloom(props: LightBloomProps) {
             }
 
             const p = ptrRef.current;
-            const kx = 1 - Math.exp(-8 * dt);
-            const ko = 1 - Math.exp(-5 * dt);
+            const kx = 1 - Math.exp(-10 * dt);
+            const ko = 1 - Math.exp(-6 * dt);
             p.x += (p.target - p.x) * kx;
             p.on += (p.onTarget - p.on) * ko;
 
-            const travel = Math.min(1, v.hover);
+            const travel = Math.min(1.2, v.hover);
             const originX = 0.5 + (p.x - 0.5) * travel * p.on;
 
             gl.uniform2f(u.res, bw, bh);
@@ -340,34 +338,24 @@ export default function LightBloom(props: LightBloomProps) {
         };
 
         const onMove = (e: PointerEvent) => {
-            const r = canvas.getBoundingClientRect();
+            if (!canvasRef.current) return;
+            const r = canvasRef.current.getBoundingClientRect();
             if (vRef.current.direction === 2 || vRef.current.direction === 3) {
-                const h = canvas.offsetHeight || 1;
-                const scale = r.height > 0 ? h / r.height : 1;
-                ptrRef.current.target = Math.max(0, Math.min(1, 1 - ((e.clientY - r.top) * scale) / h));
+                const h = r.height || 1;
+                ptrRef.current.target = Math.max(0, Math.min(1, 1 - (e.clientY - r.top) / h));
             } else {
-                const w = canvas.offsetWidth || 1;
-                const scale = r.width > 0 ? w / r.width : 1;
-                ptrRef.current.target = Math.max(0, Math.min(1, ((e.clientX - r.left) * scale) / w));
+                const w = r.width || 1;
+                ptrRef.current.target = Math.max(0, Math.min(1, (e.clientX - r.left) / w));
             }
-        };
-        const onEnter = () => {
             ptrRef.current.onTarget = 1;
         };
-        const onLeave = () => {
-            ptrRef.current.onTarget = 0;
-        };
 
-        canvas.addEventListener("pointermove", onMove);
-        canvas.addEventListener("pointerenter", onEnter);
-        canvas.addEventListener("pointerleave", onLeave);
+        window.addEventListener("pointermove", onMove, { passive: true });
         raf = requestAnimationFrame(render);
 
         return () => {
             cancelAnimationFrame(raf);
-            canvas.removeEventListener("pointermove", onMove);
-            canvas.removeEventListener("pointerenter", onEnter);
-            canvas.removeEventListener("pointerleave", onLeave);
+            window.removeEventListener("pointermove", onMove);
         };
     }, []);
 
