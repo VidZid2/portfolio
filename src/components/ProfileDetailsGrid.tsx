@@ -264,27 +264,27 @@ export function ProfileDetailsGrid() {
       {/* Socials Row (Matching Blueprint Grid Design) */}
       <div className="relative flex items-center py-0">
         {/* Handwritten Annotation in Left Gutter outside the vertical line */}
-        <div className="absolute right-full top-[-52px] sm:top-[-58px] pr-3 sm:pr-4 hidden sm:flex flex-col items-end pointer-events-none select-none z-30 min-w-max">
+        <div className="absolute right-full top-[-52px] sm:top-[-58px] pr-5 sm:pr-6 hidden sm:flex flex-col items-end pointer-events-none select-none z-30 min-w-max">
           <div className="flex flex-col text-right font-caveat italic text-[20px] sm:text-[24px] leading-[1.05] font-medium text-zinc-600 dark:text-zinc-400 select-none mr-2 -rotate-[6deg] tracking-wide">
             <span>feel free to reach out</span>
             <span>say hi or connect</span>
           </div>
           <svg
-            width="36"
+            width="34"
             height="26"
-            viewBox="0 0 36 26"
+            viewBox="0 0 34 26"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-1 translate-x-1.5"
+            className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-1 -translate-x-0.5"
           >
             <path
-              d="M 4 2 C 4 10, 16 18, 34 18"
+              d="M 4 2 C 4 10, 14 18, 28 18"
               stroke="currentColor"
               strokeWidth="1.35"
               strokeLinecap="round"
             />
             <path
-              d="M 26 12 L 34 18 L 27 24"
+              d="M 21 12 L 28 18 L 22 24"
               stroke="currentColor"
               strokeWidth="1.35"
               strokeLinecap="round"
