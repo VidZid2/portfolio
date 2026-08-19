@@ -354,6 +354,92 @@ function TriggerPreview({
   );
 }
 
+const GLYPH_SPARKLE =
+  "M 12 3 C 12.9 7.4 16.6 11.1 21 12 C 16.6 12.9 12.9 16.6 12 21 C 11.1 16.6 7.4 12.9 3 12 C 7.4 11.1 11.1 7.4 12 3 Z";
+const GLYPH_BLOB_A =
+  "M 12 4.2 C 16.8 3.4 20.6 7.2 19.8 12 C 20.6 16.4 16.4 20.6 12 19.8 C 7.8 20.6 3.4 16.8 4.2 12 C 3.4 7.6 7.2 3.4 12 4.2 Z";
+const GLYPH_CIRCLE =
+  "M 12 5 C 15.87 5 19 8.13 19 12 C 19 15.87 15.87 19 12 19 C 8.13 19 5 15.87 5 12 C 5 8.13 8.13 5 12 5 Z";
+const GLYPH_BLOB_B =
+  "M 12 3.6 C 16.4 4.6 18.6 8 19.2 12 C 18.6 16.2 16.2 19.4 12 20.4 C 8 19.4 5.2 16.4 4.8 12 C 5.4 7.8 7.6 4.4 12 3.6 Z";
+const GLYPH_TWINKLE =
+  "M 19 2.5 C 19.18 4.32 19.68 4.82 21.5 5 C 19.68 5.18 19.18 5.68 19 7.5 C 18.82 5.68 18.32 5.18 16.5 5 C 18.32 4.82 18.82 4.32 19 2.5 Z";
+
+function MorphingSparkleGlyph({ reduceMotion }: { reduceMotion: boolean }) {
+  const gradientId = useId();
+
+  if (reduceMotion) {
+    return (
+      <svg aria-hidden="true" className="size-3.5 shrink-0 text-muted-foreground mr-0.5" fill="none" viewBox="0 0 24 24">
+        <defs>
+          <linearGradient id={gradientId} x1="5" x2="20" y1="4" y2="20" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stopColor="currentColor" stopOpacity="1" />
+            <stop offset="1" stopColor="currentColor" stopOpacity="0.4" />
+          </linearGradient>
+        </defs>
+        <path d={GLYPH_SPARKLE} fill={`url(#${gradientId})`} />
+        <path d={GLYPH_TWINKLE} fill="currentColor" opacity={0.5} />
+      </svg>
+    );
+  }
+
+  return (
+    <svg aria-hidden="true" className="size-3.5 shrink-0 text-muted-foreground mr-0.5" fill="none" viewBox="0 0 24 24">
+      <defs>
+        <linearGradient id={gradientId} x1="5" x2="20" y1="4" y2="20" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="currentColor" stopOpacity="1" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.4" />
+        </linearGradient>
+      </defs>
+      <motion.g
+        animate={{
+          rotate: 360,
+          scale: [1, 0.88, 1],
+        }}
+        style={{
+          transformBox: "fill-box",
+          transformOrigin: "center",
+        }}
+        transition={{
+          duration: 3,
+          ease: "easeInOut",
+          repeat: Number.POSITIVE_INFINITY,
+        }}
+      >
+        <motion.path
+          animate={{
+            d: [GLYPH_SPARKLE, GLYPH_BLOB_A, GLYPH_CIRCLE, GLYPH_BLOB_B, GLYPH_SPARKLE],
+          }}
+          transition={{
+            duration: 4,
+            ease: "easeInOut",
+            repeat: Number.POSITIVE_INFINITY,
+            times: [0, 0.3, 0.5, 0.7, 1],
+          }}
+          fill={`url(#${gradientId})`}
+        />
+      </motion.g>
+      <motion.g
+        animate={{
+          opacity: [0.2, 1, 0.2],
+          scale: [0.7, 1.1, 0.7],
+        }}
+        style={{
+          transformBox: "fill-box",
+          transformOrigin: "center",
+        }}
+        transition={{
+          duration: 2,
+          ease: "easeInOut",
+          repeat: Number.POSITIVE_INFINITY,
+        }}
+      >
+        <path d={GLYPH_TWINKLE} fill="currentColor" opacity={0.6} />
+      </motion.g>
+    </svg>
+  );
+}
+
 function TriggerLabel({
   activeStep,
   isOpen,
@@ -371,19 +457,7 @@ function TriggerLabel({
     <span className="min-w-0 flex-1">
       <span className="flex items-center gap-1.5">
         {activeStep !== undefined && (
-          <span className="inline-flex items-center text-muted-foreground mr-0.5 animate-pulse">
-            <svg
-              aria-hidden="true"
-              className="size-3.5 shrink-0"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M 12 3 C 12.9 7.4 16.6 11.1 21 12 C 16.6 12.9 12.9 16.6 12 21 C 11.1 16.6 7.4 12.9 3 12 C 7.4 11.1 11.1 7.4 12 3 Z"
-                fill="currentColor"
-              />
-            </svg>
-          </span>
+          <MorphingSparkleGlyph reduceMotion={reduceMotion} />
         )}
         <ShimmerLabel
           active={activeStep !== undefined}
