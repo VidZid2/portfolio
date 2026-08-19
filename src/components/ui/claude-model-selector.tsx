@@ -327,10 +327,9 @@ class ClaudeModelSelectorElement extends HTMLElement {
               * var(--effort-progress, 0.3333)
             + (var(--effort-thumb-w) * 0.5)
           );
-          border-radius: inherit;
+          border-radius: var(--effort-track-radius) 0 0 var(--effort-track-radius);
           background: var(--effort-track-fill);
           pointer-events: none;
-          transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         :host([data-ultra]) .track-fill {
@@ -785,7 +784,9 @@ class ClaudeModelSelectorElement extends HTMLElement {
     if (name === "value" && !this._reflectingValue && this._input) {
       if (this._dragging || this._springFrame !== 0) return;
       const next = Number.parseFloat(newValue ?? "0");
-      this._setValue(Number.isFinite(next) ? next : 0, {
+      if (!Number.isFinite(next)) return;
+      if (Math.abs(this._value - next) < 0.02) return;
+      this._setValue(next, {
         animateLabel: this.isConnected,
         reflect: false,
       });
@@ -1316,7 +1317,9 @@ const ClaudeModelSelector = React.forwardRef<
         value: number;
       }>;
       if (customEvent.detail) {
-        onLevelChange?.(customEvent.detail.level, customEvent.detail.index);
+        if (e.type === "change") {
+          onLevelChange?.(customEvent.detail.level, customEvent.detail.index);
+        }
         onValueChange?.(customEvent.detail.value);
       }
     };
