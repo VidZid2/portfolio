@@ -564,10 +564,15 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
 
   return (
     <motion.div
+      layout
       initial={{ opacity: 0, scale: 0.97, y: 3, filter: "blur(3px)" }}
       animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
       exit={{ opacity: 0, scale: 0.97, y: 3, filter: "blur(3px)" }}
-      transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+      transition={{
+        duration: 0.22,
+        ease: [0.16, 1, 0.3, 1],
+        layout: { duration: 0.28, ease: [0.16, 1, 0.3, 1] },
+      }}
       onPointerDown={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
@@ -577,10 +582,15 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
         {view === "details" ? (
           <motion.div
             key="details-view"
+            layout
             initial={{ opacity: 0, x: -8, filter: "blur(2px)" }}
             animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, x: -8, filter: "blur(2px)" }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{
+              duration: 0.2,
+              ease: [0.16, 1, 0.3, 1],
+              layout: { duration: 0.28, ease: [0.16, 1, 0.3, 1] },
+            }}
             className="flex flex-col divide-y divide-neutral-200 dark:divide-neutral-700/80"
           >
             <div className="flex flex-col gap-3 p-3">
@@ -736,10 +746,15 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
         ) : (
           <motion.div
             key="changelog-view"
+            layout
             initial={{ opacity: 0, x: 8, filter: "blur(2px)" }}
             animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, x: 8, filter: "blur(2px)" }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{
+              duration: 0.2,
+              ease: [0.16, 1, 0.3, 1],
+              layout: { duration: 0.28, ease: [0.16, 1, 0.3, 1] },
+            }}
             className="flex flex-col divide-y divide-neutral-200 dark:divide-neutral-700/80"
           >
             <div className="flex items-center gap-1.5 px-3 py-2">
