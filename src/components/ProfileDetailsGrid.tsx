@@ -250,28 +250,28 @@ export function ProfileDetailsGrid() {
       {/* Socials Row (Matching Reference Picture 2) */}
       <div className="relative flex items-center py-2.5">
         {/* Handwritten Annotation in Left Gutter outside the vertical line */}
-        <div className="absolute -left-[72px] sm:-left-[80px] md:-left-[86px] top-[-14px] hidden sm:flex flex-col items-end pointer-events-none select-none z-30">
+        <div className="absolute right-full top-[-8px] pr-2.5 hidden sm:flex flex-col items-end pointer-events-none select-none z-30">
           <span className="font-caveat italic text-[20px] sm:text-[22px] font-semibold text-zinc-600 dark:text-zinc-400 leading-none pr-1 tracking-wide">
             say hi
           </span>
           <svg
-            width="38"
-            height="34"
-            viewBox="0 0 38 34"
+            width="42"
+            height="32"
+            viewBox="0 0 42 32"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="text-zinc-500 dark:text-zinc-400 overflow-visible mt-1"
+            className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-0.5"
           >
             <path
-              d="M8 2 C8 13, 15 22, 33 26"
+              d="M 6 2 C 8 13, 18 24, 40 24"
               stroke="currentColor"
-              strokeWidth="1.4"
+              strokeWidth="1.3"
               strokeLinecap="round"
             />
             <path
-              d="M24 27 L33.5 26.5 L31.5 19.5"
+              d="M 32 19 L 41 24 L 32 29"
               stroke="currentColor"
-              strokeWidth="1.4"
+              strokeWidth="1.3"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
