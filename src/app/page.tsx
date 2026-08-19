@@ -93,11 +93,11 @@ export default function Home() {
 
               {/* Sub-row 2: Name & Badge (42px) */}
               <div className="h-[42px] flex items-center px-2.5 sm:px-4 relative z-20 pointer-events-auto">
-                <div className="flex items-center gap-1.5 sm:gap-2">
+                <div className="flex items-center gap-1">
                   <h1 className="whitespace-nowrap text-[17px] min-[360px]:text-[20px] sm:text-[24px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight leading-none mb-0.5">
                     Josiah De Asis
                   </h1>
-                  <VerifiedBadge size={22} tone="brand" variant="shimmer" className="shrink-0 text-[#6495ED]" />
+                  <VerifiedBadge size={20} tone="brand" variant="shimmer" className="shrink-0 text-[#6495ED]" />
                   <button
                     type="button"
                     onClick={() => {
@@ -108,10 +108,10 @@ export default function Home() {
                         window.speechSynthesis.speak(utterance);
                       }
                     }}
-                    className="p-1 rounded-md text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors -ml-0.5"
+                    className="p-0.5 rounded text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors inline-flex items-center justify-center"
                     aria-label="Pronounce name"
                   >
-                    <Volume2 className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px]" />
+                    <Volume2 className="w-[17px] h-[17px] sm:w-[18px] sm:h-[18px]" />
                   </button>
                 </div>
                 {/* Horizontal Dotted Divider under Name */}

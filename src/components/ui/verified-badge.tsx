@@ -45,7 +45,7 @@ export function resolveVerifiedBadgePixelSize(
 }
 
 export function resolveVerifiedBadgeStrokeWidth(pixelSize: number): number {
-  return Math.max(2, Math.min(4, pixelSize * 0.16));
+  return 1.8;
 }
 
 export function resolveVerifiedBadgeA11yProps({
@@ -196,10 +196,10 @@ const VerifiedBadge = forwardRef<HTMLSpanElement, VerifiedBadgeProps>(
           stroke="white"
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth={resolveVerifiedBadgeStrokeWidth(pixelSize)}
+          strokeWidth={1.8}
           viewBox="0 0 22 22"
         >
-          <polyline points="6.8 11.2 9.6 14.2 15.2 8.4" />
+          <polyline points="7.2 11.2 9.7 13.8 14.8 8.6" />
         </svg>
       </span>
     );
