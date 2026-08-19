@@ -32,7 +32,7 @@ let instanceCount = 0;
 
 class ClaudeModelSelectorElement extends HTMLElement {
   static get observedAttributes() {
-    return ["value", "open", "disabled", "quota"];
+    return ["value", "open", "disabled", "quota-used", "quota-total", "quota-tier"];
   }
 
   private _uid!: string;
@@ -60,7 +60,12 @@ class ClaudeModelSelectorElement extends HTMLElement {
   private _canvas!: HTMLCanvasElement;
   private _currentLabel!: HTMLElement;
   private _outgoingLabel!: HTMLElement;
-  private _quotaBadge!: HTMLElement;
+  private _quotaWrap!: HTMLElement;
+  private _quotaButton!: HTMLButtonElement;
+  private _quotaProgressArc!: SVGCircleElement;
+  private _quotaTipPercent!: HTMLElement;
+  private _quotaTipRingArc!: SVGCircleElement;
+  private _quotaTipDesc!: HTMLElement;
   private _helpWrap!: HTMLElement;
   private _helpButton!: HTMLButtonElement;
   private _ticks: HTMLElement[] = [];
@@ -231,37 +236,20 @@ class ClaudeModelSelectorElement extends HTMLElement {
           text-shadow: 0 0 10px rgba(100, 149, 237, 0.4);
         }
 
-        .quota-badge {
-          display: inline-flex;
+        .header-actions {
+          display: flex;
           align-items: center;
-          margin-left: 0.375rem;
-          font-size: 0.6875rem;
-          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-          font-weight: 500;
-          color: #71717a;
-          letter-spacing: -0.01em;
-          transition: opacity 160ms ease, color 160ms ease;
+          gap: 0.125rem;
+          position: relative;
         }
 
-        :host-context(.dark) .quota-badge,
-        :host([data-theme="dark"]) .quota-badge {
-          color: #94a3b8;
-        }
-
-        :host([data-quota-empty]) .quota-badge {
-          color: #f59e0b !important;
-          font-weight: 600;
-        }
-
-        .quota-badge:empty {
-          display: none;
-        }
-
+        .quota-wrap,
         .help-wrap {
           position: relative;
           flex: 0 0 auto;
         }
 
+        .quota-button,
         .help-button {
           position: relative;
           display: grid;
@@ -272,18 +260,38 @@ class ClaudeModelSelectorElement extends HTMLElement {
           border-radius: 0.25rem;
           background: transparent;
           color: var(--effort-muted);
-          cursor: help;
+          cursor: pointer;
           transition: color 150ms ease, background-color 150ms ease;
         }
 
+        .quota-button:hover,
         .help-button:hover {
           color: var(--effort-text-strong);
           background: rgba(128, 128, 128, 0.1);
         }
 
+        .quota-button svg,
         .help-button svg {
-          width: 0.75rem;
-          height: 0.75rem;
+          width: 0.8125rem;
+          height: 0.8125rem;
+        }
+
+        .quota-progress-arc {
+          color: #10b981;
+          transition: stroke-dashoffset 240ms ease, color 240ms ease;
+        }
+
+        :host([data-quota-tier="low"]) .quota-progress-arc,
+        :host([data-quota-tier="medium"]) .quota-progress-arc {
+          color: #10b981;
+        }
+
+        :host([data-quota-low]) .quota-progress-arc {
+          color: #f59e0b;
+        }
+
+        :host([data-quota-empty]) .quota-progress-arc {
+          color: #ef4444;
         }
 
         .tooltip {
@@ -295,7 +303,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
           padding: 0.4rem 0.55rem;
           border: 1px solid rgba(0, 0, 0, 0.12);
           border-radius: 0.5rem;
-          background: rgba(255, 255, 255, 0.92);
+          background: rgba(255, 255, 255, 0.95);
           backdrop-filter: blur(16px) saturate(180%);
           -webkit-backdrop-filter: blur(16px) saturate(180%);
           box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.15), 0 2px 6px -1px rgba(0, 0, 0, 0.08);
@@ -311,15 +319,110 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
         :host-context(.dark) .tooltip,
         :host([data-theme="dark"]) .tooltip {
-          background: rgba(23, 23, 23, 0.88);
+          background: rgba(23, 23, 23, 0.92);
           border-color: rgba(255, 255, 255, 0.12);
           box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5), 0 2px 6px -1px rgba(0, 0, 0, 0.3);
           color: #f5f5f5;
         }
 
+        .quota-tooltip {
+          width: 15rem;
+          padding: 0.625rem 0.75rem;
+          font-family: inherit;
+          text-align: left;
+        }
+
+        .quota-tip-row {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+
+        .quota-tip-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.5rem;
+        }
+
+        .quota-tip-title {
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: #0f172a;
+          letter-spacing: -0.01em;
+        }
+
+        :host-context(.dark) .quota-tip-title,
+        :host([data-theme="dark"]) .quota-tip-title {
+          color: #f8fafc;
+        }
+
+        .quota-tip-metric {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+        }
+
+        .quota-tip-percent {
+          font-size: 0.75rem;
+          font-weight: 600;
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+          color: #0f172a;
+        }
+
+        :host-context(.dark) .quota-tip-percent,
+        :host([data-theme="dark"]) .quota-tip-percent {
+          color: #f8fafc;
+        }
+
+        .quota-tip-ring {
+          width: 0.875rem;
+          height: 0.875rem;
+          color: #10b981;
+        }
+
+        :host([data-quota-tier="low"]) .quota-tip-ring,
+        :host([data-quota-tier="medium"]) .quota-tip-ring {
+          color: #10b981;
+        }
+
+        :host([data-quota-low]) .quota-tip-ring {
+          color: #f59e0b;
+        }
+
+        :host([data-quota-empty]) .quota-tip-ring {
+          color: #ef4444;
+        }
+
+        .quota-tip-desc {
+          font-size: 0.6875rem;
+          line-height: 1.35;
+          color: #64748b;
+          margin: 0;
+        }
+
+        :host-context(.dark) .quota-tip-desc,
+        :host([data-theme="dark"]) .quota-tip-desc {
+          color: #94a3b8;
+        }
+
+        .quota-tip-divider {
+          height: 1px;
+          margin: 0.5rem 0;
+          background: rgba(0, 0, 0, 0.08);
+        }
+
+        :host-context(.dark) .quota-tip-divider,
+        :host([data-theme="dark"]) .quota-tip-divider {
+          background: rgba(255, 255, 255, 0.1);
+        }
+
         .help-wrap:hover .tooltip,
         .help-button:focus-visible + .tooltip,
-        .help-wrap[data-tip-open] .tooltip {
+        .help-wrap[data-tip-open] .tooltip,
+        .quota-wrap:hover .tooltip,
+        .quota-button:focus-visible + .tooltip,
+        .quota-wrap[data-tip-open] .tooltip {
           opacity: 1;
           visibility: visible;
           transform: translateY(0) scale(1);
@@ -677,18 +780,50 @@ class ClaudeModelSelectorElement extends HTMLElement {
                 <span class="level-outgoing" aria-hidden="true"></span>
                 <span class="level-current">Medium</span>
               </span>
-              <span class="quota-badge"></span>
             </div>
-            <div class="help-wrap">
-              <button class="help-button" type="button" aria-label="About reasoning levels" aria-describedby="${this._uid}-tooltip">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
-                  <path d="M9.8 9.2a2.35 2.35 0 0 1 4.55.82c0 1.8-2.35 2.05-2.35 3.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M12 17.2h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                </svg>
-              </button>
-              <div class="tooltip" id="${this._uid}-tooltip" role="tooltip">
-                Higher effort spends more time reasoning. Low is fast but may be inaccurate. Max activates deepest analysis.
+            <div class="header-actions">
+              <div class="quota-wrap">
+                <button class="quota-button" type="button" aria-label="Daily reasoning limit" aria-describedby="${this._uid}-quota-tip">
+                  <svg viewBox="0 0 24 24" fill="none" class="quota-icon">
+                    <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="2" opacity="0.25"/>
+                    <circle class="quota-progress-arc" cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="47.12" stroke-dashoffset="0" transform="rotate(-90 12 12)"/>
+                  </svg>
+                </button>
+                <div class="tooltip quota-tooltip" id="${this._uid}-quota-tip" role="tooltip">
+                  <div class="quota-tip-row">
+                    <div class="quota-tip-header">
+                      <span class="quota-tip-title">Daily Limit Remaining</span>
+                      <div class="quota-tip-metric">
+                        <span class="quota-tip-percent">100%</span>
+                        <svg viewBox="0 0 20 20" class="quota-tip-ring">
+                          <circle cx="10" cy="10" r="6.5" stroke="currentColor" stroke-width="2" opacity="0.25" fill="none"/>
+                          <circle class="quota-tip-ring-arc" cx="10" cy="10" r="6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="40.84" stroke-dashoffset="0" transform="rotate(-90 10 10)" fill="none"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <p class="quota-tip-desc">You have used 0 of your 20 daily queries for High/Max reasoning.</p>
+                  </div>
+                  <div class="quota-tip-divider"></div>
+                  <div class="quota-tip-row">
+                    <div class="quota-tip-header">
+                      <span class="quota-tip-title">Daily Reset Time</span>
+                    </div>
+                    <p class="quota-tip-desc">Resets tonight at 12:00 AM (midnight).</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="help-wrap">
+                <button class="help-button" type="button" aria-label="About reasoning levels" aria-describedby="${this._uid}-tooltip">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                    <path d="M9.8 9.2a2.35 2.35 0 0 1 4.55.82c0 1.8-2.35 2.05-2.35 3.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 17.2h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                  </svg>
+                </button>
+                <div class="tooltip" id="${this._uid}-tooltip" role="tooltip">
+                  Higher effort spends more time reasoning. Low is fast but may be inaccurate. Max activates deepest analysis.
+                </div>
               </div>
             </div>
           </div>
@@ -734,7 +869,12 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this._canvas = this.shadowRoot!.querySelector(".pixel-field")!;
     this._currentLabel = this.shadowRoot!.querySelector(".level-current")!;
     this._outgoingLabel = this.shadowRoot!.querySelector(".level-outgoing")!;
-    this._quotaBadge = this.shadowRoot!.querySelector(".quota-badge")!;
+    this._quotaWrap = this.shadowRoot!.querySelector(".quota-wrap")!;
+    this._quotaButton = this.shadowRoot!.querySelector(".quota-button")!;
+    this._quotaProgressArc = this.shadowRoot!.querySelector(".quota-progress-arc")!;
+    this._quotaTipPercent = this.shadowRoot!.querySelector(".quota-tip-percent")!;
+    this._quotaTipRingArc = this.shadowRoot!.querySelector(".quota-tip-ring-arc")!;
+    this._quotaTipDesc = this.shadowRoot!.querySelector(".quota-tip-desc")!;
     this._helpWrap = this.shadowRoot!.querySelector(".help-wrap")!;
     this._helpButton = this.shadowRoot!.querySelector(".help-button")!;
     this._ticks = Array.from(this.shadowRoot!.querySelectorAll(".tick"));
@@ -751,12 +891,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
       reflect: false,
     });
     this._syncDisabledState();
-
-    const attrQuota = this.getAttribute("quota");
-    if (attrQuota && this._quotaBadge) {
-      this._quotaBadge.textContent = `· ${attrQuota}`;
-      this.toggleAttribute("data-quota-empty", attrQuota.startsWith("0/"));
-    }
+    this._syncQuotaDisplay();
 
     this._input.addEventListener(
       "pointerdown",
@@ -779,6 +914,30 @@ class ClaudeModelSelectorElement extends HTMLElement {
       (event) => this._onKeyDown(event),
       { signal }
     );
+    this._quotaButton.addEventListener(
+      "mouseenter",
+      () => this._emitTooltipState(true),
+      { signal }
+    );
+    this._quotaButton.addEventListener(
+      "mouseleave",
+      () => {
+        if (!this._quotaWrap.hasAttribute("data-tip-open")) {
+          this._emitTooltipState(false);
+        }
+      },
+      { signal }
+    );
+    this._quotaButton.addEventListener(
+      "click",
+      () => {
+        if (this.disabled) return;
+        this._quotaWrap.toggleAttribute("data-tip-open");
+        this._helpWrap.removeAttribute("data-tip-open");
+        this._emitTooltipState(this._quotaWrap.hasAttribute("data-tip-open"));
+      },
+      { signal }
+    );
     this._helpButton.addEventListener(
       "mouseenter",
       () => this._emitTooltipState(true),
@@ -798,6 +957,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
       () => {
         if (this.disabled) return;
         this._helpWrap.toggleAttribute("data-tip-open");
+        this._quotaWrap.removeAttribute("data-tip-open");
         this._emitTooltipState(this._helpWrap.hasAttribute("data-tip-open"));
       },
       { signal }
@@ -841,9 +1001,50 @@ class ClaudeModelSelectorElement extends HTMLElement {
       });
     }
     if (name === "disabled" && this._input) this._syncDisabledState();
-    if (name === "quota" && this._quotaBadge) {
-      this._quotaBadge.textContent = newValue ? `· ${newValue}` : "";
-      this.toggleAttribute("data-quota-empty", Boolean(newValue?.startsWith("0/")));
+    if (name.startsWith("quota-")) this._syncQuotaDisplay();
+  }
+
+  _syncQuotaDisplay() {
+    const rawUsed = this.getAttribute("quota-used");
+    const rawTotal = this.getAttribute("quota-total");
+    const rawTier = this.getAttribute("quota-tier") || this.level?.toLowerCase() || "medium";
+
+    const isUnlimited = rawTier === "low" || rawTier === "medium";
+    const used = Math.max(0, Number.parseInt(rawUsed ?? "0", 10) || 0);
+    const total = Math.max(1, Number.parseInt(rawTotal ?? "20", 10) || 20);
+    const remaining = isUnlimited ? total : Math.max(0, total - used);
+    const percent = isUnlimited ? 100 : Math.round((remaining / total) * 100);
+
+    const isLow = !isUnlimited && remaining <= 5 && remaining > 0;
+    const isEmpty = !isUnlimited && remaining === 0;
+
+    this.toggleAttribute("data-quota-low", isLow);
+    this.toggleAttribute("data-quota-empty", isEmpty);
+    this.setAttribute("data-quota-tier", rawTier);
+
+    // Update progress arc in button (r=7.5, circumference ≈ 47.12)
+    if (this._quotaProgressArc) {
+      const offset = isUnlimited ? 0 : 47.12 * (1 - percent / 100);
+      this._quotaProgressArc.style.strokeDashoffset = String(offset);
+    }
+
+    // Update tooltip ring arc (r=6.5, circumference ≈ 40.84)
+    if (this._quotaTipRingArc) {
+      const ringOffset = isUnlimited ? 0 : 40.84 * (1 - percent / 100);
+      this._quotaTipRingArc.style.strokeDashoffset = String(ringOffset);
+    }
+
+    if (this._quotaTipPercent) {
+      this._quotaTipPercent.textContent = isUnlimited ? "100%" : `${percent}%`;
+    }
+
+    if (this._quotaTipDesc) {
+      const formattedTier = rawTier.charAt(0).toUpperCase() + rawTier.slice(1);
+      if (isUnlimited) {
+        this._quotaTipDesc.textContent = `${formattedTier} reasoning has no daily query limits and is free to explore.`;
+      } else {
+        this._quotaTipDesc.textContent = `You have used ${used} of your ${total} daily queries for ${formattedTier} reasoning.`;
+      }
     }
   }
 
@@ -1368,7 +1569,9 @@ export type ClaudeModelSelectorProps = {
   open?: boolean;
   disabled?: boolean;
   className?: string;
-  quotaText?: string;
+  quotaUsed?: number;
+  quotaTotal?: number;
+  quotaTier?: "low" | "medium" | "high" | "max" | EffortLevel;
   onLevelChange?: (level: EffortLevel, index: number) => void;
   onValueChange?: (value: number) => void;
   onTooltipToggle?: (open: boolean) => void;
@@ -1378,7 +1581,7 @@ const ClaudeModelSelector = React.forwardRef<
   HTMLElement,
   ClaudeModelSelectorProps
 >(function ClaudeModelSelector(
-  { value = 0, disabled = false, className, quotaText, onLevelChange, onValueChange, onTooltipToggle },
+  { value = 0, disabled = false, className, quotaUsed, quotaTotal, quotaTier, onLevelChange, onValueChange, onTooltipToggle },
   ref
 ) {
   const innerRef = React.useRef<HTMLElement | null>(null);
@@ -1441,19 +1644,31 @@ const ClaudeModelSelector = React.forwardRef<
   React.useEffect(() => {
     const el = innerRef.current;
     if (el) {
-      if (quotaText) {
-        el.setAttribute("quota", quotaText);
+      if (typeof quotaUsed === "number") {
+        el.setAttribute("quota-used", String(quotaUsed));
       } else {
-        el.removeAttribute("quota");
+        el.removeAttribute("quota-used");
+      }
+      if (typeof quotaTotal === "number") {
+        el.setAttribute("quota-total", String(quotaTotal));
+      } else {
+        el.removeAttribute("quota-total");
+      }
+      if (quotaTier) {
+        el.setAttribute("quota-tier", quotaTier);
+      } else {
+        el.removeAttribute("quota-tier");
       }
     }
-  }, [quotaText]);
+  }, [quotaUsed, quotaTotal, quotaTier]);
 
   return React.createElement("claude-model-selector", {
     ref: innerRef,
     class: className,
     value: Number.isFinite(value) ? String(value) : "1",
-    quota: quotaText || undefined,
+    "quota-used": typeof quotaUsed === "number" ? String(quotaUsed) : undefined,
+    "quota-total": typeof quotaTotal === "number" ? String(quotaTotal) : undefined,
+    "quota-tier": quotaTier || undefined,
   });
 });
 

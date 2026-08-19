@@ -740,11 +740,9 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
               <div className="flex flex-col gap-1">
                 <ClaudeModelSelector
                   value={LEVEL_TO_INDEX[reasoning] ?? 1}
-                  quotaText={
-                    reasoning === "high" || reasoning === "max"
-                      ? `${quota.remaining}/${quota.limit} left`
-                      : undefined
-                  }
+                  quotaUsed={quota.used}
+                  quotaTotal={quota.limit}
+                  quotaTier={reasoning}
                   onLevelChange={(_level: EffortLevel, index: number) => {
                     const nextReasoning = INDEX_TO_LEVEL[index] ?? "medium";
                     onConfigurationChange({ reasoning: nextReasoning });
