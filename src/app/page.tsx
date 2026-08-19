@@ -63,9 +63,17 @@ export default function Home() {
         headerSlot={
           /* Cell 2: Profile Section - 112px height with mathematical dotted grid sub-cells */
           <div className="absolute left-0 right-0 md:left-[26%] md:right-[26%] top-[22vh] h-[112px] flex z-50 hide-cursor-particles">
-            {/* 1. Left Avatar Box (Framed by Dotted Lines) */}
-            <div className="w-[84px] min-[360px]:w-[96px] sm:w-[112px] h-[112px] shrink-0 flex items-center justify-center relative">
-              <ProfilePictureScramble />
+            {/* 1. Left Avatar Box (Framed by Dotted Lines with Diagonal Hatch Background) */}
+            <div className="w-[84px] min-[360px]:w-[96px] sm:w-[112px] h-[112px] shrink-0 flex items-center justify-center relative overflow-hidden">
+              {/* Diagonal Slanted Blueprint Hatch Pattern */}
+              <div
+                className="absolute inset-0 pointer-events-none opacity-70 dark:opacity-40"
+                style={DIAGONAL_HATCH_PATTERN}
+              />
+
+              <div className="relative z-10">
+                <ProfilePictureScramble />
+              </div>
 
               {/* Vertical Dotted Divider Line */}
               <div
@@ -81,15 +89,9 @@ export default function Home() {
             <div className="flex-1 h-[112px] relative flex flex-col justify-between overflow-hidden">
               <SwirlBackground />
 
-              {/* Sub-row 1: Top Action Buttons with Blueprint Diagonal Hatch Background (36px) */}
-              <div className="h-[36px] flex items-center justify-end px-2 sm:px-4 relative z-20 pointer-events-auto overflow-hidden">
-                {/* Diagonal Slanted Hatch Pattern for Empty State */}
-                <div
-                  className="absolute inset-0 pointer-events-none opacity-80 dark:opacity-50"
-                  style={DIAGONAL_HATCH_PATTERN}
-                />
-
-                <div className="flex items-center gap-1.5 sm:gap-3 relative z-10 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-[2px] px-1.5 py-0.5 rounded border border-black/10 dark:border-white/[0.08]">
+              {/* Sub-row 1: Top Action Buttons (36px) */}
+              <div className="h-[36px] flex items-center justify-end px-2 sm:px-4 relative z-20 pointer-events-auto">
+                <div className="flex items-center gap-1.5 sm:gap-3">
                   <CommandMenu />
                   <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300 shrink-0" />
                 </div>
