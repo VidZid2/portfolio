@@ -752,10 +752,10 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                   playSoftClick(0.04);
                   setView("details");
                 }}
-                className="flex size-5.5 items-center justify-center rounded-full bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-300 transition-colors shrink-0 cursor-pointer"
+                className="flex size-6 items-center justify-center rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-300 transition-colors shrink-0 cursor-pointer border-0 outline-none shadow-none"
                 aria-label="Back to details"
               >
-                <ChevronLeft className="size-3" />
+                <ChevronLeft className="size-3.5" />
               </button>
               <span className="font-semibold text-neutral-900 dark:text-neutral-100 text-xs">Changelog</span>
               <span className="px-1.5 py-0.5 rounded text-[9.5px] font-semibold tracking-wider uppercase bg-zinc-200/90 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 select-none">
@@ -769,7 +769,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                   maskImage: "linear-gradient(to bottom, transparent 0%, black 10px, black calc(100% - 10px), transparent 100%)",
                   WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 10px, black calc(100% - 10px), transparent 100%)",
                 }}
-                className="max-h-[145px] overflow-y-auto pr-1 py-1 space-y-2 prompt-scrollbar"
+                className="max-h-[175px] overflow-y-auto pr-1 py-1 space-y-2 prompt-scrollbar"
               >
                 <div className="flex items-center justify-between text-[10px] text-neutral-400 dark:text-neutral-500 font-mono px-0.5 pt-0.5">
                   <span>Sync AI v0.1-beta</span>
@@ -809,18 +809,6 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                 </div>
               </div>
             </div>
-
-            <button
-              type="button"
-              onClick={() => {
-                playSoftClick(0.04);
-                setView("details");
-              }}
-              className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 text-xs font-medium transition-colors cursor-pointer shrink-0"
-            >
-              <ChevronLeft className="size-3.5" />
-              <span>Back to Model Info</span>
-            </button>
           </motion.div>
         )}
       </AnimatePresence>
