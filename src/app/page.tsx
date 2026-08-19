@@ -137,22 +137,22 @@ export default function Home() {
                 <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
               </div>
 
-              {/* Sub-row 3: Tagline with FogTextReveal Animation (34px, 2s lifespan) */}
+              {/* Sub-row 3: Tagline with FogTextReveal (34px, 2s lifespan) */}
               <div className="h-[34px] flex items-center px-2.5 sm:px-4 relative z-20 overflow-hidden">
-                <p className="text-[11px] min-[360px]:text-[12px] sm:text-[13px] text-zinc-500 dark:text-zinc-400 font-mono leading-none truncate flex items-center">
-                  <FogTextReveal
-                    holdDuration={2000}
-                    loop={true}
-                    maxBlur={12}
-                    text={[
-                      "Creating with code. Small details matter.",
-                      "Full-Stack Front-End Engineer.",
-                      "UI Systems Architect & Design Engineer.",
-                      "Crafting fluid micro-interactions.",
-                      "Obsessed with mathematical precision.",
-                    ]}
-                  />
-                </p>
+                <FogTextReveal
+                  holdDuration={2000}
+                  loop={true}
+                  maxBlur={14}
+                  startOnView={true}
+                  className="text-[11px] min-[360px]:text-[12px] sm:text-[13px] text-zinc-500 dark:text-zinc-400 font-mono leading-none"
+                  text={[
+                    "Creating with code. Small details matter.",
+                    "Full-Stack Front-End Engineer.",
+                    "UI Systems Architect & Design Engineer.",
+                    "Crafting fluid micro-interactions.",
+                    "Obsessed with mathematical precision.",
+                  ]}
+                />
               </div>
             </div>
           </div>
