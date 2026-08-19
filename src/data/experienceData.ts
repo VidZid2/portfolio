@@ -115,21 +115,22 @@ export const experiences: ExperienceData[] = [
     ],
   },
   {
-    title: "Startlink Business Platform",
+    title: "Startlink (Entrepreneurship Project)",
     role: "Lead Web Developer",
     dates: "2024 – 2025",
-    location: "Academic Initiative",
-    type: "Early Milestone",
+    location: "Senior High (JILCF)",
+    type: "Entrepreneurship Project",
     src: "/JILCF Logo.jpg",
     screenshot: "/STARTLINK 2024-2025.png",
     darkScreenshot: "/STARTLINK 2024-2025 DARKMODE.png",
     imageFit: "contain",
     imageZoom: 1.1,
-    tldr: "Launched first web deployment featuring client-side password entropy validation and responsive layouts.",
+    tldr: "Designed and launched my first web project during Senior High School for an Entrepreneurship class, learning HTML, CSS, and JS to build a custom password entropy validator.",
     description: `
-      **Ignited self-taught web engineering journey** by designing and deploying the "Startlink" business planning platform.
-      **Engineered a custom real-time password entropy calculation algorithm** in JavaScript, providing immediate visual security feedback to users.
-      **Mastered core DOM manipulation, event handling, and CSS layout fundamentals**, laying the groundwork for modern framework adoption.
+      **Ignited my coding journey** during Senior High School by creating a complete interactive website for my Entrepreneurship class instead of a standard slide deck.
+      **Launched my first real web deployment** with **"Startlink"**, mastering HTML, CSS, and JavaScript fundamentals to bring custom interactive logic to life.
+      **Engineered a custom real-time password entropy calculation algorithm** in JavaScript, providing immediate visual security feedback (Weak, Good, Strong) to users.
+      **Implemented user authentication and dynamic form flows**, setting the foundation for my passion for frontend systems and user experience design.
     `,
     tech: [
       "JavaScript",
@@ -139,7 +140,7 @@ export const experiences: ExperienceData[] = [
       "UI Design"
     ],
     metrics: [
-      { label: "Milestone", value: "1st Live Launch" },
+      { label: "1st Web Project", value: "Senior High" },
       { label: "Algorithm", value: "Entropy Validator" },
     ],
   }
