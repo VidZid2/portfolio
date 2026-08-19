@@ -298,20 +298,18 @@ export function ProfileDetailsGrid() {
                   <span className="truncate">{item.label}</span>
                 </div>
               ) : (
-                <motion.a
+                <a
                   href={item.href}
                   target="_blank"
                   rel="noreferrer"
                   aria-label={item.name}
                   onMouseEnter={() => playHoverTick(0.02)}
                   onClick={() => playSoftClick(0.04)}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                   className="h-9 px-2 flex items-center justify-center gap-2 text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100/50 dark:hover:bg-zinc-900/50 transition-colors text-[12px] sm:text-[13px] font-mono font-medium w-full"
                 >
                   {item.icon}
                   <span className="truncate">{item.label}</span>
-                </motion.a>
+                </a>
               )}
 
               {/* Vertical Dotted Divider Line on right of each cell except the last on desktop */}
