@@ -62,6 +62,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
   private _outgoingLabel!: HTMLElement;
   private _helpWrap!: HTMLElement;
   private _helpButton!: HTMLButtonElement;
+  private _ticks: HTMLElement[] = [];
 
   constructor() {
     super();
@@ -317,7 +318,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
         .track-fill {
           position: absolute;
-          z-index: 0;
+          z-index: 1;
           top: 0;
           bottom: 0;
           left: 0;
@@ -418,7 +419,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
         .ticks {
           position: absolute;
-          z-index: 1;
+          z-index: 0;
           inset: 0 calc(var(--effort-thumb-w) * 0.5);
           display: flex;
           align-items: center;
@@ -688,6 +689,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this._outgoingLabel = this.shadowRoot!.querySelector(".level-outgoing")!;
     this._helpWrap = this.shadowRoot!.querySelector(".help-wrap")!;
     this._helpButton = this.shadowRoot!.querySelector(".help-button")!;
+    this._ticks = Array.from(this.shadowRoot!.querySelectorAll(".tick"));
   }
 
   connectedCallback() {
@@ -960,12 +962,24 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
     this._setUltra(nextIndex === LEVELS.length - 1);
     this.toggleAttribute("data-low", nextIndex === 0);
+    this._updateTicks(safeValue);
 
     if (reflect) {
       this._reflectingValue = true;
       this.setAttribute("value", String(Number(safeValue.toFixed(3))));
       this._reflectingValue = false;
     }
+  }
+
+  _updateTicks(currentValue: number) {
+    if (!this._ticks || this._ticks.length === 0) {
+      this._ticks = Array.from(this.shadowRoot!.querySelectorAll(".tick"));
+    }
+    this._ticks.forEach((tick, i) => {
+      // Cleanly hide dots when at Medium (index 1), High (index 2), Max (index 3), or when passed during drag
+      const isPassed = currentValue >= i - 0.25;
+      tick.style.opacity = isPassed ? "0" : "";
+    });
   }
 
   _swapLabel(nextLabel: string, forward: boolean, animate: boolean) {
