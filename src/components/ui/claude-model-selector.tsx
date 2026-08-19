@@ -417,6 +417,19 @@ class ClaudeModelSelectorElement extends HTMLElement {
           border-color: rgba(255, 255, 255, 0.2);
         }
 
+        :host([data-low]) .range::-webkit-slider-thumb {
+          background: #facc15 !important;
+          border-color: #eab308 !important;
+          box-shadow: 0 0 0 2.5px rgba(250, 204, 21, 0.45), 0 2px 5px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        :host-context(.dark):host([data-low]) .range::-webkit-slider-thumb,
+        :host([data-theme="dark"][data-low]) .range::-webkit-slider-thumb {
+          background: #eab308 !important;
+          border-color: #facc15 !important;
+          box-shadow: 0 0 0 2.5px rgba(234, 179, 8, 0.5), 0 2px 6px rgba(0, 0, 0, 0.35) !important;
+        }
+
         .range::-moz-range-thumb {
           width: var(--effort-thumb-w);
           height: var(--effort-thumb-h);
@@ -427,9 +440,93 @@ class ClaudeModelSelectorElement extends HTMLElement {
           cursor: grab;
         }
 
+        :host([data-low]) .range::-moz-range-thumb {
+          background: #facc15 !important;
+          border-color: #eab308 !important;
+          box-shadow: 0 0 0 2.5px rgba(250, 204, 21, 0.45), 0 2px 5px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        :host-context(.dark):host([data-low]) .range::-moz-range-thumb,
+        :host([data-theme="dark"][data-low]) .range::-moz-range-thumb {
+          background: #eab308 !important;
+          border-color: #facc15 !important;
+          box-shadow: 0 0 0 2.5px rgba(234, 179, 8, 0.5), 0 2px 6px rgba(0, 0, 0, 0.35) !important;
+        }
+
+        :host([data-low]) .level-current {
+          color: #d97706 !important;
+        }
+
+        :host-context(.dark):host([data-low]) .level-current,
+        :host([data-theme="dark"][data-low]) .level-current {
+          color: #facc15 !important;
+        }
+
         .range:active::-webkit-slider-thumb,
         .range:active::-moz-range-thumb {
           cursor: grabbing;
+        }
+
+        .warning-banner {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.45rem;
+          margin-top: 0;
+          padding: 0;
+          max-height: 0;
+          border-radius: 0.375rem;
+          background: rgba(254, 243, 199, 0.75);
+          border: 0 solid rgba(245, 158, 11, 0.35);
+          color: #92400e;
+          font-size: 0.6875rem;
+          line-height: 1.35;
+          opacity: 0;
+          overflow: hidden;
+          pointer-events: none;
+          transition: opacity 220ms ease, max-height 260ms ease, margin 220ms ease, padding 220ms ease, border-width 220ms ease;
+        }
+
+        :host-context(.dark) .warning-banner,
+        :host([data-theme="dark"]) .warning-banner {
+          background: rgba(120, 53, 15, 0.28);
+          border-color: rgba(245, 158, 11, 0.4);
+          color: #fde68a;
+        }
+
+        :host([data-low]) .warning-banner {
+          opacity: 1;
+          max-height: 5.5rem;
+          margin-top: 0.45rem;
+          padding: 0.35rem 0.5rem;
+          border-width: 1px;
+          pointer-events: auto;
+        }
+
+        .warning-icon {
+          flex: 0 0 auto;
+          width: 0.8125rem;
+          height: 0.8125rem;
+          margin-top: 0.08rem;
+          color: #d97706;
+        }
+
+        :host-context(.dark) .warning-icon,
+        :host([data-theme="dark"]) .warning-icon {
+          color: #fbbf24;
+        }
+
+        .warning-text {
+          flex: 1 1 auto;
+        }
+
+        .warning-lead {
+          font-weight: 600;
+          color: #b45309;
+        }
+
+        :host-context(.dark) .warning-lead,
+        :host([data-theme="dark"]) .warning-lead {
+          color: #fbbf24;
         }
 
         :host([disabled]) {
@@ -461,7 +558,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
                 </svg>
               </button>
               <div class="tooltip" id="${this._uid}-tooltip" role="tooltip">
-                Higher effort spends more time reasoning. Max activates the deepest analysis.
+                Higher effort spends more time reasoning. Low is fast but may be inaccurate. Max activates deepest analysis.
               </div>
             </div>
           </div>
@@ -488,6 +585,15 @@ class ClaudeModelSelectorElement extends HTMLElement {
               aria-valuemax="${LEVELS.length - 1}"
               aria-valuetext="Low"
             />
+          </div>
+
+          <div class="warning-banner" role="status" aria-live="polite">
+            <svg class="warning-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="warning-text">
+              <span class="warning-lead">Notice:</span> Responses at Low reasoning may be less accurate or lack depth. <strong>Recommended:</strong> Set to <em>Medium</em>, <em>High</em>, or <em>Max</em> for detailed portfolio exploration.
+            </div>
           </div>
         </section>
       </div>
@@ -777,6 +883,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
     }
 
     this._setUltra(nextIndex === LEVELS.length - 1);
+    this.toggleAttribute("data-low", nextIndex === 0);
 
     if (reflect) {
       this._reflectingValue = true;
