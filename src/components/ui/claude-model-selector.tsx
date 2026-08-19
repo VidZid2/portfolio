@@ -2,10 +2,6 @@
 
 import * as React from "react";
 import { playReasoningSound } from "@/lib/synth-sounds";
-import {
-  createFaultyTerminalRenderer,
-  type FaultyTerminalRenderer,
-} from "./faulty-terminal";
 
 export const REASONING_EFFORT_LEVELS = [
   "Low",
@@ -21,6 +17,17 @@ const LEVELS = REASONING_EFFORT_LEVELS;
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
+const smoothstep = (edge0: number, edge1: number, value: number) => {
+  const x = clamp((value - edge0) / (edge1 - edge0), 0, 1);
+  return x * x * (3 - 2 * x);
+};
+
+const mix = (from: number, to: number, amount: number) => from + (to - from) * amount;
+const mixColor = (from: number[], to: number[], amount: number) =>
+  `rgb(${Math.round(mix(from[0], to[0], amount))} ${Math.round(
+    mix(from[1], to[1], amount),
+  )} ${Math.round(mix(from[2], to[2], amount))})`;
+
 let instanceCount = 0;
 
 class ClaudeModelSelectorElement extends HTMLElement {
@@ -34,15 +41,18 @@ class ClaudeModelSelectorElement extends HTMLElement {
   private _dragging!: boolean;
   private _pointerSamples!: { time: number; value: number }[];
   private _springFrame!: number;
+  private _canvasFrame!: number;
   private _labelFrame!: number;
   private _labelTimer!: number;
   private _closeTimer!: number;
+  private _lastCanvasFrame!: number;
+  private _ultraStartedAt!: number;
+  private _reveal!: number;
   private _isUltra!: boolean;
   private _reflectingValue!: boolean;
   private _reducedMotion!: MediaQueryList;
   private _events?: AbortController;
-  private _terminalRenderer: FaultyTerminalRenderer | null = null;
-  private _themeObserver?: MutationObserver;
+  private _resizeObserver?: ResizeObserver;
 
   private _panel!: HTMLElement;
   private _input!: HTMLInputElement;
@@ -62,9 +72,13 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this._dragging = false;
     this._pointerSamples = [];
     this._springFrame = 0;
+    this._canvasFrame = 0;
     this._labelFrame = 0;
     this._labelTimer = 0;
     this._closeTimer = 0;
+    this._lastCanvasFrame = 0;
+    this._ultraStartedAt = 0;
+    this._reveal = 0;
     this._isUltra = false;
     this._reflectingValue = false;
     this._reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -72,13 +86,13 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this.shadowRoot!.innerHTML = `
       <style>
         :host {
-          --effort-accent: #6495ed;
-          --effort-accent-deep: #4169e1;
+          --effort-accent: #8c73c9;
+          --effort-accent-deep: #a17ec2;
           --effort-text: #64748b;
           --effort-text-strong: #0f172a;
           --effort-muted: #94a3b8;
-          --effort-track: #f1f5f9;
-          --effort-track-fill: #e2e8f0;
+          --effort-track: #edeae8;
+          --effort-track-fill: #e0dbd6;
           --effort-progress: 0;
           --effort-thumb-w: 1.375rem;
           --effort-thumb-h: 1.5rem;
@@ -100,6 +114,8 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
         :host-context(.dark),
         :host([data-theme="dark"]) {
+          --effort-accent: #a78bfa;
+          --effort-accent-deep: #c084fc;
           --effort-text: #a3a3a3;
           --effort-text-strong: #f5f5f5;
           --effort-muted: #737373;
@@ -209,14 +225,8 @@ class ClaudeModelSelectorElement extends HTMLElement {
         }
 
         :host([data-ultra]) .level-current {
-          color: #2563eb !important;
-          text-shadow: 0 0 10px rgba(37, 99, 235, 0.25);
-        }
-
-        :host-context(.dark):host([data-ultra]) .level-current,
-        :host([data-theme="dark"][data-ultra]) .level-current {
-          color: #6495ed !important;
-          text-shadow: 0 0 10px rgba(100, 149, 237, 0.4);
+          color: var(--effort-accent) !important;
+          text-shadow: 0 0 10px rgba(140, 115, 201, 0.35);
         }
 
         .help-wrap {
@@ -299,21 +309,10 @@ class ClaudeModelSelectorElement extends HTMLElement {
           overflow: hidden;
           border-radius: var(--effort-track-radius);
           background-color: var(--effort-track);
+          box-shadow: inset 0 1px 1px rgba(70, 64, 59, 0.035);
           transform: translateZ(0);
           -webkit-mask-image: -webkit-radial-gradient(white, black);
           isolation: isolate;
-        }
-
-        :host([data-ultra]) .track {
-          background-color: #1e293b;
-          box-shadow: 0 0 16px rgba(100, 149, 237, 0.2), inset 0 0 6px rgba(100, 149, 237, 0.15);
-          transition: background-color 300ms ease, box-shadow 400ms ease;
-        }
-
-        :host-context(.dark):host([data-ultra]) .track,
-        :host([data-theme="dark"][data-ultra]) .track {
-          background-color: #0f172a;
-          box-shadow: 0 0 16px rgba(100, 149, 237, 0.28), inset 0 0 8px rgba(100, 149, 237, 0.2);
         }
 
         .track-fill {
@@ -337,40 +336,84 @@ class ClaudeModelSelectorElement extends HTMLElement {
           opacity: 0;
         }
 
-        .smoke-container {
+        .track::before {
+          content: "";
+          position: absolute;
+          z-index: 0;
+          inset: 0;
+          border-radius: inherit;
+          background: linear-gradient(
+            90deg,
+            #eeebe9 0%,
+            #ece9e7 18%,
+            #e2dce3 32%,
+            #d9d0df 48%,
+            #d0c1da 68%,
+            #cdbcd9 82%,
+            #cbbad8 100%
+          );
+          opacity: 0;
+          transition: opacity 340ms ease-in;
+        }
+
+        :host-context(.dark) .track::before,
+        :host([data-theme="dark"]) .track::before {
+          background: linear-gradient(
+            90deg,
+            #1e1b4b 0%,
+            #2e1065 18%,
+            #3b0764 32%,
+            #4c1d95 48%,
+            #581c87 68%,
+            #6b21a8 82%,
+            #7e22ce 100%
+          );
+        }
+
+        :host([data-ultra]) .track::before {
+          opacity: 1;
+        }
+
+        .ultra-fallback,
+        .pixel-field {
           position: absolute;
           inset: 0;
           width: 100%;
-          overflow: hidden;
-          border-radius: inherit;
-          pointer-events: none;
-          opacity: 0;
-          visibility: hidden;
-          clip-path: inset(0 0 0 100%);
-          transition: 
-            clip-path 180ms ease,
-            opacity 180ms ease,
-            visibility 180ms ease;
-          will-change: clip-path, opacity;
-        }
-
-        :host([data-ultra]) .smoke-container {
-          opacity: 1;
-          visibility: visible;
-          clip-path: inset(0 0 0 0%);
-          transition: 
-            clip-path 750ms cubic-bezier(0.16, 1, 0.3, 1),
-            opacity 300ms ease,
-            visibility 0s;
-        }
-
-        .smoke-canvas {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
           height: 100%;
           pointer-events: none;
+          opacity: 0;
+          transition: opacity 200ms cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        .ultra-fallback {
+          background: linear-gradient(
+            90deg,
+            #eeebe9 0%,
+            #ece9e7 18%,
+            #e2dce3 32%,
+            #d5cadc 48%,
+            #c8b5d4 68%,
+            #bda6cc 82%,
+            #b59bc6 100%
+          );
+        }
+
+        :host-context(.dark) .ultra-fallback,
+        :host([data-theme="dark"]) .ultra-fallback {
+          background: linear-gradient(
+            90deg,
+            #1e1b4b 0%,
+            #2e1065 18%,
+            #3b0764 32%,
+            #4c1d95 48%,
+            #581c87 68%,
+            #6b21a8 82%,
+            #7e22ce 100%
+          );
+        }
+
+        :host([data-ultra][data-pixels-ready]) .pixel-field {
+          opacity: 1;
         }
 
         .ticks {
@@ -503,18 +546,13 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
         :host-context(.dark):host([data-low]) .level-current,
         :host([data-theme="dark"][data-low]) .level-current {
-          color: #facc15 !important;
-        }
-
-        .range:active::-webkit-slider-thumb,
-        .range:active::-moz-range-thumb {
-          cursor: grabbing;
+          color: #fbbf24 !important;
         }
 
         .warning-banner {
           display: flex;
           align-items: flex-start;
-          gap: 0.45rem;
+          gap: 0.375rem;
           margin-top: 0;
           padding: 0;
           max-height: 0;
@@ -610,9 +648,8 @@ class ClaudeModelSelectorElement extends HTMLElement {
           <div class="track-shell">
             <div class="track" aria-hidden="true">
               <div class="track-fill"></div>
-              <div class="smoke-container">
-                <canvas class="smoke-canvas"></canvas>
-              </div>
+              <div class="ultra-fallback"></div>
+              <canvas class="pixel-field"></canvas>
               <div class="ticks">
                 ${LEVELS.map(() => '<span class="tick"></span>').join("")}
               </div>
@@ -646,7 +683,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this._panel = this.shadowRoot!.querySelector(".panel")!;
     this._input = this.shadowRoot!.querySelector(".range")!;
     this._track = this.shadowRoot!.querySelector(".track")!;
-    this._canvas = this.shadowRoot!.querySelector(".smoke-canvas")!;
+    this._canvas = this.shadowRoot!.querySelector(".pixel-field")!;
     this._currentLabel = this.shadowRoot!.querySelector(".level-current")!;
     this._outgoingLabel = this.shadowRoot!.querySelector(".level-outgoing")!;
     this._helpWrap = this.shadowRoot!.querySelector(".help-wrap")!;
@@ -709,75 +746,26 @@ class ClaudeModelSelectorElement extends HTMLElement {
       { signal }
     );
 
-    this._initTerminalRenderer();
-  }
-
-  _getThemeTerminalSettings() {
-    const isDark =
-      typeof document !== "undefined" &&
-      (document.documentElement.classList.contains("dark") ||
-        document.body?.classList.contains("dark") ||
-        this.getAttribute("data-theme") === "dark");
-
-    if (isDark) {
-      return {
-        tint: "#6495ED",
-        brightness: 1.05,
-        scanlineIntensity: 0.3,
-        glitchAmount: 0.9,
-        flickerAmount: 0.5,
-        scale: 1.3,
-        gridMul: [3, 1] as [number, number],
-      };
-    } else {
-      return {
-        tint: "#1D4ED8",
-        brightness: 1.2,
-        scanlineIntensity: 0.35,
-        glitchAmount: 0.8,
-        flickerAmount: 0.4,
-        scale: 1.3,
-        gridMul: [3, 1] as [number, number],
-      };
-    }
-  }
-
-  _syncThemeColors() {
-    if (!this._terminalRenderer) return;
-    const settings = this._getThemeTerminalSettings();
-    this._terminalRenderer.update(settings);
-  }
-
-  _initTerminalRenderer() {
-    if (this._terminalRenderer || !this._canvas) return;
-    try {
-      const settings = this._getThemeTerminalSettings();
-      this._terminalRenderer = createFaultyTerminalRenderer(this._canvas, settings);
-
-      if (!this._isUltra) {
-        this._terminalRenderer.pause();
+    this._reducedMotion.addEventListener("change", () => {
+      if (this._isUltra) {
+        this.setAttribute("data-pixels-ready", "");
+        this._reveal = this._reducedMotion.matches ? 1 : 0;
+        this._ultraStartedAt = performance.now();
+        this._ensureCanvasLoop();
       }
+    });
 
-      if (typeof MutationObserver !== "undefined" && typeof document !== "undefined") {
-        this._themeObserver?.disconnect();
-        this._themeObserver = new MutationObserver(() => this._syncThemeColors());
-        this._themeObserver.observe(document.documentElement, {
-          attributes: true,
-          attributeFilter: ["class", "data-theme"],
-        });
-      }
-    } catch (e) {
-      console.warn("WebGL FaultyTerminal renderer fallback for slider track.", e);
-    }
+    this._resizeObserver = new ResizeObserver(() => this._resizeCanvas());
+    this._resizeObserver.observe(this._track);
+    this._resizeCanvas();
+    if (this._isUltra) this._ensureCanvasLoop();
   }
 
   disconnectedCallback() {
-    this._themeObserver?.disconnect();
-    this._themeObserver = undefined;
-    this._terminalRenderer?.destroy();
-    this._terminalRenderer = null;
+    this._resizeObserver?.disconnect();
     this._events?.abort();
     cancelAnimationFrame(this._springFrame);
+    cancelAnimationFrame(this._canvasFrame);
     cancelAnimationFrame(this._labelFrame);
     clearTimeout(this._labelTimer);
     clearTimeout(this._closeTimer);
@@ -786,14 +774,11 @@ class ClaudeModelSelectorElement extends HTMLElement {
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     if (oldValue === newValue) return;
     if (name === "value" && !this._reflectingValue && this._input) {
-      if (this._dragging || this._springFrame) return;
       const next = Number.parseFloat(newValue ?? "0");
-      if (Number.isFinite(next) && Math.abs(next - this._value) > 0.001) {
-        this._setValue(next, {
-          animateLabel: this.isConnected,
-          reflect: false,
-        });
-      }
+      this._setValue(Number.isFinite(next) ? next : 0, {
+        animateLabel: this.isConnected,
+        reflect: false,
+      });
     }
     if (name === "disabled" && this._input) this._syncDisabledState();
   }
@@ -826,36 +811,51 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
   _onPointerDown(e?: PointerEvent) {
     if (this.disabled) return;
-    if (e && typeof e.pointerId === "number") {
+    if (e && this._input.setPointerCapture) {
       try {
-        (e.target as HTMLElement)?.setPointerCapture?.(e.pointerId);
+        this._input.setPointerCapture(e.pointerId);
       } catch {}
     }
     cancelAnimationFrame(this._springFrame);
-    this._springFrame = 0;
     this._dragging = true;
     this._pointerSamples = [{ time: performance.now(), value: this._value }];
   }
 
   _onPointerUp(e?: PointerEvent) {
-    if (e && typeof e.pointerId === "number") {
+    if (!this._dragging) return;
+    if (e && this._input.releasePointerCapture) {
       try {
-        (e.target as HTMLElement)?.releasePointerCapture?.(e.pointerId);
+        this._input.releasePointerCapture(e.pointerId);
       } catch {}
     }
-    if (!this._dragging) return;
     this._dragging = false;
     this._snapToNearest();
   }
 
   _onInput() {
-    const nextValue = Number.parseFloat(this._input.value);
-    const now = performance.now();
-    this._pointerSamples.push({ time: now, value: nextValue });
-    this._pointerSamples = this._pointerSamples
-      .filter((sample) => now - sample.time < 90)
-      .slice(-5);
+    let nextValue = Number.parseFloat(this._input.value);
+    if (this._dragging) {
+      nextValue = this._applyMagnet(nextValue);
+      this._input.value = String(nextValue);
+      const now = performance.now();
+      this._pointerSamples.push({ time: now, value: nextValue });
+      this._pointerSamples = this._pointerSamples
+        .filter((sample) => now - sample.time < 90)
+        .slice(-5);
+    }
     this._setValue(nextValue, { animateLabel: true, reflect: false });
+    this._emit("input");
+  }
+
+  _applyMagnet(value: number) {
+    const nearest = Math.round(value);
+    const delta = value - nearest;
+    const distance = Math.abs(delta);
+    const radius = 0.5;
+    if (distance < 0.001 || distance > radius) return value;
+    const t = 1 - distance / radius;
+    const strength = 0.68 + 0.42 * t;
+    return value - delta * strength * t * t;
   }
 
   _onKeyDown(event: KeyboardEvent) {
@@ -880,48 +880,47 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
   _snapToNearest() {
     const target = Math.round(this._value);
-    if (Math.abs(target - this._value) < 0.001) {
+    if (this._reducedMotion.matches || Math.abs(target - this._value) < 0.001) {
       this._setValue(target, { animateLabel: false, reflect: true });
-      this._emit("input");
       this._emit("change");
       return;
     }
 
-    this._springTo(target, 0);
+    let initialVelocity = 0;
+    if (this._pointerSamples.length >= 2) {
+      const first = this._pointerSamples[0];
+      const last = this._pointerSamples.at(-1)!;
+      const elapsed = Math.max((last.time - first.time) / 1000, 0.016);
+      initialVelocity = clamp((last.value - first.value) / elapsed, -8, 8);
+    }
+    this._springTo(target, initialVelocity);
   }
 
-  _springTo(target: number, _initialVelocity: number = 0) {
+  _springTo(target: number, initialVelocity: number) {
     cancelAnimationFrame(this._springFrame);
-    const start = this._value;
-    const distance = target - start;
-    if (Math.abs(distance) < 0.001) {
-      this._setValue(target, { animateLabel: false, reflect: true });
-      this._emit("input");
-      this._emit("change");
-      return;
-    }
+    let position = this._value;
+    let velocity = initialVelocity;
+    let previousTime = performance.now();
+    const stiffness = 920;
+    const damping = 40;
 
-    const duration = Math.min(260, Math.max(140, Math.abs(distance) * 160));
-    const startTime = performance.now();
+    const step = (time: number) => {
+      const delta = Math.min((time - previousTime) / 1000, 0.032);
+      previousTime = time;
+      const acceleration =
+        -stiffness * (position - target) - damping * velocity;
+      velocity += acceleration * delta;
+      position = clamp(position + velocity * delta, 0, LEVELS.length - 1);
+      this._setValue(position, { animateLabel: true, reflect: false });
 
-    const step = (now: number) => {
-      const elapsed = (now - startTime) / duration;
-      if (elapsed >= 1) {
+      if (Math.abs(position - target) < 0.001 && Math.abs(velocity) < 0.01) {
         this._springFrame = 0;
         this._setValue(target, { animateLabel: false, reflect: true });
-        this._emit("input");
         this._emit("change");
         return;
       }
-
-      const t = elapsed - 1;
-      const easeOut = t * t * t * t * t + 1;
-      const current = start + distance * easeOut;
-      this._setValue(current, { animateLabel: true, reflect: false });
-
       this._springFrame = requestAnimationFrame(step);
     };
-
     this._springFrame = requestAnimationFrame(step);
   }
 
@@ -947,14 +946,13 @@ class ClaudeModelSelectorElement extends HTMLElement {
     );
 
     if (nextIndex !== previousIndex) {
-      this._levelIndex = nextIndex;
       playReasoningSound(LEVELS[nextIndex].toLowerCase());
+      this._levelIndex = nextIndex;
       this._swapLabel(
         LEVELS[nextIndex],
         nextIndex > previousIndex,
         animateLabel
       );
-      this._emit("input");
     } else if (!this._currentLabel.textContent) {
       this._currentLabel.textContent = LEVELS[nextIndex];
     }
@@ -975,7 +973,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
     clearTimeout(this._labelTimer);
     const shouldAnimate =
       animate && !this._reducedMotion.matches && this.isConnected;
-    const previousLabel = this._currentLabel.textContent ?? "";
+    const previousLabel = this._currentLabel.textContent;
     this._currentLabel.classList.remove("is-preparing");
     this._outgoingLabel.classList.remove("is-exiting");
 
@@ -1012,10 +1010,245 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this._isUltra = isUltra;
     this.toggleAttribute("data-ultra", isUltra);
     if (isUltra) {
-      this._terminalRenderer?.resume();
+      this.setAttribute("data-pixels-ready", "");
+      this._reveal = this._reducedMotion.matches ? 1 : 0;
+      this._ultraStartedAt = performance.now();
+      this._ensureCanvasLoop();
     } else {
-      this._terminalRenderer?.pause();
+      this.removeAttribute("data-pixels-ready");
+      this._reveal = 0;
+      this._drawPixelField(performance.now());
     }
+  }
+
+  _resizeCanvas() {
+    const rect = this._track.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    const width = Math.round(rect.width * ratio);
+    const height = Math.round(rect.height * ratio);
+    if (this._canvas.width !== width || this._canvas.height !== height) {
+      this._canvas.width = width;
+      this._canvas.height = height;
+      this._canvas.style.width = `${rect.width}px`;
+      this._canvas.style.height = `${rect.height}px`;
+      this._drawPixelField(performance.now());
+    }
+  }
+
+  _ensureCanvasLoop() {
+    if (this._canvasFrame || !this._isUltra || this._reducedMotion.matches) {
+      this._drawPixelField(performance.now());
+      return;
+    }
+
+    const frame = (time: number) => {
+      if (!this._isUltra || !this.isConnected) {
+        this._canvasFrame = 0;
+        return;
+      }
+      if (time - this._lastCanvasFrame >= 33) {
+        this._lastCanvasFrame = time;
+        this._reveal = smoothstep(0, 1, (time - this._ultraStartedAt) / 1000);
+        this._drawPixelField(time);
+      }
+      this._canvasFrame = requestAnimationFrame(frame);
+    };
+    this._canvasFrame = requestAnimationFrame(frame);
+  }
+
+  _drawPixelField(time: number) {
+    const context = this._canvas.getContext("2d");
+    if (!context || !this._canvas.width || !this._canvas.height) return;
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    const width = this._canvas.width / ratio;
+    const height = this._canvas.height / ratio;
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    context.clearRect(0, 0, width, height);
+    if (!this._isUltra) return;
+
+    const reveal = this._reducedMotion.matches ? 1 : this._reveal;
+    const frontier = 1 - reveal;
+    const cell = width < 280 ? 5 : 6;
+    const gap = 1.1;
+    const columns = Math.ceil(width / cell);
+    const rows = Math.ceil(height / cell);
+    const elapsed = Math.max(0, time - this._ultraStartedAt);
+
+    const isDark =
+      typeof document !== "undefined" &&
+      (document.documentElement.classList.contains("dark") ||
+        document.body?.classList.contains("dark") ||
+        this.getAttribute("data-theme") === "dark");
+
+    // Ultracode track palette (share-weighted).
+    const leftColor = isDark ? [30, 41, 59] : [210, 206, 214];
+    const deepViolet = isDark ? [139, 92, 246] : [156, 120, 192];
+    const deepMid = isDark ? [147, 51, 234] : [156, 132, 192];
+    const midPurple = isDark ? [168, 85, 247] : [168, 144, 204];
+    const softMid = isDark ? [192, 132, 252] : [168, 156, 204];
+    const softLilac = isDark ? [216, 180, 254] : [180, 168, 204];
+    const paleCool = isDark ? [233, 213, 255] : [192, 180, 204];
+    const highlightColor = isDark ? [243, 232, 255] : [216, 204, 228];
+    const peakColor = [255, 255, 255];
+    const tones = [
+      deepViolet,
+      deepViolet,
+      deepMid,
+      deepMid,
+      midPurple,
+      midPurple,
+      midPurple,
+      softMid,
+      softMid,
+      softLilac,
+      paleCool,
+    ];
+
+    const flowDuration = 4000;
+    const rawFlow = elapsed / flowDuration;
+    const flowCycle = Math.floor(rawFlow);
+    const easedFlow = flowCycle + smoothstep(0, 1, rawFlow - flowCycle);
+
+    context.save();
+    context.beginPath();
+    context.roundRect(0, 0, width, height, 8);
+    context.clip();
+
+    for (let row = 0; row < rows; row += 1) {
+      for (let column = 0; column < columns; column += 1) {
+        const x = column * cell;
+        const y = row * cell;
+        const normalizedX = (x + cell * 0.5) / width;
+        const revealAlpha = smoothstep(frontier - 0.1, frontier + 0.07, normalizedX);
+        if (revealAlpha <= 0.002) continue;
+
+        const purpleAmount = smoothstep(0.1, 0.88, normalizedX);
+        const fieldIntensity = smoothstep(0.04, 0.38, normalizedX);
+        const depthBias = smoothstep(0.35, 0.95, normalizedX);
+
+        const baseHash = Math.abs(Math.sin(column * 12.9898 + row * 78.233) * 43758.5453) % 1;
+        const tempoHash = Math.abs(Math.sin(column * 7.13 + row * 19.41) * 19341.731) % 1;
+        const phaseHash = Math.abs(Math.sin(column * 31.17 + row * 11.93) * 28437.123) % 1;
+        const chromaHash = Math.abs(Math.sin(column * 9.47 + row * 67.13) * 15823.917) % 1;
+
+        const period = 500 + tempoHash * 1500;
+        const localTime = elapsed + phaseHash * period;
+        const cycle = Math.floor(localTime / period);
+        const cycleProgress = (localTime % period) / period;
+        const cycleHash = Math.abs(
+          Math.sin(column * 17.17 + row * 41.73 + cycle * 13.11) * 24634.6345
+        ) % 1;
+        const widthHash = Math.abs(
+          Math.sin(column * 5.37 + row * 29.11 + cycle * 7.43) * 17391.443
+        ) % 1;
+
+        const pulseCenter = 0.2 + cycleHash * 0.55;
+        const pulseWidth = 0.09 + widthHash * 0.08;
+        const pulseDistance = (cycleProgress - pulseCenter) / pulseWidth;
+        const pulseEnvelope = Math.exp(-pulseDistance * pulseDistance * 1.45);
+        const activeCycle = cycleHash > 0.12 ? 1 : 0.26;
+        const irregularFlicker = pulseEnvelope * activeCycle;
+
+        const flowCoordinate = (normalizedX + easedFlow) * 9;
+        const flowIndex = Math.floor(flowCoordinate);
+        const flowProgress = smoothstep(0, 1, flowCoordinate - flowIndex);
+        const flowHashA = Math.abs(
+          Math.sin(flowIndex * 18.31 + row * 37.17) * 19283.173
+        ) % 1;
+        const flowHashB = Math.abs(
+          Math.sin((flowIndex + 1) * 18.31 + row * 37.17) * 19283.173
+        ) % 1;
+        const clusterGate = smoothstep(
+          0.46,
+          0.84,
+          mix(flowHashA, flowHashB, flowProgress)
+        );
+        const wavePhase =
+          (normalizedX + easedFlow + row * 0.06 + baseHash * 0.02) * Math.PI * 2;
+        const directionalWave = Math.pow(0.5 + 0.5 * Math.cos(wavePhase), 5);
+        const directionalFlow = Math.max(clusterGate, directionalWave * 0.62);
+        const flowingFlicker = Math.max(
+          irregularFlicker * (0.48 + directionalFlow * 0.58),
+          directionalFlow * (0.38 + baseHash * 0.28)
+        );
+
+        const revealGlow =
+          reveal < 0.995
+            ? Math.exp(-((normalizedX - frontier) ** 2) / 0.012) *
+              (1 - smoothstep(0.7, 1, reveal))
+            : 0;
+        const lightAmount = Math.max(
+          flowingFlicker,
+          revealGlow * (0.4 + baseHash * 0.4)
+        );
+
+        const peakHighlight =
+          lightAmount > 0.4 &&
+          irregularFlicker > 0.16 &&
+          cycleHash > 0.26 &&
+          clusterGate > 0.04;
+        const hottestHighlight =
+          lightAmount > 0.68 &&
+          irregularFlicker > 0.3 &&
+          cycleHash > 0.48 &&
+          clusterGate > 0.12;
+        const highlightAmount = peakHighlight
+          ? 0.97
+          : clamp(lightAmount * (0.44 + cycleHash * 0.3), 0, 0.64);
+
+        const toneDrift =
+          baseHash * 0.28 +
+          depthBias * 0.28 +
+          cycleProgress * 0.38 +
+          easedFlow * 0.18 +
+          cycleHash * 0.2 +
+          Math.sin(elapsed * 0.00135 + phaseHash * Math.PI * 2) * 0.14;
+        const tonePosition = (((toneDrift % 1) + 1) % 1) * tones.length;
+        const toneIndex = Math.floor(tonePosition);
+        const toneMix = tonePosition - toneIndex;
+        const toneA = tones[toneIndex];
+        const toneB = tones[(toneIndex + 1) % tones.length];
+        const cellTone = [
+          mix(toneA[0], toneB[0], toneMix),
+          mix(toneA[1], toneB[1], toneMix),
+          mix(toneA[2], toneB[2], toneMix),
+        ];
+
+        const chromaNudge = (chromaHash - 0.5) * 10 + depthBias * 12;
+        const variedPurple = [
+          clamp(cellTone[0] + chromaNudge * 0.35 - depthBias * 8, 140, 196),
+          clamp(cellTone[1] - depthBias * 16 + (baseHash - 0.5) * 8, 104, 168),
+          clamp(cellTone[2] + depthBias * 6 + (cycleHash - 0.5) * 6, 182, 216),
+        ];
+        const baseColor = [
+          mix(leftColor[0], variedPurple[0], purpleAmount),
+          mix(leftColor[1], variedPurple[1], purpleAmount),
+          mix(leftColor[2], variedPurple[2], purpleAmount),
+        ];
+        const color = hottestHighlight
+          ? mixColor(baseColor, peakColor, 0.95)
+          : mixColor(baseColor, highlightColor, highlightAmount);
+
+        const baseOpacity = 0.7 + baseHash * 0.2;
+        context.globalAlpha =
+          peakHighlight || hottestHighlight
+            ? revealAlpha * fieldIntensity
+            : revealAlpha *
+              fieldIntensity *
+              clamp(baseOpacity + flowingFlicker * 0.12, 0, 1);
+        context.fillStyle = color;
+        context.fillRect(
+          x + gap * 0.5,
+          y + gap * 0.5,
+          cell - gap,
+          cell - gap
+        );
+      }
+    }
+
+    context.restore();
+    context.globalAlpha = 1;
   }
 
   _emitTooltipState(isOpen: boolean) {
@@ -1113,13 +1346,18 @@ const ClaudeModelSelector = React.forwardRef<
     }
   }, [value]);
 
+  React.useEffect(() => {
+    const el = innerRef.current;
+    if (el) {
+      el.toggleAttribute("disabled", disabled);
+    }
+  }, [disabled]);
+
   return React.createElement("claude-model-selector", {
     ref: innerRef,
-    className,
-    value: String(value),
-    disabled: disabled ? true : undefined,
+    class: className,
   });
 });
 
-export { ClaudeModelSelectorElement };
+export { ClaudeModelSelector, ClaudeModelSelectorElement };
 export default ClaudeModelSelector;
