@@ -215,11 +215,12 @@ export function CommandMenu() {
             </button>
 
             <div className="relative group/ai inline-flex items-center">
-                {/* Handwritten Annotation: interact on top, enlarged curved arrow underneath pointing to Ask AI */}
-                <div className="absolute left-full ml-2 -top-8 sm:-top-10 hidden sm:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
-                    <span className="font-caveat italic text-[22px] sm:text-[26px] font-medium text-zinc-600 dark:text-zinc-400 leading-none whitespace-nowrap -rotate-[6deg] tracking-wide ml-3">
-                        interact
-                    </span>
+                {/* Handwritten Annotation: talk to my AI / ask me anything pointing to Ask AI */}
+                <div className="absolute left-full ml-2 -top-10 sm:-top-12 hidden sm:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
+                    <div className="flex flex-col text-left font-caveat italic text-[19px] sm:text-[23px] leading-[1.05] font-medium text-zinc-600 dark:text-zinc-400 select-none -rotate-[6deg] tracking-wide ml-2">
+                        <span>talk to my AI</span>
+                        <span>ask me anything</span>
+                    </div>
                     <svg
                         width="36"
                         height="28"
