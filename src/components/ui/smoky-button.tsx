@@ -23,6 +23,8 @@ export interface SmokeSettings {
 
 export interface SmokeRenderer {
   update: (settings: SmokeSettings) => void;
+  pause: () => void;
+  resume: () => void;
   destroy: () => void;
 }
 
@@ -255,8 +257,24 @@ export const createSmokeRenderer = (
     canvas.height = Math.max(1, Math.round(canvas.clientHeight * pixelRatio));
   };
 
+  let isRunning = false;
+
+  const startLoop = () => {
+    if (isRunning) return;
+    isRunning = true;
+    frame = requestAnimationFrame(render);
+  };
+
+  const stopLoop = () => {
+    if (!isRunning) return;
+    isRunning = false;
+    cancelAnimationFrame(frame);
+    frame = 0;
+  };
+
   const startedAt = performance.now();
   const render = (now: number) => {
+    if (!isRunning) return;
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.useProgram(program);
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -275,14 +293,20 @@ export const createSmokeRenderer = (
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(canvas.parentElement ?? canvas);
   resize();
-  frame = requestAnimationFrame(render);
+  startLoop();
 
   return {
     update(nextSettings) {
       settings = nextSettings;
     },
+    pause() {
+      stopLoop();
+    },
+    resume() {
+      startLoop();
+    },
     destroy() {
-      cancelAnimationFrame(frame);
+      stopLoop();
       resizeObserver.disconnect();
       gl.deleteBuffer(buffer);
       gl.deleteProgram(program);

@@ -693,6 +693,10 @@ class ClaudeModelSelectorElement extends HTMLElement {
         speed: 1.25,
       });
 
+      if (!this._isUltra) {
+        this._smokeRenderer.pause();
+      }
+
       if (typeof MutationObserver !== "undefined" && typeof document !== "undefined") {
         this._themeObserver?.disconnect();
         this._themeObserver = new MutationObserver(() => this._syncThemeColors());
@@ -946,6 +950,11 @@ class ClaudeModelSelectorElement extends HTMLElement {
     if (isUltra === this._isUltra) return;
     this._isUltra = isUltra;
     this.toggleAttribute("data-ultra", isUltra);
+    if (isUltra) {
+      this._smokeRenderer?.resume();
+    } else {
+      this._smokeRenderer?.pause();
+    }
   }
 
   _emit(type: string) {

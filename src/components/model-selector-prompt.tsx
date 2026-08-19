@@ -521,11 +521,16 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
   onConfigurationChange: (update: Partial<ModelConfiguration>) => void;
 }) {
   const [measureRef, { height }] = useMeasure();
+  const [hasMounted, setHasMounted] = useState(false);
   const [view, setView] = useState<"details" | "changelog">("details");
   const [animationCounter] = useState(() => Date.now());
   const { reasoning, speed } = configuration;
   const isMobile = useMediaQuery("(max-width: 1024px)");
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isMobile) {
@@ -566,8 +571,8 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
 
   return (
     <motion.div
-      animate={{ height: height > 0 ? height : "auto" }}
-      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+      animate={hasMounted && height > 0 ? { height } : undefined}
+      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
       onPointerDown={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
@@ -1362,7 +1367,7 @@ export function ModelSelectorPrompt({
                           >
                             <PreviewCard.Popup
                               id="model-preview-popup"
-                              className="w-64 overflow-hidden rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 origin-left transition-[opacity,transform,filter] duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] data-[starting-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:-translate-x-3 data-[starting-style]:blur-[4px] data-[ending-style]:opacity-0 data-[ending-style]:scale-90 data-[ending-style]:translate-x-1 data-[ending-style]:blur-[4px]"
+                              className="w-64 overflow-hidden rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 origin-left transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] data-[starting-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:-translate-x-2 data-[ending-style]:opacity-0 data-[ending-style]:scale-95 data-[ending-style]:translate-x-1 will-change-[transform,opacity]"
                             >
                               {payload ? (
                                 <ModelPreviewPanel
