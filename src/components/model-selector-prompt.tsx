@@ -788,7 +788,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                     <div className="flex flex-col gap-0.5">
                       <p className="font-semibold text-neutral-900 dark:text-neutral-100 text-xs">Adaptive Reasoning Pipeline</p>
                       <p className="text-neutral-500 dark:text-neutral-400 text-[11.5px] leading-relaxed">
-                        Multi-tier reasoning depth with collapsible thought process, time latency tracker, and morphing animations.
+                        Multi-tier reasoning depth with collapsible step-by-step chain of thought and response latency tracking.
                       </p>
                     </div>
                   </div>
@@ -798,9 +798,9 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                     <div className="absolute left-[4.25px] top-0 h-[9px] w-[1.5px] bg-neutral-300 dark:bg-neutral-700" />
                     <span className="relative z-10 size-2.5 shrink-0 rounded-full bg-[#6495ED] ring-2 ring-neutral-100 dark:ring-neutral-800 mt-1" />
                     <div className="flex flex-col gap-0.5">
-                      <p className="font-semibold text-neutral-900 dark:text-neutral-100 text-xs">Acoustic & Action Telemetry</p>
+                      <p className="font-semibold text-neutral-900 dark:text-neutral-100 text-xs">Response Quality Telemetry</p>
                       <p className="text-neutral-500 dark:text-neutral-400 text-[11.5px] leading-relaxed">
-                        Interactive Good/Bad response rating icons with tactile synthesis sound design.
+                        Active rating telemetry to evaluate answer helpfulness and improve model output accuracy.
                       </p>
                     </div>
                   </div>
