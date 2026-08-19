@@ -12,6 +12,7 @@ import {
   InfoIcon,
 } from "@phosphor-icons/react";
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
 import {
   type ReactNode,
   useEffect,
@@ -572,17 +573,41 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
       className="flex w-full flex-col divide-y divide-neutral-100 dark:divide-neutral-800"
     >
       <div className="flex flex-col gap-3 p-3">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-1.5">
-            <p className="font-medium text-neutral-900 text-sm dark:text-neutral-100">{model.label}</p>
-            <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold tracking-wider uppercase bg-zinc-200/90 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 select-none">
-              BETA 0.1
-            </span>
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-1.5">
+              <p className="font-medium text-neutral-900 text-sm dark:text-neutral-100">{model.label}</p>
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold tracking-wider uppercase bg-zinc-200/90 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 select-none">
+                BETA 0.1
+              </span>
+            </div>
+            <ProviderLabel
+              className="text-neutral-500 text-xs dark:text-neutral-400"
+              provider={model.provider}
+            />
           </div>
-          <ProviderLabel
-            className="text-neutral-500 text-xs dark:text-neutral-400"
-            provider={model.provider}
-          />
+
+          <Link
+            href="/milestones"
+            onClick={() => playSoftClick(0.04)}
+            className="flex items-center gap-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800/90 hover:bg-neutral-200 dark:hover:bg-neutral-700 px-2.5 py-1 text-[11px] font-medium text-neutral-600 dark:text-neutral-300 transition-colors border border-neutral-200/70 dark:border-neutral-700/70 shadow-xs group/changelog shrink-0"
+            title="View Changelog & Milestones"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              className="size-3 text-neutral-500 group-hover/changelog:text-neutral-800 dark:text-neutral-400 dark:group-hover/changelog:text-neutral-100 transition-colors shrink-0"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M2.5 4h11M2.5 8h11M2.5 12h6" />
+              <circle cx="12.5" cy="12" r="1.5" fill="currentColor" stroke="none" />
+            </svg>
+            <span>Changelog</span>
+          </Link>
         </div>
         <p className="text-pretty text-neutral-500 text-xs leading-4 dark:text-neutral-400">
           {model.description}
