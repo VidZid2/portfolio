@@ -582,66 +582,69 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
         <p className="text-pretty text-neutral-500 text-xs leading-4 dark:text-neutral-400">
           {model.description}
         </p>
-        <div className="relative mt-2 overflow-hidden rounded-lg p-1">
-          <div
-            className={cn(
-              "grid grid-cols-2 gap-4 text-xs transition-all duration-300",
-              !isMetricsRevealed && "blur-[6px] select-none opacity-25 pointer-events-none"
-            )}
-          >
-            <MetricBar
-              animationKey={`${model.value}-${animationCounter}`}
-              label="Intelligence"
-              value={adjustedMetrics.intelligence}
-            />
-            <MetricBar
-              animationKey={`${model.value}-${animationCounter}`}
-              label="Speed"
-              value={adjustedMetrics.speed}
-            />
-            <MetricBar
-              animationKey={`${model.value}-${animationCounter}`}
-              info={`${model.contextWindow} context window`}
-              label="Context"
-              value={adjustedMetrics.context}
-              forceOpenTooltip={activeTooltip === "Context"}
-            />
-            <MetricBar
-              animationKey={`${model.value}-${animationCounter}`}
-              info={model.inputPrice === "Free" && model.outputPrice === "Free" ? "Free" : `${model.inputPrice} input · ${model.outputPrice} output`}
-              invert
-              label="Cost"
-              value={adjustedMetrics.cost}
-              forceOpenTooltip={activeTooltip === "Cost"}
-            />
-          </div>
-
-          {!isMetricsRevealed && (
+        {/* Benchmark metrics hidden safely but preserved */}
+        {false && (
+          <div className="relative mt-2 overflow-hidden rounded-lg p-1">
             <div
-              onClick={() => {
-                playSoftClick(0.04);
-                setIsMetricsRevealed(true);
-              }}
-              className="absolute inset-0 flex flex-col items-center justify-center p-2 text-center z-10 cursor-pointer rounded-lg bg-white/40 dark:bg-neutral-900/40 backdrop-blur-[2px] transition-all hover:bg-white/60 dark:hover:bg-neutral-900/60"
+              className={cn(
+                "grid grid-cols-2 gap-4 text-xs transition-all duration-300",
+                !isMetricsRevealed && "blur-[6px] select-none opacity-25 pointer-events-none"
+              )}
             >
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-900/90 dark:bg-neutral-100/90 text-white dark:text-neutral-900 shadow-md text-xs font-medium active:scale-95 transition-transform">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 18 18"
-                  className="size-3 shrink-0"
-                  fill="currentColor"
-                >
-                  <path d="M3.025,5.623c.068,.204,.26,.342,.475,.342s.406-.138,.475-.342l.421-1.263,1.263-.421c.204-.068,.342-.259,.342-.474s-.138-.406-.342-.474l-1.263-.421-.421-1.263c-.137-.408-.812-.408-.949,0l-.421,1.263-1.263,.421c-.204,.068-.342,.259-.342,.474s.138,.406,.342,.474l1.263,.421,.421,1.263Z" />
-                  <path d="M16.525,8.803l-4.535-1.793-1.793-4.535c-.227-.572-1.168-.572-1.395,0l-1.793,4.535-4.535,1.793c-.286,.113-.475,.39-.475,.697s.188,.584,.475,.697l4.535,1.793,1.793,4.535c.113,.286,.39,.474,.697,.474s.584-.188,.697-.474l1.793-4.535,4.535-1.793c.286-.113,.475-.39,.475-.697s-.188-.584-.475-.697Z" />
-                </svg>
-                <span>Telemetry Protected</span>
-              </div>
-              <p className="mt-1 text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">
-                Click to inspect benchmark metrics
-              </p>
+              <MetricBar
+                animationKey={`${model.value}-${animationCounter}`}
+                label="Intelligence"
+                value={adjustedMetrics.intelligence}
+              />
+              <MetricBar
+                animationKey={`${model.value}-${animationCounter}`}
+                label="Speed"
+                value={adjustedMetrics.speed}
+              />
+              <MetricBar
+                animationKey={`${model.value}-${animationCounter}`}
+                info={`${model.contextWindow} context window`}
+                label="Context"
+                value={adjustedMetrics.context}
+                forceOpenTooltip={activeTooltip === "Context"}
+              />
+              <MetricBar
+                animationKey={`${model.value}-${animationCounter}`}
+                info={model.inputPrice === "Free" && model.outputPrice === "Free" ? "Free" : `${model.inputPrice} input · ${model.outputPrice} output`}
+                invert
+                label="Cost"
+                value={adjustedMetrics.cost}
+                forceOpenTooltip={activeTooltip === "Cost"}
+              />
             </div>
-          )}
-        </div>
+
+            {!isMetricsRevealed && (
+              <div
+                onClick={() => {
+                  playSoftClick(0.04);
+                  setIsMetricsRevealed(true);
+                }}
+                className="absolute inset-0 flex flex-col items-center justify-center p-2 text-center z-10 cursor-pointer rounded-lg bg-white/40 dark:bg-neutral-900/40 backdrop-blur-[2px] transition-all hover:bg-white/60 dark:hover:bg-neutral-900/60"
+              >
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-900/90 dark:bg-neutral-100/90 text-white dark:text-neutral-900 shadow-md text-xs font-medium active:scale-95 transition-transform">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 18 18"
+                    className="size-3 shrink-0"
+                    fill="currentColor"
+                  >
+                    <path d="M3.025,5.623c.068,.204,.26,.342,.475,.342s.406-.138,.475-.342l.421-1.263,1.263-.421c.204-.068,.342-.259,.342-.474s-.138-.406-.342-.474l-1.263-.421-.421-1.263c-.137-.408-.812-.408-.949,0l-.421,1.263-1.263,.421c-.204,.068-.342,.259-.342,.474s.138,.406,.342,.474l1.263,.421,.421,1.263Z" />
+                    <path d="M16.525,8.803l-4.535-1.793-1.793-4.535c-.227-.572-1.168-.572-1.395,0l-1.793,4.535-4.535,1.793c-.286,.113-.475,.39-.475,.697s.188,.584,.475,.697l4.535,1.793,1.793,4.535c.113,.286,.39,.474,.697,.474s.584-.188,.697-.474l1.793-4.535,4.535-1.793c.286-.113,.475-.39,.475-.697s-.188-.584-.475-.697Z" />
+                  </svg>
+                  <span>Telemetry Protected</span>
+                </div>
+                <p className="mt-1 text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">
+                  Click to inspect benchmark metrics
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
       <div className="flex flex-col gap-3 p-3">
         <p className="font-mono font-medium text-[10px] text-neutral-500 uppercase leading-none dark:text-neutral-400">
