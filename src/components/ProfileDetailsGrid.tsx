@@ -127,8 +127,8 @@ export function ProfileDetailsGrid() {
       <div className="absolute top-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
       <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
 
-      {/* 2-Column Info Grid (Balanced 4x2 Mathematical Layout) */}
-      <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-x-0 gap-y-2.5 sm:gap-y-3 py-3.5 sm:py-4 text-[13px] font-mono">
+      {/* 2-Column Info Grid (Mathematical 4x2 Blueprint Matrix) */}
+      <div className="relative flex flex-col w-full text-[13px] font-mono">
         {/* Vertical divider line for desktop */}
         <div
           className="hidden sm:block absolute top-0 bottom-0 left-1/2 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
@@ -137,10 +137,9 @@ export function ProfileDetailsGrid() {
         <div className="hidden sm:block absolute top-0 left-1/2 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
         <div className="hidden sm:block absolute bottom-0 left-1/2 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
 
-        {/* Left Column (4 items) */}
-        <div className="flex flex-col gap-2.5 sm:gap-3 pl-3 sm:pl-4 pr-3 sm:pr-4">
-          {/* Row 1: Role */}
-          <div className="flex items-center gap-2.5 group">
+        {/* Row 1: Role & Secondary Role */}
+        <div className="relative grid grid-cols-1 sm:grid-cols-2 py-2.5 sm:py-3">
+          <div className="flex items-center gap-2.5 px-3 sm:px-4 group">
             <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
               <Code2 className="w-3.5 h-3.5" />
             </div>
@@ -148,9 +147,25 @@ export function ProfileDetailsGrid() {
               Full-Stack Front-End Engineer
             </span>
           </div>
+          <div className="flex items-center gap-2.5 px-3 sm:px-4 group mt-2.5 sm:mt-0">
+            <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
+              <Lightbulb className="w-3.5 h-3.5" />
+            </div>
+            <span className="text-zinc-700 dark:text-zinc-300 font-medium truncate">
+              UI Systems Architect
+            </span>
+          </div>
+          {/* Horizontal Dotted Divider under Row 1 */}
+          <div
+            className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+            style={dashedMask}
+          />
+          <div className="hidden sm:block absolute bottom-0 left-1/2 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+        </div>
 
-          {/* Row 2: Location */}
-          <div className="flex items-center gap-2.5 group">
+        {/* Row 2: Location & Time */}
+        <div className="relative grid grid-cols-1 sm:grid-cols-2 py-2.5 sm:py-3">
+          <div className="flex items-center gap-2.5 px-3 sm:px-4 group">
             <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
               <MapPin className="w-3.5 h-3.5" />
             </div>
@@ -158,9 +173,28 @@ export function ProfileDetailsGrid() {
               Bulacan, Philippines
             </span>
           </div>
+          <div className="flex items-center gap-2.5 px-3 sm:px-4 group mt-2.5 sm:mt-0">
+            <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
+              <Clock className="w-3.5 h-3.5" />
+            </div>
+            <span className="text-zinc-700 dark:text-zinc-300 font-medium">
+              {timeInfo.time}{" "}
+              <span className="text-zinc-400 dark:text-zinc-500 font-normal">
+                // {timeInfo.diff}
+              </span>
+            </span>
+          </div>
+          {/* Horizontal Dotted Divider under Row 2 */}
+          <div
+            className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+            style={dashedMask}
+          />
+          <div className="hidden sm:block absolute bottom-0 left-1/2 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+        </div>
 
-          {/* Row 3: Phone / Contact */}
-          <div className="flex items-center gap-2.5 group">
+        {/* Row 3: Phone & Email */}
+        <div className="relative grid grid-cols-1 sm:grid-cols-2 py-2.5 sm:py-3">
+          <div className="flex items-center gap-2.5 px-3 sm:px-4 group">
             <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
               <Phone className="w-3.5 h-3.5" />
             </div>
@@ -172,9 +206,29 @@ export function ProfileDetailsGrid() {
               +63 945 835 1588
             </a>
           </div>
+          <div className="flex items-center gap-2.5 px-3 sm:px-4 group mt-2.5 sm:mt-0">
+            <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
+              <Mail className="w-3.5 h-3.5" />
+            </div>
+            <a
+              href="mailto:contact@josiahdeasis.com"
+              onClick={() => playSoftClick(0.04)}
+              className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors truncate"
+            >
+              contact@josiahdeasis.com
+            </a>
+          </div>
+          {/* Horizontal Dotted Divider under Row 3 */}
+          <div
+            className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+            style={dashedMask}
+          />
+          <div className="hidden sm:block absolute bottom-0 left-1/2 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+        </div>
 
-          {/* Row 4: Domain URL */}
-          <div className="flex items-center gap-2.5 group">
+        {/* Row 4: Domain URL & Pronouns */}
+        <div className="relative grid grid-cols-1 sm:grid-cols-2 py-2.5 sm:py-3">
+          <div className="flex items-center gap-2.5 px-3 sm:px-4 group">
             <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
               <Link2 className="w-3.5 h-3.5" />
             </div>
@@ -188,49 +242,7 @@ export function ProfileDetailsGrid() {
               josiahdeasis.dev
             </a>
           </div>
-        </div>
-
-        {/* Right Column (4 items) */}
-        <div className="flex flex-col gap-2.5 sm:gap-3 pl-3 sm:pl-4 pr-3 sm:pr-4">
-          {/* Row 1: Secondary Role */}
-          <div className="flex items-center gap-2.5 group">
-            <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
-              <Lightbulb className="w-3.5 h-3.5" />
-            </div>
-            <span className="text-zinc-700 dark:text-zinc-300 font-medium truncate">
-              UI Systems Architect
-            </span>
-          </div>
-
-          {/* Row 2: Time */}
-          <div className="flex items-center gap-2.5 group">
-            <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
-              <Clock className="w-3.5 h-3.5" />
-            </div>
-            <span className="text-zinc-700 dark:text-zinc-300 font-medium">
-              {timeInfo.time}{" "}
-              <span className="text-zinc-400 dark:text-zinc-500 font-normal">
-                // {timeInfo.diff}
-              </span>
-            </span>
-          </div>
-
-          {/* Row 3: Email */}
-          <div className="flex items-center gap-2.5 group">
-            <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
-              <Mail className="w-3.5 h-3.5" />
-            </div>
-            <a
-              href="mailto:contact@josiahdeasis.com"
-              onClick={() => playSoftClick(0.04)}
-              className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors truncate"
-            >
-              contact@josiahdeasis.com
-            </a>
-          </div>
-
-          {/* Row 4: Pronouns */}
-          <div className="flex items-center gap-2.5 group">
+          <div className="flex items-center gap-2.5 px-3 sm:px-4 group mt-2.5 sm:mt-0">
             <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0">
               <User className="w-3.5 h-3.5" />
             </div>
