@@ -568,6 +568,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
     [model.hasSpeedConfiguration, model.metrics, reasoning, speed],
   );
   const [isMetricsRevealed, setIsMetricsRevealed] = useState(false);
+  const [isTooltipOpen, setIsTooltipOpen] = useState(false);
 
   return (
     <motion.div
@@ -592,7 +593,12 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
               transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
               className="flex flex-col divide-y divide-neutral-200 dark:divide-neutral-700/80"
             >
-            <div className="flex flex-col gap-3 p-3">
+            <div
+              className={cn(
+                "flex flex-col gap-3 p-3 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                isTooltipOpen && "blur-[3px] opacity-35 select-none"
+              )}
+            >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-1.5">
@@ -721,6 +727,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                     const nextReasoning = INDEX_TO_LEVEL[index] ?? "medium";
                     onConfigurationChange({ reasoning: nextReasoning });
                   }}
+                  onTooltipToggle={setIsTooltipOpen}
                 />
               </div>
               {model.hasSpeedConfiguration ? (

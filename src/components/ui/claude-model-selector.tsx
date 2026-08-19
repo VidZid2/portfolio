@@ -245,19 +245,29 @@ class ClaudeModelSelectorElement extends HTMLElement {
           bottom: calc(100% + 0.375rem);
           right: 0;
           width: min(14rem, calc(100vw - 2rem));
-          padding: 0.35rem 0.5rem;
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 0.375rem;
-          background: #171717;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-          color: #fff;
+          padding: 0.4rem 0.55rem;
+          border: 1px solid rgba(0, 0, 0, 0.12);
+          border-radius: 0.5rem;
+          background: rgba(255, 255, 255, 0.92);
+          backdrop-filter: blur(16px) saturate(180%);
+          -webkit-backdrop-filter: blur(16px) saturate(180%);
+          box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.15), 0 2px 6px -1px rgba(0, 0, 0, 0.08);
+          color: #0f172a;
           font-size: 0.6875rem;
-          line-height: 1.35;
+          line-height: 1.4;
           opacity: 0;
           visibility: hidden;
-          transform: translateY(2px);
-          transition: opacity 120ms ease, transform 120ms ease, visibility 120ms ease;
+          transform: translateY(4px) scale(0.98);
+          transition: opacity 220ms cubic-bezier(0.16, 1, 0.3, 1), transform 220ms cubic-bezier(0.16, 1, 0.3, 1), visibility 220ms cubic-bezier(0.16, 1, 0.3, 1);
           pointer-events: none;
+        }
+
+        :host-context(.dark) .tooltip,
+        :host([data-theme="dark"]) .tooltip {
+          background: rgba(23, 23, 23, 0.88);
+          border-color: rgba(255, 255, 255, 0.12);
+          box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5), 0 2px 6px -1px rgba(0, 0, 0, 0.3);
+          color: #f5f5f5;
         }
 
         .help-wrap:hover .tooltip,
@@ -265,7 +275,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
         .help-wrap[data-tip-open] .tooltip {
           opacity: 1;
           visibility: visible;
-          transform: translateY(0);
+          transform: translateY(0) scale(1);
         }
 
         .track-shell {
@@ -648,10 +658,25 @@ class ClaudeModelSelectorElement extends HTMLElement {
       { signal }
     );
     this._helpButton.addEventListener(
+      "mouseenter",
+      () => this._emitTooltipState(true),
+      { signal }
+    );
+    this._helpButton.addEventListener(
+      "mouseleave",
+      () => {
+        if (!this._helpWrap.hasAttribute("data-tip-open")) {
+          this._emitTooltipState(false);
+        }
+      },
+      { signal }
+    );
+    this._helpButton.addEventListener(
       "click",
       () => {
         if (this.disabled) return;
         this._helpWrap.toggleAttribute("data-tip-open");
+        this._emitTooltipState(this._helpWrap.hasAttribute("data-tip-open"));
       },
       { signal }
     );
@@ -963,6 +988,16 @@ class ClaudeModelSelectorElement extends HTMLElement {
     }
   }
 
+  _emitTooltipState(isOpen: boolean) {
+    this.dispatchEvent(
+      new CustomEvent("tooltiptoggle", {
+        bubbles: true,
+        composed: true,
+        detail: { open: isOpen },
+      })
+    );
+  }
+
   _emit(type: string) {
     this.dispatchEvent(
       new CustomEvent(type, {
@@ -993,13 +1028,14 @@ export type ClaudeModelSelectorProps = {
   className?: string;
   onLevelChange?: (level: EffortLevel, index: number) => void;
   onValueChange?: (value: number) => void;
+  onTooltipToggle?: (open: boolean) => void;
 };
 
 const ClaudeModelSelector = React.forwardRef<
   HTMLElement,
   ClaudeModelSelectorProps
 >(function ClaudeModelSelector(
-  { value = 0, disabled = false, className, onLevelChange, onValueChange },
+  { value = 0, disabled = false, className, onLevelChange, onValueChange, onTooltipToggle },
   ref
 ) {
   const innerRef = React.useRef<HTMLElement | null>(null);
@@ -1022,14 +1058,23 @@ const ClaudeModelSelector = React.forwardRef<
       }
     };
 
+    const handleTooltip = (e: Event) => {
+      const customEvent = e as CustomEvent<{ open: boolean }>;
+      if (customEvent.detail) {
+        onTooltipToggle?.(customEvent.detail.open);
+      }
+    };
+
     el.addEventListener("input", handleInput);
     el.addEventListener("change", handleInput);
+    el.addEventListener("tooltiptoggle", handleTooltip);
 
     return () => {
       el.removeEventListener("input", handleInput);
       el.removeEventListener("change", handleInput);
+      el.removeEventListener("tooltiptoggle", handleTooltip);
     };
-  }, [onLevelChange, onValueChange]);
+  }, [onLevelChange, onValueChange, onTooltipToggle]);
 
   React.useEffect(() => {
     const el = innerRef.current;
