@@ -296,11 +296,11 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
         .tooltip {
           position: absolute;
-          z-index: 20;
+          z-index: 30;
           bottom: calc(100% + 0.375rem);
           right: 0;
-          width: min(14rem, calc(100vw - 2rem));
-          padding: 0.4rem 0.55rem;
+          width: min(13.5rem, calc(100vw - 2rem));
+          padding: 0.45rem 0.6rem;
           border: 1px solid rgba(0, 0, 0, 0.12);
           border-radius: 0.5rem;
           background: rgba(255, 255, 255, 0.95);
@@ -319,15 +319,16 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
         :host-context(.dark) .tooltip,
         :host([data-theme="dark"]) .tooltip {
-          background: rgba(23, 23, 23, 0.92);
+          background: rgba(23, 23, 23, 0.94);
           border-color: rgba(255, 255, 255, 0.12);
           box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5), 0 2px 6px -1px rgba(0, 0, 0, 0.3);
           color: #f5f5f5;
         }
 
         .quota-tooltip {
-          width: 15rem;
-          padding: 0.625rem 0.75rem;
+          right: -1.375rem;
+          width: min(13.75rem, calc(100vw - 2rem));
+          padding: 0.5rem 0.65rem;
           font-family: inherit;
           text-align: left;
         }
@@ -335,7 +336,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
         .quota-tip-row {
           display: flex;
           flex-direction: column;
-          gap: 0.25rem;
+          gap: 0.2rem;
         }
 
         .quota-tip-header {
@@ -346,7 +347,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
         }
 
         .quota-tip-title {
-          font-size: 0.75rem;
+          font-size: 0.71875rem;
           font-weight: 600;
           color: #0f172a;
           letter-spacing: -0.01em;
@@ -364,7 +365,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
         }
 
         .quota-tip-percent {
-          font-size: 0.75rem;
+          font-size: 0.71875rem;
           font-weight: 600;
           font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
           color: #0f172a;
@@ -376,8 +377,8 @@ class ClaudeModelSelectorElement extends HTMLElement {
         }
 
         .quota-tip-ring {
-          width: 0.875rem;
-          height: 0.875rem;
+          width: 0.8125rem;
+          height: 0.8125rem;
           color: #10b981;
         }
 
@@ -395,7 +396,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
         }
 
         .quota-tip-desc {
-          font-size: 0.6875rem;
+          font-size: 0.65625rem;
           line-height: 1.35;
           color: #64748b;
           margin: 0;
@@ -408,7 +409,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
 
         .quota-tip-divider {
           height: 1px;
-          margin: 0.5rem 0;
+          margin: 0.375rem 0;
           background: rgba(0, 0, 0, 0.08);
         }
 
