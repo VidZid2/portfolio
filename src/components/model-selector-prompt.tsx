@@ -743,70 +743,68 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
             animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, x: 8, filter: "blur(2px)" }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col p-3 gap-2.5"
+            className="flex flex-col p-3 gap-2"
           >
-            <div className="flex items-center justify-between gap-1.5 pb-2 border-b border-neutral-100 dark:border-neutral-800">
-              <div className="flex items-center gap-1.5 min-w-0">
-                <button
-                  type="button"
-                  onClick={() => {
-                    playSoftClick(0.04);
-                    setView("details");
-                  }}
-                  className="flex size-6 items-center justify-center rounded-full bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-300 transition-colors shrink-0 cursor-pointer"
-                  aria-label="Back to details"
-                >
-                  <ChevronLeft className="size-3.5" />
-                </button>
-                <span className="font-semibold text-neutral-900 dark:text-neutral-100 text-xs sm:text-sm truncate">Changelog</span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold tracking-wider uppercase bg-zinc-200/90 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 select-none shrink-0">
-                  BETA 0.1
-                </span>
-              </div>
-
-              <Link
-                href="/milestones"
-                onClick={() => playSoftClick(0.04)}
-                className="text-[11px] font-medium text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors shrink-0"
+            <div className="flex items-center gap-1.5 pb-2 border-b border-neutral-100 dark:border-neutral-800">
+              <button
+                type="button"
+                onClick={() => {
+                  playSoftClick(0.04);
+                  setView("details");
+                }}
+                className="flex size-5.5 items-center justify-center rounded-full bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-300 transition-colors shrink-0 cursor-pointer"
+                aria-label="Back to details"
               >
-                Milestones →
-              </Link>
+                <ChevronLeft className="size-3" />
+              </button>
+              <span className="font-semibold text-neutral-900 dark:text-neutral-100 text-xs">Changelog</span>
+              <span className="px-1.5 py-0.5 rounded text-[9.5px] font-semibold tracking-wider uppercase bg-zinc-200/90 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 select-none">
+                BETA 0.1
+              </span>
             </div>
 
-            <div className="max-h-[140px] overflow-y-auto pr-1 space-y-2 prompt-scrollbar">
-              <div className="flex items-center justify-between text-[10.5px] text-neutral-400 dark:text-neutral-500 font-mono">
-                <span>Sync AI v0.1-beta</span>
-                <span>Initial Release</span>
-              </div>
-
-              <div className="flex flex-col gap-2 rounded-lg bg-neutral-50 dark:bg-neutral-800/40 p-2.5 border border-neutral-100 dark:border-neutral-800/80">
-                <div className="flex items-start gap-2">
-                  <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">✦</span>
-                  <div className="flex flex-col gap-0.5">
-                    <p className="font-medium text-neutral-900 dark:text-neutral-100 text-xs">128k Context Window</p>
-                    <p className="text-neutral-500 dark:text-neutral-400 text-[11px] leading-relaxed">
-                      Deep real-time indexing of portfolio projects, engineering case studies, and stack architecture.
-                    </p>
-                  </div>
+            <div className="relative overflow-hidden">
+              <div
+                style={{
+                  maskImage: "linear-gradient(to bottom, transparent 0%, black 10px, black calc(100% - 10px), transparent 100%)",
+                  WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 10px, black calc(100% - 10px), transparent 100%)",
+                }}
+                className="max-h-[145px] overflow-y-auto pr-1 py-1 space-y-2 prompt-scrollbar"
+              >
+                <div className="flex items-center justify-between text-[10px] text-neutral-400 dark:text-neutral-500 font-mono px-0.5 pt-0.5">
+                  <span>Sync AI v0.1-beta</span>
+                  <span>Initial Release</span>
                 </div>
 
-                <div className="flex items-start gap-2">
-                  <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold">✦</span>
-                  <div className="flex flex-col gap-0.5">
-                    <p className="font-medium text-neutral-900 dark:text-neutral-100 text-xs">Adaptive Reasoning Pipeline</p>
-                    <p className="text-neutral-500 dark:text-neutral-400 text-[11px] leading-relaxed">
-                      Multi-tier reasoning depth with collapsible thought process, time latency tracker, and morphing animations.
-                    </p>
+                <div className="flex flex-col gap-2 rounded-lg bg-neutral-50 dark:bg-neutral-800/40 p-2.5 border border-neutral-100 dark:border-neutral-800/80">
+                  <div className="flex items-start gap-2">
+                    <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">✦</span>
+                    <div className="flex flex-col gap-0.5">
+                      <p className="font-medium text-neutral-900 dark:text-neutral-100 text-xs">128k Context Window</p>
+                      <p className="text-neutral-500 dark:text-neutral-400 text-[11px] leading-relaxed">
+                        Deep real-time indexing of portfolio projects, engineering case studies, and stack architecture.
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-start gap-2">
-                  <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[10px] font-bold">✦</span>
-                  <div className="flex flex-col gap-0.5">
-                    <p className="font-medium text-neutral-900 dark:text-neutral-100 text-xs">Acoustic & Action Telemetry</p>
-                    <p className="text-neutral-500 dark:text-neutral-400 text-[11px] leading-relaxed">
-                      Interactive Good/Bad response rating icons with tactile synthesis sound design.
-                    </p>
+                  <div className="flex items-start gap-2">
+                    <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold">✦</span>
+                    <div className="flex flex-col gap-0.5">
+                      <p className="font-medium text-neutral-900 dark:text-neutral-100 text-xs">Adaptive Reasoning Pipeline</p>
+                      <p className="text-neutral-500 dark:text-neutral-400 text-[11px] leading-relaxed">
+                        Multi-tier reasoning depth with collapsible thought process, time latency tracker, and morphing animations.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2">
+                    <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[10px] font-bold">✦</span>
+                    <div className="flex flex-col gap-0.5">
+                      <p className="font-medium text-neutral-900 dark:text-neutral-100 text-xs">Acoustic & Action Telemetry</p>
+                      <p className="text-neutral-500 dark:text-neutral-400 text-[11px] leading-relaxed">
+                        Interactive Good/Bad response rating icons with tactile synthesis sound design.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
