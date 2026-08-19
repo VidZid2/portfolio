@@ -772,12 +772,7 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                     <MessageContent>
                       {role === "assistant" ? (
                         <>
-                          {isLoading && index === messages.length - 1 && (
-                            <div className="mb-3">
-                              <ThinkingIndicator words={["Thinking", "Reasoning", "Planning"]} />
-                            </div>
-                          )}
-                          {reasoningContent && (
+                          {reasoningContent ? (
                             (() => {
                               const parsedSteps = parseReasoningSteps(reasoningContent);
                               const isThinkingActive = isLoading && index === messages.length - 1;
@@ -787,7 +782,15 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                                   className="mb-4"
                                   defaultOpen={false}
                                 >
-                                  <ReasoningStepsTrigger>Thought Process</ReasoningStepsTrigger>
+                                  <div className="flex items-center gap-2.5 flex-wrap">
+                                    {isThinkingActive && (
+                                      <>
+                                        <ThinkingIndicator words={["Thinking", "Reasoning", "Planning"]} />
+                                        <span className="text-zinc-300 dark:text-zinc-700 text-[11px] select-none font-bold">•</span>
+                                      </>
+                                    )}
+                                    <ReasoningStepsTrigger className="w-auto py-1">Thought Process</ReasoningStepsTrigger>
+                                  </div>
                                   <ReasoningStepsContent>
                                     {parsedSteps.map((step, stepIdx) => (
                                       <ReasoningStep
@@ -802,6 +805,12 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                                 </ReasoningSteps>
                               );
                             })()
+                          ) : (
+                            isLoading && index === messages.length - 1 && (
+                              <div className="mb-3">
+                                <ThinkingIndicator words={["Thinking", "Reasoning", "Planning"]} />
+                              </div>
+                            )
                           )}
                           <MessageResponse>{textContent}</MessageResponse>
                         </>
