@@ -247,8 +247,8 @@ export function ProfileDetailsGrid() {
         <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
       </div>
 
-      {/* Socials Row (Matching Reference Picture 2) */}
-      <div className="relative flex items-center py-2.5">
+      {/* Socials Row (Matching Blueprint Grid Design) */}
+      <div className="relative flex items-center py-0">
         {/* Handwritten Annotation in Left Gutter outside the vertical line */}
         <div className="absolute right-full top-[-14px] pr-4 sm:pr-5 hidden sm:flex flex-col items-end pointer-events-none select-none z-30 min-w-max">
           <span className="inline-block font-caveat italic text-[17px] sm:text-[19px] font-medium text-zinc-600 dark:text-zinc-400 leading-none whitespace-nowrap -rotate-[8deg] tracking-wide select-none mr-1">
@@ -283,36 +283,48 @@ export function ProfileDetailsGrid() {
           <span className="whitespace-nowrap -rotate-[4deg] inline-block">say hi ↘</span>
         </div>
 
-        {/* Social Buttons with Text - Full-width mathematical 5-column grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 sm:gap-2 w-full">
-          {SOCIAL_LINKS.map((item) =>
-            item.disabled ? (
-              <div
-                key={item.name}
-                aria-label={`${item.name} (inactive)`}
-                className="h-8 px-2 rounded-lg border border-dashed border-black/15 dark:border-white/[0.08] bg-zinc-100/40 dark:bg-zinc-900/30 text-zinc-400 dark:text-zinc-600 opacity-60 grayscale cursor-not-allowed flex items-center justify-center gap-1.5 text-[12px] font-mono select-none w-full"
-              >
-                {item.icon}
-                <span className="truncate">{item.label}</span>
-              </div>
-            ) : (
-              <motion.a
-                key={item.name}
-                href={item.href}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={item.name}
-                onMouseEnter={() => playHoverTick(0.02)}
-                onClick={() => playSoftClick(0.04)}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="h-8 px-2 rounded-lg border border-black/20 dark:border-white/[0.12] bg-zinc-100/80 dark:bg-zinc-900/80 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors flex items-center justify-center gap-1.5 shadow-sm text-[12px] font-mono font-medium w-full"
-              >
-                {item.icon}
-                <span className="truncate">{item.label}</span>
-              </motion.a>
-            )
-          )}
+        {/* 5-Column Mathematical Blueprint Grid without pill outlines */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 w-full relative">
+          {SOCIAL_LINKS.map((item, idx) => (
+            <div key={item.name} className="relative flex items-center justify-center">
+              {item.disabled ? (
+                <div
+                  aria-label={`${item.name} (inactive)`}
+                  className="h-9 px-2 flex items-center justify-center gap-2 text-zinc-400 dark:text-zinc-600 opacity-40 grayscale cursor-not-allowed select-none text-[12px] sm:text-[13px] font-mono w-full"
+                >
+                  {item.icon}
+                  <span className="truncate">{item.label}</span>
+                </div>
+              ) : (
+                <motion.a
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={item.name}
+                  onMouseEnter={() => playHoverTick(0.02)}
+                  onClick={() => playSoftClick(0.04)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="h-9 px-2 flex items-center justify-center gap-2 text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100/50 dark:hover:bg-zinc-900/50 transition-colors text-[12px] sm:text-[13px] font-mono font-medium w-full"
+                >
+                  {item.icon}
+                  <span className="truncate">{item.label}</span>
+                </motion.a>
+              )}
+
+              {/* Vertical Dotted Divider Line on right of each cell except the last on desktop */}
+              {idx < SOCIAL_LINKS.length - 1 && (
+                <>
+                  <div
+                    className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
+                    style={dashedVerticalMask}
+                  />
+                  <div className="hidden sm:block absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+                  <div className="hidden sm:block absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+                </>
+              )}
+            </div>
+          ))}
         </div>
       </div>
 
