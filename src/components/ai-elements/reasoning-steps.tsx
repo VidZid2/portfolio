@@ -453,32 +453,80 @@ function TriggerLabel({
   shownDuration: number;
   title: ReactNode;
 }) {
+  const isThinking = activeStep !== undefined;
+
   return (
-    <span className="min-w-0 flex-1">
-      <span className="flex items-center gap-1.5">
-        {activeStep !== undefined && (
-          <MorphingSparkleGlyph reduceMotion={reduceMotion} />
-        )}
-        <ShimmerLabel
-          active={activeStep !== undefined}
-          reduceMotion={reduceMotion}
-        >
-          {title}
-        </ShimmerLabel>
-        {shownDuration > 0 ? (
-          <span className="text-[12px] text-muted-foreground tabular-nums">
-            {shownDuration}s
-          </span>
-        ) : null}
+    <motion.span layout="position" className="min-w-0 flex-1 block">
+      <motion.span layout="position" className="flex items-center gap-1.5">
+        <AnimatePresence mode="popLayout" initial={false}>
+          {isThinking && (
+            <motion.span
+              key="morph-sparkle"
+              initial={reduceMotion ? false : { scale: 0, opacity: 0, width: 0, marginRight: 0 }}
+              animate={{ scale: 1, opacity: 1, width: "auto", marginRight: 2 }}
+              exit={
+                reduceMotion
+                  ? { opacity: 0, width: 0 }
+                  : {
+                      scale: [1, 1.3, 0],
+                      opacity: [1, 0.9, 0],
+                      filter: ["blur(0px)", "blur(1.5px)", "blur(4px)"],
+                      width: 0,
+                      marginRight: 0,
+                      transition: {
+                        duration: 0.45,
+                        ease: [0.16, 1, 0.3, 1],
+                        width: { duration: 0.4, delay: 0.08, ease: [0.16, 1, 0.3, 1] },
+                        marginRight: { duration: 0.4, delay: 0.08, ease: [0.16, 1, 0.3, 1] },
+                      },
+                    }
+              }
+              transition={{
+                type: "spring",
+                stiffness: 420,
+                damping: 28,
+              }}
+              className="inline-flex items-center shrink-0 overflow-visible relative"
+            >
+              <MorphingSparkleGlyph reduceMotion={reduceMotion} />
+            </motion.span>
+          )}
+        </AnimatePresence>
+
         <motion.span
-          animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.2 }}
-          className="ml-1 flex items-center"
+          layout="position"
+          transition={{
+            type: "spring",
+            stiffness: 380,
+            damping: 30,
+          }}
+          className="inline-flex items-center gap-1.5"
         >
-          <ChevronDown className="size-4 text-muted-foreground" />
+          <ShimmerLabel
+            active={isThinking}
+            reduceMotion={reduceMotion}
+          >
+            {title}
+          </ShimmerLabel>
+          {shownDuration > 0 ? (
+            <motion.span
+              layout="position"
+              className="text-[12px] text-muted-foreground tabular-nums"
+            >
+              {shownDuration}s
+            </motion.span>
+          ) : null}
+          <motion.span
+            layout="position"
+            animate={{ rotate: isOpen ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+            className="ml-1 flex items-center"
+          >
+            <ChevronDown className="size-4 text-muted-foreground" />
+          </motion.span>
         </motion.span>
-      </span>
-    </span>
+      </motion.span>
+    </motion.span>
   );
 }
 
