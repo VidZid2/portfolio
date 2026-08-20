@@ -33,23 +33,17 @@ export function FogTextReveal({
   const [currentIndex, setCurrentIndex] = useState(0);
   const reduce = useReducedMotion();
 
-  const handleShimmerComplete = () => {
+  useEffect(() => {
     if (!loop || texts.length <= 1) return;
     if (startOnView && !isInView) return;
-    // Advance to next phrase immediately after shimmer completes its single pass to the right
-    setCurrentIndex((prev) => (prev + 1) % texts.length);
-  };
 
-  useEffect(() => {
-    if (enableShimmer || !loop || texts.length <= 1) return;
-    if (startOnView && !isInView) return;
-
+    const totalCycle = holdDuration + transitionDuration * 1000 + 450;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % texts.length);
-    }, transitionDuration * 1000 + holdDuration + 500);
+    }, totalCycle);
 
     return () => clearInterval(timer);
-  }, [enableShimmer, holdDuration, loop, texts.length, transitionDuration, startOnView, isInView]);
+  }, [holdDuration, loop, texts.length, transitionDuration, startOnView, isInView]);
 
   if (texts.length === 0) return null;
 
@@ -108,7 +102,6 @@ export function FogTextReveal({
                 ease: [0.25, 0.1, 0.25, 1],
                 repeat: 0,
               }}
-              onAnimationComplete={handleShimmerComplete}
               style={{
                 backgroundSize: "300% 100%",
                 backgroundImage:

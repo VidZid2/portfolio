@@ -219,6 +219,7 @@ export function useSwirlStage(
     }
 
     let startTime = 0;
+    let wordStartTime = 0;
     let prevTime = 0;
     let raf = 0;
     let settled = false; // has onSettle fired for the current entrance
@@ -243,7 +244,8 @@ export function useSwirlStage(
 
     handle.current = {
       replay: () => {
-        startTime = 0;
+        wordStartTime = prevTime || performance.now();
+        settled = false;
       },
       setPointer: (p) => {
         if (p) {
@@ -271,8 +273,13 @@ export function useSwirlStage(
       if (tk !== lastTargetKey) {
         lastTargetKey = tk;
         target = resolveTarget(c);
-        lastCw = -1;
-        startTime = 0; // re-run the entrance so the new word condenses in
+        if (grid) {
+          grid.targetX = max(0, round((grid.cols - (target.rows[0]?.length ?? 0)) / 2));
+          grid.targetY = max(0, round((grid.rows - target.rows.length) / 2));
+        }
+        wordStartTime = time; // only word entrance timer resets, not the background stage
+        settled = false;
+        eventsRef?.current?.onFormationStart?.();
       }
       if (c.zoom !== lastZoom) {
         lastZoom = c.zoom;
@@ -292,16 +299,18 @@ export function useSwirlStage(
       if (grid && atlas && buffers) {
         if (startTime === 0) {
           startTime = time;
+          wordStartTime = time;
           settled = false; // a fresh entrance is beginning
           eventsRef?.current?.onFormationStart?.();
         }
         if (prevTime === 0) prevTime = time; // first frame after a (re)start
         const elapsed = time - startTime;
+        const wordElapsed = time - wordStartTime;
         const dt = Math.min(0.05, Math.max(0.001, (time - prevTime) / 1000));
         prevTime = time;
 
         // fire onSettle once the word has fully formed (formation ~1)
-        if (!settled && elapsed * 0.001 >= FORMATION_SETTLE_SEC) {
+        if (!settled && wordElapsed * 0.001 >= FORMATION_SETTLE_SEC) {
           settled = true;
           eventsRef?.current?.onSettle?.();
         }
@@ -352,6 +361,7 @@ export function useSwirlStage(
           source: source.length ? source : [""],
           target,
           elapsed,
+          wordElapsed,
           paint,
           logo: hexToRgb01(c.logoColor),
           slotOf,

@@ -53,7 +53,7 @@ export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeen
   return (
     <motion.div 
       id="experience" 
-      className="mt-6 flex flex-col relative z-10 scroll-mt-24"
+      className="mt-0 flex flex-col relative z-10 scroll-mt-24"
       initial={skip ? "visible" : "hidden"}
       whileInView={skip ? undefined : (phase === "done" ? "visible" : "hidden")}
       animate={skip ? "visible" : undefined}

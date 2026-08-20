@@ -252,8 +252,10 @@ export interface ComposeArgs {
   buffers: FieldBuffers;
   source: string[];
   target: Target;
-  /** ms since the formation (re)started. */
+  /** ms since the stage (re)started (continuous background spin and waves). */
   elapsed: number;
+  /** ms since current word formation started (for word entrance/condensation). */
+  wordElapsed?: number;
   paint: InkPaint;
   /** Color of the resolved logo word in 0..1 RGB (independent of the swirl ink). */
   logo: [number, number, number];
@@ -312,7 +314,7 @@ const vnoise = (x: number, y: number): number => {
 };
 
 export function composeField(args: ComposeArgs): number {
-  const { grid, atlas, buffers, source, target, elapsed, paint, logo, slotOf, trail, shocks, turbulence } = args;
+  const { grid, atlas, buffers, source, target, elapsed, wordElapsed, paint, logo, slotOf, trail, shocks, turbulence } = args;
   const wavePattern = args.wavePattern ?? "wavefront";
   const trailStrength = args.trailStrength ?? 1;
   const flare = args.trailFlare;
@@ -322,7 +324,18 @@ export function composeField(args: ComposeArgs): number {
   const tWave = elapsed * 0.001 * WAVE_SPEED;
   const waveDirX = cos(WAVE_DIR);
   const waveDirY = sin(WAVE_DIR);
-  const formation = easeOutQuad(clamp01((elapsed * 0.001) / FORMATION_SEC));
+  const wElapsedSec = (args.wordElapsed !== undefined ? args.wordElapsed : elapsed) * 0.001;
+  const IN_DUR = 0.9;
+  const OUT_START = 3.6;
+  const OUT_DUR = 0.8;
+  let formation = 1.0;
+  if (wElapsedSec < IN_DUR) {
+    formation = easeOutQuad(clamp01(wElapsedSec / IN_DUR));
+  } else if (wElapsedSec < OUT_START) {
+    formation = 1.0;
+  } else {
+    formation = easeOutQuad(clamp01(1 - (wElapsedSec - OUT_START) / OUT_DUR));
+  }
   // Highlight tracks the logo color instead of being hardcoded white: nudge it
   // toward whichever end is "further" so a dark logo gets a soft sheen and a
   // light logo a faint lift — never a white wash that breaks on light bgs.
@@ -387,13 +400,15 @@ export function composeField(args: ComposeArgs): number {
       // soup around it bends, shocks and churns.
       const inLogo = inTarget && !!target.stencil[ty]?.[tx];
       if (inLogo) {
-        const wordChar = tw[ty][tx];
+        const wordChar = tw[ty]?.[tx];
         if (wordChar && wordChar !== " ") {
-          ch = String.fromCharCode(
-            round(mix(ch.charCodeAt(0), wordChar.charCodeAt(0), formation)),
-          );
-          resolved = ch;
-        } else if (formation > 0.5) {
+          if (formation > 0.01) {
+            ch = String.fromCharCode(
+              round(mix(ch.charCodeAt(0), wordChar.charCodeAt(0), formation)),
+            );
+            resolved = ch;
+          }
+        } else if (formation > 0.4) {
           ch = SPACE; // counter / halo cell clears once the word has formed
         }
       }

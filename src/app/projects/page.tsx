@@ -55,8 +55,8 @@ export default function AllProjectsPage() {
 
             {/* Top-right absolute buttons container */}
             <div className="absolute top-1.5 right-2 sm:top-3 sm:right-4 flex items-center gap-1.5 sm:gap-3 pointer-events-auto z-20">
-              <CommandMenu />
               <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300 shrink-0" />
+              <CommandMenu />
             </div>
           </div>
         }

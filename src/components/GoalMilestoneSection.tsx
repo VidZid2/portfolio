@@ -17,7 +17,7 @@ export function GoalMilestoneSection({ hasSeenScrollAnimations = false }: { hasS
   return (
     <motion.div 
       id="goals" 
-      className="mt-6 flex flex-col relative z-10 scroll-mt-24"
+      className="mt-0 flex flex-col relative z-10 scroll-mt-24"
       initial={skip ? "visible" : "hidden"}
       whileInView={skip ? undefined : (phase === "done" ? "visible" : "hidden")}
       animate={skip ? "visible" : undefined}

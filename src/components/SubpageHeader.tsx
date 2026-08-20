@@ -49,8 +49,8 @@ export function SubpageHeader({
         {/* Right: Controls */}
         <div className="flex items-start justify-end gap-1.5 sm:gap-3 h-24 py-1 pointer-events-auto shrink-0">
           {extraControls}
-          <CommandMenu />
           <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300 shrink-0" />
+          <CommandMenu />
         </div>
       </div>
     </div>

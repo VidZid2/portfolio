@@ -17,6 +17,7 @@ import { SkillsSection } from "@/components/SkillsSection";
 import { ComponentsSection } from "@/components/ComponentsSection";
 import { BlogsSection } from "@/components/BlogsSection";
 import { AboutSection } from "@/components/AboutSection";
+import { SupportedBySection } from "@/components/SupportedBySection";
 import { GoalMilestoneSection } from "@/components/GoalMilestoneSection";
 import { ColophonSection } from "@/components/ColophonSection";
 import { SwirlQuote } from "@/components/swirl/SwirlQuote";
@@ -174,18 +175,7 @@ export default function Home() {
             {/* 3. About Me Section (Matching Reference Picture 2) */}
             <AboutSection key={`about-${hasPlayed}`} hasSeenAboutMe={hasPlayed} />
 
-            {/* 4. Skills & Technologies Section */}
-            <SkillsSection key={`skills-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
-
-            {/* Slanted Blueprint Hatch Spacer between Stack and Let's Connect (Full-bleed across entire viewport) */}
-            <div className="relative w-full h-8 sm:h-9">
-              <div
-                className="absolute inset-y-0 left-[-100vw] right-[-100vw] pointer-events-none opacity-70 dark:opacity-40"
-                style={DIAGONAL_HATCH_PATTERN}
-              />
-            </div>
-
-            {/* 5. Let's Connect Section */}
+            {/* 4. Let's Connect Section (Moved directly below About Me) */}
             <div className="flex flex-col relative z-10 py-6">
               {/* Top full-width line */}
               <div
@@ -218,8 +208,51 @@ export default function Home() {
               <div className="absolute bottom-0 -right-3 sm:-right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
             </div>
 
-            {/* 6. Milestone Goals, Experience, Projects, Open Source */}
+            {/* 5. Skills & Technologies Section (Stack) */}
+            <SkillsSection key={`skills-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+
+            {/* 6. Supported By Section (Matching Reference Picture 2) */}
+            <SupportedBySection key={`supported-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+
+            {/* Blueprint Diagonal Slanted Line Spacer 1 (Between Supported By and Goal Milestones) */}
+            <div className="relative h-10 sm:h-12 my-0">
+              {/* Slanted diagonal hatch pattern spanning full width across the margins */}
+              <div
+                className="absolute inset-y-0 left-[-100vw] right-[-100vw] pointer-events-none opacity-40 dark:opacity-20"
+                style={DIAGONAL_HATCH_PATTERN}
+              />
+              {/* Left & Right continuous vertical dotted boundary lines */}
+              <div
+                className="absolute top-0 bottom-0 -left-3 sm:-left-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
+                style={DOT_MASK_VERTICAL}
+              />
+              <div
+                className="absolute top-0 bottom-0 -right-3 sm:-right-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
+                style={DOT_MASK_VERTICAL}
+              />
+            </div>
+
+            {/* 7. Milestone Goals, Experience, Projects, Open Source */}
             <GoalMilestoneSection key={`goals-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+
+            {/* Blueprint Diagonal Slanted Line Spacer 2 (Between Goal Milestones and Experiences) */}
+            <div className="relative h-10 sm:h-12 my-0">
+              {/* Slanted diagonal hatch pattern spanning full width across the margins */}
+              <div
+                className="absolute inset-y-0 left-[-100vw] right-[-100vw] pointer-events-none opacity-40 dark:opacity-20"
+                style={DIAGONAL_HATCH_PATTERN}
+              />
+              {/* Left & Right continuous vertical dotted boundary lines */}
+              <div
+                className="absolute top-0 bottom-0 -left-3 sm:-left-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
+                style={DOT_MASK_VERTICAL}
+              />
+              <div
+                className="absolute top-0 bottom-0 -right-3 sm:-right-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
+                style={DOT_MASK_VERTICAL}
+              />
+            </div>
+
             <ExperienceSection key={`exp-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
             <ProjectsSection key={`projects-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 

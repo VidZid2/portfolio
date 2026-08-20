@@ -2,17 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { 
-  Code2, 
-  Lightbulb, 
-  MapPin, 
-  Phone, 
-  Link2, 
-  Clock, 
-  Mail, 
-  User,
-  Globe
-} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { playHoverTick, playSoftClick, playToastError } from "@/lib/synth-sounds";
 
@@ -151,7 +140,31 @@ export function ProfileDetailsGrid() {
         <div className="relative grid grid-cols-1 sm:grid-cols-2 py-2.5 sm:py-3">
           <div className="flex items-center gap-2.5 px-3 sm:px-4 group">
             <div className="w-6 h-6 rounded-md bg-zinc-100/90 dark:bg-zinc-800/70 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-              <Code2 className="w-3.5 h-3.5" />
+              <svg
+                className="w-3.5 h-3.5 shrink-0"
+                viewBox="0 0 18 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M1.47918 13.3595C3.04625 11.1877 5.45082 9.99767 8.0103 10C10.5648 10.0023 13.1177 11.012 14.6723 13.3595C14.8248 13.5897 14.8384 13.8852 14.7077 14.1285C14.577 14.3718 14.3232 14.5236 14.047 14.5236L2.10449 14.5236C1.82831 14.5236 1.57447 14.3718 1.44378 14.1285C1.31309 13.8852 1.32669 13.5897 1.47918 13.3595Z"
+                  className="fill-[#6495ED]"
+                  fillOpacity="0.5"
+                />
+                <path
+                  d="M8 8.5C9.93293 8.5 11.5 6.93191 11.5 5C11.5 3.06809 9.93293 1.5 8 1.5C6.06707 1.5 4.5 3.06809 4.5 5C4.5 6.93191 6.06707 8.5 8 8.5Z"
+                  className="fill-[#6495ED]"
+                  fillOpacity="0.5"
+                />
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M11.075 10.5C10.5898 10.5 10.1223 10.7926 9.92867 11.2543L8.26274 15H5.75C5.33579 15 5 15.3358 5 15.75C5 16.1642 5.33579 16.5 5.75 16.5H8.75H14.925C15.429 16.5 15.8711 16.1954 16.0675 15.7539L17.6226 12.2622C17.9877 11.4425 17.393 10.5 16.481 10.5H11.075Z"
+                  className="fill-[#1C1F21] dark:fill-[#F4F4F5]"
+                />
+              </svg>
             </div>
             <span className="text-zinc-700 dark:text-zinc-300 font-medium truncate">
               Full-Stack Front-End Engineer
@@ -159,7 +172,21 @@ export function ProfileDetailsGrid() {
           </div>
           <div className="flex items-center gap-2.5 px-3 sm:px-4 group mt-2.5 sm:mt-0">
             <div className="w-6 h-6 rounded-md bg-zinc-100/90 dark:bg-zinc-800/70 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-              <Lightbulb className="w-3.5 h-3.5" />
+              <svg
+                className="w-3.5 h-3.5 shrink-0"
+                viewBox="0 0 18 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9 1.5C6.239 1.5 4 3.739 4 6.5C4 8.356 5.016 9.974 6.524 10.826C6.818 10.992 7 11.308 7 11.648V12.75C7 13.164 7.336 13.5 7.75 13.5H10.25C10.664 13.5 11 13.164 11 12.75V11.648C11 11.308 11.182 10.992 11.476 10.826C12.984 9.974 14 8.356 14 6.5C14 3.739 11.761 1.5 9 1.5Z"
+                  className="fill-[#1C1F21] dark:fill-[#F4F4F5]"
+                />
+                <path
+                  d="M7 14.75C7 14.336 7.336 14 7.75 14H10.25C10.664 14 11 14.336 11 14.75V15C11 15.69 10.44 16.25 9.75 16.25H8.25C7.56 16.25 7 15.69 7 15V14.75Z"
+                  className="fill-[#6495ED]"
+                />
+              </svg>
             </div>
             <span className="text-zinc-700 dark:text-zinc-300 font-medium truncate">
               UI Systems Architect
@@ -177,7 +204,21 @@ export function ProfileDetailsGrid() {
         <div className="relative grid grid-cols-1 sm:grid-cols-2 py-2.5 sm:py-3">
           <div className="flex items-center gap-2.5 px-3 sm:px-4 group">
             <div className="w-6 h-6 rounded-md bg-zinc-100/90 dark:bg-zinc-800/70 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-              <MapPin className="w-3.5 h-3.5" />
+              <svg
+                className="w-3.5 h-3.5 shrink-0"
+                viewBox="0 0 18 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9 17C8.586 17 8.25 16.664 8.25 16.25V12.25C8.25 11.836 8.586 11.5 9 11.5C9.414 11.5 9.75 11.836 9.75 12.25V16.25C9.75 16.664 9.414 17 9 17Z"
+                  className="fill-[#6495ED]"
+                />
+                <path
+                  d="M13.929 8.997C13.663 8.541 13.351 8.109 13 7.709V3.75C13 2.233 11.767 1 10.25 1H7.75C6.233 1 5 2.233 5 3.75V7.709C4.648 8.109 4.337 8.541 4.071 8.997C3.508 9.962 3.15 11.024 3.006 12.155C2.979 12.369 3.045 12.584 3.187 12.745C3.33 12.907 3.535 12.999 3.75 12.999H14.25C14.465 12.999 14.67 12.906 14.813 12.745C14.955 12.583 15.021 12.369 14.994 12.155C14.85 11.024 14.492 9.962 13.929 8.997Z"
+                  className="fill-[#1C1F21] dark:fill-[#F4F4F5]"
+                />
+              </svg>
             </div>
             <span className="text-zinc-600 dark:text-zinc-400 truncate">
               Bulacan, Philippines
@@ -185,7 +226,19 @@ export function ProfileDetailsGrid() {
           </div>
           <div className="flex items-center gap-2.5 px-3 sm:px-4 group mt-2.5 sm:mt-0">
             <div className="w-6 h-6 rounded-md bg-zinc-100/90 dark:bg-zinc-800/70 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-              <Clock className="w-3.5 h-3.5" />
+              <svg
+                className="w-3.5 h-3.5 shrink-0"
+                viewBox="0 0 18 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M9 1.5C4.858 1.5 1.5 4.858 1.5 9C1.5 13.142 4.858 16.5 9 16.5C13.142 16.5 16.5 13.142 16.5 9C16.5 4.858 13.142 1.5 9 1.5ZM8.25 5C8.25 4.586 8.586 4.25 9 4.25C9.414 4.25 9.75 4.586 9.75 5V8.625L12.125 10.054C12.484 10.27 12.602 10.732 12.386 11.091C12.17 11.45 11.708 11.568 11.349 11.352L8.624 9.718C8.388 9.576 8.25 9.324 8.25 9.05V5Z"
+                  className="fill-[#1C1F21] dark:fill-[#F4F4F5]"
+                />
+              </svg>
             </div>
             <span className="text-zinc-700 dark:text-zinc-300 font-medium">
               {timeInfo.time}{" "}
@@ -206,7 +259,17 @@ export function ProfileDetailsGrid() {
         <div className="relative grid grid-cols-1 sm:grid-cols-2 py-2.5 sm:py-3">
           <div className="flex items-center gap-2.5 px-3 sm:px-4 group">
             <div className="w-6 h-6 rounded-md bg-zinc-100/90 dark:bg-zinc-800/70 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-              <Phone className="w-3.5 h-3.5" />
+              <svg
+                className="w-3.5 h-3.5 shrink-0"
+                viewBox="0 0 18 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M15.6 11.4946L12.674 10.1956C11.961 9.87858 11.123 10.0816 10.634 10.6896L9.39951 11.8784C8.09251 11.0244 6.97651 9.90744 6.12251 8.59844L7.32613 7.36908C7.93513 6.88108 8.13913 6.04208 7.82313 5.32908L6.52313 2.40108C6.18013 1.62908 5.33814 1.22308 4.51914 1.43408L2.54451 1.94844C1.69851 2.16844 1.15151 2.98844 1.27151 3.85544C2.20551 10.5044 7.50051 15.8004 14.1515 16.7344C14.2315 16.7454 14.3095 16.7504 14.3875 16.7504C15.1615 16.7504 15.8555 16.2284 16.0565 15.4604L16.566 13.4966C16.777 12.6796 16.371 11.8376 15.6 11.4946Z"
+                  className="fill-[#1C1F21] dark:fill-[#F4F4F5]"
+                />
+              </svg>
             </div>
             <a
               href="tel:+639458351588"
@@ -218,7 +281,21 @@ export function ProfileDetailsGrid() {
           </div>
           <div className="flex items-center gap-2.5 px-3 sm:px-4 group mt-2.5 sm:mt-0">
             <div className="w-6 h-6 rounded-md bg-zinc-100/90 dark:bg-zinc-800/70 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-              <Mail className="w-3.5 h-3.5" />
+              <svg
+                className="w-3.5 h-3.5 shrink-0"
+                viewBox="0 0 18 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M2.5 3.5C1.672 3.5 1 4.172 1 5V13C1 13.828 1.672 14.5 2.5 14.5H15.5C16.328 14.5 17 13.828 17 13V5C17 4.172 16.328 3.5 15.5 3.5H2.5Z"
+                  className="fill-[#1C1F21] dark:fill-[#F4F4F5]"
+                />
+                <path
+                  d="M1.35 4.9L8.14 9.993C8.653 10.378 9.347 10.378 9.86 9.993L16.65 4.9C16.34 4.05 15.49 3.5 14.5 3.5H3.5C2.51 3.5 1.66 4.05 1.35 4.9Z"
+                  className="fill-[#6495ED]"
+                />
+              </svg>
             </div>
             <a
               href="mailto:contact@josiahdeasis.com"
@@ -240,7 +317,27 @@ export function ProfileDetailsGrid() {
         <div className="relative grid grid-cols-1 sm:grid-cols-2 py-2.5 sm:py-3">
           <div className="flex items-center gap-2.5 px-3 sm:px-4 group">
             <div className="w-6 h-6 rounded-md bg-zinc-100/90 dark:bg-zinc-800/70 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-              <Link2 className="w-3.5 h-3.5" />
+              <svg
+                className="w-3.5 h-3.5 shrink-0"
+                viewBox="0 0 18 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8.36909 6.8934C8.06649 7.0539 7.78239 7.2617 7.52799 7.517L7.51799 7.527C6.13699 8.908 6.13699 11.146 7.51799 12.527L9.69299 14.702C11.074 16.083 13.312 16.083 14.693 14.702L14.703 14.692C16.084 13.311 16.084 11.073 14.703 9.692L13.9406 8.9296"
+                  className="stroke-[#6495ED]"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M9.63289 11.1066C9.93549 10.9461 10.2196 10.7383 10.474 10.483L10.484 10.473C11.865 9.09199 11.865 6.85399 10.484 5.47299L8.30899 3.29799C6.92799 1.91699 4.68999 1.91699 3.30899 3.29799L3.29899 3.30799C1.91799 4.68899 1.91799 6.92699 3.29899 8.30799L4.06139 9.07039"
+                  className="stroke-[#1C1F21] dark:stroke-[#F4F4F5]"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </div>
             <a
               href="https://sync-portfolio-jd.vercel.app"
@@ -254,7 +351,21 @@ export function ProfileDetailsGrid() {
           </div>
           <div className="flex items-center gap-2.5 px-3 sm:px-4 group mt-2.5 sm:mt-0">
             <div className="w-6 h-6 rounded-md bg-zinc-100/90 dark:bg-zinc-800/70 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-              <User className="w-3.5 h-3.5" />
+              <svg
+                className="w-3.5 h-3.5 shrink-0"
+                viewBox="0 0 18 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9 8.5C10.933 8.5 12.5 6.933 12.5 5C12.5 3.067 10.933 1.5 9 1.5C7.067 1.5 5.5 3.067 5.5 5C5.5 6.933 7.067 8.5 9 8.5Z"
+                  className="fill-[#6495ED]"
+                />
+                <path
+                  d="M9 10C5.962 10 3.5 12.462 3.5 15.5C3.5 16.052 3.948 16.5 4.5 16.5H13.5C14.052 16.5 14.5 16.052 14.5 15.5C14.5 12.462 12.038 10 9 10Z"
+                  className="fill-[#1C1F21] dark:fill-[#F4F4F5]"
+                />
+              </svg>
             </div>
             <span className="text-zinc-600 dark:text-zinc-400">he/him</span>
           </div>
