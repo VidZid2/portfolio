@@ -34,10 +34,10 @@ const DOT_MASK_VERTICAL = {
 };
 
 const TIP_PRESETS = [
-  { amount: "₱100", label: "Coffee", icon: "☕" },
-  { amount: "₱250", label: "Slice", icon: "🍕" },
-  { amount: "₱500", label: "Fuel", icon: "🚀" },
-  { amount: "₱1,000", label: "Hero", icon: "🌟" },
+  { amount: "$3", label: "Coffee", icon: "☕" },
+  { amount: "$5", label: "Slice", icon: "🍕" },
+  { amount: "$15", label: "Fuel", icon: "🚀" },
+  { amount: "$25", label: "Hero", icon: "🌟" },
 ];
 
 interface CommunitySupportSectionProps {
@@ -53,7 +53,7 @@ export function CommunitySupportSection({
   const [modalOpen, setModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
-  const [copiedMaya, setCopiedMaya] = useState(false);
+  const [copiedPayPal, setCopiedPayPal] = useState(false);
   const [isPlusHovered, setIsPlusHovered] = useState(false);
   const [isTrailingPlusHovered, setIsTrailingPlusHovered] = useState(false);
 
@@ -72,7 +72,9 @@ export function CommunitySupportSection({
   }, []);
 
   const email = "josiahdeasis009@gmail.com";
-  const mayaAccount = "josiahdeasis009@gmail.com";
+  const paypalAccount = "josiahdeasis009@gmail.com";
+  const paypalUrl = "https://paypal.me/josiahdeasis";
+  const kofiUrl = "https://ko-fi.com/josiahdeasis";
   const githubSponsorsUrl = "https://github.com/sponsors/VidZid2";
 
   const handleCopyEmail = () => {
@@ -85,24 +87,212 @@ export function CommunitySupportSection({
     }
   };
 
-  const handleCopyMaya = () => {
+  const handleCopyPayPal = () => {
     playPowerUpSound(0.065);
     if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(mayaAccount);
-      setCopiedMaya(true);
-      toast.success("Maya account copied to clipboard!");
-      setTimeout(() => setCopiedMaya(false), 2000);
+      navigator.clipboard.writeText(paypalAccount);
+      setCopiedPayPal(true);
+      toast.success("PayPal address copied to clipboard!");
+      setTimeout(() => setCopiedPayPal(false), 2000);
     }
   };
 
   const handlePresetClick = (label: string) => {
-    handleCopyMaya();
+    playSoftClick();
+    if (typeof window !== "undefined") {
+      window.open(paypalUrl, "_blank", "noopener,noreferrer");
+    }
   };
 
   const handleOpenModal = () => {
     playSoftClick();
     setModalOpen(true);
   };
+
+  const renderSupportContent = () => (
+    <div className="flex flex-col">
+      {/* Quick Tip Amount Presets — Borderless Container Cards */}
+      <div className="mt-2 flex flex-col gap-2">
+        <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-medium">
+          Quick Tip Presets
+        </span>
+        <div className="grid grid-cols-4 gap-2">
+          {TIP_PRESETS.map((preset) => (
+            <button
+              key={preset.amount}
+              type="button"
+              onClick={() => handlePresetClick(preset.label)}
+              className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-[#0079C1]/10 dark:hover:bg-[#0079C1]/15 transition-all duration-150 group cursor-pointer active:scale-95 border-0 outline-none"
+            >
+              <span className="text-sm mb-0.5 group-hover:scale-110 transition-transform">
+                {preset.icon}
+              </span>
+              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 font-mono">
+                {preset.amount}
+              </span>
+              <span className="text-[10px] text-zinc-400 dark:text-zinc-500 group-hover:text-[#0079C1] dark:group-hover:text-[#38bdf8] transition-colors font-sans">
+                {preset.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-3.5 flex flex-col gap-2.5">
+        <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-medium">
+          Direct Platforms
+        </span>
+
+        {/* 1. PayPal Option */}
+        <div className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group select-none">
+          <a
+            href={paypalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => playSoftClick()}
+            className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
+          >
+            <div className="w-8 h-8 rounded-lg bg-[#003087]/10 dark:bg-[#0079C1]/20 text-[#0079C1] flex items-center justify-center shrink-0 font-bold shadow-xs">
+              <svg className="w-4 h-4 fill-current text-[#0079C1]" viewBox="0 0 24 24">
+                <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.009.4 5.438 0 5.945 0h7.625c3.554 0 6.046 1.776 5.679 5.372-.379 3.731-2.909 5.823-6.529 5.823H9.98l-1.393 8.847a.784.784 0 0 1-.777.653l-.734.642zm8.128-13.882c.162-1.583-.91-2.355-2.836-2.355H8.79l-1.46 9.255h2.463c2.404 0 4.156-1.337 4.411-3.844.02-.204.03-.396.03-.574a4.07 4.07 0 0 0-.03-.482h.001z" />
+              </svg>
+            </div>
+            <div className="text-left min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 font-sans">
+                  PayPal
+                </p>
+                <span className="px-1.5 py-0.2 text-[9.5px] font-mono font-medium rounded bg-[#0079C1]/15 text-[#0079C1] dark:text-[#38bdf8]">
+                  Global & Cards
+                </span>
+              </div>
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-sans mt-0.5 truncate">
+                {paypalAccount}
+              </p>
+            </div>
+          </a>
+          <div className="flex items-center gap-1.5 shrink-0 pl-2">
+            <button
+              type="button"
+              onClick={handleCopyPayPal}
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-zinc-200/70 hover:bg-zinc-300/80 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 text-[11px] font-medium transition-colors cursor-pointer border-0"
+              title="Copy PayPal address"
+            >
+              {copiedPayPal ? (
+                <>
+                  <Check className="w-3 h-3 text-emerald-500" />
+                  <span className="text-emerald-500">Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3 h-3 text-zinc-400" />
+                  <span>Copy</span>
+                </>
+              )}
+            </button>
+            <a
+              href={paypalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => playSoftClick()}
+              className="p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
+              title="Open PayPal.me"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </div>
+        </div>
+
+        {/* 2. Ko-fi Option */}
+        <a
+          href={kofiUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => playSoftClick()}
+          className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group cursor-pointer active:scale-[0.99]"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-[#FF5E5B]/10 dark:bg-[#FF5E5B]/20 text-[#FF5E5B] flex items-center justify-center shrink-0 shadow-xs">
+              <svg className="w-4 h-4 fill-current text-[#FF5E5B]" viewBox="0 0 24 24">
+                <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.047 3.974-4.047 3.974s-2.7-2.486-3.92-3.938c-1.309-1.557-.775-3.66.906-4.102 1.637-.43 2.879.71 3.014.85.137-.14 1.379-1.28 3.016-.85 1.681.442 2.217 2.545.908 4.098l.123-.032zm6.757-1.12c-.22 1.488-1.579 2.012-3.111 2.012h-.809v-4.14h.983c1.533 0 2.719.64 2.937 2.128z" />
+              </svg>
+            </div>
+            <div className="text-left">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 font-sans">
+                  Ko-fi
+                </p>
+                <span className="px-1.5 py-0.2 text-[9.5px] font-mono font-medium rounded bg-[#FF5E5B]/15 text-[#FF5E5B]">
+                  0% Fee & Cards
+                </span>
+              </div>
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-sans mt-0.5">
+                ko-fi.com/josiahdeasis
+              </p>
+            </div>
+          </div>
+          <ExternalLink className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors" />
+        </a>
+
+        {/* 3. GitHub Sponsors Option */}
+        <a
+          href={githubSponsorsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => playSoftClick()}
+          className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group cursor-pointer active:scale-[0.99]"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-[#24292e] dark:bg-[#161b22] text-white flex items-center justify-center shrink-0">
+              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+              </svg>
+            </div>
+            <div className="text-left">
+              <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 font-sans">
+                GitHub Sponsors
+              </p>
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-sans">
+                github.com/sponsors/VidZid2
+              </p>
+            </div>
+          </div>
+          <ExternalLink className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors" />
+        </a>
+
+        {/* 4. Direct Sponsorship / Inquiries via Email */}
+        <div className="p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
+              <Mail className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+              <span className="text-xs font-semibold font-sans">Direct Inquiries & Custom Sponsorship</span>
+            </div>
+          </div>
+          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-snug font-sans">
+            Interested in featured sponsorship slots, collaboration, or custom contributions? Reach out:
+          </p>
+          <div className="flex items-center gap-2 mt-1">
+            <a
+              href={`mailto:${email}?subject=[Open Source Support] Tip & Sponsorship`}
+              onClick={() => playSoftClick()}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 text-[11px] font-medium transition-colors"
+            >
+              <Mail className="w-3 h-3" />
+              <span>Send Email</span>
+            </a>
+            <button
+              type="button"
+              onClick={handleCopyEmail}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-zinc-200/80 dark:bg-zinc-800 hover:bg-zinc-300/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-[11px] font-medium transition-colors cursor-pointer border-0"
+            >
+              {copiedEmail ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3 text-zinc-400" />}
+              <span>{copiedEmail ? "Copied" : "Copy"}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -124,154 +314,117 @@ export function CommunitySupportSection({
           className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
           style={DOT_MASK_HORIZONTAL}
         />
-        {/* Top Line Intersections at boundary borders */}
+        {/* Top line intersections */}
         <div className="absolute top-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
         <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
 
         {/* Section Header */}
-        <motion.div
-          variants={{
-            hidden: { opacity: 0, y: -8 },
-            visible: {
-              opacity: 1,
-              y: 0,
-              transition: { type: "spring", bounce: 0.3 },
-            },
-          }}
-          className="pt-2.5 pb-3 px-3 sm:px-4 relative flex flex-col justify-start"
-        >
+        <div className="flex items-center justify-between px-3 sm:px-4 py-2 border-b border-black/30 dark:border-white/[0.15]">
           <div className="flex items-center gap-2">
-            <ScrambleText
-              as="h2"
-              className="text-[17px] sm:text-[18px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight leading-tight"
-            >
-              Support My Work
-            </ScrambleText>
+            <span className="p-1 rounded bg-black/[0.04] dark:bg-white/[0.06] text-zinc-900 dark:text-zinc-100">
+              <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500/20" />
+            </span>
+            <h2 className="text-[13px] sm:text-[14px] font-mono font-medium tracking-tight text-zinc-900 dark:text-zinc-100">
+              <ScrambleText>Community Support</ScrambleText>
+            </h2>
           </div>
-          <p className="text-[13px] sm:text-[13.5px] text-zinc-500 dark:text-zinc-400 font-sans tracking-normal leading-normal mt-0.5">
-            Send a tip or become a sponsor to help support my open-source projects and creative work.
-          </p>
+          <span className="text-[10px] sm:text-[11px] font-mono text-zinc-400 dark:text-zinc-500">
+            {SPONSORS.length} Backers
+          </span>
+        </div>
 
-          {/* Header Bottom Dotted Line */}
-          <div
-            className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-            style={DOT_MASK_HORIZONTAL}
-          />
-          {/* Header Bottom Intersections */}
-          <div className="absolute bottom-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-          <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-        </motion.div>
-
-        {/* 2-Column Sponsor Grid Area — Fully Enveloping Full Bleed Width */}
+        {/* 2-Column Responsive Blueprint Grid */}
         <motion.div
           variants={{
             hidden: { opacity: 0, y: 10 },
-            visible: { opacity: 1, y: 0, transition: { duration: 0.35 } },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
           }}
-          className="relative w-full py-0"
+          className="grid grid-cols-1 sm:grid-cols-2 relative"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 w-full relative">
-            {/* If there are sponsors in the list, render them */}
+          {/* Vertical Center Blueprint Dotted Line */}
+          <div
+            className="hidden sm:block absolute top-0 bottom-0 left-1/2 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
+            style={DOT_MASK_VERTICAL}
+          />
+
+          {/* Active Sponsors or Empty Slot Showcase */}
+          <div className="contents">
             {SPONSORS.length > 0 ? (
               <>
-                {SPONSORS.map((sponsor: Sponsor, idx: number) => {
-                  const isLeftCol = idx % 2 === 0;
-                  return (
-                    <div
-                      key={sponsor.id || idx}
-                      className="relative flex items-center justify-center p-6 sm:p-7 min-h-[92px] sm:min-h-[104px] transition-colors duration-200 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
-                    >
-                      <a
-                        href={sponsor.url}
-                        target="_blank"
-                        rel="noopener noreferrer sponsored"
-                        onClick={() => playSoftClick()}
-                        className="flex items-center justify-center w-full h-full max-w-[200px] text-zinc-900 dark:text-zinc-100 hover:opacity-80 transition-opacity"
-                      >
-                        {sponsor.logo ? (
-                          <sponsor.logo className="w-full h-auto max-h-[36px]" />
-                        ) : (
-                          <span className="font-semibold text-sm tracking-tight">{sponsor.name}</span>
-                        )}
-                      </a>
-
-                      {/* Right vertical blueprint dotted divider on desktop */}
-                      {isLeftCol && (
-                        <>
-                          <div
-                            className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
-                            style={DOT_MASK_VERTICAL}
-                          />
-                          <div className="hidden sm:block absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-                          <div className="hidden sm:block absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-                        </>
-                      )}
-
-                      {/* Horizontal dotted bottom divider */}
-                      <div
-                        className="absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-                        style={DOT_MASK_HORIZONTAL}
-                      />
-                    </div>
-                  );
-                })}
-
-                {/* Trailing Plus (+) Card */}
+                {/* 1. First Sponsor Slot (Left) */}
                 <div
-                  className="relative flex items-center justify-center p-6 sm:p-7 min-h-[92px] sm:min-h-[104px] transition-colors duration-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.03] cursor-pointer group select-none"
+                  onMouseEnter={() => playHoverTick(0.04)}
+                  className="relative flex flex-col justify-between p-3.5 sm:p-4 min-h-[100px] sm:min-h-[112px] hover:bg-zinc-50/50 dark:hover:bg-zinc-900/25 transition-colors duration-200 cursor-default"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="p-1 rounded-md bg-zinc-100 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-300 font-mono text-[11px] font-bold shrink-0">
+                        {SPONSORS[0].name.slice(0, 2).toUpperCase()}
+                      </span>
+                      <span className="text-[11px] sm:text-[12px] font-mono tracking-tight text-zinc-700 dark:text-zinc-300 truncate select-none">
+                        {SPONSORS[0].name}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 shrink-0 select-none">
+                      {SPONSORS[0].tier}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col mt-auto leading-tight">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-[13px] sm:text-[14px] font-mono font-bold text-zinc-900 dark:text-zinc-100">
+                        Supporter
+                      </span>
+                    </div>
+                    <span className="text-[10px] sm:text-[11px] font-mono text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">
+                      {SPONSORS[0].description || "Backer"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 2. Interactive Plus (+) Slot (Right) - Pure icon without outline */}
+                <div
                   onClick={handleOpenModal}
                   onMouseEnter={() => {
-                    setIsTrailingPlusHovered(true);
+                    setIsPlusHovered(true);
                     playHoverTick(0.04);
                   }}
-                  onMouseLeave={() => setIsTrailingPlusHovered(false)}
+                  onMouseLeave={() => setIsPlusHovered(false)}
+                  className="relative flex items-center justify-center p-6 sm:p-8 min-h-[100px] sm:min-h-[112px] transition-all duration-300 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] cursor-pointer group select-none"
                 >
                   <PlusIcon
                     size={24}
-                    isHovered={isTrailingPlusHovered}
+                    isHovered={isPlusHovered}
                     className="text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors duration-200"
-                  />
-
-                  {/* Horizontal dotted bottom divider */}
-                  <div
-                    className="absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-                    style={DOT_MASK_HORIZONTAL}
                   />
                 </div>
               </>
             ) : (
-              /* Initially Empty State Grid Matching Picture 2 & Picture 3 — Full Envelope */
               <>
-                {/* 1. Reserved Sponsor Placeholder Slot (Left) */}
+                {/* 1. Reserved Slot (Left) */}
                 <div
-                  onClick={handleOpenModal}
                   onMouseEnter={() => playHoverTick(0.04)}
-                  className="relative flex flex-col items-center justify-center p-6 sm:p-8 min-h-[100px] sm:min-h-[112px] transition-all duration-300 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] cursor-pointer group select-none"
+                  className="relative flex flex-col justify-between p-3.5 sm:p-4 min-h-[100px] sm:min-h-[112px] hover:bg-zinc-50/50 dark:hover:bg-zinc-900/25 transition-colors duration-200 cursor-default"
                 >
-                  <div className="flex items-center gap-2 text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-800 dark:group-hover:text-zinc-200 transition-colors duration-200">
-                    <span className="font-mono text-[11px] uppercase tracking-wider font-medium">
-                      Spot Reserved
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-[11px] sm:text-[12px] font-mono tracking-tight text-zinc-500 dark:text-zinc-400 truncate select-none">
+                        Spot Reserved
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 shrink-0 select-none">
+                      Available
                     </span>
                   </div>
-                  <p className="text-[12px] text-zinc-400/80 dark:text-zinc-500/80 font-sans mt-1 group-hover:text-zinc-500 dark:group-hover:text-zinc-400 transition-colors">
-                    Become the first community backer
-                  </p>
 
-                  {/* Desktop Middle Vertical Dotted Blueprint Divider */}
-                  <div
-                    className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
-                    style={DOT_MASK_VERTICAL}
-                  />
-                  <div className="hidden sm:block absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-                  <div className="hidden sm:block absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-
-                  {/* Mobile Horizontal Dotted Divider between Card 1 and Card 2 */}
-                  <div
-                    className="sm:hidden absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-                    style={DOT_MASK_HORIZONTAL}
-                  />
-                  <div className="sm:hidden absolute bottom-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-                  <div className="sm:hidden absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+                  <div className="flex flex-col mt-auto leading-tight">
+                    <span className="text-[13px] sm:text-[14px] font-mono font-bold text-zinc-900 dark:text-zinc-100">
+                      Become a Backer
+                    </span>
+                    <span className="text-[10px] sm:text-[11px] font-mono text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">
+                      Help sponsor ongoing projects
+                    </span>
+                  </div>
                 </div>
 
                 {/* 2. Interactive Plus (+) Slot (Right) - Pure icon without outline */}
@@ -327,9 +480,6 @@ export function CommunitySupportSection({
             className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={DOT_MASK_HORIZONTAL}
           />
-          {/* Section Bottom Line Intersections */}
-          <div className="absolute bottom-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-          <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
         </motion.div>
       </motion.div>
 
@@ -343,132 +493,8 @@ export function CommunitySupportSection({
           description="Support Josiah's open-source projects, tools, and creations. Every contribution directly powers new builds and maintenance."
           className="max-w-lg border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0a0a0a]"
         >
-          <div className="px-4 pb-6 flex flex-col">
-            {/* Quick Tip Amount Presets — Borderless Container Cards */}
-            <div className="mt-2 flex flex-col gap-2">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-medium">
-                Quick Tip Presets
-              </span>
-              <div className="grid grid-cols-4 gap-2">
-                {TIP_PRESETS.map((preset) => (
-                  <button
-                    key={preset.amount}
-                    type="button"
-                    onClick={() => handlePresetClick(preset.label)}
-                    className="flex flex-col items-center justify-center p-2 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-[#00D665]/10 dark:hover:bg-[#00D665]/15 transition-all duration-150 group cursor-pointer active:scale-95"
-                  >
-                    <span className="text-sm mb-0.5 group-hover:scale-110 transition-transform">
-                      {preset.icon}
-                    </span>
-                    <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 font-mono">
-                      {preset.amount}
-                    </span>
-                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500 group-hover:text-[#00D665] transition-colors font-sans">
-                      {preset.label}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-3.5 flex flex-col gap-2.5">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-medium">
-                Direct Platforms
-              </span>
-
-              {/* 1. Maya / PayMaya Option */}
-              <div
-                onClick={handleCopyMaya}
-                className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group cursor-pointer select-none active:scale-[0.99]"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#00D665] text-black flex items-center justify-center shrink-0 font-bold shadow-xs">
-                    <span className="font-sans font-black text-sm tracking-tighter">m</span>
-                  </div>
-                  <div className="text-left">
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 font-sans">
-                        PayMaya / Maya
-                      </p>
-                      <span className="px-1.5 py-0.2 text-[9.5px] font-mono font-medium rounded bg-[#00D665]/15 text-[#00A84E] dark:text-[#00D665]">
-                        Direct Wallet
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-sans mt-0.5">
-                      {mayaAccount}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 text-xs font-medium text-zinc-600 dark:text-zinc-300">
-                  {copiedMaya ? (
-                    <span className="inline-flex items-center gap-1 text-emerald-500 font-medium text-[11px]">
-                      <Check className="w-3.5 h-3.5" /> Copied
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-[11px] text-zinc-400 group-hover:text-zinc-800 dark:group-hover:text-zinc-200 transition-colors">
-                      <Copy className="w-3.5 h-3.5" /> Copy
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* 2. GitHub Sponsors Option */}
-              <a
-                href={githubSponsorsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => playSoftClick()}
-                className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group cursor-pointer active:scale-[0.99]"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#24292e] dark:bg-[#161b22] text-white flex items-center justify-center shrink-0">
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
-                    </svg>
-                  </div>
-                  <div className="text-left">
-                    <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 font-sans">
-                      GitHub Sponsors
-                    </p>
-                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-sans">
-                      github.com/sponsors/VidZid2
-                    </p>
-                  </div>
-                </div>
-                <ExternalLink className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors" />
-              </a>
-
-              {/* 3. Direct Sponsorship / Inquiries via Email */}
-              <div className="p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
-                    <Mail className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                    <span className="text-xs font-semibold font-sans">Direct Inquiries & Custom Sponsorship</span>
-                  </div>
-                </div>
-                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-snug font-sans">
-                  Interested in featured sponsorship slots, collaboration, or custom contributions? Reach out:
-                </p>
-                <div className="flex items-center gap-2 mt-1">
-                  <a
-                    href={`mailto:${email}?subject=[Open Source Support] Tip & Sponsorship`}
-                    onClick={() => playSoftClick()}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 text-[11px] font-medium transition-colors"
-                  >
-                    <Mail className="w-3 h-3" />
-                    <span>Send Email</span>
-                  </a>
-                  <button
-                    type="button"
-                    onClick={handleCopyEmail}
-                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-zinc-200/80 dark:bg-zinc-800 hover:bg-zinc-300/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-[11px] font-medium transition-colors cursor-pointer"
-                  >
-                    {copiedEmail ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
-                    <span>{copiedEmail ? "Copied" : "Copy"}</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+          <div className="px-4 pb-6">
+            {renderSupportContent()}
           </div>
         </BottomSheet>
       ) : (
@@ -477,10 +503,10 @@ export function CommunitySupportSection({
             ariaLabel="Support & Send a Tip"
             className="max-w-lg p-6 bg-white dark:bg-zinc-950 border border-zinc-200/80 dark:border-zinc-800/80 rounded-[28px] shadow-2xl z-[9999] max-h-[90vh] overflow-y-auto"
           >
-            <div className="space-y-1.5 text-left pr-8">
+            <div className="space-y-1.5 text-left pr-8 mb-4">
               <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-[#00D665]/10 text-[#00D665]">
-                  <Smartphone className="w-4 h-4" />
+                <div className="p-1.5 rounded-lg bg-[#0079C1]/10 text-[#0079C1] dark:text-[#38bdf8]">
+                  <Gift className="w-4 h-4" />
                 </div>
                 <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 font-sans tracking-tight">
                   Support & Send a Tip
@@ -490,132 +516,7 @@ export function CommunitySupportSection({
                 Support Josiah&apos;s open-source projects, tools, and creations. Every contribution directly powers new builds and maintenance.
               </p>
             </div>
-
-            {/* Quick Tip Amount Presets — Borderless Container Cards */}
-            <div className="mt-4 flex flex-col gap-2">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-medium">
-                Quick Tip Presets
-              </span>
-              <div className="grid grid-cols-4 gap-2">
-                {TIP_PRESETS.map((preset) => (
-                  <button
-                    key={preset.amount}
-                    type="button"
-                    onClick={() => handlePresetClick(preset.label)}
-                    className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-[#00D665]/10 dark:hover:bg-[#00D665]/15 transition-all duration-150 group cursor-pointer"
-                  >
-                    <span className="text-sm mb-0.5 group-hover:scale-110 transition-transform">
-                      {preset.icon}
-                    </span>
-                    <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 font-mono">
-                      {preset.amount}
-                    </span>
-                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500 group-hover:text-[#00D665] transition-colors font-sans">
-                      {preset.label}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-3.5 flex flex-col gap-2.5">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-medium">
-                Direct Platforms
-              </span>
-
-              {/* 1. Maya / PayMaya Option */}
-              <div
-                onClick={handleCopyMaya}
-                className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group cursor-pointer select-none"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#00D665] text-black flex items-center justify-center shrink-0 font-bold shadow-xs">
-                    <span className="font-sans font-black text-sm tracking-tighter">m</span>
-                  </div>
-                  <div className="text-left">
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 font-sans">
-                        PayMaya / Maya
-                      </p>
-                      <span className="px-1.5 py-0.2 text-[9.5px] font-mono font-medium rounded bg-[#00D665]/15 text-[#00A84E] dark:text-[#00D665]">
-                        Direct Wallet
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-sans mt-0.5">
-                      {mayaAccount}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 text-xs font-medium text-zinc-600 dark:text-zinc-300">
-                  {copiedMaya ? (
-                    <span className="inline-flex items-center gap-1 text-emerald-500 font-medium text-[11px]">
-                      <Check className="w-3.5 h-3.5" /> Copied
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-[11px] text-zinc-400 group-hover:text-zinc-800 dark:group-hover:text-zinc-200 transition-colors">
-                      <Copy className="w-3.5 h-3.5" /> Copy
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* 2. GitHub Sponsors Option */}
-              <a
-                href={githubSponsorsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => playSoftClick()}
-                className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#24292e] dark:bg-[#161b22] text-white flex items-center justify-center shrink-0">
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
-                    </svg>
-                  </div>
-                  <div className="text-left">
-                    <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 font-sans">
-                      GitHub Sponsors
-                    </p>
-                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-sans">
-                      github.com/sponsors/VidZid2
-                    </p>
-                  </div>
-                </div>
-                <ExternalLink className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors" />
-              </a>
-
-              {/* 3. Direct Sponsorship / Inquiries via Email */}
-              <div className="p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
-                    <Mail className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                    <span className="text-xs font-semibold font-sans">Direct Inquiries & Custom Sponsorship</span>
-                  </div>
-                </div>
-                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-snug font-sans">
-                  Interested in featured sponsorship slots, collaboration, or custom contributions? Reach out:
-                </p>
-                <div className="flex items-center gap-2 mt-1">
-                  <a
-                    href={`mailto:${email}?subject=[Open Source Support] Tip & Sponsorship`}
-                    onClick={() => playSoftClick()}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 text-[11px] font-medium transition-colors"
-                  >
-                    <Mail className="w-3 h-3" />
-                    <span>Send Email</span>
-                  </a>
-                  <button
-                    type="button"
-                    onClick={handleCopyEmail}
-                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-zinc-200/80 dark:bg-zinc-800 hover:bg-zinc-300/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-[11px] font-medium transition-colors cursor-pointer"
-                  >
-                    {copiedEmail ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
-                    <span>{copiedEmail ? "Copied" : "Copy"}</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+            {renderSupportContent()}
           </CenterMorphModalContent>
         </CenterMorphModal>
       )}
