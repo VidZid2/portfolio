@@ -33,11 +33,18 @@ const DOT_MASK_VERTICAL = {
     "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
 };
 
-const TIP_PRESETS = [
-  { amount: "$3", label: "Coffee", icon: "☕" },
-  { amount: "$5", label: "Slice", icon: "🍕" },
-  { amount: "$15", label: "Fuel", icon: "🚀" },
-  { amount: "$25", label: "Hero", icon: "🌟" },
+const PHP_PRESETS = [
+  { amount: "₱50", value: 50, label: "Coffee", icon: "☕" },
+  { amount: "₱150", value: 150, label: "Snack", icon: "🍕" },
+  { amount: "₱500", value: 500, label: "Fuel", icon: "🚀" },
+  { amount: "₱1,000", value: 1000, label: "Hero", icon: "🌟" },
+];
+
+const USD_PRESETS = [
+  { amount: "$3", value: 3, label: "Coffee", icon: "☕" },
+  { amount: "$5", value: 5, label: "Slice", icon: "🍕" },
+  { amount: "$15", value: 15, label: "Fuel", icon: "🚀" },
+  { amount: "$25", value: 25, label: "Hero", icon: "🌟" },
 ];
 
 interface CommunitySupportSectionProps {
@@ -52,6 +59,7 @@ export function CommunitySupportSection({
   const skip = hasSeenScrollAnimations || isLowTier;
   const [modalOpen, setModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [currency, setCurrency] = useState<"PHP" | "USD">("PHP");
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [copiedPayPal, setCopiedPayPal] = useState(false);
   const [isPlusHovered, setIsPlusHovered] = useState(false);
@@ -97,10 +105,11 @@ export function CommunitySupportSection({
     }
   };
 
-  const handlePresetClick = (label: string) => {
+  const handlePresetClick = (presetValue: number) => {
     playSoftClick();
     if (typeof window !== "undefined") {
-      window.open(paypalUrl, "_blank", "noopener,noreferrer");
+      const presetUrl = `${paypalUrl}/${presetValue}${currency}`;
+      window.open(presetUrl, "_blank", "noopener,noreferrer");
     }
   };
 
@@ -109,19 +118,56 @@ export function CommunitySupportSection({
     setModalOpen(true);
   };
 
+  const activePresets = currency === "PHP" ? PHP_PRESETS : USD_PRESETS;
+
   const renderSupportContent = () => (
     <div className="flex flex-col">
-      {/* Quick Tip Amount Presets — Borderless Container Cards */}
+      {/* Quick Tip Amount Presets with Currency Switcher */}
       <div className="mt-2 flex flex-col gap-2">
-        <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-medium">
-          Quick Tip Presets
-        </span>
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-medium">
+            Quick Tip Presets
+          </span>
+          <div className="flex items-center p-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 text-[10px] font-mono">
+            <button
+              type="button"
+              onClick={() => {
+                playHoverTick(0.04);
+                setCurrency("PHP");
+              }}
+              className={cn(
+                "px-2 py-0.5 rounded-md font-medium transition-all duration-150 cursor-pointer border-0",
+                currency === "PHP"
+                  ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs font-bold"
+                  : "text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+              )}
+            >
+              ₱ PHP
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                playHoverTick(0.04);
+                setCurrency("USD");
+              }}
+              className={cn(
+                "px-2 py-0.5 rounded-md font-medium transition-all duration-150 cursor-pointer border-0",
+                currency === "USD"
+                  ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs font-bold"
+                  : "text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+              )}
+            >
+              $ USD
+            </button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-4 gap-2">
-          {TIP_PRESETS.map((preset) => (
+          {activePresets.map((preset) => (
             <button
               key={preset.amount}
               type="button"
-              onClick={() => handlePresetClick(preset.label)}
+              onClick={() => handlePresetClick(preset.value)}
               className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-[#0079C1]/10 dark:hover:bg-[#0079C1]/15 transition-all duration-150 group cursor-pointer active:scale-95 border-0 outline-none"
             >
               <span className="text-sm mb-0.5 group-hover:scale-110 transition-transform">
