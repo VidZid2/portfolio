@@ -445,6 +445,7 @@ export function CylinderCarousel({
 
   const onPointerDown = useCallback(
     (e: ReactPointerEvent) => {
+      if (selectedIndex !== null && selectedIndex !== undefined) return;
       stopGlide();
       draggingRef.current = true;
       hasMovedRef.current = false;
@@ -458,11 +459,12 @@ export function CylinderCarousel({
         prevT: now,
       };
     },
-    [scroll, stopGlide],
+    [scroll, stopGlide, selectedIndex],
   );
 
   const onPointerMove = useCallback(
     (e: ReactPointerEvent) => {
+      if (selectedIndex !== null && selectedIndex !== undefined) return;
       if (!draggingRef.current) return;
       const d = drag.current;
       const dist = Math.abs(e.clientX - d.startX);
@@ -509,6 +511,7 @@ export function CylinderCarousel({
 
   const onWheel = useCallback(
     (e: ReactWheelEvent) => {
+      if (selectedIndex !== null && selectedIndex !== undefined) return;
       stopGlide();
       if (wheelAnimRef.current) {
         wheelAnimRef.current.stop();
@@ -540,7 +543,7 @@ export function CylinderCarousel({
         }
       }, 160);
     },
-    [scroll, gap, snap, glideTo, stopGlide],
+    [scroll, gap, snap, glideTo, stopGlide, selectedIndex],
   );
 
   useEffect(() => {
@@ -590,7 +593,9 @@ export function CylinderCarousel({
       className={cn(
         "relative w-full touch-none outline-none",
         TOUCH_GESTURE_CLASS,
-        "cursor-grab active:cursor-grabbing",
+        selectedIndex !== null && selectedIndex !== undefined
+          ? "cursor-default pointer-events-none"
+          : "cursor-grab active:cursor-grabbing",
         className,
       )}
       style={{ height: stageHeight }}

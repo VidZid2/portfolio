@@ -16,6 +16,7 @@ import {
     CornerDownLeft,
     Copy,
     Briefcase,
+    GraduationCap,
     BookOpen,
     Search
 } from "lucide-react"
@@ -308,6 +309,14 @@ export function CommandMenu() {
                                 <Briefcase className="mr-2 h-4 w-4 text-zinc-500" />
                                 <span>Experience</span>
                                 <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">shift + E</CommandShortcut>
+                            </div>
+                        </CommandItem>
+                        <CommandItem value="education" onSelect={() => runCommand(() => navigateToSection("#education"))} className="relative rounded-lg py-3 cursor-pointer">
+                            {value === "education" && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
+                            <div className="relative z-10 flex items-center w-full">
+                                <GraduationCap className="mr-2 h-4 w-4 text-zinc-500" />
+                                <span>Education</span>
+                                <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">shift + U</CommandShortcut>
                             </div>
                         </CommandItem>
                         <CommandItem value="projects" onSelect={() => runCommand(() => navigateToSection("#projects"))} className="relative rounded-lg py-3 cursor-pointer">

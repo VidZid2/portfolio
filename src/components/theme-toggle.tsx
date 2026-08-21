@@ -115,7 +115,7 @@ export function ThemeToggle({ className }: { className?: string }) {
 
   const toggleTheme = () => {
     const nextTheme = isDark ? "light" : "dark";
-    playThemeSwoosh(nextTheme === "dark", 0.05);
+    playThemeSwoosh(nextTheme === "dark", 0.12);
 
     if (typeof document === "undefined" || !("startViewTransition" in document)) {
       setTheme(nextTheme);
@@ -145,7 +145,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       <button
         type="button"
         onClick={toggleTheme}
-        onMouseEnter={() => playHoverTick(0.05)}
+        onMouseEnter={() => playHoverTick(0.06)}
         className={cn(
           "relative inline-flex items-center justify-center group cursor-pointer transition-all duration-300 active:scale-95 z-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 rounded-[9px]",
           className

@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Signature } from "@/components/Signature";
 import { GithubGraph } from "@/components/GithubGraph";
 import { ExperienceSection } from "@/components/ExperienceSection";
+import { EducationSection } from "@/components/EducationSection";
 import { OpenSourceContributions } from "@/components/OpenSourceContributions";
 import { FooterBackground } from "@/components/FooterBackground";
 import { CommandMenu } from "@/components/command-menu";
@@ -13,11 +14,13 @@ import { ProfilePictureScramble } from "@/components/ProfilePictureScramble";
 import { TextReveal } from "@/components/text-reveal";
 import { LetsConnect } from "@/components/LetsConnect";
 import { ProjectsSection } from "@/components/ProjectsSection";
+import { InsightsSection } from "@/components/InsightsSection";
 import { SkillsSection } from "@/components/SkillsSection";
 import { ComponentsSection } from "@/components/ComponentsSection";
 import { BlogsSection } from "@/components/BlogsSection";
 import { AboutSection } from "@/components/AboutSection";
 import { SupportedBySection } from "@/components/SupportedBySection";
+import { CommunitySupportSection } from "@/components/CommunitySupportSection";
 import { GoalMilestoneSection } from "@/components/GoalMilestoneSection";
 import { ColophonSection } from "@/components/ColophonSection";
 import { SwirlQuote } from "@/components/swirl/SwirlQuote";
@@ -166,8 +169,8 @@ export default function Home() {
         {/* Flowing Content Section */}
         <LayoutGroup id="flowing-sections">
           <div className="ml-3 mr-3 sm:ml-4 sm:mr-4 md:ml-[24.5%] md:mr-[24.5%] pt-[calc(22vh+112px)] pb-0 px-3 sm:px-4 flex flex-col z-10 relative min-h-screen">
-            {/* 1. Profile 2-Column Details Grid + Socials (Matching Reference Picture 1) */}
-            <ProfileDetailsGrid />
+            {/* 1. Profile 2-Column Details Grid + Let's Connect + Socials */}
+            <ProfileDetailsGrid hasSeenScrollAnimations={hasPlayed} />
 
             {/* 2. Github Activity (Matching Reference Picture 1) */}
             <GithubGraph key={`github-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
@@ -175,97 +178,115 @@ export default function Home() {
             {/* 3. About Me Section (Matching Reference Picture 2) */}
             <AboutSection key={`about-${hasPlayed}`} hasSeenAboutMe={hasPlayed} />
 
-            {/* 4. Let's Connect Section (Moved directly below About Me) */}
-            <div className="flex flex-col relative z-10 py-6">
-              {/* Top full-width line */}
+            {/* 4. Supported By Section (Special Thanks & Component Inspirations) */}
+            <SupportedBySection key={`supported-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+
+            {/* 5. Components Section */}
+            <ComponentsSection key={`components-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+
+            {/* 6. Blogs Section */}
+            <BlogsSection key={`blogs-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+
+            {/* 7. Skills & Technologies Section (Stack) */}
+            <SkillsSection key={`skills-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+
+            {/* Blueprint Diagonal Slanted Line Spacer 1 (Between Stack and Experiences) */}
+            <div className="relative h-6 sm:h-8 my-0">
+              {/* Slanted diagonal hatch pattern spanning full width across the margins */}
               <div
-                className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
-                style={{
-                  maskImage:
-                    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-                  WebkitMaskImage:
-                    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-                }}
+                className="absolute inset-y-0 left-[-100vw] right-[-100vw] pointer-events-none opacity-40 dark:opacity-20"
+                style={DIAGONAL_HATCH_PATTERN}
               />
-              {/* Top Line Intersections */}
-              <div className="absolute top-0 -left-3 sm:-left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-              <div className="absolute top-0 -right-3 sm:-right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+              {/* Left & Right continuous vertical dotted boundary lines */}
+              <div
+                className="absolute top-0 bottom-0 -left-3 sm:-left-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
+                style={DOT_MASK_VERTICAL}
+              />
+              <div
+                className="absolute top-0 bottom-0 -right-3 sm:-right-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
+                style={DOT_MASK_VERTICAL}
+              />
+            </div>
 
-              <LetsConnect key={`connect-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+            {/* 8. Experience Section */}
+            <ExperienceSection key={`exp-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
+            {/* 9. Education Section */}
+            <EducationSection key={`edu-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+
+            {/* 10. Milestone Goals Section */}
+            <GoalMilestoneSection key={`goals-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+
+            {/* 11. Projects, Open Source */}
+            <ProjectsSection key={`projects-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+
+            {/* Blueprint Diagonal Slanted Line Spacer (Between Projects and Insights Section) */}
+            <div className="relative h-6 sm:h-8 my-0">
+              {/* Slanted diagonal hatch pattern spanning full width across the margins */}
+              <div
+                className="absolute inset-y-0 left-[-100vw] right-[-100vw] pointer-events-none opacity-40 dark:opacity-20"
+                style={DIAGONAL_HATCH_PATTERN}
+              />
+              {/* Left & Right continuous vertical dotted boundary lines */}
+              <div
+                className="absolute top-0 bottom-0 -left-3 sm:-left-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
+                style={DOT_MASK_VERTICAL}
+              />
+              <div
+                className="absolute top-0 bottom-0 -right-3 sm:-right-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
+                style={DOT_MASK_VERTICAL}
+              />
+            </div>
+
+            {/* 12. Insights / Viewers Section */}
+            <InsightsSection key={`insights-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+
+            {/* Blueprint Diagonal Slanted Line Spacer (Between Insights and Community Support Section) */}
+            <div className="relative h-6 sm:h-8 my-0">
+              {/* Slanted diagonal hatch pattern spanning full width across the margins */}
+              <div
+                className="absolute inset-y-0 left-[-100vw] right-[-100vw] pointer-events-none opacity-40 dark:opacity-20"
+                style={DIAGONAL_HATCH_PATTERN}
+              />
+              {/* Left & Right continuous vertical dotted boundary lines */}
+              <div
+                className="absolute top-0 bottom-0 -left-3 sm:-left-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
+                style={DOT_MASK_VERTICAL}
+              />
+              <div
+                className="absolute top-0 bottom-0 -right-3 sm:-right-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
+                style={DOT_MASK_VERTICAL}
+              />
+            </div>
+
+            {/* 13. Backed by the Community / Support Section */}
+            <CommunitySupportSection key={`support-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+
+            {/* Blueprint Diagonal Slanted Line Spacer (Between Community Support and Motivation Section) */}
+            <div className="relative h-6 sm:h-8 my-0">
+              {/* Slanted diagonal hatch pattern spanning full width across the margins */}
+              <div
+                className="absolute inset-y-0 left-[-100vw] right-[-100vw] pointer-events-none opacity-40 dark:opacity-20"
+                style={DIAGONAL_HATCH_PATTERN}
+              />
+              {/* Left & Right continuous vertical dotted boundary lines */}
+              <div
+                className="absolute top-0 bottom-0 -left-3 sm:-left-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
+                style={DOT_MASK_VERTICAL}
+              />
+              <div
+                className="absolute top-0 bottom-0 -right-3 sm:-right-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
+                style={DOT_MASK_VERTICAL}
+              />
               {/* Bottom full-width line */}
               <div
                 className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-                style={{
-                  maskImage:
-                    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-                  WebkitMaskImage:
-                    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-                }}
+                style={DOT_MASK_HORIZONTAL}
               />
               {/* Bottom Line Intersections */}
               <div className="absolute bottom-0 -left-3 sm:-left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
               <div className="absolute bottom-0 -right-3 sm:-right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
             </div>
-
-            {/* 5. Skills & Technologies Section (Stack) */}
-            <SkillsSection key={`skills-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
-
-            {/* 6. Supported By Section (Matching Reference Picture 2) */}
-            <SupportedBySection key={`supported-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
-
-            {/* Blueprint Diagonal Slanted Line Spacer 1 (Between Supported By and Goal Milestones) */}
-            <div className="relative h-10 sm:h-12 my-0">
-              {/* Slanted diagonal hatch pattern spanning full width across the margins */}
-              <div
-                className="absolute inset-y-0 left-[-100vw] right-[-100vw] pointer-events-none opacity-40 dark:opacity-20"
-                style={DIAGONAL_HATCH_PATTERN}
-              />
-              {/* Left & Right continuous vertical dotted boundary lines */}
-              <div
-                className="absolute top-0 bottom-0 -left-3 sm:-left-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
-                style={DOT_MASK_VERTICAL}
-              />
-              <div
-                className="absolute top-0 bottom-0 -right-3 sm:-right-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
-                style={DOT_MASK_VERTICAL}
-              />
-            </div>
-
-            {/* 7. Milestone Goals, Experience, Projects, Open Source */}
-            <GoalMilestoneSection key={`goals-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
-
-            {/* Blueprint Diagonal Slanted Line Spacer 2 (Between Goal Milestones and Experiences) */}
-            <div className="relative h-10 sm:h-12 my-0">
-              {/* Slanted diagonal hatch pattern spanning full width across the margins */}
-              <div
-                className="absolute inset-y-0 left-[-100vw] right-[-100vw] pointer-events-none opacity-40 dark:opacity-20"
-                style={DIAGONAL_HATCH_PATTERN}
-              />
-              {/* Left & Right continuous vertical dotted boundary lines */}
-              <div
-                className="absolute top-0 bottom-0 -left-3 sm:-left-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
-                style={DOT_MASK_VERTICAL}
-              />
-              <div
-                className="absolute top-0 bottom-0 -right-3 sm:-right-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
-                style={DOT_MASK_VERTICAL}
-              />
-            </div>
-
-            <ExperienceSection key={`exp-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
-            <ProjectsSection key={`projects-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
-
-            {/* Open Source Contributions (Temporarily hidden safely) */}
-            {/* 
-            <div id="opensource" className="scroll-mt-24">
-              <OpenSourceContributions key={`oss-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
-            </div>
-            */}
-
-            <ComponentsSection key={`components-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
-
-            <BlogsSection key={`blogs-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
             {/* Fading Grid Filler */}
             <div className="flex-grow w-[calc(100%+24px)] -mx-3 sm:w-[calc(100%+32px)] sm:-mx-4 h-[400px] relative mt-0 overflow-hidden">

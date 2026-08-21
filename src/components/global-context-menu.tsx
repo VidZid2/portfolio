@@ -19,6 +19,7 @@ import {
 import { homeItems, primaItems } from "@/components/RightNavbar";
 import { useTransition } from "@/components/TransitionProvider";
 import { playSoftClick, playListSelect } from "@/lib/synth-sounds";
+import { SharedLayoutBg } from "@/components/motion/shared-layout-bg";
 
 export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -151,14 +152,6 @@ export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
     };
   }, [isOpen, hasIndex, activeItems.length]);
 
-  const [hoveredId, setHoveredId] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    if (!isOpen) {
-      setHoveredId(null);
-    }
-  }, [isOpen]);
-
   return (
     <>
       {children}
@@ -181,155 +174,126 @@ export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
               left: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
               top: { duration: 0.45, ease: [0.16, 1, 0.3, 1] }
             }}
-            className="fixed z-[9999] w-64 bg-white dark:bg-[#111111] border border-black/10 dark:border-white/10 rounded-xl p-1.5"
+            className="fixed z-[9999] w-64 bg-white dark:bg-[#111111] border border-black/10 dark:border-white/10 rounded-xl p-1.5 shadow-2xl"
             onContextMenu={(e) => e.preventDefault()}
-            onMouseLeave={() => setHoveredId(null)}
           >
-          {/* Browser Controls */}
-          {!isHome && (
-            <>
-              <button
-                onClick={handleBack}
-                onMouseEnter={() => setHoveredId("back")}
-                className="relative w-full flex items-center justify-between rounded-md py-1.5 px-2 text-sm outline-none"
-              >
-                {hoveredId === "back" && (
-                  <motion.div
-                    layoutId="context-menu-highlight"
-                    transition={{ type: "spring", stiffness: 450, damping: 32 }}
-                    className="absolute inset-0 rounded-md bg-black/5 dark:bg-white/10 pointer-events-none"
-                  />
-                )}
-                <div className="relative z-10 flex items-center gap-2">
-                  <ChevronLeft className="h-4 w-4 text-zinc-500" />
-                  <span>Back</span>
-                </div>
-                <span className="relative z-10 text-xs tracking-widest text-zinc-400">⌘[</span>
-              </button>
+            <SharedLayoutBg
+              pillClassName="bg-black/5 dark:bg-white/10 rounded-md"
+              inset={0}
+              className="gap-0.5"
+            >
+              {/* Browser Controls */}
+              {!isHome && (
+                <button
+                  key="back"
+                  onClick={handleBack}
+                  className="w-full flex items-center justify-between rounded-md py-1.5 px-2 text-sm outline-none bg-transparent cursor-pointer select-none border-0 text-neutral-800 dark:text-neutral-200"
+                >
+                  <div className="flex items-center gap-2">
+                    <ChevronLeft className="h-4 w-4 text-zinc-500" />
+                    <span>Back</span>
+                  </div>
+                  <span className="text-xs tracking-widest text-zinc-400">⌘[</span>
+                </button>
+              )}
+              {!isHome && (
+                <button
+                  key="forward"
+                  onClick={handleForward}
+                  className="w-full flex items-center justify-between rounded-md py-1.5 px-2 text-sm outline-none bg-transparent cursor-pointer select-none border-0 text-neutral-800 dark:text-neutral-200"
+                >
+                  <div className="flex items-center gap-2">
+                    <ChevronRight className="h-4 w-4 text-zinc-500" />
+                    <span>Forward</span>
+                  </div>
+                  <span className="text-xs tracking-widest text-zinc-400">⌘]</span>
+                </button>
+              )}
               
               <button
-                onClick={handleForward}
-                onMouseEnter={() => setHoveredId("forward")}
-                className="relative w-full flex items-center justify-between rounded-md py-1.5 px-2 text-sm outline-none"
+                key="reload"
+                onClick={handleReload}
+                className="w-full flex items-center justify-between rounded-md py-1.5 px-2 text-sm outline-none bg-transparent cursor-pointer select-none border-0 text-neutral-800 dark:text-neutral-200"
               >
-                {hoveredId === "forward" && (
-                  <motion.div
-                    layoutId="context-menu-highlight"
-                    transition={{ type: "spring", stiffness: 450, damping: 32 }}
-                    className="absolute inset-0 rounded-md bg-black/5 dark:bg-white/10 pointer-events-none"
-                  />
-                )}
-                <div className="relative z-10 flex items-center gap-2">
-                  <ChevronRight className="h-4 w-4 text-zinc-500" />
-                  <span>Forward</span>
+                <div className="flex items-center gap-2">
+                  <RotateCw className="h-4 w-4 text-zinc-500" />
+                  <span>Reload</span>
                 </div>
-                <span className="relative z-10 text-xs tracking-widest text-zinc-400">⌘]</span>
+                <span className="text-xs tracking-widest text-zinc-400">⌘R</span>
               </button>
-            </>
-          )}
-          
-          <button
-            onClick={handleReload}
-            onMouseEnter={() => setHoveredId("reload")}
-            className="relative w-full flex items-center justify-between rounded-md py-1.5 px-2 text-sm outline-none"
-          >
-            {hoveredId === "reload" && (
-              <motion.div
-                layoutId="context-menu-highlight"
-                transition={{ type: "spring", stiffness: 450, damping: 32 }}
-                className="absolute inset-0 rounded-md bg-black/5 dark:bg-white/10 pointer-events-none"
-              />
-            )}
-            <div className="relative z-10 flex items-center gap-2">
-              <RotateCw className="h-4 w-4 text-zinc-500" />
-              <span>Reload</span>
-            </div>
-            <span className="relative z-10 text-xs tracking-widest text-zinc-400">⌘R</span>
-          </button>
 
-          <div className="h-px bg-black/5 dark:bg-white/5 my-1" />
+              <div key="sep-1" data-non-interactive className="h-px bg-black/5 dark:bg-white/5 my-1" />
 
-          {/* Index Navigation */}
-          {hasIndex && activeItems.length > 0 && (
-            <>
-              <div className="px-2 py-1.5 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-                Navigation Index
-              </div>
-              {activeItems.map((item) => (
+              {/* Index Navigation */}
+              {hasIndex && activeItems.length > 0 && (
+                <div key="label-index" data-non-interactive className="px-2 py-1.5 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+                  Navigation Index
+                </div>
+              )}
+              {hasIndex && activeItems.length > 0 && activeItems.map((item) => (
                 <button 
-                  key={item.id} 
+                  key={`item-${item.id}`} 
                   onClick={() => scrollToSection(item.id)} 
-                  onMouseEnter={() => setHoveredId(`item-${item.id}`)}
-                  className="relative w-full flex items-center gap-2 rounded-md py-1.5 px-2 text-sm outline-none"
+                  className="w-full flex items-center gap-2 rounded-md py-1.5 px-2 text-sm outline-none bg-transparent cursor-pointer select-none border-0 text-neutral-800 dark:text-neutral-200"
                 >
-                  {hoveredId === `item-${item.id}` && (
-                    <motion.div
-                      layoutId="context-menu-highlight"
-                      transition={{ type: "spring", stiffness: 450, damping: 32 }}
-                      className="absolute inset-0 rounded-md bg-black/5 dark:bg-white/10 pointer-events-none"
-                    />
-                  )}
-                  <span className="relative z-10 flex items-center gap-2">
+                  <span className="flex items-center gap-2">
                     {renderIcon(item.icon)}
                     <span>{item.label}</span>
                   </span>
                 </button>
               ))}
-              <div className="h-px bg-black/5 dark:bg-white/5 my-1" />
-            </>
-          )}
+              {hasIndex && activeItems.length > 0 && (
+                <div key="sep-2" data-non-interactive className="h-px bg-black/5 dark:bg-white/5 my-1" />
+              )}
 
-          {/* AI Action */}
-          <style>{`
-            @keyframes shimmer-text {
-              0% { background-position: 200% 0; }
-              100% { background-position: -200% 0; }
-            }
-            .animate-shimmer-text {
-              background: linear-gradient(90deg, #6495ED 0%, #C4D7FF 50%, #6495ED 100%);
-              background-size: 200% auto;
-              -webkit-background-clip: text;
-              -webkit-text-fill-color: transparent;
-              animation: shimmer-text 3s infinite linear;
-            }
-          `}</style>
-          <button
-            onClick={() => {
-              window.dispatchEvent(new CustomEvent("open-ai"));
-              setIsOpen(false);
-            }}
-            onMouseEnter={() => {
-              setHoveredId("ai");
-              import("@/components/prompt-box-preview");
-            }}
-            onTouchStart={() => import("@/components/prompt-box-preview")}
-            className="relative w-full flex items-center gap-2 rounded-md py-1.5 px-2 text-sm outline-none font-medium group"
-          >
-            {hoveredId === "ai" && (
-              <motion.div
-                layoutId="context-menu-highlight"
-                transition={{ type: "spring", stiffness: 450, damping: 32 }}
-                className="absolute inset-0 rounded-md bg-[#6495ED]/10 dark:bg-[#6495ED]/20 pointer-events-none"
-              />
-            )}
-            <svg
-              className="relative z-10 size-4 shrink-0"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M3.025,5.623c.068,.204,.26,.342,.475,.342s.406-.138,.475-.342l.421-1.263,1.263-.421c.204-.068,.342-.259,.342-.474s-.138-.406-.342-.474l-1.263-.421-.421-1.263c-.137-.408-.812-.408-.949,0l-.421,1.263-1.263,.421c-.204,.068-.342,.259-.342,.474s.138,.406,.342,.474l1.263,.421,.421,1.263Z"
-                className="fill-[#6495ED]"
-              />
-              <path
-                d="M16.525,8.803l-4.535-1.793-1.793-4.535c-.227-.572-1.168-.572-1.395,0l-1.793,4.535-4.535,1.793c-.286,.113-.475,.39-.475,.697s.188,.584,.475,.697l4.535,1.793,1.793,4.535c.113,.286,.39,.474,.697,.474s.584-.188,.697-.474l1.793-4.535,4.535-1.793c.286-.113,.475-.39,.475-.697s-.188-.584-.475-.697Z"
-                className="fill-[#6495ED]"
-              />
-            </svg>
-            <span className="relative z-10 animate-shimmer-text">Ask AI</span>
-          </button>
-        </motion.div>
+              {/* AI Action */}
+              <button
+                key="ai"
+                data-pill-class="bg-[#6495ED]/10 dark:bg-[#6495ED]/20 rounded-md"
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("open-ai"));
+                  setIsOpen(false);
+                }}
+                onMouseEnter={() => {
+                  import("@/components/prompt-box-preview");
+                }}
+                onTouchStart={() => import("@/components/prompt-box-preview")}
+                className="w-full flex items-center gap-2 rounded-md py-1.5 px-2 text-sm outline-none font-medium group bg-transparent cursor-pointer select-none border-0"
+              >
+                <div className="flex items-center gap-2">
+                  <svg
+                    className="size-4 shrink-0"
+                    viewBox="0 0 18 18"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M3.025,5.623c.068,.204,.26,.342,.475,.342s.406-.138,.475-.342l.421-1.263,1.263-.421c.204-.068,.342-.259,.342-.474s-.138-.406-.342-.474l-1.263-.421-.421-1.263c-.137-.408-.812-.408-.949,0l-.421,1.263-1.263,.421c-.204,.068-.342,.259-.342,.474s.138,.406,.342,.474l1.263,.421,.421,1.263Z"
+                      className="fill-[#6495ED]"
+                    />
+                    <path
+                      d="M16.525,8.803l-4.535-1.793-1.793-4.535c-.227-.572-1.168-.572-1.395,0l-1.793,4.535-4.535,1.793c-.286,.113-.475,.39-.475,.697s.188,.584,.475,.697l4.535,1.793,1.793,4.535c.113,.286,.39,.474,.697,.474s.584-.188,.697-.474l1.793-4.535,4.535-1.793c.286-.113,.475-.39,.475-.697s-.188-.584-.475-.697Z"
+                      className="fill-[#6495ED]"
+                    />
+                  </svg>
+                  <span className="animate-shimmer-text font-medium text-[#6495ED]">Ask AI</span>
+                </div>
+              </button>
+            </SharedLayoutBg>
+            <style jsx global>{`
+              @keyframes shimmer-text {
+                0% { background-position: 200% 0; }
+                100% { background-position: -200% 0; }
+              }
+              .animate-shimmer-text {
+                background: linear-gradient(90deg, #6495ED 0%, #B0C4DE 40%, #E6E6FA 50%, #B0C4DE 60%, #6495ED 100%);
+                background-size: 200% auto;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                animation: shimmer-text 2.5s infinite linear;
+              }
+            `}</style>
+          </motion.div>
         )}
       </AnimatePresence>
     </>

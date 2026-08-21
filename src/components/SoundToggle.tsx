@@ -15,14 +15,14 @@ export function SoundToggle({ className }: { className?: string }) {
       type="button"
       onClick={() => {
         if (soundEnabled) {
-          playToggleOff(0.04);
+          playToggleOff(0.075);
         }
         toggleSound();
         if (!soundEnabled) {
-          setTimeout(() => playToggleOn(0.06), 20);
+          setTimeout(() => playToggleOn(0.09), 20);
         }
       }}
-      onMouseEnter={() => playHoverTick(0.03)}
+      onMouseEnter={() => playHoverTick(0.06)}
       className={cn(
         "relative inline-flex items-center justify-center group cursor-pointer transition-all duration-300 active:scale-95 z-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 rounded-[9px]",
         className

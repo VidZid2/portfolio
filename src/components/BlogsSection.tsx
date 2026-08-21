@@ -16,7 +16,7 @@ export function BlogsSection({ hasSeenScrollAnimations = false }: { hasSeenScrol
   return (
     <motion.div 
       id="blogs" 
-      className="mt-6 flex flex-col relative scroll-mt-24"
+      className="mt-0 flex flex-col relative scroll-mt-24"
       initial={skip ? "visible" : "hidden"}
       whileInView={skip ? undefined : (phase === "done" ? "visible" : "hidden")}
       animate={skip ? "visible" : undefined}
@@ -46,9 +46,9 @@ export function BlogsSection({ hasSeenScrollAnimations = false }: { hasSeenScrol
           hidden: { opacity: 0, y: -10, filter: "blur(4px)" },
           visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { type: "spring", bounce: 0.3 } }
         }}
-        className="py-2 relative mt-1"
+        className="py-1 relative flex items-center min-h-[30px]"
       >
-        <ScrambleText as="h2" className="text-[18px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">Blogs</ScrambleText>
+        <ScrambleText as="h2" className="text-[17px] sm:text-[18px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight leading-none">Blogs</ScrambleText>
 
         {/* Horizontal line below Blogs heading */}
         <div className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)', WebkitMaskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)' }} />

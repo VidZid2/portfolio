@@ -565,7 +565,7 @@ export function PopoverContent({ children, className }: PopoverContentProps) {
   return createPortal(
     <div
       data-popover-portal=""
-      className="pointer-events-none fixed left-0 top-0 z-[9999] isolate size-0 transition-opacity duration-150"
+      className="pointer-events-none fixed left-0 top-0 z-[99999] isolate size-0 transition-opacity duration-150"
       style={{
         visibility: layout && (open || isRendered) ? "visible" : "hidden",
         display: open || isRendered ? "block" : "none",
@@ -666,7 +666,7 @@ export function PopoverContent({ children, className }: PopoverContentProps) {
               transformOrigin: `${ALIGN_ORIGIN[align]} ${side === "bottom" ? "top" : "bottom"}`,
             }}
             className={cn(
-              "w-max max-w-[min(92vw,20rem)] p-4 text-popover-foreground outline-none",
+              "w-max max-w-[min(92vw,20rem)] p-1 text-popover-foreground outline-none",
               className,
             )}
           >

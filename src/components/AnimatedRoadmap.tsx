@@ -4,6 +4,7 @@ import { motion, useInView } from "framer-motion";
 import { CircleDashed, CheckCircle2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
+import { playHitChime, playSoftClick, playHoverTick } from "@/lib/synth-sounds";
 
 const roadmapItems = [
   {
@@ -44,6 +45,7 @@ export function AnimatedRoadmap() {
         const interval = setInterval(() => {
           currentArr.push(i);
           setCheckedItems([...currentArr]); // Force exact state [0], [0,1]...
+          playHitChime(i, 0.07);
           i++;
           if (i >= roadmapItems.length) {
             clearInterval(interval);
@@ -59,8 +61,10 @@ export function AnimatedRoadmap() {
 
   const toggleCheck = (index: number) => {
     if (checkedItems.includes(index)) {
+      playSoftClick(0.1);
       setCheckedItems(checkedItems.filter(i => i !== index));
     } else {
+      playHitChime(index, 0.075);
       setCheckedItems([...checkedItems, index]);
     }
   };
@@ -95,6 +99,7 @@ export function AnimatedRoadmap() {
             key={idx} 
             variants={item}
             onClick={() => toggleCheck(idx)}
+            onMouseEnter={() => playHoverTick(0.055)}
             className={cn(
               "group flex items-start gap-4 p-4 rounded-lg border cursor-pointer transition-all duration-300 select-none",
               isChecked 

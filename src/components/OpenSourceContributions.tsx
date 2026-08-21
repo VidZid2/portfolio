@@ -5,6 +5,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import ScrambleText from "@/components/ruixen/scramble-text";
+import { playSoftClick, playToastError, playHoverTick } from "@/lib/synth-sounds";
 
 interface PR {
   id: number;
@@ -82,6 +83,7 @@ export function OpenSourceContributions({ isFullPage = false, hasSeenScrollAnima
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const handleDisabledClick = (type: FilterType) => {
+    playToastError(0.08);
     setShakingTab(type);
     setTimeout(() => {
       setShakingTab(null);
@@ -158,6 +160,7 @@ export function OpenSourceContributions({ isFullPage = false, hasSeenScrollAnima
   // Smooth tab switching with a brief crossfade
   const handleFilterChange = useCallback((type: FilterType) => {
     if (type === filterType) return;
+    playSoftClick(0.1);
     setIsTransitioning(true);
     // Brief fade-out, then swap, then fade-in
     requestAnimationFrame(() => {
@@ -196,9 +199,9 @@ export function OpenSourceContributions({ isFullPage = false, hasSeenScrollAnima
           hidden: { opacity: 0, y: -20, filter: "blur(8px)" },
           visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { type: "spring", bounce: 0.4 } }
         }}
-        className="py-2 relative flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+        className="py-1 relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 min-h-[30px]"
       >
-        <ScrambleText as="h2" className="text-[18px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">Open Source Contributions</ScrambleText>
+        <ScrambleText as="h2" className="text-[17px] sm:text-[18px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight leading-none">Open Source Contributions</ScrambleText>
 
         {/* Toggle */}
         <div className="flex items-center gap-2 relative z-20 group mr-0 sm:mr-[8px] w-full sm:w-auto">
@@ -218,6 +221,7 @@ export function OpenSourceContributions({ isFullPage = false, hasSeenScrollAnima
               return (
                 <motion.button
                   key={type}
+                  onMouseEnter={() => !isDisabled && playHoverTick(0.055)}
                   animate={
                     isShaking
                       ? {

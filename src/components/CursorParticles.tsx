@@ -27,18 +27,22 @@ const ScramblingParticle = ({ burst, p }: { burst: Burst, p: Particle }) => {
   const nodeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    // Only schedule at most 2 quick scrambles during entrance
+    const timeout1 = setTimeout(() => {
       if (nodeRef.current) {
-        nodeRef.current.innerText = ASCII_CHARS[Math.floor(Math.random() * ASCII_CHARS.length)];
-        
-        const blueX = (Math.random() - 0.5) * 4;
-        const whiteX = (Math.random() - 0.5) * 4;
-        nodeRef.current.style.textShadow = `${blueX}px 0px 0 rgba(100, 149, 237, 0.8), ${whiteX}px 0px 0 rgba(255, 255, 255, 0.8)`;
+        nodeRef.current.innerText = ASCII_CHARS[Math.floor(Math.random() * ASCII_CHARS.length)] || "*";
       }
-    }, 50); 
-    
+    }, 120);
+
+    const timeout2 = setTimeout(() => {
+      if (nodeRef.current) {
+        nodeRef.current.innerText = ASCII_CHARS[Math.floor(Math.random() * ASCII_CHARS.length)] || "+";
+      }
+    }, 240);
+
     return () => {
-      clearInterval(interval);
+      clearTimeout(timeout1);
+      clearTimeout(timeout2);
     };
   }, []);
 

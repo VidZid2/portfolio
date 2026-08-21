@@ -4,18 +4,17 @@ import { useEffect, useRef } from "react";
 
 const settings = {
   minWind: 0.5,
-  maxWind: 3,
+  maxWind: 2.6,
   minSize: 6,
-  maxSize: 18,
+  maxSize: 16,
   emitterY: 0.2,
   emitterSpread: 0.9,
-  gravity: 0.3,
-  turbulence: 0.5,
+  gravity: 0.25,
+  turbulence: 0.45,
   rotationSpeed: 0,
-  tumbleStrength: 0.3,
+  tumbleStrength: 0.25,
   staticTilt: 0,
-  particleCount: 40,
-  direction: 1 // 1 = left to right
+  direction: 1, // 1 = left to right
 };
 
 const cache = {
@@ -23,7 +22,7 @@ const cache = {
   maxSize: 0,
   minWind: 0,
   maxWind: 0,
-  tiltRad: 0
+  tiltRad: 0,
 };
 
 function updateCache() {
@@ -34,16 +33,19 @@ function updateCache() {
   cache.tiltRad = (settings.staticTilt * Math.PI) / 180;
 }
 
-function createDefaultImage() {
-  if (typeof document === 'undefined') return null;
+let cachedParticleImage: HTMLImageElement | null = null;
+
+function createDefaultImage(): HTMLImageElement | null {
+  if (typeof document === "undefined") return null;
+  if (cachedParticleImage) return cachedParticleImage;
+
   const tempCanvas = document.createElement("canvas");
-  tempCanvas.width = 128;
-  tempCanvas.height = 128;
+  tempCanvas.width = 64;
+  tempCanvas.height = 64;
 
   const tCtx = tempCanvas.getContext("2d");
   if (!tCtx) return null;
 
-  tCtx.scale(2, 2);
   tCtx.beginPath();
   tCtx.moveTo(32, 5);
   tCtx.quadraticCurveTo(5, 32, 32, 59);
@@ -63,32 +65,33 @@ function createDefaultImage() {
 
   const img = new Image();
   img.src = tempCanvas.toDataURL();
+  cachedParticleImage = img;
 
   return img;
 }
 
 function rotateVector(x: number, y: number, z: number, ax: number, ay: number, az: number) {
-  let cos = Math.cos(az);
-  let sin = Math.sin(az);
+  const cosZ = Math.cos(az);
+  const sinZ = Math.sin(az);
 
-  const x1 = x * cos - y * sin;
-  const y1 = x * sin + y * cos;
+  const x1 = x * cosZ - y * sinZ;
+  const y1 = x * sinZ + y * cosZ;
   const z1 = z;
 
-  cos = Math.cos(ay);
-  sin = Math.sin(ay);
+  const cosY = Math.cos(ay);
+  const sinY = Math.sin(ay);
 
-  const x2 = x1 * cos + z1 * sin;
+  const x2 = x1 * cosY + z1 * sinY;
   const y2 = y1;
-  const z2 = -x1 * sin + z1 * cos;
+  const z2 = -x1 * sinY + z1 * cosY;
 
-  cos = Math.cos(ax);
-  sin = Math.sin(ax);
+  const cosX = Math.cos(ax);
+  const sinX = Math.sin(ax);
 
   return {
     x: x2,
-    y: y2 * cos - z2 * sin,
-    z: y2 * sin + z2 * cos
+    y: y2 * cosX - z2 * sinX,
+    z: y2 * sinX + z2 * cosX,
   };
 }
 
@@ -103,8 +106,9 @@ export function BannerParticles() {
 
     let width = 0;
     let height = 0;
-    let animationFrameId: number;
+    let animationFrameId: number = 0;
     let isUnmounted = false;
+    let isVisible = false;
 
     updateCache();
     const particleImage = createDefaultImage();
@@ -144,9 +148,10 @@ export function BannerParticles() {
         if (initOnScreen) {
           this.x = Math.random() * width;
         } else {
-          this.x = settings.direction === -1
-            ? width + this.width + Math.random() * width
-            : -this.width - Math.random() * width;
+          this.x =
+            settings.direction === -1
+              ? width + this.width + Math.random() * width
+              : -this.width - Math.random() * width;
         }
 
         const sizeFactor = (this.width - cache.minSize) / (cache.maxSize - cache.minSize || 1);
@@ -162,8 +167,8 @@ export function BannerParticles() {
         this.spinZ = (Math.random() - 0.5) * settings.rotationSpeed;
         this.angleX = 0;
         this.angleY = 0;
-        this.spinX = (Math.random() - 0.5) * 0.1;
-        this.spinY = (Math.random() - 0.5) * 0.1;
+        this.spinX = (Math.random() - 0.5) * 0.08;
+        this.spinY = (Math.random() - 0.5) * 0.08;
       }
 
       update() {
@@ -171,11 +176,11 @@ export function BannerParticles() {
         this.vx += (targetSpeed - this.vx) * 0.1;
         this.x += this.vx * settings.direction;
 
-        const gravityMod = 1.5 - this.windFactor;
-        this.vy += settings.gravity * 0.05 * gravityMod;
+        const gravityMod = 1.4 - this.windFactor;
+        this.vy += settings.gravity * 0.04 * gravityMod;
 
         const wave = Math.sin(this.x * 0.01 * settings.direction + this.waveOffset);
-        this.vy += wave * settings.turbulence * 0.05;
+        this.vy += wave * settings.turbulence * 0.04;
         this.vy *= 0.98;
 
         this.y += this.vy;
@@ -186,7 +191,7 @@ export function BannerParticles() {
           this.angleY += this.spinY * settings.tumbleStrength;
         }
 
-        const buffer = 200;
+        const buffer = 150;
         const outByX = settings.direction === -1 ? this.x < -buffer : this.x > width + buffer;
 
         if (outByX || this.y > height + buffer || this.y < -buffer) {
@@ -202,9 +207,8 @@ export function BannerParticles() {
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.transform(vecU.x, vecU.y, vecV.x, vecV.y, 0, 0);
-        
-        // Add a slight opacity for visual blending
-        ctx.globalAlpha = 0.45;
+
+        ctx.globalAlpha = 0.4;
         ctx.drawImage(particleImage, -this.width / 2, -this.height / 2, this.width, this.height);
         ctx.restore();
       }
@@ -212,53 +216,91 @@ export function BannerParticles() {
 
     let particles: Particle[] = [];
 
+    const getDeviceCount = () => {
+      if (typeof window === "undefined") return 22;
+      if (window.innerWidth < 640) return 12; // Mobile: 12 particles
+      if (window.innerWidth < 1024) return 18; // Tablet: 18 particles
+      return 26; // Desktop: 26 particles (optimized from 40)
+    };
+
     const resize = () => {
       const parent = canvas.parentElement;
       if (parent) {
         width = canvas.width = parent.clientWidth;
         height = canvas.height = parent.clientHeight;
         ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = "high";
+        ctx.imageSmoothingQuality = "medium";
       }
     };
 
     const initParticles = () => {
       particles = [];
-      for (let i = 0; i < settings.particleCount; i++) {
-        // Init half on screen for immediate effect, half off screen
-        const initOnScreen = Math.random() > 0.5;
+      const count = getDeviceCount();
+      for (let i = 0; i < count; i++) {
+        const initOnScreen = Math.random() > 0.4;
         const particle = new Particle(initOnScreen);
         particles.push(particle);
       }
     };
 
     const animate = () => {
-      if (isUnmounted) return;
+      if (isUnmounted || !isVisible) return;
       ctx.clearRect(0, 0, width, height);
 
-      for (const particle of particles) {
-        particle.update();
-        particle.draw();
+      for (let i = 0; i < particles.length; i++) {
+        const particle = particles[i];
+        if (particle) {
+          particle.update();
+          particle.draw();
+        }
       }
 
       animationFrameId = requestAnimationFrame(animate);
     };
 
-    setTimeout(() => {
-      if (isUnmounted) return;
+    const startAnimation = () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    const stopAnimation = () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = 0;
+      }
+    };
+
+    // IntersectionObserver: stop CPU cycles completely when banner is off-screen!
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          isVisible = true;
+          startAnimation();
+        } else {
+          isVisible = false;
+          stopAnimation();
+        }
+      },
+      { threshold: 0.01 }
+    );
+
+    observer.observe(canvas);
+
+    resize();
+    initParticles();
+
+    const handleResize = () => {
       resize();
       initParticles();
-      animate();
-    }, 0);
+    };
 
-    window.addEventListener("resize", resize);
+    window.addEventListener("resize", handleResize, { passive: true });
 
     return () => {
       isUnmounted = true;
-      window.removeEventListener("resize", resize);
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-      }
+      observer.disconnect();
+      window.removeEventListener("resize", handleResize);
+      stopAnimation();
     };
   }, []);
 

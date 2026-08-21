@@ -18,6 +18,8 @@ import { type UseEmblaCarouselType } from "embla-carousel-react";
 import AutoHeight from "embla-carousel-auto-height";
 import { usePerformance } from "@/hooks/usePerformance";
 
+import { playSoftClick, playHoverTick } from "@/lib/synth-sounds";
+
 type CarouselApi = UseEmblaCarouselType[1];
 
 export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
@@ -31,11 +33,11 @@ export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeen
   React.useEffect(() => {
     if (!api) return;
 
-    api.on("select", () => {
+    api.on('select', () => {
       const index = api.selectedScrollSnap();
       const tab = index === 0 ? 'experiences' : 'lessons';
-      if (tab !== activeTab) {
-        setActiveTab(tab);
+      setActiveTab(tab);
+      if (typeof window !== "undefined") {
         setTimeout(() => {
           scrambleRef.current?.play(tab === 'experiences');
         }, 50);
@@ -45,6 +47,7 @@ export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeen
 
   const handleTabSwitch = (tab: 'experiences' | 'lessons') => {
     if (tab !== activeTab) {
+      playSoftClick(0.1);
       const index = tab === 'experiences' ? 0 : 1;
       api?.scrollTo(index);
     }
@@ -83,9 +86,9 @@ export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeen
           hidden: { opacity: 0, y: -10 },
           visible: { opacity: 1, y: 0, transition: { type: "spring", bounce: 0.3 } }
         }}
-        className="py-2 relative flex items-center justify-between"
+        className="py-1 relative flex items-center justify-between min-h-[30px]"
       >
-        <ScrambleText ref={scrambleRef} as="h2" className="text-[18px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
+        <ScrambleText ref={scrambleRef} as="h2" className="text-[17px] sm:text-[18px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight leading-none">
           {activeTab === 'experiences' ? 'Experiences' : 'What I Broke'}
         </ScrambleText>
         
@@ -103,6 +106,7 @@ export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeen
             {/* Buttons */}
             <button
               onClick={() => handleTabSwitch('experiences')}
+              onMouseEnter={() => playHoverTick(0.055)}
               aria-label="Experiences"
               className={`z-10 relative flex items-center justify-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-center transition-colors duration-200 ${
                 activeTab === 'experiences'
@@ -115,6 +119,7 @@ export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeen
             </button>
             <button
               onClick={() => handleTabSwitch('lessons')}
+              onMouseEnter={() => playHoverTick(0.055)}
               aria-label="Lessons Learned"
               className={`z-10 relative flex items-center justify-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-center transition-colors duration-200 ${
                 activeTab === 'lessons'

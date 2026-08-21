@@ -3,7 +3,7 @@ import { getSoundEnabled } from "@/hooks/use-sound";
 import { playHoverTick, playSoftClick } from "./synth-sounds";
 
 export function hoverLink() {
-  playHoverTick(0.035);
+  playHoverTick(0.06);
 }
 
 export function swirlFormation() {
@@ -24,7 +24,7 @@ export function swirlFormation() {
       osc.frequency.setValueAtTime(freq, start);
 
       gain.gain.setValueAtTime(0, start);
-      gain.gain.linearRampToValueAtTime(0.025, start + 0.005);
+      gain.gain.linearRampToValueAtTime(0.065, start + 0.005);
       gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.18);
 
       osc.connect(gain);
@@ -39,7 +39,7 @@ export function swirlFormation() {
 }
 
 export function swirlClick() {
-  playSoftClick(0.06);
+  playSoftClick(0.11);
 }
 
 let lastMoveTime = 0;
@@ -67,7 +67,7 @@ export function swirlMove(speed: number) {
     filter.frequency.setValueAtTime(1000, t);
 
     gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(0.018, t + 0.002);
+    gain.gain.linearRampToValueAtTime(0.045, t + 0.002);
     gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.025);
 
     osc.connect(filter);
@@ -104,7 +104,7 @@ export function swirlChurn(): { stop: () => void } {
     filter.type = "lowpass";
     filter.frequency.value = 140; // Warm lowpass
     
-    gain.gain.value = 0.015; // Gentle ambient background
+    gain.gain.value = 0.035; // Gentle ambient background
     
     osc.connect(filter);
     osc2.connect(filter);

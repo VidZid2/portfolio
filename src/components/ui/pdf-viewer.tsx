@@ -111,6 +111,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import {
+  Popover as MotionPopover,
+  PopoverTrigger as MotionPopoverTrigger,
+  PopoverContent as MotionPopoverContent,
+} from "@/components/motion/popover"
+import { SharedLayoutBg } from "@/components/motion/shared-layout-bg"
+import { motion } from "motion/react"
+import { X, ChevronDown, Check } from "lucide-react"
+import { playSoftClick } from "@/lib/synth-sounds"
 import { loadSharedPdfEngine } from "@/lib/pdf-thumbnail-utils"
 
 export type PDFViewerPageOverlayProps = {
@@ -135,10 +144,15 @@ export type PDFViewerProps = {
   className?: string
   defaultZoom?: number
   fileName?: string
+  title?: string
+  activeViewMode?: "pdf" | "image"
+  photoContent?: React.ReactNode
   showDownload?: boolean
   showToolbar?: boolean
   showRotateControls?: boolean
   showUpload?: boolean
+  disableSearch?: boolean
+  onClose?: () => void
   src?: string
   toolbarActions?: React.ReactNode
   pageClassName?: (pageNumber: number) => string | undefined
@@ -580,37 +594,131 @@ function PDFViewerFileActionsMenu({
           }}
         />
       ) : null}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Open PDF actions"
-          >
-            <HugeiconsIcon icon={MoreHorizontalIcon} className="size-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-40">
+      <MotionPopover
+        align="end"
+        side="bottom"
+        sideOffset={14}
+        panelRadius={8}
+        gooStrength={5}
+        blobClassName="bg-neutral-200/80 dark:bg-neutral-800/90 border-0 outline-none shadow-lg dark:shadow-2xl"
+      >
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <MotionPopoverTrigger>
+              <button
+                type="button"
+                aria-label="More options"
+                onClick={() => playSoftClick(0.04)}
+                className="relative flex items-center justify-center size-7 rounded-[8px] bg-neutral-200/80 dark:bg-neutral-800/90 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors duration-150 border-0 outline-none select-none cursor-pointer shadow-none p-0"
+              >
+                <HugeiconsIcon icon={MoreHorizontalIcon} className="size-4 pointer-events-none" />
+              </button>
+            </MotionPopoverTrigger>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="hidden md:flex z-[99999]">
+            More options
+          </TooltipContent>
+        </Tooltip>
+        <MotionPopoverContent className="p-0 min-w-[110px] bg-transparent text-neutral-900 dark:text-neutral-100 border-0 outline-none shadow-none">
           {showDownload && onDownload ? (
-            <DropdownMenuItem disabled={downloadDisabled} onClick={onDownload}>
+            <button
+              type="button"
+              disabled={downloadDisabled}
+              onClick={() => {
+                playSoftClick(0.04)
+                onDownload()
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white transition-colors duration-150 select-none cursor-pointer outline-none border-0 bg-transparent rounded-[8px]"
+            >
               {isPreparingDownload ? (
                 <Spinner className="size-4" />
               ) : (
                 <HugeiconsIcon icon={Download01Icon} className="size-4" />
               )}
-              Download
-            </DropdownMenuItem>
+              <span>Download</span>
+            </button>
           ) : null}
           {showUpload && onUploadFile ? (
-            <DropdownMenuItem onClick={() => inputRef.current?.click()}>
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white transition-colors duration-150 select-none cursor-pointer outline-none border-0 bg-transparent rounded-[8px]"
+            >
               <HugeiconsIcon icon={Upload01Icon} className="size-4" />
-              Upload
-            </DropdownMenuItem>
+              <span>Upload</span>
+            </button>
           ) : null}
-        </DropdownMenuContent>
-      </DropdownMenu>
+        </MotionPopoverContent>
+      </MotionPopover>
     </>
+  )
+}
+
+function PDFViewerZoomDropdownControl({
+  currentZoomLevel,
+  controlsDisabled,
+  onZoomChange,
+}: {
+  currentZoomLevel: number
+  controlsDisabled?: boolean
+  onZoomChange?: (zoom: number) => void
+}) {
+  const [open, setOpen] = React.useState(false)
+
+  return (
+    <MotionPopover
+      open={open}
+      onOpenChange={setOpen}
+      align="center"
+      side="bottom"
+      sideOffset={14}
+      panelRadius={8}
+      gooStrength={5}
+      blobClassName="bg-neutral-200/80 dark:bg-neutral-800/90 border-0 outline-none shadow-lg dark:shadow-2xl"
+    >
+      <MotionPopoverTrigger>
+        <button
+          type="button"
+          disabled={controlsDisabled}
+          onClick={() => playSoftClick(0.04)}
+          className="relative flex items-center justify-between gap-1.5 h-7 px-2.5 rounded-[8px] bg-neutral-200/80 dark:bg-neutral-800/90 text-xs font-medium text-neutral-800 dark:text-neutral-200 hover:text-black dark:hover:text-white transition-colors duration-150 border-0 outline-none select-none cursor-pointer shadow-none w-[78px]"
+        >
+          <span>{Math.round(currentZoomLevel * 100)}%</span>
+          <ChevronDown className="size-3.5 opacity-60 pointer-events-none" />
+        </button>
+      </MotionPopoverTrigger>
+      <MotionPopoverContent className="p-1 min-w-[96px] flex flex-col gap-0.5 bg-transparent text-neutral-900 dark:text-neutral-100 border-0 outline-none shadow-none">
+        <SharedLayoutBg
+          pillClassName="bg-black/10 dark:bg-white/15 rounded-[6px]"
+          inset={0}
+          className="gap-0.5"
+        >
+          {ZOOM_OPTIONS.map((option) => {
+            const isSelected = Math.abs(option - currentZoomLevel) < 0.01
+            return (
+              <button
+                key={option}
+                type="button"
+                onClick={() => {
+                  playSoftClick(0.04)
+                  onZoomChange?.(option)
+                  setOpen(false)
+                }}
+                className={cn(
+                  "w-full flex items-center justify-between px-2.5 py-1.5 rounded-[6px] text-xs font-medium transition-colors duration-150 select-none cursor-pointer outline-none border-0 bg-transparent",
+                  isSelected
+                    ? "text-neutral-950 dark:text-white font-semibold"
+                    : "text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white"
+                )}
+              >
+                <span>{Math.round(option * 100)}%</span>
+                {isSelected && <Check className="size-3.5 text-neutral-900 dark:text-white shrink-0 ml-2" />}
+              </button>
+            )
+          })}
+        </SharedLayoutBg>
+      </MotionPopoverContent>
+    </MotionPopover>
   )
 }
 
@@ -698,9 +806,11 @@ function PDFViewerPageNumberControl({
 function PDFViewerSearchControl({
   documentId,
   controlsDisabled,
+  disabled = false,
 }: {
   documentId: string
   controlsDisabled: boolean
+  disabled?: boolean
 }) {
   const { state, provides } = useSearch(documentId)
   const { provides: scroll } = useScroll(documentId)
@@ -852,6 +962,23 @@ function PDFViewerSearchControl({
     },
     [provides, scrollToResult, state.total]
   )
+
+  if (disabled) {
+    return (
+      <ToolbarTooltip label="Search not available">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Search text"
+          disabled
+          className="opacity-40 cursor-not-allowed text-zinc-400 dark:text-zinc-600"
+        >
+          <HugeiconsIcon icon={Search01Icon} className="size-4" />
+        </Button>
+      </ToolbarTooltip>
+    )
+  }
 
   return (
     <Popover>
@@ -1072,7 +1199,7 @@ function PDFViewerThumbnails({
                 <ThumbImg
                   documentId={documentId}
                   meta={meta}
-                  className="block rounded-sm object-contain dark:invert dark:hue-rotate-180"
+                  className="block rounded-sm object-contain"
                   style={thumbnailImageStyle}
                 />
               </span>
@@ -1465,12 +1592,37 @@ function PDFViewerScrollAreaViewport({
     }
   }, [zoom, zoomState.currentZoomLevel, viewportRef])
 
+  // Automatically center view horizontally when document loads, zoom changes, or window resizes
+  React.useEffect(() => {
+    const el = viewportRef.current
+    if (!el) return
+
+    const centerHorizontal = () => {
+      if (el.scrollWidth > el.clientWidth) {
+        el.scrollLeft = Math.max(0, (el.scrollWidth - el.clientWidth) / 2)
+      } else {
+        el.scrollLeft = 0
+      }
+    }
+
+    const t1 = setTimeout(centerHorizontal, 50)
+    const t2 = setTimeout(centerHorizontal, 150)
+    const t3 = setTimeout(centerHorizontal, 350)
+    const t4 = setTimeout(centerHorizontal, 600)
+    return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
+      clearTimeout(t3)
+      clearTimeout(t4)
+    }
+  }, [documentId, zoomState.currentZoomLevel, viewportRef])
+
   return (
     <ViewportElementContext.Provider value={viewportRef}>
       <ScrollArea
         className={className}
         orientation="both"
-        viewportClassName="relative"
+        viewportClassName="relative min-w-full"
         viewportProps={{
           style: {
             padding: viewportGap,
@@ -1968,10 +2120,15 @@ type PDFViewerInnerProps = {
   defaultZoom: number
   className?: string
   fileName?: string
+  title?: string
+  activeViewMode?: "pdf" | "image"
+  photoContent?: React.ReactNode
   showDownload: boolean
   showToolbar: boolean
   showRotateControls: boolean
   showUpload: boolean
+  disableSearch?: boolean
+  onClose?: () => void
   toolbarActions?: React.ReactNode
   pageClassName?: (pageNumber: number) => string | undefined
   renderPageOverlay?: (props: PDFViewerPageOverlayProps) => React.ReactNode
@@ -1992,10 +2149,15 @@ function PDFViewerInner({
   defaultZoom,
   className,
   fileName,
+  title,
+  activeViewMode = "pdf",
+  photoContent,
   showDownload,
   showToolbar,
   showRotateControls,
   showUpload,
+  disableSearch = false,
+  onClose,
   toolbarActions,
   pageClassName,
   renderPageOverlay,
@@ -2369,20 +2531,20 @@ function PDFViewerInner({
           >
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-white dark:bg-black"
+              className="pointer-events-none absolute inset-0 bg-white"
             />
             <RenderLayer
               documentId={documentId}
               pageIndex={page.pageIndex}
               scale={Math.min(currentZoomLevel, PAGE_BASE_RENDER_MAX_SCALE)}
               dpr={PAGE_BASE_RENDER_DPR}
-              className="pointer-events-none absolute inset-0 h-full w-full object-fill opacity-100 blur-[0.35px] transition-none dark:invert dark:hue-rotate-180"
+              className="pointer-events-none absolute inset-0 h-full w-full object-fill opacity-100 blur-[0.35px] transition-none"
             />
             <TilingLayer
               documentId={documentId}
               pageIndex={page.pageIndex}
               key={`tiles-${page.pageIndex}-${pageRotation}`}
-              className="pointer-events-none opacity-100 transition-none [&_img]:opacity-100 [&_img]:transition-none dark:invert dark:hue-rotate-180"
+              className="pointer-events-none opacity-100 transition-none [&_img]:opacity-100 [&_img]:transition-none"
             />
             <SearchLayer
               documentId={documentId}
@@ -2435,145 +2597,173 @@ function PDFViewerInner({
       )}
     >
       {showToolbar ? (
-        <div className="flex min-h-12 flex-nowrap items-center justify-between gap-4 border-b bg-background px-3 py-2 overflow-x-auto scrollbar-hide">
-          <div className="flex shrink-0 items-center gap-2">
-            <TooltipProvider>
-              <ToolbarTooltip label="Toggle thumbnails">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label="Toggle thumbnails"
-                  disabled={controlsDisabled}
-                  onClick={() => setSidebarOpen((open) => !open)}
-                >
-                  <HugeiconsIcon icon={SidebarLeftIcon} className="size-4" />
-                </Button>
-              </ToolbarTooltip>
-            </TooltipProvider>
-            <PDFViewerPageNumberControl
-              activePage={activePage}
-              controlsDisabled={controlsDisabled}
-              numPages={numPages}
-              onPageChange={scrollToPage}
-            />
+        <div className="relative flex min-h-12 flex-nowrap items-center justify-between gap-4 border-b bg-background px-3 py-2 overflow-x-auto scrollbar-hide shrink-0 z-30">
+          <div className="relative flex shrink-0 items-center gap-2">
+            <div
+              className={cn(
+                "flex items-center gap-2 transition-opacity duration-200",
+                activeViewMode === "image"
+                  ? "opacity-0 pointer-events-none"
+                  : "opacity-100 pointer-events-auto"
+              )}
+            >
+              <TooltipProvider>
+                <ToolbarTooltip label="Toggle thumbnails">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Toggle thumbnails"
+                    disabled={controlsDisabled}
+                    onClick={() => setSidebarOpen((open) => !open)}
+                  >
+                    <HugeiconsIcon icon={SidebarLeftIcon} className="size-4" />
+                  </Button>
+                </ToolbarTooltip>
+              </TooltipProvider>
+              <PDFViewerPageNumberControl
+                activePage={activePage}
+                controlsDisabled={controlsDisabled}
+                numPages={numPages}
+                onPageChange={scrollToPage}
+              />
+            </div>
+            {title && (
+              <div
+                className={cn(
+                  "absolute left-0 top-1/2 -translate-y-1/2 flex items-center gap-2 transition-opacity duration-200 pointer-events-none",
+                  activeViewMode === "image"
+                    ? "opacity-100 pointer-events-auto"
+                    : "opacity-0"
+                )}
+              >
+                <span className="text-xs font-semibold text-foreground truncate max-w-[200px] sm:max-w-md">
+                  {title}
+                </span>
+              </div>
+            )}
           </div>
           <TooltipProvider>
             <div className="flex shrink-0 items-center justify-end gap-1">
-              {showRotateControls ? (
-                <>
-                  <div className="flex flex-none items-center gap-1">
-                    <ToolbarTooltip label="Rotate counterclockwise">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label="Rotate counterclockwise"
-                        disabled={controlsDisabled}
-                        onClick={() => rotateSelectedPages(-1)}
-                      >
-                        <HugeiconsIcon
-                          icon={RotateClockwiseIcon}
-                          className="size-4"
-                        />
-                      </Button>
-                    </ToolbarTooltip>
-                    <ToolbarTooltip label="Rotate clockwise">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label="Rotate clockwise"
-                        disabled={controlsDisabled}
-                        onClick={() => rotateSelectedPages(1)}
-                      >
-                        <HugeiconsIcon
-                          icon={RotateClockwiseIcon}
-                          className="size-4 -scale-x-100"
-                        />
-                      </Button>
-                    </ToolbarTooltip>
-                  </div>
-                  <div className="border-l border-neutral-300 dark:border-neutral-700 h-5 self-center mx-1" />
-                </>
-              ) : null}
-              <div className="flex flex-none items-center gap-1">
-                <ToolbarTooltip label="Zoom out">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="Zoom out"
-                    disabled={
-                      controlsDisabled || currentZoomLevel <= ZOOM_OPTIONS[0]
-                    }
-                    onClick={() => {
-                      const nextZoom = [...ZOOM_OPTIONS]
-                        .reverse()
-                        .find((option) => option < currentZoomLevel)
+              <div
+                className={cn(
+                  "flex items-center gap-1 transition-opacity duration-200",
+                  activeViewMode === "image"
+                    ? "opacity-0 pointer-events-none"
+                    : "opacity-100 pointer-events-auto"
+                )}
+              >
+                {showRotateControls ? (
+                  <>
+                    <div className="flex flex-none items-center gap-1">
+                      <ToolbarTooltip label="Rotate counterclockwise">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label="Rotate counterclockwise"
+                          disabled={controlsDisabled}
+                          onClick={() => rotateSelectedPages(-1)}
+                        >
+                          <HugeiconsIcon
+                            icon={RotateClockwiseIcon}
+                            className="size-4"
+                          />
+                        </Button>
+                      </ToolbarTooltip>
+                      <ToolbarTooltip label="Rotate clockwise">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label="Rotate clockwise"
+                          disabled={controlsDisabled}
+                          onClick={() => rotateSelectedPages(1)}
+                        >
+                          <HugeiconsIcon
+                            icon={RotateClockwiseIcon}
+                            className="size-4 -scale-x-100"
+                          />
+                        </Button>
+                      </ToolbarTooltip>
+                    </div>
+                    <div className="border-l border-neutral-300 dark:border-neutral-700 h-5 self-center mx-1" />
+                  </>
+                ) : null}
+                <div className="flex flex-none items-center gap-1">
+                  <ToolbarTooltip label="Zoom out">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="Zoom out"
+                      disabled={
+                        controlsDisabled || currentZoomLevel <= ZOOM_OPTIONS[0]
+                      }
+                      onClick={() => {
+                        const nextZoom = [...ZOOM_OPTIONS]
+                          .reverse()
+                          .find((option) => option < currentZoomLevel)
 
-                      zoom?.requestZoom(nextZoom ?? ZOOM_OPTIONS[0])
-                    }}
-                  >
-                    <HugeiconsIcon
-                      icon={MinusSignCircleIcon}
-                      className="size-4"
-                    />
-                  </Button>
-                </ToolbarTooltip>
-                <Select
-                  value={String(currentZoomLevel)}
-                  onValueChange={(value) => zoom?.requestZoom(Number(value))}
-                >
-                  <SelectTrigger size="sm" className="w-[84px] min-w-[84px]" disabled={controlsDisabled}>
-                    <SelectValue placeholder="Zoom">
-                      {Math.round(currentZoomLevel * 100)}%
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent alignItemWithTrigger={false}>
-                    {ZOOM_OPTIONS.map((option) => (
-                      <SelectItem key={option} value={String(option)}>
-                        {Math.round(option * 100)}%
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <ToolbarTooltip label="Zoom in">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="Zoom in"
-                    disabled={
-                      controlsDisabled ||
-                      currentZoomLevel >= ZOOM_OPTIONS[ZOOM_OPTIONS.length - 1]
-                    }
-                    onClick={() => {
-                      const nextZoom = ZOOM_OPTIONS.find(
-                        (option) => option > currentZoomLevel
-                      )
+                        zoom?.requestZoom(nextZoom ?? ZOOM_OPTIONS[0])
+                      }}
+                    >
+                      <HugeiconsIcon
+                        icon={MinusSignCircleIcon}
+                        className="size-4"
+                      />
+                    </Button>
+                  </ToolbarTooltip>
+                  <PDFViewerZoomDropdownControl
+                    currentZoomLevel={currentZoomLevel}
+                    controlsDisabled={controlsDisabled}
+                    onZoomChange={(nextZoom) => zoom?.requestZoom(nextZoom)}
+                  />
+                  <ToolbarTooltip label="Zoom in">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="Zoom in"
+                      disabled={
+                        controlsDisabled ||
+                        currentZoomLevel >= ZOOM_OPTIONS[ZOOM_OPTIONS.length - 1]
+                      }
+                      onClick={() => {
+                        const nextZoom = ZOOM_OPTIONS.find(
+                          (option) => option > currentZoomLevel
+                        )
 
-                      zoom?.requestZoom(
-                        nextZoom ?? ZOOM_OPTIONS[ZOOM_OPTIONS.length - 1]
-                      )
-                    }}
-                  >
-                    <HugeiconsIcon
-                      icon={PlusSignCircleIcon}
-                      className="size-4"
-                    />
-                  </Button>
-                </ToolbarTooltip>
+                        zoom?.requestZoom(
+                          nextZoom ?? ZOOM_OPTIONS[ZOOM_OPTIONS.length - 1]
+                        )
+                      }}
+                    >
+                      <HugeiconsIcon
+                        icon={PlusSignCircleIcon}
+                        className="size-4"
+                      />
+                    </Button>
+                  </ToolbarTooltip>
+                </div>
+                <div className="border-l border-neutral-300 dark:border-neutral-700 h-5 self-center mx-1" />
+                <PDFViewerSearchControl
+                  key={documentId}
+                  documentId={documentId}
+                  controlsDisabled={controlsDisabled}
+                  disabled={disableSearch}
+                />
               </div>
-              <div className="border-l border-neutral-300 dark:border-neutral-700 h-5 self-center mx-1" />
-              <PDFViewerSearchControl
-                key={documentId}
-                documentId={documentId}
-                controlsDisabled={controlsDisabled}
-              />
               {toolbarActions ? (
                 <>
-                  <div className="border-l border-neutral-300 dark:border-neutral-700 h-5 self-center mx-1" />
+                  <div
+                    className={cn(
+                      "border-l border-neutral-300 dark:border-neutral-700 h-5 self-center mx-1 transition-opacity duration-200",
+                      activeViewMode === "image"
+                        ? "opacity-0 pointer-events-none"
+                        : "opacity-100"
+                    )}
+                  />
                   {toolbarActions}
                 </>
               ) : null}
@@ -2590,59 +2780,153 @@ function PDFViewerInner({
                   />
                 </>
               ) : null}
+              {onClose ? (
+                <>
+                  <div className="border-l border-neutral-300 dark:border-neutral-700 h-5 self-center mx-1" />
+                  <ToolbarTooltip label="Close">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="Close"
+                      onClick={() => {
+                        playSoftClick(0.04);
+                        onClose();
+                      }}
+                      className="hover:bg-red-500/20 hover:text-red-400 dark:hover:bg-red-500/20 dark:hover:text-red-400 text-neutral-600 dark:text-neutral-400 transition-colors"
+                    >
+                      <X className="size-4" />
+                    </Button>
+                  </ToolbarTooltip>
+                </>
+              ) : null}
             </div>
           </TooltipProvider>
         </div>
       ) : null}
-      <div
-        ref={viewerShellRef}
-        className="relative flex min-h-0 flex-1 overflow-hidden bg-muted/30"
-      >
-        {isLoading ? (
-          <PDFViewerLoadingSkeleton
-            sidebarInline={sidebarInline}
-            sidebarOpen={sidebarOpen}
-          />
-        ) : null}
-        <div className="flex h-full max-h-full min-h-0 w-full flex-1 overflow-hidden">
-          <DocumentViewerThumbnailSidebar
-            closedInlineClassName={THUMBNAIL_SIDEBAR_CLOSED_CLASS}
-            inline={sidebarInline}
-            open={thumbnailSidebarVisible}
-            widthClassName={THUMBNAIL_SIDEBAR_WIDTH_CLASS}
+      {photoContent ? (
+        <div className="relative flex min-h-0 flex-1 overflow-hidden bg-muted/30 w-full">
+          <motion.div
+            className="flex w-[200%] min-w-[200%] shrink-0 h-full transform-gpu will-change-transform"
+            initial={false}
+            animate={{
+              x: activeViewMode === "pdf" ? "0%" : "-50%",
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 340,
+              damping: 34,
+              mass: 0.65,
+            }}
           >
-            {thumbnailSidebarVisible ? (
-              <PDFViewerThumbnails
-                basePageRotations={basePageRotations}
-                documentId={documentId}
-                activePage={activePage}
-                pageCount={numPages}
-                pageRotationDeltas={pageRotationDeltas}
-                pdfDocument={pdfDocument}
-                selectedPageIndexes={selectedPageIndexes}
-                onSelectPage={selectThumbnailPage}
-              />
-            ) : null}
-          </DocumentViewerThumbnailSidebar>
-          <PDFViewerScrollAreaViewport
-            documentId={documentId}
-            className="relative h-full max-h-full min-h-0 min-w-0 flex-1"
-          >
-            <PDFViewerViewportBridge viewportElementRef={viewportElementRef} />
-            <PDFViewerSelectionCopyShortcut documentId={documentId} />
-            <PDFViewerSelectionReleaseGuard documentId={documentId} />
-            <GlobalPointerProvider documentId={documentId}>
-              <PDFViewerScroller
-                basePageRotations={basePageRotations}
-                documentId={documentId}
-                pageRotationDeltas={pageRotationDeltas}
-                renderPage={renderPage}
-              />
-            </GlobalPointerProvider>
-            <CopyToClipboard />
-          </PDFViewerScrollAreaViewport>
+            {/* Slide 1: PDF Viewer Shell (100% of modal viewport width) */}
+            <div
+              ref={viewerShellRef}
+              className="relative flex min-h-0 w-1/2 min-w-[50%] max-w-[50%] shrink-0 h-full overflow-hidden bg-muted/30"
+            >
+              {isLoading ? (
+                <PDFViewerLoadingSkeleton
+                  sidebarInline={sidebarInline}
+                  sidebarOpen={sidebarOpen}
+                />
+              ) : null}
+              <div className="flex h-full max-h-full min-h-0 w-full flex-1 overflow-hidden">
+                <DocumentViewerThumbnailSidebar
+                  closedInlineClassName={THUMBNAIL_SIDEBAR_CLOSED_CLASS}
+                  inline={sidebarInline}
+                  open={thumbnailSidebarVisible}
+                  widthClassName={THUMBNAIL_SIDEBAR_WIDTH_CLASS}
+                >
+                  {thumbnailSidebarVisible ? (
+                    <PDFViewerThumbnails
+                      basePageRotations={basePageRotations}
+                      documentId={documentId}
+                      activePage={activePage}
+                      pageCount={numPages}
+                      pageRotationDeltas={pageRotationDeltas}
+                      pdfDocument={pdfDocument}
+                      selectedPageIndexes={selectedPageIndexes}
+                      onSelectPage={selectThumbnailPage}
+                    />
+                  ) : null}
+                </DocumentViewerThumbnailSidebar>
+                <PDFViewerScrollAreaViewport
+                  documentId={documentId}
+                  className="relative h-full max-h-full min-h-0 min-w-0 flex-1"
+                >
+                  <PDFViewerViewportBridge viewportElementRef={viewportElementRef} />
+                  <PDFViewerSelectionCopyShortcut documentId={documentId} />
+                  <PDFViewerSelectionReleaseGuard documentId={documentId} />
+                  <GlobalPointerProvider documentId={documentId}>
+                    <PDFViewerScroller
+                      basePageRotations={basePageRotations}
+                      documentId={documentId}
+                      pageRotationDeltas={pageRotationDeltas}
+                      renderPage={renderPage}
+                    />
+                  </GlobalPointerProvider>
+                  <CopyToClipboard />
+                </PDFViewerScrollAreaViewport>
+              </div>
+            </div>
+
+            {/* Slide 2: Photo Content (100% of modal viewport width) */}
+            <div className="relative flex min-h-0 w-1/2 min-w-[50%] max-w-[50%] shrink-0 h-full overflow-hidden bg-neutral-100/60 dark:bg-neutral-950/60 items-center justify-center p-2 sm:p-6">
+              {photoContent}
+            </div>
+          </motion.div>
         </div>
-      </div>
+      ) : (
+        <div
+          ref={viewerShellRef}
+          className="relative flex min-h-0 flex-1 overflow-hidden bg-muted/30"
+        >
+          {isLoading ? (
+            <PDFViewerLoadingSkeleton
+              sidebarInline={sidebarInline}
+              sidebarOpen={sidebarOpen}
+            />
+          ) : null}
+          <div className="flex h-full max-h-full min-h-0 w-full flex-1 overflow-hidden">
+            <DocumentViewerThumbnailSidebar
+              closedInlineClassName={THUMBNAIL_SIDEBAR_CLOSED_CLASS}
+              inline={sidebarInline}
+              open={thumbnailSidebarVisible}
+              widthClassName={THUMBNAIL_SIDEBAR_WIDTH_CLASS}
+            >
+              {thumbnailSidebarVisible ? (
+                <PDFViewerThumbnails
+                  basePageRotations={basePageRotations}
+                  documentId={documentId}
+                  activePage={activePage}
+                  pageCount={numPages}
+                  pageRotationDeltas={pageRotationDeltas}
+                  pdfDocument={pdfDocument}
+                  selectedPageIndexes={selectedPageIndexes}
+                  onSelectPage={selectThumbnailPage}
+                />
+              ) : null}
+            </DocumentViewerThumbnailSidebar>
+            <PDFViewerScrollAreaViewport
+              documentId={documentId}
+              className="relative h-full max-h-full min-h-0 min-w-0 flex-1"
+            >
+              <PDFViewerViewportBridge viewportElementRef={viewportElementRef} />
+              <PDFViewerSelectionCopyShortcut documentId={documentId} />
+              <PDFViewerSelectionReleaseGuard documentId={documentId} />
+              <GlobalPointerProvider documentId={documentId}>
+                <PDFViewerScroller
+                  basePageRotations={basePageRotations}
+                  documentId={documentId}
+                  pageRotationDeltas={pageRotationDeltas}
+                  renderPage={renderPage}
+                />
+              </GlobalPointerProvider>
+              <CopyToClipboard />
+            </PDFViewerScrollAreaViewport>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -2736,10 +3020,15 @@ export const PDFViewer = React.forwardRef<PDFViewerHandle, PDFViewerProps>(
       className,
       defaultZoom = DEFAULT_ZOOM,
       fileName,
+      title,
+      activeViewMode = "pdf",
+      photoContent,
       showDownload = true,
       showRotateControls = true,
       showToolbar = true,
-      showUpload = true,
+      showUpload = false,
+      disableSearch = false,
+      onClose,
       src,
       toolbarActions,
       pageClassName,
@@ -2877,10 +3166,15 @@ export const PDFViewer = React.forwardRef<PDFViewerHandle, PDFViewerProps>(
           defaultZoom={defaultZoom}
           className={className}
           fileName={fileName}
+          title={title}
+          activeViewMode={activeViewMode}
+          photoContent={photoContent}
           showDownload={showDownload}
           showToolbar={showToolbar}
           showRotateControls={showRotateControls}
           showUpload={showUpload}
+          disableSearch={disableSearch}
+          onClose={onClose}
           toolbarActions={toolbarActions}
           pageClassName={pageClassName}
           renderPageOverlay={renderPageOverlay}

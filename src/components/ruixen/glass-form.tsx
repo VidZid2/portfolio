@@ -8,7 +8,7 @@ import { playHoverTick } from "@/lib/synth-sounds";
 
 /* ── sound ─────────────────────────────────────────────── */
 const tick = () => {
-  playHoverTick(0.025);
+  playHoverTick(0.06);
 };
 
 /* ── theme ─────────────────────────────────────────────── */

@@ -21,6 +21,7 @@ import {
   CenterMorphModal,
   CenterMorphModalContent,
 } from "@/components/motion/center-morph-modal";
+import { CurvedMenu } from "@/components/ui/curved-menu";
 import { CylinderCarousel } from "@/components/motion/cylinder-carousel";
 import { playSoftClick } from "@/lib/synth-sounds";
 
@@ -489,6 +490,316 @@ export function SupportedBySection({
       "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
   };
 
+  const renderGalleryContent = () => (
+    <div className="relative w-full h-full flex flex-col justify-between overflow-y-auto overscroll-contain bg-white dark:bg-black text-zinc-900 dark:text-zinc-100 p-0">
+      {/* Floating Close Button */}
+      <button
+        type="button"
+        onClick={() => setIsDrawerOpen(false)}
+        className="absolute top-4 right-4 z-40 size-8 rounded-[8px] bg-zinc-100/80 dark:bg-zinc-900/80 backdrop-blur-md flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-all cursor-pointer border-0 outline-none ring-0 shadow-sm"
+        title="Close modal (Esc)"
+        aria-label="Close modal"
+      >
+        <svg
+          className="size-3.5 shrink-0"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12 4L4 12M4 4l8 8" />
+        </svg>
+      </button>
+
+      {/* Tribute & Credits Header (Concise & Horizontal SaaS Style) */}
+      <div className="pt-12 sm:pt-14 pb-2 px-6 sm:px-12 flex flex-col items-center text-center max-w-4xl mx-auto font-sans">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-normal tracking-tight text-zinc-900 dark:text-zinc-100 leading-tight">
+          Inspired by Extraordinary Creators
+        </h2>
+        <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 mt-2.5 leading-relaxed max-w-2xl font-normal">
+          This portfolio was inspired by the innovative design engineers, UI libraries, and physics experiments below. Without their creativity and open-source contributions, building this wouldn&apos;t have been possible.
+        </p>
+      </div>
+
+      {/* Inspirations Convex Cylinder Carousel & Detail View */}
+      <div 
+        className="relative w-full h-[360px] flex items-center justify-center bg-white dark:bg-black overflow-hidden p-4 sm:p-6 touch-none overscroll-none select-none"
+        onWheel={(e) => {
+          if (selectedBrand) {
+            e.stopPropagation();
+          }
+        }}
+      >
+        {/* Seamless Edge Fade Overlays on Both Ends */}
+        <div
+          className={`pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-white dark:from-black via-white/70 dark:via-black/70 to-transparent z-20 transition-opacity duration-300 ${
+            selectedBrand ? "opacity-0" : "opacity-100"
+          }`}
+        />
+        <div
+          className={`pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-white dark:from-black via-white/70 dark:via-black/70 to-transparent z-20 transition-opacity duration-300 ${
+            selectedBrand ? "opacity-0" : "opacity-100"
+          }`}
+        />
+
+        {/* Carousel Base Layer: Real circle slides left on select, others fade out */}
+        <div className="w-full h-full flex items-center justify-center">
+          <CylinderCarousel
+            itemSize={isMobileOrTablet ? 240 : 200}
+            visibleItems={isMobileOrTablet ? 2 : 5}
+            variant="convex"
+            minScale={isMobileOrTablet ? 0.48 : 0.52}
+            arc={isMobileOrTablet ? 30 : 38}
+            snap={true}
+            autoRotate={false}
+            defaultIndex={activeIdx}
+            onIndexChange={setActiveIdx}
+            selectedIndex={
+              selectedBrand
+                ? INSPIRATIONS.findIndex((i) => i.id === selectedBrand.id)
+                : null
+            }
+            selectedOffset={isMobileOrTablet ? -130 : -210}
+            height={300}
+            className="w-full"
+          >
+            {INSPIRATIONS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => handleSelectBrand(item)}
+                className="w-full h-full rounded-full aspect-square bg-zinc-100 dark:bg-[#141416] flex items-center justify-center p-3 sm:p-4 transition-transform duration-200 group select-none relative overflow-hidden cursor-pointer outline-none focus:outline-none ring-0 border-0 shadow-none dark:shadow-md"
+              >
+                {item.darkSvgPath ? (
+                  <>
+                    <img
+                      src={item.svgPath}
+                      alt={item.name}
+                      className="h-16 sm:h-20 md:h-12 lg:h-14 w-auto max-w-[82%] object-contain dark:hidden pointer-events-none transition-transform duration-200 group-hover:scale-110"
+                      loading="lazy"
+                    />
+                    <img
+                      src={item.darkSvgPath}
+                      alt={item.name}
+                      className="h-16 sm:h-20 md:h-12 lg:h-14 w-auto max-w-[82%] object-contain hidden dark:block pointer-events-none transition-transform duration-200 group-hover:scale-110"
+                      loading="lazy"
+                    />
+                  </>
+                ) : (
+                  <img
+                    src={item.svgPath}
+                    alt={item.name}
+                    className={`h-16 sm:h-20 md:h-12 lg:h-14 w-auto max-w-[82%] object-contain pointer-events-none transition-transform duration-200 group-hover:scale-110 ${
+                      item.invertInDark ? "dark:invert" : ""
+                    }`}
+                    loading="lazy"
+                  />
+                )}
+              </button>
+            ))}
+          </CylinderCarousel>
+        </div>
+
+        {/* Selected Brand Detail Showcase */}
+        <AnimatePresence>
+          {selectedBrand && (
+            <motion.div
+              key={selectedBrand.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-0 flex items-center justify-center pointer-events-none z-30 p-4"
+            >
+              <div className="relative w-full max-w-3xl h-full">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.88, x: 20, filter: "blur(6px)" }}
+                  animate={{ opacity: 1, scale: 1, x: 0, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, scale: 0.92, x: 15, filter: "blur(4px)", transition: { duration: 0.15 } }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 340,
+                    damping: 28,
+                    delay: 0.45,
+                  }}
+                  className="absolute top-1/2 -translate-y-1/2 flex flex-col items-start text-left gap-3.5 w-[92%] sm:w-[380px] md:w-[420px] lg:w-[460px] max-w-[460px] p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-zinc-50 via-zinc-100/95 to-zinc-100/85 dark:from-[#18181b] dark:via-[#121214]/95 dark:to-[#09090b]/95 backdrop-blur-xl border-0 outline-none ring-0 shadow-none pointer-events-auto font-sans left-1/2 -translate-x-1/2 md:left-[calc(50%-60px)] md:translate-x-0 select-none"
+                >
+                  <motion.div
+                    initial={{ opacity: 0, x: 25, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, x: 15, filter: "blur(4px)", transition: { duration: 0.15 } }}
+                    transition={{
+                      duration: 0.35,
+                      delay: 0.54,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    className="flex flex-col gap-1 w-full"
+                  >
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <h3 className="text-2xl sm:text-3xl font-normal font-sans tracking-tight text-zinc-900 dark:text-white leading-none">
+                        {selectedBrand.name}
+                      </h3>
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-zinc-200/70 dark:bg-zinc-800/70 text-zinc-700 dark:text-zinc-300 text-[12px] font-medium font-sans shadow-none select-none">
+                        {selectedBrand.category === "components"
+                          ? "Component Kit"
+                          : selectedBrand.category === "motion"
+                          ? "Motion & Physics"
+                          : selectedBrand.category === "systems"
+                          ? "Design System"
+                          : selectedBrand.category === "portfolios"
+                          ? "Creative Portfolio"
+                          : selectedBrand.category}
+                      </span>
+                    </div>
+                    <span className="text-xs text-[#6495ED] font-mono hover:underline cursor-pointer">
+                      {selectedBrand.url ? selectedBrand.url.replace(/^https?:\/\//, "").replace(/\/$/, "") : ""}
+                    </span>
+                  </motion.div>
+
+                  {selectedBrand.description && (
+                    <motion.p
+                      initial={{ opacity: 0, x: 25, filter: "blur(4px)" }}
+                      animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                      exit={{ opacity: 0, x: 15, filter: "blur(4px)", transition: { duration: 0.15 } }}
+                      transition={{
+                        duration: 0.35,
+                        delay: 0.62,
+                        ease: [0.16, 1, 0.3, 1],
+                      }}
+                      className="text-xs sm:text-sm md:text-[15px] font-sans text-zinc-600 dark:text-zinc-300 leading-relaxed max-w-lg"
+                    >
+                      {selectedBrand.description}
+                    </motion.p>
+                  )}
+
+                  <motion.div
+                    initial={{ opacity: 0, x: 25, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, x: 15, filter: "blur(4px)", transition: { duration: 0.15 } }}
+                    transition={{
+                      duration: 0.35,
+                      delay: 0.70,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    className="hidden sm:flex items-center gap-2 flex-wrap text-[11px] text-zinc-500 dark:text-zinc-400 font-mono"
+                  >
+                    <span className="px-2.5 py-0.5 rounded-md bg-zinc-200/60 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-0 shadow-none">
+                      UI Component
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-md bg-zinc-200/60 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-0 shadow-none">
+                      Design Engineering
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-md bg-zinc-200/60 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-0 shadow-none">
+                      Curated
+                    </span>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, x: 25, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, x: 15, filter: "blur(4px)", transition: { duration: 0.15 } }}
+                    transition={{
+                      duration: 0.35,
+                      delay: 0.78,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    className="flex items-center gap-2.5 mt-1 w-full font-sans"
+                  >
+                    {selectedBrand.url && (
+                      <a
+                        href={selectedBrand.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => handleVisitWebsite(e, selectedBrand.url)}
+                        className="flex-1 py-2.5 px-4 rounded-xl bg-zinc-900 dark:bg-[#6495ED] hover:bg-zinc-800 dark:hover:bg-[#5382dc] text-white dark:text-white text-xs font-medium font-sans flex items-center justify-center transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98] border-0 outline-none ring-0 shadow-none cursor-pointer text-center"
+                      >
+                        <span className="truncate">Visit {selectedBrand.name}</span>
+                      </a>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleBack}
+                      className="flex-1 py-2.5 px-4 rounded-xl bg-zinc-200/80 dark:bg-zinc-800/90 hover:bg-zinc-300/80 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-medium font-sans flex items-center justify-center transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98] border-0 outline-none ring-0 shadow-none cursor-pointer text-center"
+                    >
+                      <span>Back</span>
+                    </button>
+                  </motion.div>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Bottom Tip & Ask AI Action */}
+      <motion.div
+        initial={hasSeenTip ? false : { opacity: 0, y: 18, filter: "blur(5px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        transition={
+          hasSeenTip
+            ? { duration: 0.2 }
+            : {
+                duration: 0.7,
+                delay: 4,
+                ease: [0.16, 1, 0.3, 1],
+              }
+        }
+        onAnimationComplete={() => {
+          if (!hasSeenTip) setHasSeenTip(true);
+        }}
+        className="pb-6 pt-2 px-6 flex items-center justify-center gap-2 text-center flex-wrap font-sans select-none z-30 relative"
+      >
+        <style>{`
+          @keyframes shimmer-text {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+          }
+          .animate-shimmer-text {
+            background: linear-gradient(90deg, #6495ED 0%, #C4D7FF 50%, #6495ED 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer-text 3s infinite linear;
+          }
+        `}</style>
+        <span className="text-xs sm:text-[13px] text-zinc-500 dark:text-zinc-400 font-normal">
+          Want me to help you find what you need?
+        </span>
+        <button
+          type="button"
+          onClick={() => {
+            setIsDrawerOpen(false);
+            window.dispatchEvent(new CustomEvent("open-ai"));
+          }}
+          onMouseEnter={() => {
+            import("@/components/prompt-box-preview");
+          }}
+          className="relative group cursor-pointer transition-all duration-200 active:scale-95 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-zinc-100/90 dark:bg-zinc-800/70 hover:bg-zinc-200/90 dark:hover:bg-zinc-700/90 text-[12px] font-medium border-0 outline-none ring-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+          aria-label="Ask AI Assistant"
+        >
+          <svg
+            className="size-3.5 shrink-0"
+            viewBox="0 0 18 18"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M3.025,5.623c.068,.204,.26,.342,.475,.342s.406-.138,.475-.342l.421-1.263,1.263-.421c.204-.068,.342-.259,.342-.474s-.138-.406-.342-.474l-1.263-.421-.421-1.263c-.137-.408-.812-.408-.949,0l-.421,1.263-1.263,.421c-.204,.068-.342,.259-.342,.474s.138,.406,.342,.474l1.263,.421,.421,1.263Z"
+              className="fill-[#6495ED]"
+            />
+            <path
+              d="M16.525,8.803l-4.535-1.793-1.793-4.535c-.227-.572-1.168-.572-1.395,0l-1.793,4.535-4.535,1.793c-.286,.113-.475,.39-.475,.697s.188,.584,.475,.697l4.535,1.793,1.793,4.535c.113,.286,.39,.474,.697,.474s.584-.188,.697-.474l1.793-4.535,4.535-1.793c.286-.113,.475-.39,.475-.697s-.188-.584-.475-.697Z"
+              className="fill-[#6495ED]"
+            />
+          </svg>
+          <span className="animate-shimmer-text font-medium leading-none">Ask AI</span>
+        </button>
+      </motion.div>
+    </div>
+  );
+
   return (
     <>
       <motion.div
@@ -640,321 +951,28 @@ export function SupportedBySection({
         <div className="absolute bottom-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
       </motion.div>
 
-      {/* Centered Morph Modal: Component Inspirations Showcase Gallery */}
-      <CenterMorphModal
-        open={isDrawerOpen}
-        onOpenChange={setIsDrawerOpen}
-      >
-        <CenterMorphModalContent
-          ariaLabel="Component Inspirations Showcase"
-          showCloseButton={false}
-          className="w-full max-w-5xl lg:max-w-6xl bg-white dark:bg-black text-zinc-900 dark:text-zinc-100 flex flex-col rounded-[28px] shadow-2xl overflow-hidden border-0 p-0"
+      {/* Responsive Gallery Presentation: CurvedMenu on Mobile/Tablet, CenterMorphModal on PC/Desktop */}
+      {isMobileOrTablet ? (
+        <CurvedMenu
+          isOpen={isDrawerOpen}
+          onClose={() => setIsDrawerOpen(false)}
         >
-          {/* Floating Close Button */}
-          <button
-            type="button"
-            onClick={() => setIsDrawerOpen(false)}
-            className="absolute top-4 right-4 z-40 size-8 rounded-[8px] bg-zinc-100/80 dark:bg-zinc-900/80 backdrop-blur-md flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-all cursor-pointer border-0 outline-none ring-0 shadow-sm"
-            title="Close modal (Esc)"
-            aria-label="Close modal"
+          {renderGalleryContent()}
+        </CurvedMenu>
+      ) : (
+        <CenterMorphModal
+          open={isDrawerOpen}
+          onOpenChange={setIsDrawerOpen}
+        >
+          <CenterMorphModalContent
+            ariaLabel="Component Inspirations Showcase"
+            showCloseButton={false}
+            className="w-full max-w-5xl lg:max-w-6xl bg-white dark:bg-black text-zinc-900 dark:text-zinc-100 flex flex-col rounded-[28px] shadow-2xl overflow-hidden border-0 p-0"
           >
-            <svg
-              className="size-4 shrink-0"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M13.25 2H4.75C3.233 2 2 3.233 2 4.75V13.25C2 14.767 3.233 16 4.75 16H13.25C14.767 16 16 14.767 16 13.25V4.75C16 3.233 14.767 2 13.25 2ZM12.25 9.75H5.75C5.336 9.75 5 9.414 5 9C5 8.586 5.336 8.25 5.75 8.25H12.25C12.664 8.25 13 8.586 13 9C13 9.414 12.664 9.75 12.25 9.75Z"
-                className="fill-[#1C1F21] dark:fill-[#F4F4F5]"
-              />
-            </svg>
-          </button>
-
-          {/* Tribute & Credits Header (Concise & Horizontal SaaS Style) */}
-          <div className="pt-12 sm:pt-14 pb-2 px-6 sm:px-12 flex flex-col items-center text-center max-w-4xl mx-auto font-sans">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-normal tracking-tight text-zinc-900 dark:text-zinc-100 leading-tight">
-              Inspired by Extraordinary Creators
-            </h2>
-            <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 mt-2.5 leading-relaxed max-w-2xl font-normal">
-              This portfolio was inspired by the innovative design engineers, UI libraries, and physics experiments below. Without their creativity and open-source contributions, building this wouldn&apos;t have been possible.
-            </p>
-          </div>
-
-          {/* Inspirations Convex Cylinder Carousel & Detail View */}
-          <div className="relative w-full h-[360px] flex items-center justify-center bg-white dark:bg-black overflow-hidden p-4 sm:p-6">
-            {/* Seamless Edge Fade Overlays on Both Ends */}
-            <div
-              className={`pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-white dark:from-black via-white/70 dark:via-black/70 to-transparent z-20 transition-opacity duration-300 ${
-                selectedBrand ? "opacity-0" : "opacity-100"
-              }`}
-            />
-            <div
-              className={`pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-white dark:from-black via-white/70 dark:via-black/70 to-transparent z-20 transition-opacity duration-300 ${
-                selectedBrand ? "opacity-0" : "opacity-100"
-              }`}
-            />
-
-            {/* Carousel Base Layer: Real circle slides left on select, others fade out */}
-            <div className="w-full h-full flex items-center justify-center">
-              <CylinderCarousel
-                itemSize={isMobileOrTablet ? 240 : 200}
-                visibleItems={isMobileOrTablet ? 2 : 5}
-                variant="convex"
-                minScale={isMobileOrTablet ? 0.48 : 0.52}
-                arc={isMobileOrTablet ? 30 : 38}
-                snap={true}
-                autoRotate={false}
-                defaultIndex={activeIdx}
-                onIndexChange={setActiveIdx}
-                selectedIndex={
-                  selectedBrand
-                    ? INSPIRATIONS.findIndex((i) => i.id === selectedBrand.id)
-                    : null
-                }
-                selectedOffset={isMobileOrTablet ? -130 : -210}
-                height={300}
-                className="w-full"
-              >
-                {INSPIRATIONS.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => handleSelectBrand(item)}
-                    className="w-full h-full rounded-full aspect-square bg-zinc-100 dark:bg-[#141416] flex items-center justify-center p-3 sm:p-4 transition-transform duration-200 group select-none relative overflow-hidden cursor-pointer outline-none focus:outline-none ring-0 border-0 shadow-lg"
-                  >
-                    {item.darkSvgPath ? (
-                      <>
-                        <img
-                          src={item.svgPath}
-                          alt={item.name}
-                          className="h-16 sm:h-20 md:h-12 lg:h-14 w-auto max-w-[82%] object-contain dark:hidden pointer-events-none transition-transform duration-200 group-hover:scale-110"
-                          loading="lazy"
-                        />
-                        <img
-                          src={item.darkSvgPath}
-                          alt={item.name}
-                          className="h-16 sm:h-20 md:h-12 lg:h-14 w-auto max-w-[82%] object-contain hidden dark:block pointer-events-none transition-transform duration-200 group-hover:scale-110"
-                          loading="lazy"
-                        />
-                      </>
-                    ) : (
-                      <img
-                        src={item.svgPath}
-                        alt={item.name}
-                        className={`h-16 sm:h-20 md:h-12 lg:h-14 w-auto max-w-[82%] object-contain pointer-events-none transition-transform duration-200 group-hover:scale-110 ${
-                          item.invertInDark ? "dark:invert" : ""
-                        }`}
-                        loading="lazy"
-                      />
-                    )}
-                  </button>
-                ))}
-              </CylinderCarousel>
-            </div>
-
-            {/* Selected Brand Detail Showcase: Expanded & Rich for PC/Desktop */}
-            <AnimatePresence>
-              {selectedBrand && (
-                <motion.div
-                  key={selectedBrand.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute inset-0 flex items-center justify-center pointer-events-none z-30 p-4"
-                >
-                  <div className="relative w-full max-w-3xl h-full">
-                    {/* Right Side: Morphing Background Container with Chronological Details */}
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.88, x: 20, filter: "blur(6px)" }}
-                      animate={{ opacity: 1, scale: 1, x: 0, filter: "blur(0px)" }}
-                      exit={{ opacity: 0, scale: 0.92, x: 15, filter: "blur(4px)", transition: { duration: 0.15 } }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 340,
-                        damping: 28,
-                        delay: 0.45,
-                      }}
-                      className="absolute top-1/2 -translate-y-1/2 flex flex-col items-start text-left gap-3.5 w-[92%] sm:w-[380px] md:w-[420px] lg:w-[460px] max-w-[460px] p-5 sm:p-6 rounded-3xl bg-zinc-100/95 dark:bg-zinc-900/95 md:bg-zinc-100/60 md:dark:bg-white/[0.03] backdrop-blur-xl border-0 outline-none ring-0 shadow-2xl md:shadow-xl pointer-events-auto font-sans left-1/2 -translate-x-1/2 md:left-[calc(50%-60px)] md:translate-x-0"
-                    >
-                      {/* Step 1: Title, Category Pill & Domain */}
-                      <motion.div
-                        initial={{ opacity: 0, x: 25, filter: "blur(4px)" }}
-                        animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                        exit={{ opacity: 0, x: 15, filter: "blur(4px)", transition: { duration: 0.15 } }}
-                        transition={{
-                          duration: 0.35,
-                          delay: 0.54,
-                          ease: [0.16, 1, 0.3, 1],
-                        }}
-                        className="flex flex-col gap-1 w-full"
-                      >
-                        <div className="flex items-center gap-2.5 flex-wrap">
-                          <h3 className="text-2xl sm:text-3xl font-normal font-sans tracking-tight text-zinc-900 dark:text-white leading-none">
-                            {selectedBrand.name}
-                          </h3>
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-zinc-100/90 dark:bg-zinc-800/70 text-zinc-700 dark:text-zinc-300 text-[12px] font-medium font-sans shadow-[0_1px_2px_rgba(0,0,0,0.04)] select-none">
-                            {selectedBrand.category === "components"
-                              ? "Component Kit"
-                              : selectedBrand.category === "motion"
-                              ? "Motion & Physics"
-                              : selectedBrand.category === "systems"
-                              ? "Design System"
-                              : selectedBrand.category === "portfolios"
-                              ? "Creative Portfolio"
-                              : selectedBrand.category}
-                          </span>
-                        </div>
-                        <span className="text-xs text-[#6495ED] font-mono hover:underline cursor-pointer">
-                          {selectedBrand.url ? selectedBrand.url.replace(/^https?:\/\//, "").replace(/\/$/, "") : ""}
-                        </span>
-                      </motion.div>
-
-                      {/* Step 2: Expanded Description */}
-                      {selectedBrand.description && (
-                        <motion.p
-                          initial={{ opacity: 0, x: 25, filter: "blur(4px)" }}
-                          animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                          exit={{ opacity: 0, x: 15, filter: "blur(4px)", transition: { duration: 0.15 } }}
-                          transition={{
-                            duration: 0.35,
-                            delay: 0.62,
-                            ease: [0.16, 1, 0.3, 1],
-                          }}
-                          className="text-xs sm:text-sm md:text-[15px] font-sans text-zinc-600 dark:text-zinc-300 leading-relaxed max-w-lg"
-                        >
-                          {selectedBrand.description}
-                        </motion.p>
-                      )}
-
-                      {/* Step 3: Desktop Feature Tags Bar */}
-                      <motion.div
-                        initial={{ opacity: 0, x: 25, filter: "blur(4px)" }}
-                        animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                        exit={{ opacity: 0, x: 15, filter: "blur(4px)", transition: { duration: 0.15 } }}
-                        transition={{
-                          duration: 0.35,
-                          delay: 0.70,
-                          ease: [0.16, 1, 0.3, 1],
-                        }}
-                        className="hidden sm:flex items-center gap-2 flex-wrap text-[11px] text-zinc-500 dark:text-zinc-400 font-mono"
-                      >
-                        <span className="px-2.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-0">
-                          UI Component
-                        </span>
-                        <span className="px-2.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-0">
-                          Design Engineering
-                        </span>
-                        <span className="px-2.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-0">
-                          Curated
-                        </span>
-                      </motion.div>
-
-                      {/* Step 4: Action Buttons (Equal Size Side-by-Side) */}
-                      <motion.div
-                        initial={{ opacity: 0, x: 25, filter: "blur(4px)" }}
-                        animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                        exit={{ opacity: 0, x: 15, filter: "blur(4px)", transition: { duration: 0.15 } }}
-                        transition={{
-                          duration: 0.35,
-                          delay: 0.78,
-                          ease: [0.16, 1, 0.3, 1],
-                        }}
-                        className="flex items-center gap-2.5 mt-1 w-full font-sans"
-                      >
-                        {selectedBrand.url && (
-                          <a
-                            href={selectedBrand.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => handleVisitWebsite(e, selectedBrand.url)}
-                            className="flex-1 py-2.5 px-4 rounded-xl bg-zinc-900 dark:bg-[#6495ED] hover:bg-zinc-800 dark:hover:bg-[#5382dc] text-white dark:text-white text-xs font-medium font-sans flex items-center justify-center transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98] border-0 outline-none ring-0 shadow-sm cursor-pointer text-center"
-                          >
-                            <span className="truncate">Visit {selectedBrand.name}</span>
-                          </a>
-                        )}
-                        <button
-                          type="button"
-                          onClick={handleBack}
-                          className="flex-1 py-2.5 px-4 rounded-xl bg-zinc-200/80 dark:bg-zinc-800/90 hover:bg-zinc-300/80 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-medium font-sans flex items-center justify-center transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98] border-0 outline-none ring-0 cursor-pointer text-center"
-                        >
-                          <span>Back</span>
-                        </button>
-                      </motion.div>
-                    </motion.div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Bottom Tip & Ask AI Action (Smooth Slide-Up with 4s Initial Delay, Persistent Afterwards) */}
-          <motion.div
-            initial={hasSeenTip ? false : { opacity: 0, y: 18, filter: "blur(5px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={
-              hasSeenTip
-                ? { duration: 0.2 }
-                : {
-                    duration: 0.7,
-                    delay: 4,
-                    ease: [0.16, 1, 0.3, 1],
-                  }
-            }
-            onAnimationComplete={() => {
-              if (!hasSeenTip) setHasSeenTip(true);
-            }}
-            className="pb-6 pt-2 px-6 flex items-center justify-center gap-2 text-center flex-wrap font-sans select-none z-30 relative"
-          >
-            <style>{`
-              @keyframes shimmer-text {
-                0% { background-position: 200% 0; }
-                100% { background-position: -200% 0; }
-              }
-              .animate-shimmer-text {
-                background: linear-gradient(90deg, #6495ED 0%, #C4D7FF 50%, #6495ED 100%);
-                background-size: 200% auto;
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                animation: shimmer-text 3s infinite linear;
-              }
-            `}</style>
-            <span className="text-xs sm:text-[13px] text-zinc-500 dark:text-zinc-400 font-normal">
-              Want me to help you find what you need? Ask me away
-            </span>
-            <button
-              type="button"
-              onClick={() => {
-                setIsDrawerOpen(false);
-                window.dispatchEvent(new CustomEvent("open-ai"));
-              }}
-              onMouseEnter={() => {
-                import("@/components/prompt-box-preview");
-              }}
-              className="relative group cursor-pointer transition-all duration-200 active:scale-95 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-zinc-100/90 dark:bg-zinc-800/70 hover:bg-zinc-200/90 dark:hover:bg-zinc-700/90 text-[12px] font-medium border-0 outline-none ring-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
-              aria-label="Ask AI Assistant"
-            >
-              <svg
-                className="size-3.5 shrink-0"
-                viewBox="0 0 18 18"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M3.025,5.623c.068,.204,.26,.342,.475,.342s.406-.138,.475-.342l.421-1.263,1.263-.421c.204-.068,.342-.259,.342-.474s-.138-.406-.342-.474l-1.263-.421-.421-1.263c-.137-.408-.812-.408-.949,0l-.421,1.263-1.263,.421c-.204,.068-.342,.259-.342,.474s.138,.406,.342,.474l1.263,.421,.421,1.263Z"
-                  className="fill-[#6495ED]"
-                />
-                <path
-                  d="M16.525,8.803l-4.535-1.793-1.793-4.535c-.227-.572-1.168-.572-1.395,0l-1.793,4.535-4.535,1.793c-.286,.113-.475,.39-.475,.697s.188,.584,.475,.697l4.535,1.793,1.793,4.535c.113,.286,.39,.474,.697,.474s.584-.188,.697-.474l1.793-4.535,4.535-1.793c.286-.113,.475-.39,.475-.697s-.188-.584-.475-.697Z"
-                  className="fill-[#6495ED]"
-                />
-              </svg>
-              <span className="animate-shimmer-text font-medium leading-none">Ask AI</span>
-            </button>
-          </motion.div>
-        </CenterMorphModalContent>
-      </CenterMorphModal>
+            {renderGalleryContent()}
+          </CenterMorphModalContent>
+        </CenterMorphModal>
+      )}
 
       {/* Curved Screen Transition Overlay (starts at center and envelops the screen smoothly) */}
       <AnimatePresence>

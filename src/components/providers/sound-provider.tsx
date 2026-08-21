@@ -40,7 +40,7 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
       if (interactiveEl) {
         if (interactiveEl !== lastHoveredRef.current) {
           lastHoveredRef.current = interactiveEl;
-          playHoverTick(0.03);
+          playHoverTick(0.06);
         }
       } else {
         lastHoveredRef.current = null;
@@ -57,7 +57,7 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
         const now = Date.now();
         if (now - lastClickTimeRef.current > 40) {
           lastClickTimeRef.current = now;
-          playSoftClick(0.045);
+          playSoftClick(0.1);
         }
       }
     };

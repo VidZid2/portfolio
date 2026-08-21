@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
@@ -87,7 +87,7 @@ export function CursorFollowerPet() {
         className="relative cursor-pointer z-10"
         onMouseEnter={() => {
           setIsHovered(true);
-          playHoverTick(0.02);
+          playHoverTick(0.055);
         }}
         onMouseLeave={() => setIsHovered(false)}
         onClick={handleClick}

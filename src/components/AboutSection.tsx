@@ -278,11 +278,11 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
                   else itemRefs.current.delete(bullet.id);
                 }}
                 onClick={() => {
-                  playSoftClick(0.04);
+                  playSoftClick(0.1);
                   setActiveIndex(idx);
                 }}
                 onMouseEnter={() => {
-                  if (idx !== activeIndex) playHoverTick(0.015);
+                  if (idx !== activeIndex) playHoverTick(0.055);
                 }}
                 className={cn(
                   "relative flex items-start cursor-pointer transition-colors duration-500 group",

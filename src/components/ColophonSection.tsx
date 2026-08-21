@@ -21,13 +21,26 @@ const dashedMaskVertical = {
 };
 
 const INSPIRED_BY = [
-  { num: "01", name: "Tailwind CSS" },
-  { num: "02", name: "shadcn/ui" },
-  { num: "03", name: "Vercel" },
-  { num: "04", name: "Evil Charts" },
-  { num: "05", name: "Devouring Details" },
-  { num: "06", name: "Skiper UI" },
-  { num: "07", name: "Making Software" },
+  { num: "01", name: "Aceternity UI", url: "https://ui.aceternity.com" },
+  { num: "02", name: "Magic UI", url: "https://magicui.design" },
+  { num: "03", name: "Chánh Đại", url: "https://chanhdai.com" },
+  { num: "04", name: "Cult UI", url: "https://www.cult-ui.com" },
+  { num: "05", name: "CuiCui UI", url: "https://cuicui.day" },
+  { num: "06", name: "Fancy Components", url: "https://fancycomponents.dev" },
+  { num: "07", name: "Sora UI", url: "https://soraui.com" },
+  { num: "08", name: "Ruixen UI", url: "https://ruixen.com" },
+  { num: "09", name: "Origin Kit UI", url: "https://originui.com" },
+  { num: "10", name: "Refinery UI", url: "https://refineryui.com" },
+  { num: "11", name: "ExtendUI", url: "https://extend-ui.com" },
+  { num: "12", name: "Iconiq", url: "https://iconiq.design" },
+  { num: "13", name: "BEUI", url: "https://beui.design" },
+  { num: "14", name: "Unlumen UI", url: "https://unlumen.me" },
+  { num: "15", name: "Vengence UI", url: "https://vengence.design" },
+  { num: "16", name: "Watermelon UI", url: "https://watermelon.design" },
+  { num: "17", name: "Scribble Animator", url: "https://scribbleanimator.com" },
+  { num: "18", name: "Arlan Marat", url: "https://arlanmarat.com" },
+  { num: "19", name: "dqnamo's", url: "https://dqnamo.com" },
+  { num: "20", name: "bklit", url: "https://bklit.com" },
 ];
 
 const LABEL_CLASS =
@@ -47,7 +60,7 @@ export function ColophonSection() {
     <motion.section
       layout="position"
       transition={{ type: "spring", stiffness: 240, damping: 28 }}
-      className="relative z-10 w-[calc(100%+24px)] -mx-3 sm:w-[calc(100%+32px)] sm:-mx-4 flex flex-col font-sans mt-0 select-none"
+      className="relative z-10 w-[calc(100%+24px)] -mx-3 sm:w-[calc(100%+32px)] sm:-mx-4 flex flex-col font-mono mt-0 select-none"
       aria-label="Colophon and Portfolio Metadata"
     >
       {/* Top full-width line */}
@@ -59,11 +72,11 @@ export function ColophonSection() {
       <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
 
       {/* Row 1: Header (Domain + Subtitle) */}
-      <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between py-3 sm:py-3.5 px-3 sm:px-4 gap-1 sm:gap-4">
-        <span className="font-bold text-[14px] sm:text-[15px] tracking-tight text-zinc-900 dark:text-zinc-100 font-mono">
+      <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between py-1.5 sm:py-2 px-3 sm:px-4 gap-1 sm:gap-4 min-h-[34px]">
+        <span className="font-bold text-[13.5px] sm:text-[14px] tracking-tight text-zinc-900 dark:text-zinc-100 font-mono leading-tight">
           sync-portfolio-jd.vercel.app
         </span>
-        <span className="text-[12px] sm:text-[13px] text-zinc-500 dark:text-zinc-400">
+        <span className="text-[11.5px] sm:text-[12px] font-mono text-zinc-500 dark:text-zinc-400 leading-tight">
           An interactive blueprint UI system crafted with obsessive detail.
         </span>
 
@@ -198,13 +211,13 @@ export function ColophonSection() {
           />
         </div>
 
-        {/* Cell 8: Typeface */}
+        {/* Cell 8: Aesthetic / Design System */}
         <div className="relative p-3 sm:p-4 flex flex-col gap-1">
           <span className={LABEL_CLASS}>
-            Typeface
+            Aesthetic
           </span>
           <span className="text-[13px] sm:text-[14px] font-mono font-normal text-zinc-800 dark:text-zinc-200">
-            Geist Mono
+            Technical Blueprint
           </span>
         </div>
 
@@ -264,7 +277,14 @@ export function ColophonSection() {
               <span className="font-mono font-normal text-zinc-400 dark:text-zinc-500 shrink-0">
                 {item.num}
               </span>
-              <span className="font-sans font-normal truncate">{item.name}</span>
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono font-normal truncate hover:text-[#6495ED] dark:hover:text-[#6495ED] transition-colors"
+              >
+                {item.name}
+              </a>
             </div>
           ))}
         </div>
@@ -281,10 +301,10 @@ export function ColophonSection() {
       {/* Row 6: Bottom Copyright & Socials */}
       <div className="relative flex flex-col sm:flex-row items-center justify-between py-3.5 px-3 sm:px-4 gap-3 sm:gap-4">
         {/* Left: Copyright & Trademark */}
-        <div className="flex items-center gap-1.5 sm:gap-2 text-[13px] sm:text-[14px] text-zinc-600 dark:text-zinc-400">
+        <div className="flex items-center gap-1.5 sm:gap-2 text-[12px] sm:text-[13px] font-mono text-zinc-600 dark:text-zinc-400">
           <span>&copy; 2026 Josiah De Asis.</span>
           <DrawUnderlineLink
-            className="text-[13px] sm:text-[14px] text-zinc-600 dark:text-zinc-400 hover:text-[#6495ED] dark:hover:text-[#6495ED] transition-colors"
+            className="text-[12px] sm:text-[13px] font-mono text-zinc-600 dark:text-zinc-400 hover:text-[#6495ED] dark:hover:text-[#6495ED] transition-colors"
           >
             Trademark
           </DrawUnderlineLink>

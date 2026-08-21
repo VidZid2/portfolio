@@ -29,6 +29,7 @@
     "@ai-elements": "https://ai-sdk.dev/elements/api/registry/{name}.json",
     "@magicui": "https://magicui.design/r/{name}",
     "@extend": "https://ui.extend.ai/r/{name}.json",
-    "@skiper-ui": "https://skiper-ui.com/registry/{name}.json"
+    "@skiper-ui": "https://skiper-ui.com/registry/{name}.json",
+    "@bklit": "https://ui.bklit.com/r/{name}.json"
   }
 }

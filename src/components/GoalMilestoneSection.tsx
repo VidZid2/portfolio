@@ -47,9 +47,9 @@ export function GoalMilestoneSection({ hasSeenScrollAnimations = false }: { hasS
           hidden: { opacity: 0, y: -10 },
           visible: { opacity: 1, y: 0, transition: { type: "spring", bounce: 0.3 } }
         }}
-        className="py-2 relative flex items-center justify-between"
+        className="py-1 relative flex items-center justify-between min-h-[30px]"
       >
-        <ScrambleText ref={scrambleRef} as="h2" className="text-[18px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
+        <ScrambleText ref={scrambleRef} as="h2" className="text-[17px] sm:text-[18px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight leading-none">
           Goal Milestones
         </ScrambleText>
         

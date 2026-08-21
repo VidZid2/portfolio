@@ -28,11 +28,11 @@ const SoftPillButton = React.forwardRef<HTMLButtonElement, SoftPillButtonProps>(
           className,
         )}
         onMouseEnter={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          playHoverTick(0.025);
+          playHoverTick(0.06);
           props.onMouseEnter?.(e);
         }}
         onMouseDown={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          playSoftClick(0.05);
+          playSoftClick(0.1);
           props.onMouseDown?.(e);
         }}
         {...props}

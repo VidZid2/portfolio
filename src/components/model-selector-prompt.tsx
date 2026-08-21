@@ -475,7 +475,7 @@ const SegmentedRadio = memo(function SegmentedRadio<TValue extends string>({
                 : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-white",
             )}
             key={option.value}
-            onPointerEnter={() => playHoverTick(0.02)}
+            onPointerEnter={() => playHoverTick(0.055)}
             onClick={() => onValueChange(option.value)}
             role="radio"
             type="button"
@@ -636,7 +636,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                       <button
                         type="button"
                         onClick={() => {
-                          playSoftClick(0.04);
+                          playSoftClick(0.09);
                           setView("changelog");
                         }}
                         className="flex size-6 sm:size-6.5 items-center justify-center rounded-full border-0 outline-none shadow-none bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors group/changelog shrink-0 cursor-pointer"
@@ -711,7 +711,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                   {!isMetricsRevealed && (
                     <div
                       onClick={() => {
-                        playSoftClick(0.04);
+                        playSoftClick(0.09);
                         setIsMetricsRevealed(true);
                       }}
                       className="absolute inset-0 flex flex-col items-center justify-center p-2 text-center z-10 cursor-pointer rounded-lg bg-white/40 dark:bg-neutral-900/40 backdrop-blur-[2px] transition-all hover:bg-white/60 dark:hover:bg-neutral-900/60"
@@ -756,7 +756,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                   <SegmentedRadio<SpeedLevel>
                     ariaLabel="Speed"
                     onValueChange={(speedValue) => {
-                      playSoftClick(0.04);
+                      playSoftClick(0.09);
                       onConfigurationChange({ speed: speedValue });
                     }}
                     options={[
@@ -782,7 +782,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
               <button
                 type="button"
                 onClick={() => {
-                  playSoftClick(0.04);
+                  playSoftClick(0.09);
                   setView("details");
                 }}
                 className="flex size-6 items-center justify-center rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-300 transition-colors shrink-0 cursor-pointer border-0 outline-none shadow-none"
@@ -1200,7 +1200,7 @@ export function ModelSelectorPrompt({
           transition={{ duration: 0.3, type: "spring", stiffness: 350, damping: 25 }}
           disabled={disabled || isSending}
           onChange={(event) => {
-            playKeyTick(0.015);
+            playKeyTick(0.035);
             updatePrompt(event.target.value);
           }}
           onKeyDown={(event) => {
@@ -1317,7 +1317,7 @@ export function ModelSelectorPrompt({
                                 onInputValueChange={closeModelPreview}
                                 onValueChange={(nextModel) => {
                                   if (nextModel) {
-                                    playSoftClick(0.04);
+                                    playSoftClick(0.09);
                                     updateSelectedModel(nextModel);
                                     setModelDropdownOpen(false);
                                   }
