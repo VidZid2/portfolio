@@ -108,26 +108,6 @@ export default function ChangelogPage() {
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
         className="w-full pt-[calc(22vh+112px)] pb-16 px-3 sm:px-4 md:px-6 lg:px-8 flex flex-col z-10 relative overflow-hidden"
       >
-        {/* Drag Hint Banner */}
-        <div className="flex items-center justify-between text-[11.5px] sm:text-[12px] font-mono text-zinc-500 dark:text-zinc-400 pt-3 sm:pt-4 pb-3 px-2 sm:px-3 mb-2 select-none">
-          <span className="flex items-center gap-2">
-            <svg
-              className="size-3.5 text-zinc-400 dark:text-zinc-500 shrink-0"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="m9 18-6-6 6-6" />
-              <path d="m15 6 6 6-6 6" />
-            </svg>
-            Drag horizontally to explore timeline
-          </span>
-          <span className="hidden sm:inline text-zinc-400 dark:text-zinc-500">0.1 Start ➔ 0.2 Start (Now)</span>
-        </div>
-
         <div className="relative py-2 w-full">
           <TimescaleIntroScroll>
             <TimescaleRoot className="mt-2">

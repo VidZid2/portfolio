@@ -43,18 +43,18 @@ export function TimescaleRoot({
         )}
         {...props}
       >
-        {/* Left Fade Gradient - Appears only when scrolled away from the left edge */}
+        {/* Left Fade Gradient - Active only when scrolled away from left */}
         <div
           className={cn(
             "pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 z-20 bg-gradient-to-r from-background via-background/80 to-transparent transition-opacity duration-300",
-            canScrollLeft ? "opacity-100" : "opacity-0 pointer-events-none"
+            canScrollLeft ? "opacity-100" : "opacity-0"
           )}
         />
-        {/* Right Fade Gradient - Appears only when there is more content to the right */}
+        {/* Right Fade Gradient - Active only when more items are available on right */}
         <div
           className={cn(
             "pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 z-20 bg-gradient-to-l from-background via-background/80 to-transparent transition-opacity duration-300",
-            canScrollRight ? "opacity-100" : "opacity-0 pointer-events-none"
+            canScrollRight ? "opacity-100" : "opacity-0"
           )}
         />
         {children}
@@ -75,6 +75,7 @@ export function TimescaleViewport({
   const isDown = useRef(false);
   const startX = useRef(0);
   const startScrollLeft = useRef(0);
+  const exactScroll = useRef(0);
   const velocity = useRef(0);
   const lastX = useRef(0);
   const lastTime = useRef(0);
@@ -106,6 +107,7 @@ export function TimescaleViewport({
     hasMoved.current = false;
     startX.current = e.clientX;
     startScrollLeft.current = viewportRef.current.scrollLeft;
+    exactScroll.current = viewportRef.current.scrollLeft;
     lastX.current = e.clientX;
     lastTime.current = performance.now();
     velocity.current = 0;
@@ -125,7 +127,7 @@ export function TimescaleViewport({
 
     if (dt > 0) {
       const instantVel = (lastX.current - currentX) / dt;
-      velocity.current = velocity.current * 0.7 + instantVel * 0.3;
+      velocity.current = velocity.current * 0.6 + instantVel * 0.4;
       lastX.current = currentX;
       lastTime.current = now;
     }
@@ -135,7 +137,8 @@ export function TimescaleViewport({
       hasMoved.current = true;
     }
 
-    viewportRef.current.scrollLeft = startScrollLeft.current - deltaX;
+    exactScroll.current = startScrollLeft.current - deltaX;
+    viewportRef.current.scrollLeft = exactScroll.current;
     updateScrollBounds();
   };
 
@@ -150,7 +153,7 @@ export function TimescaleViewport({
       }
     } catch (_) {}
 
-    if (Math.abs(velocity.current) > 0.05) {
+    if (Math.abs(velocity.current) > 0.03) {
       let vel = velocity.current * 16.6;
       const maxVel = 50;
       vel = Math.max(-maxVel, Math.min(maxVel, vel));
@@ -161,13 +164,14 @@ export function TimescaleViewport({
         const deltaMs = Math.min(32, time - lastTick);
         lastTick = time;
 
-        const decay = Math.pow(0.95, deltaMs / 16.6);
+        const decay = Math.pow(0.96, deltaMs / 16.6);
         vel *= decay;
 
-        viewportRef.current.scrollLeft += vel * (deltaMs / 16.6);
+        exactScroll.current += vel * (deltaMs / 16.6);
+        viewportRef.current.scrollLeft = exactScroll.current;
         updateScrollBounds();
 
-        if (Math.abs(vel) > 0.2) {
+        if (Math.abs(vel) > 0.02) {
           animFrameId.current = requestAnimationFrame(glide);
         } else {
           animFrameId.current = null;
@@ -292,7 +296,7 @@ export function TimescaleItem({
       data-slot="timescale-item"
       data-active={isActive ? "true" : undefined}
       className={cn(
-        "group/item relative transition-all duration-300",
+        "group/item relative transition-opacity duration-200",
         "opacity-60 hover:opacity-100 data-[active=true]:opacity-100",
         "group-data-[orientation=horizontal]/timescale:w-20 group-data-[orientation=horizontal]/timescale:shrink-0 group-data-[orientation=horizontal]/timescale:not-last:pr-4 group-data-[orientation=horizontal]/timescale:has-[[data-slot=timescale-content]]:w-80",
         "group-data-[orientation=vertical]/timescale:grid group-data-[orientation=vertical]/timescale:w-full group-data-[orientation=vertical]/timescale:grid-cols-[var(--timescale-rail)_1fr] group-data-[orientation=vertical]/timescale:gap-x-4 group-data-[orientation=vertical]/timescale:not-last:pb-4",
@@ -311,7 +315,7 @@ export function TimescaleTick({ className, ...props }: TimescaleTickProps) {
       data-slot="timescale-tick"
       aria-hidden="true"
       className={cn(
-        "absolute z-10 transition-all duration-300",
+        "absolute z-10 transition-colors duration-200",
         "bg-black/30 dark:bg-white/30 group-hover/item:bg-[#6495ED] dark:group-hover/item:bg-white group-data-[active=true]/item:bg-[#6495ED] dark:group-data-[active=true]/item:bg-white",
         "group-data-[orientation=horizontal]/timescale:top-[var(--timescale-rail)] group-data-[orientation=horizontal]/timescale:left-0 group-data-[orientation=horizontal]/timescale:h-3 group-hover/item:group-data-[orientation=horizontal]/timescale:h-4.5 group-data-[active=true]/item:group-data-[orientation=horizontal]/timescale:h-4.5 group-data-[orientation=horizontal]/timescale:w-[1.5px] group-data-[orientation=horizontal]/timescale:-translate-y-1/2",
         "group-data-[orientation=vertical]/timescale:top-2.5 group-data-[orientation=vertical]/timescale:left-[var(--timescale-rail)] group-data-[orientation=vertical]/timescale:h-[1.5px] group-data-[orientation=vertical]/timescale:w-3 group-hover/item:group-data-[orientation=vertical]/timescale:w-4.5 group-data-[active=true]/item:group-data-[orientation=vertical]/timescale:w-4.5 group-data-[orientation=vertical]/timescale:-translate-x-1/2",
