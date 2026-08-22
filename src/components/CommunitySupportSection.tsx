@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { useTransition } from "@/components/TransitionProvider";
 import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 import ScrambleText from "@/components/ruixen/scramble-text";
 import { usePerformance } from "@/hooks/usePerformance";
@@ -43,6 +44,7 @@ export function CommunitySupportSection({
 }: CommunitySupportSectionProps) {
   const phase = useArcReveal();
   const { isLowTier } = usePerformance();
+  const { navigate } = useTransition();
   const skip = hasSeenScrollAnimations || isLowTier;
   const [modalOpen, setModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -76,6 +78,13 @@ export function CommunitySupportSection({
       toast.success("Email copied to clipboard!");
       setTimeout(() => setCopiedEmail(false), 2000);
     }
+  };
+
+  const handleContactClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    playSoftClick();
+    setModalOpen(false);
+    navigate("/contact");
   };
 
   const handleOpenModal = () => {
@@ -157,36 +166,59 @@ export function CommunitySupportSection({
         <ExternalLink className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors shrink-0" />
       </a>
 
-      {/* 3. Direct Sponsorship / Inquiries via Email */}
-      <div className="p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
-              <Mail className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-              <span className="text-xs font-semibold font-sans">Direct Inquiries & Custom Sponsorship</span>
-            </div>
-          </div>
-          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-snug font-sans">
-            Interested in featured sponsorship slots, collaboration, or custom contributions? Reach out:
-          </p>
-          <div className="flex items-center gap-2 mt-1">
-            <a
-              href={`mailto:${email}?subject=[Open Source Support] Tip & Sponsorship`}
-              onClick={() => playSoftClick()}
-              className="flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 text-[11px] font-medium transition-colors"
-            >
-              <Mail className="w-3 h-3" />
-              <span>Send Email</span>
-            </a>
-            <button
-              type="button"
-              onClick={handleCopyEmail}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-zinc-200/80 dark:bg-zinc-800 hover:bg-zinc-300/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-[11px] font-medium transition-colors cursor-pointer border-0"
-            >
-              {copiedEmail ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3 text-zinc-400" />}
-              <span>{copiedEmail ? "Copied" : "Copy"}</span>
-            </button>
+      {/* 3. Direct Sponsorship / Inquiries via Email & Contact */}
+      <div className="p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 flex flex-col gap-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
+            <Mail className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+            <span className="text-xs font-semibold font-sans">Direct Inquiries & Custom Sponsorship</span>
           </div>
         </div>
+
+        {/* Real Email Display with Copy */}
+        <div className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg bg-zinc-200/60 dark:bg-zinc-800/60 font-mono text-[11px] text-zinc-700 dark:text-zinc-300">
+          <span className="truncate select-all">{email}</span>
+          <button
+            type="button"
+            onClick={handleCopyEmail}
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-800 dark:text-zinc-200 text-[10.5px] font-medium transition-colors cursor-pointer border-0 shrink-0"
+            title="Copy Email"
+          >
+            {copiedEmail ? (
+              <>
+                <Check className="w-3 h-3 text-emerald-500" />
+                <span className="text-emerald-500 font-medium">Copied</span>
+              </>
+            ) : (
+              <>
+                <Copy className="w-3 h-3 text-zinc-400" />
+                <span>Copy</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Contact Page Navigation with Transition Curve + Mailto */}
+        <div className="flex items-center gap-2 mt-0.5">
+          <button
+            type="button"
+            onClick={handleContactClick}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 text-[11px] font-medium transition-all duration-200 cursor-pointer shadow-xs active:scale-[0.98] border-0"
+          >
+            <ArrowUpRightIcon className="w-3.5 h-3.5" />
+            <span>Open Contact Form</span>
+          </button>
+          <a
+            href={`mailto:${email}?subject=[Open Source Support] Tip & Sponsorship`}
+            onClick={() => playSoftClick()}
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-zinc-200/80 dark:bg-zinc-800 hover:bg-zinc-300/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-[11px] font-medium transition-colors"
+            title="Send Email directly"
+          >
+            <Mail className="w-3.5 h-3.5" />
+            <span>Mail</span>
+          </a>
+        </div>
+      </div>
     </div>
   );
 
