@@ -11,6 +11,7 @@ export type TimescaleRootProps = React.ComponentProps<"div"> & {
 export function TimescaleRoot({
   className,
   orientation = "horizontal",
+  children,
   ...props
 }: TimescaleRootProps) {
   return (
@@ -18,12 +19,19 @@ export function TimescaleRoot({
       data-slot="timescale-root"
       data-orientation={orientation}
       className={cn(
-        "group/timescale relative flex w-full [--timescale-rail:3.5rem]",
+        "group/timescale relative flex w-full [--timescale-rail:3.5rem] overflow-hidden",
         "data-[orientation=vertical]:flex-col",
+        "[mask-image:linear-gradient(to_right,transparent_0%,black_48px,black_calc(100%-48px),transparent_100%)]",
         className
       )}
       {...props}
-    />
+    >
+      {/* Left Fade Gradient */}
+      <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-16 z-20 bg-gradient-to-r from-background via-background/80 to-transparent" />
+      {/* Right Fade Gradient */}
+      <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-16 z-20 bg-gradient-to-l from-background via-background/80 to-transparent" />
+      {children}
+    </div>
   );
 }
 
@@ -31,39 +39,82 @@ export type TimescaleViewportProps = React.ComponentProps<"div">;
 
 export function TimescaleViewport({
   className,
+  children,
   ...props
 }: TimescaleViewportProps) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const isDown = useRef(false);
   const startX = useRef(0);
-  const scrollLeft = useRef(0);
+  const startScrollLeft = useRef(0);
+  const lastX = useRef(0);
+  const lastTime = useRef(0);
+  const velocity = useRef(0);
+  const animFrameId = useRef<number | null>(null);
   const hasMoved = useRef(false);
+
+  const stopMomentum = () => {
+    if (animFrameId.current !== null) {
+      cancelAnimationFrame(animFrameId.current);
+      animFrameId.current = null;
+    }
+  };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!viewportRef.current) return;
+    stopMomentum();
     isDown.current = true;
     hasMoved.current = false;
-    startX.current = e.pageX - viewportRef.current.offsetLeft;
-    scrollLeft.current = viewportRef.current.scrollLeft;
-  };
-
-  const handleMouseLeave = () => {
-    isDown.current = false;
-    hasMoved.current = false;
-  };
-
-  const handleMouseUp = () => {
-    isDown.current = false;
+    startX.current = e.pageX;
+    startScrollLeft.current = viewportRef.current.scrollLeft;
+    lastX.current = e.pageX;
+    lastTime.current = performance.now();
+    velocity.current = 0;
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isDown.current || !viewportRef.current) return;
-    const x = e.pageX - viewportRef.current.offsetLeft;
-    const walk = (x - startX.current) * 1.5;
-    if (Math.abs(x - startX.current) > 3) {
+    const currentX = e.pageX;
+    const now = performance.now();
+    const dt = now - lastTime.current;
+
+    if (dt > 0) {
+      velocity.current = (lastX.current - currentX) / dt;
+      lastX.current = currentX;
+      lastTime.current = now;
+    }
+
+    const deltaX = currentX - startX.current;
+    if (Math.abs(deltaX) > 3) {
       hasMoved.current = true;
     }
-    viewportRef.current.scrollLeft = scrollLeft.current - walk;
+
+    viewportRef.current.scrollLeft = startScrollLeft.current - deltaX;
+  };
+
+  const handleMouseUp = () => {
+    if (!isDown.current || !viewportRef.current) return;
+    isDown.current = false;
+
+    if (Math.abs(velocity.current) > 0.05) {
+      let vel = velocity.current * 16;
+      const glide = () => {
+        if (!viewportRef.current) return;
+        viewportRef.current.scrollLeft += vel;
+        vel *= 0.94;
+        if (Math.abs(vel) > 0.5) {
+          animFrameId.current = requestAnimationFrame(glide);
+        } else {
+          animFrameId.current = null;
+        }
+      };
+      animFrameId.current = requestAnimationFrame(glide);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (isDown.current) {
+      handleMouseUp();
+    }
   };
 
   const handleClickCapture = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -73,6 +124,10 @@ export function TimescaleViewport({
       hasMoved.current = false;
     }
   };
+
+  useEffect(() => {
+    return () => stopMomentum();
+  }, []);
 
   return (
     <div
@@ -89,7 +144,9 @@ export function TimescaleViewport({
         className
       )}
       {...props}
-    />
+    >
+      {children}
+    </div>
   );
 }
 
@@ -146,14 +203,22 @@ export function TimescaleRail({ className, ...props }: TimescaleRailProps) {
   );
 }
 
-export type TimescaleItemProps = React.ComponentProps<"div">;
+export type TimescaleItemProps = React.ComponentProps<"div"> & {
+  isActive?: boolean;
+};
 
-export function TimescaleItem({ className, ...props }: TimescaleItemProps) {
+export function TimescaleItem({
+  className,
+  isActive = false,
+  ...props
+}: TimescaleItemProps) {
   return (
     <div
       data-slot="timescale-item"
+      data-active={isActive ? "true" : undefined}
       className={cn(
-        "relative",
+        "group/item relative transition-all duration-300",
+        "opacity-60 hover:opacity-100 data-[active=true]:opacity-100",
         "group-data-[orientation=horizontal]/timescale:w-20 group-data-[orientation=horizontal]/timescale:shrink-0 group-data-[orientation=horizontal]/timescale:not-last:pr-4 group-data-[orientation=horizontal]/timescale:has-[[data-slot=timescale-content]]:w-80",
         "group-data-[orientation=vertical]/timescale:grid group-data-[orientation=vertical]/timescale:w-full group-data-[orientation=vertical]/timescale:grid-cols-[var(--timescale-rail)_1fr] group-data-[orientation=vertical]/timescale:gap-x-4 group-data-[orientation=vertical]/timescale:not-last:pb-4",
         className
@@ -171,9 +236,10 @@ export function TimescaleTick({ className, ...props }: TimescaleTickProps) {
       data-slot="timescale-tick"
       aria-hidden="true"
       className={cn(
-        "absolute z-10 bg-black/40 dark:bg-white/40",
-        "group-data-[orientation=horizontal]/timescale:top-[var(--timescale-rail)] group-data-[orientation=horizontal]/timescale:left-0 group-data-[orientation=horizontal]/timescale:h-3 group-data-[orientation=horizontal]/timescale:w-px group-data-[orientation=horizontal]/timescale:-translate-y-1/2",
-        "group-data-[orientation=vertical]/timescale:top-2.5 group-data-[orientation=vertical]/timescale:left-[var(--timescale-rail)] group-data-[orientation=vertical]/timescale:h-px group-data-[orientation=vertical]/timescale:w-3 group-data-[orientation=vertical]/timescale:-translate-x-1/2",
+        "absolute z-10 transition-all duration-300",
+        "bg-black/30 dark:bg-white/30 group-hover/item:bg-[#6495ED] dark:group-hover/item:bg-white group-data-[active=true]/item:bg-[#6495ED] dark:group-data-[active=true]/item:bg-white",
+        "group-data-[orientation=horizontal]/timescale:top-[var(--timescale-rail)] group-data-[orientation=horizontal]/timescale:left-0 group-data-[orientation=horizontal]/timescale:h-3 group-hover/item:group-data-[orientation=horizontal]/timescale:h-4.5 group-data-[active=true]/item:group-data-[orientation=horizontal]/timescale:h-4.5 group-data-[orientation=horizontal]/timescale:w-[1.5px] group-data-[orientation=horizontal]/timescale:-translate-y-1/2",
+        "group-data-[orientation=vertical]/timescale:top-2.5 group-data-[orientation=vertical]/timescale:left-[var(--timescale-rail)] group-data-[orientation=vertical]/timescale:h-[1.5px] group-data-[orientation=vertical]/timescale:w-3 group-hover/item:group-data-[orientation=vertical]/timescale:w-4.5 group-data-[active=true]/item:group-data-[orientation=vertical]/timescale:w-4.5 group-data-[orientation=vertical]/timescale:-translate-x-1/2",
         className
       )}
       {...props}
@@ -188,7 +254,8 @@ export function TimescaleAge({ className, ...props }: TimescaleAgeProps) {
     <p
       data-slot="timescale-age"
       className={cn(
-        "text-xs leading-5 font-mono font-medium text-muted-foreground tabular-nums select-none",
+        "text-xs leading-5 font-mono font-medium transition-colors duration-200 tabular-nums select-none",
+        "text-muted-foreground group-hover/item:text-zinc-800 dark:group-hover/item:text-zinc-200 group-data-[active=true]/item:text-zinc-800 dark:group-data-[active=true]/item:text-zinc-200",
         "in-[[data-slot=timescale-header]]:tracking-widest in-[[data-slot=timescale-header]]:uppercase",
         "group-data-[orientation=vertical]/timescale:col-start-1 group-data-[orientation=vertical]/timescale:row-start-1 group-data-[orientation=vertical]/timescale:pr-4 group-data-[orientation=vertical]/timescale:text-right",
         className
@@ -205,13 +272,35 @@ export function TimescaleYear({ className, ...props }: TimescaleYearProps) {
     <p
       data-slot="timescale-year"
       className={cn(
-        "text-xs leading-5 font-mono font-semibold text-zinc-900 dark:text-zinc-100 tabular-nums select-none",
+        "text-xs sm:text-[13px] leading-5 font-mono font-semibold transition-all duration-200 tabular-nums select-none",
+        "text-zinc-600 dark:text-zinc-400 group-hover/item:text-zinc-950 dark:group-hover/item:text-white group-data-[active=true]/item:text-zinc-950 dark:group-data-[active=true]/item:text-white group-hover/item:font-bold group-data-[active=true]/item:font-bold",
         "in-[[data-slot=timescale-header]]:tracking-widest in-[[data-slot=timescale-header]]:uppercase in-[[data-slot=timescale-header]]:text-muted-foreground",
         "group-data-[orientation=vertical]/timescale:col-start-2 group-data-[orientation=vertical]/timescale:row-start-1",
         className
       )}
       {...props}
     />
+  );
+}
+
+export type TimescaleBadgeProps = React.ComponentProps<"div">;
+
+export function TimescaleBadge({
+  className,
+  children,
+  ...props
+}: TimescaleBadgeProps) {
+  return (
+    <div
+      data-slot="timescale-badge"
+      className={cn(
+        "mb-2.5 flex size-6 items-center justify-center rounded-full border border-black/15 dark:border-white/20 bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 text-[11px] font-bold shadow-xs select-none",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </div>
   );
 }
 
@@ -225,7 +314,7 @@ export function TimescaleContent({
     <div
       data-slot="timescale-content"
       className={cn(
-        "w-full py-4 text-left font-sans text-xs sm:text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-400 [&_a]:text-[#6495ED] [&_a]:underline [&_a]:underline-offset-2 [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:space-y-1 [&_p]:mb-2 [&_p:last-child]:mb-0",
+        "w-full py-4 text-left font-sans text-xs sm:text-[13px] leading-relaxed transition-colors duration-200 text-zinc-600 dark:text-zinc-400 group-hover/item:text-zinc-800 dark:group-hover/item:text-zinc-200 group-data-[active=true]/item:text-zinc-800 dark:group-data-[active=true]/item:text-zinc-200 [&_a]:text-[#6495ED] [&_a]:underline [&_a]:underline-offset-2 [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:space-y-1.5 [&_p]:mb-2 [&_p:last-child]:mb-0 [&_strong]:text-zinc-900 dark:[&_strong]:text-zinc-50 [&_h3]:font-bold [&_h3]:text-sm sm:[&_h3]:text-[14px] [&_h3]:text-zinc-900 dark:[&_h3]:text-zinc-50 [&_h3]:mb-1.5",
         "group-data-[orientation=horizontal]/timescale:mt-4",
         "group-data-[orientation=vertical]/timescale:col-start-2 group-data-[orientation=vertical]/timescale:row-start-2",
         className

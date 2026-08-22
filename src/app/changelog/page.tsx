@@ -7,6 +7,7 @@ import { BlueprintGrid } from "@/components/BlueprintGrid";
 import { SubpageHeader } from "@/components/SubpageHeader";
 import {
   TimescaleAge,
+  TimescaleBadge,
   TimescaleContent,
   TimescaleHeader,
   TimescaleIntroScroll,
@@ -22,6 +23,8 @@ import {
 type Milestone = {
   version: string;
   date: string;
+  badge?: string;
+  badgeClass?: string;
   content?: string;
 };
 
@@ -29,6 +32,7 @@ const MILESTONES: Milestone[] = [
   {
     version: "0.1",
     date: "2025",
+    badge: "0.1",
     content: `### 0.1 Start — Initial Portfolio Launch
 
 The foundation of the portfolio was established.
@@ -41,6 +45,7 @@ The foundation of the portfolio was established.
   {
     version: "0.1.1",
     date: "Jan 2026",
+    badge: "⌘",
     content: `### Responsive Architecture
 
 - Mobile-first layout optimizations and touch gestures.
@@ -50,6 +55,7 @@ The foundation of the portfolio was established.
   {
     version: "0.1.2",
     date: "Mar 2026",
+    badge: "◫",
     content: `### Interactive Preview Engine
 
 - Sandboxed live iframe previews for featured agency and client builds.
@@ -59,6 +65,7 @@ The foundation of the portfolio was established.
   {
     version: "0.1.5",
     date: "May 2026",
+    badge: "✦",
     content: `### AI Terminal & Credential Viewer
 
 - Interactive AI prompt box terminal with natural language assistant.
@@ -68,6 +75,7 @@ The foundation of the portfolio was established.
   {
     version: "0.1.8",
     date: "Jul 2026",
+    badge: "⚡",
     content: `### Design System Evolution
 
 - Custom UI primitives inspired by top open-source engineering standards.
@@ -77,6 +85,8 @@ The foundation of the portfolio was established.
   {
     version: "0.2",
     date: "Now",
+    badge: "0.2",
+    badgeClass: "bg-[#6495ED]/15 text-[#6495ED] border-[#6495ED]/40 dark:bg-[#6495ED]/20 dark:text-[#38bdf8] dark:border-[#6495ED]/50",
     content: `### 0.2 Start — Blueprint Overhaul (Current)
 
 Major architectural redesign and interactive blueprint system.
@@ -131,7 +141,10 @@ export default function ChangelogPage() {
                   <TimescaleRail />
 
                   {MILESTONES.map((milestone) => (
-                    <TimescaleItem key={milestone.version}>
+                    <TimescaleItem
+                      key={milestone.version}
+                      isActive={milestone.version === "0.2"}
+                    >
                       <TimescaleTick />
 
                       <TimescaleAge>{milestone.version}</TimescaleAge>
@@ -139,6 +152,11 @@ export default function ChangelogPage() {
 
                       {milestone.content && (
                         <TimescaleContent className="typeset typeset-timescale">
+                          {milestone.badge && (
+                            <TimescaleBadge className={milestone.badgeClass}>
+                              {milestone.badge}
+                            </TimescaleBadge>
+                          )}
                           <Markdown>{milestone.content}</Markdown>
                         </TimescaleContent>
                       )}
