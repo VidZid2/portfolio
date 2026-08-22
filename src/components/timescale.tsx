@@ -19,17 +19,17 @@ export function TimescaleRoot({
       data-slot="timescale-root"
       data-orientation={orientation}
       className={cn(
-        "group/timescale relative flex w-full [--timescale-rail:3.5rem] overflow-hidden",
+        "group/timescale relative flex w-full [--timescale-rail:3.5rem] overflow-hidden select-none",
         "data-[orientation=vertical]:flex-col",
-        "[mask-image:linear-gradient(to_right,transparent_0%,black_48px,black_calc(100%-48px),transparent_100%)]",
+        "[mask-image:linear-gradient(to_right,transparent_0%,black_36px,black_calc(100%-36px),transparent_100%)]",
         className
       )}
       {...props}
     >
-      {/* Left Fade Gradient */}
-      <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-16 z-20 bg-gradient-to-r from-background via-background/80 to-transparent" />
-      {/* Right Fade Gradient */}
-      <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-16 z-20 bg-gradient-to-l from-background via-background/80 to-transparent" />
+      {/* Left Fade Gradient Overlay */}
+      <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 sm:w-16 z-20 bg-gradient-to-r from-background via-background/80 to-transparent" />
+      {/* Right Fade Gradient Overlay */}
+      <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 sm:w-16 z-20 bg-gradient-to-l from-background via-background/80 to-transparent" />
       {children}
     </div>
   );
@@ -63,6 +63,7 @@ export function TimescaleViewport({
     if (e.button !== 0) return; // Only primary mouse button
 
     stopMomentum();
+    viewportRef.current.style.scrollBehavior = "auto";
     isDown.current = true;
     hasMoved.current = false;
     startX.current = e.clientX;
@@ -82,13 +83,15 @@ export function TimescaleViewport({
     const now = performance.now();
 
     history.current.push({ x: currentX, time: now });
-    history.current = history.current.filter((entry) => now - entry.time <= 120);
+    // Keep past 100ms
+    history.current = history.current.filter((entry) => now - entry.time <= 100);
 
     const deltaX = currentX - startX.current;
-    if (Math.abs(deltaX) > 4) {
+    if (Math.abs(deltaX) > 3) {
       hasMoved.current = true;
     }
 
+    // Direct linear tracking without lag or snap fighting
     viewportRef.current.scrollLeft = startScrollLeft.current - deltaX;
   };
 
@@ -104,7 +107,7 @@ export function TimescaleViewport({
     } catch (_) {}
 
     const now = performance.now();
-    const recent = history.current.filter((entry) => now - entry.time <= 120);
+    const recent = history.current.filter((entry) => now - entry.time <= 100);
 
     if (recent.length >= 2) {
       const first = recent[0];
@@ -112,12 +115,12 @@ export function TimescaleViewport({
       const dt = last.time - first.time;
       const dx = last.x - first.x;
 
-      if (dt > 10) {
+      if (dt > 8) {
         let velocity = -(dx / dt) * 16.6;
-        const maxVelocity = 45;
+        const maxVelocity = 40;
         velocity = Math.max(-maxVelocity, Math.min(maxVelocity, velocity));
 
-        if (Math.abs(velocity) > 0.5) {
+        if (Math.abs(velocity) > 0.4) {
           let currentVel = velocity;
           let lastTick = performance.now();
 
@@ -131,7 +134,7 @@ export function TimescaleViewport({
 
             viewportRef.current.scrollLeft += currentVel * (deltaMs / 16.6);
 
-            if (Math.abs(currentVel) > 0.2) {
+            if (Math.abs(currentVel) > 0.1) {
               animFrameId.current = requestAnimationFrame(glide);
             } else {
               animFrameId.current = null;
@@ -172,31 +175,14 @@ export function TimescaleViewport({
       className={cn(
         "no-scrollbar w-full overflow-x-auto overscroll-x-contain select-none touch-pan-y",
         isDraggingState ? "cursor-grabbing" : "cursor-default",
-        "group-data-[orientation=horizontal]/timescale:flex group-data-[orientation=horizontal]/timescale:flex-1 group-data-[orientation=horizontal]/timescale:pl-20 sm:group-data-[orientation=horizontal]/timescale:pl-24",
+        "group-data-[orientation=horizontal]/timescale:flex group-data-[orientation=horizontal]/timescale:flex-1",
         className
       )}
+      style={{ scrollBehavior: "auto" }}
       {...props}
     >
       {children}
     </div>
-  );
-}
-
-export type TimescaleHeaderProps = React.ComponentProps<"div">;
-
-export function TimescaleHeader({ className, ...props }: TimescaleHeaderProps) {
-  return (
-    <div
-      data-slot="timescale-header"
-      aria-hidden="true"
-      className={cn(
-        "z-10 select-none",
-        "group-data-[orientation=horizontal]/timescale:absolute group-data-[orientation=horizontal]/timescale:top-0 group-data-[orientation=horizontal]/timescale:left-0 group-data-[orientation=horizontal]/timescale:w-20 group-data-[orientation=horizontal]/timescale:shrink-0 group-data-[orientation=horizontal]/timescale:bg-gradient-to-r group-data-[orientation=horizontal]/timescale:from-background group-data-[orientation=horizontal]/timescale:from-75% group-data-[orientation=horizontal]/timescale:to-transparent group-data-[orientation=horizontal]/timescale:pr-4 group-data-[orientation=horizontal]/timescale:text-right",
-        "group-data-[orientation=vertical]/timescale:grid group-data-[orientation=vertical]/timescale:w-full group-data-[orientation=vertical]/timescale:grid-cols-[var(--timescale-rail)_1fr] group-data-[orientation=vertical]/timescale:gap-x-4 group-data-[orientation=vertical]/timescale:bg-background",
-        className
-      )}
-      {...props}
-    />
   );
 }
 
@@ -207,7 +193,7 @@ export function TimescaleTrack({ className, ...props }: TimescaleTrackProps) {
     <div
       data-slot="timescale-track"
       className={cn(
-        "relative flex",
+        "relative flex px-4 sm:px-8",
         "group-data-[orientation=horizontal]/timescale:w-max group-data-[orientation=horizontal]/timescale:items-start pb-8",
         "group-data-[orientation=vertical]/timescale:w-full group-data-[orientation=vertical]/timescale:flex-col group-data-[orientation=vertical]/timescale:pt-4",
         className
@@ -288,7 +274,6 @@ export function TimescaleAge({ className, ...props }: TimescaleAgeProps) {
       className={cn(
         "text-xs leading-5 font-mono font-medium transition-colors duration-200 tabular-nums select-none",
         "text-muted-foreground group-hover/item:text-zinc-800 dark:group-hover/item:text-zinc-200 group-data-[active=true]/item:text-zinc-800 dark:group-data-[active=true]/item:text-zinc-200",
-        "in-[[data-slot=timescale-header]]:tracking-widest in-[[data-slot=timescale-header]]:uppercase",
         "group-data-[orientation=vertical]/timescale:col-start-1 group-data-[orientation=vertical]/timescale:row-start-1 group-data-[orientation=vertical]/timescale:pr-4 group-data-[orientation=vertical]/timescale:text-right",
         className
       )}
@@ -306,7 +291,6 @@ export function TimescaleYear({ className, ...props }: TimescaleYearProps) {
       className={cn(
         "text-xs sm:text-[13px] leading-5 font-mono font-semibold transition-all duration-200 tabular-nums select-none",
         "text-zinc-600 dark:text-zinc-400 group-hover/item:text-zinc-950 dark:group-hover/item:text-white group-data-[active=true]/item:text-zinc-950 dark:group-data-[active=true]/item:text-white group-hover/item:font-bold group-data-[active=true]/item:font-bold",
-        "in-[[data-slot=timescale-header]]:tracking-widest in-[[data-slot=timescale-header]]:uppercase in-[[data-slot=timescale-header]]:text-muted-foreground",
         "group-data-[orientation=vertical]/timescale:col-start-2 group-data-[orientation=vertical]/timescale:row-start-1",
         className
       )}
@@ -356,7 +340,7 @@ export function TimescaleContent({
   );
 }
 
-const INTRO_SCROLL_START_HOLD = 200;
+const INTRO_SCROLL_START_HOLD = 100;
 
 export function TimescaleIntroScroll({
   children,
@@ -380,7 +364,7 @@ export function TimescaleIntroScroll({
     }
 
     const timer = window.setTimeout(() => {
-      viewport.scrollTo({ left: distance, behavior: "smooth" });
+      viewport.scrollLeft = distance;
     }, INTRO_SCROLL_START_HOLD);
 
     return () => window.clearTimeout(timer);

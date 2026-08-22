@@ -10,6 +10,7 @@ interface BlueprintGridProps {
   children?: React.ReactNode;
   showRightNavbar?: boolean;
   className?: string;
+  verticalLinesDesktopOnly?: boolean;
 }
 
 const DOT_MASK_VERTICAL = {
@@ -22,32 +23,34 @@ const DOT_MASK_HORIZONTAL = {
   WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
 };
 
-const INTERSECTION_NODES = [
-  { top: "22vh", left: "24.5%" },
-  { top: "22vh", right: "24.5%" },
-  { top: "calc(22vh + 112px)", left: "24.5%" },
-  { top: "calc(22vh + 112px)", right: "24.5%" },
-];
-
 export function BlueprintGrid({
   bannerSlot,
   headerSlot,
   children,
   showRightNavbar = true,
   className = "",
+  verticalLinesDesktopOnly = false,
 }: BlueprintGridProps) {
   return (
     <div className={`min-h-screen w-full bg-white dark:bg-black relative overflow-x-hidden transition-colors duration-300 ${className}`}>
       {/* Right Side Blueprint Navigation */}
       {showRightNavbar && <RightNavbar />}
 
-      {/* Vertical Lines - Ultra-fine Micro Dots (Visible on Mobile, Tablet, and Desktop) */}
+      {/* Vertical Lines - Ultra-fine Micro Dots */}
       <div
-        className="absolute top-0 bottom-0 left-3 sm:left-4 md:left-[24.5%] w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
+        className={`absolute top-0 bottom-0 ${
+          verticalLinesDesktopOnly
+            ? "hidden md:block md:left-[24.5%]"
+            : "left-3 sm:left-4 md:left-[24.5%]"
+        } w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none`}
         style={DOT_MASK_VERTICAL}
       />
       <div
-        className="absolute top-0 bottom-0 right-3 sm:right-4 md:right-[24.5%] w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
+        className={`absolute top-0 bottom-0 ${
+          verticalLinesDesktopOnly
+            ? "hidden md:block md:right-[24.5%]"
+            : "right-3 sm:right-4 md:right-[24.5%]"
+        } w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none`}
         style={DOT_MASK_VERTICAL}
       />
 
@@ -62,10 +65,34 @@ export function BlueprintGrid({
       />
 
       {/* Ultra-Tiny Solid Nodes */}
-      <div className="absolute top-[22vh] left-3 sm:left-4 md:left-[24.5%] w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10" />
-      <div className="absolute top-[22vh] right-3 sm:right-4 md:right-[24.5%] w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-10" />
-      <div className="absolute top-[calc(22vh+112px)] left-3 sm:left-4 md:left-[24.5%] w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10" />
-      <div className="absolute top-[calc(22vh+112px)] right-3 sm:right-4 md:right-[24.5%] w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-10" />
+      <div
+        className={`absolute top-[22vh] ${
+          verticalLinesDesktopOnly
+            ? "hidden md:block md:left-[24.5%]"
+            : "left-3 sm:left-4 md:left-[24.5%]"
+        } w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10`}
+      />
+      <div
+        className={`absolute top-[22vh] ${
+          verticalLinesDesktopOnly
+            ? "hidden md:block md:right-[24.5%]"
+            : "right-3 sm:right-4 md:right-[24.5%]"
+        } w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-10`}
+      />
+      <div
+        className={`absolute top-[calc(22vh+112px)] ${
+          verticalLinesDesktopOnly
+            ? "hidden md:block md:left-[24.5%]"
+            : "left-3 sm:left-4 md:left-[24.5%]"
+        } w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10`}
+      />
+      <div
+        className={`absolute top-[calc(22vh+112px)] ${
+          verticalLinesDesktopOnly
+            ? "hidden md:block md:right-[24.5%]"
+            : "right-3 sm:right-4 md:right-[24.5%]"
+        } w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-10`}
+      />
 
       {/* Cell 1: Top Banner */}
       {bannerSlot ?? <TopBanner />}
