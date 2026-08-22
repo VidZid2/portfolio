@@ -9,7 +9,6 @@ import {
   TimescaleAge,
   TimescaleBadge,
   TimescaleContent,
-  TimescaleHeader,
   TimescaleIntroScroll,
   TimescaleItem,
   TimescaleRail,
@@ -103,7 +102,6 @@ Major architectural redesign and interactive blueprint system.
 export default function ChangelogPage() {
   return (
     <BlueprintGrid
-      wideContent
       headerSlot={
         <SubpageHeader
           title="Portfolio Changelog"
@@ -116,61 +114,64 @@ export default function ChangelogPage() {
         initial={{ opacity: 0, filter: "blur(4px)", y: 12 }}
         animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
-        className="w-full pt-[calc(22vh+112px)] pb-16 px-4 sm:px-6 md:px-8 lg:px-12 flex flex-col z-10 relative overflow-hidden"
+        className="w-full pt-[calc(22vh+112px)] pb-16 flex flex-col z-10 relative overflow-hidden"
       >
-        {/* Drag Hint Banner */}
-        <div className="flex items-center justify-between text-[11.5px] sm:text-[12px] font-mono text-zinc-500 dark:text-zinc-400 pt-3 sm:pt-4 pb-3 px-2 sm:px-3 mb-2 select-none">
-          <span className="flex items-center gap-2">
-            <svg
-              className="size-3.5 text-zinc-400 dark:text-zinc-500 shrink-0"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="m9 18-6-6 6-6" />
-              <path d="m15 6 6 6-6 6" />
-            </svg>
-            Drag horizontally to explore timeline
-          </span>
-          <span className="hidden sm:inline text-zinc-400 dark:text-zinc-500">0.1 Start ➔ 0.2 Start (Now)</span>
-        </div>
+        {/* Full-Bleed Timescale Section (Spans full viewport width left to right) */}
+        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16">
+          {/* Drag Hint Banner */}
+          <div className="flex items-center justify-between text-[11.5px] sm:text-[12px] font-mono text-zinc-500 dark:text-zinc-400 pt-3 sm:pt-4 pb-3 px-2 sm:px-3 mb-2 select-none">
+            <span className="flex items-center gap-2">
+              <svg
+                className="size-3.5 text-zinc-400 dark:text-zinc-500 shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="m9 18-6-6 6-6" />
+                <path d="m15 6 6 6-6 6" />
+              </svg>
+              Drag horizontally to explore timeline
+            </span>
+            <span className="hidden sm:inline text-zinc-400 dark:text-zinc-500">0.1 Start ➔ 0.2 Start (Now)</span>
+          </div>
 
-        <div className="relative py-2 w-full">
-          <TimescaleIntroScroll>
-            <TimescaleRoot className="mt-2">
-              <TimescaleViewport>
-                <TimescaleTrack>
-                  <TimescaleRail />
+          <div className="relative py-2 w-full">
+            <TimescaleIntroScroll>
+              <TimescaleRoot className="mt-2">
+                <TimescaleViewport>
+                  <TimescaleTrack>
+                    <TimescaleRail />
 
-                  {MILESTONES.map((milestone) => (
-                    <TimescaleItem
-                      key={milestone.version}
-                      isActive={milestone.version === "0.2"}
-                    >
-                      <TimescaleTick />
+                    {MILESTONES.map((milestone) => (
+                      <TimescaleItem
+                        key={milestone.version}
+                        isActive={milestone.version === "0.2"}
+                      >
+                        <TimescaleTick />
 
-                      <TimescaleAge>{milestone.version}</TimescaleAge>
-                      <TimescaleYear>{milestone.date}</TimescaleYear>
+                        <TimescaleAge>{milestone.version}</TimescaleAge>
+                        <TimescaleYear>{milestone.date}</TimescaleYear>
 
-                      {milestone.content && (
-                        <TimescaleContent className="typeset typeset-timescale">
-                          {milestone.badge && (
-                            <TimescaleBadge className={milestone.badgeClass}>
-                              {milestone.badge}
-                            </TimescaleBadge>
-                          )}
-                          <Markdown>{milestone.content}</Markdown>
-                        </TimescaleContent>
-                      )}
-                    </TimescaleItem>
-                  ))}
-                </TimescaleTrack>
-              </TimescaleViewport>
-            </TimescaleRoot>
-          </TimescaleIntroScroll>
+                        {milestone.content && (
+                          <TimescaleContent className="typeset typeset-timescale">
+                            {milestone.badge && (
+                              <TimescaleBadge className={milestone.badgeClass}>
+                                {milestone.badge}
+                              </TimescaleBadge>
+                            )}
+                            <Markdown>{milestone.content}</Markdown>
+                          </TimescaleContent>
+                        )}
+                      </TimescaleItem>
+                    ))}
+                  </TimescaleTrack>
+                </TimescaleViewport>
+              </TimescaleRoot>
+            </TimescaleIntroScroll>
+          </div>
         </div>
 
         {/* Bottom Blueprint Separator */}
@@ -184,8 +185,8 @@ export default function ChangelogPage() {
                 "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
             }}
           />
-          <div className="absolute -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
-          <div className="absolute -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
+          <div className="absolute left-3 sm:left-4 md:left-[24.5%] w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
+          <div className="absolute right-3 sm:right-4 md:right-[24.5%] w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
         </div>
       </motion.div>
     </BlueprintGrid>
