@@ -10,7 +10,6 @@ export function Metric({ className, ...props }: React.ComponentProps<"div">) {
         // `justify-between` keeps values aligned across a row when a label
         // wraps to two lines in a narrow column.
         "flex flex-col justify-between gap-2 p-4",
-        "max-md:nth-[2n+1]:screen-line-bottom md:nth-[4n+1]:screen-line-bottom",
         className
       )}
       {...props}

@@ -141,6 +141,7 @@ export function InsightsSection({
               style={DOT_MASK_VERTICAL}
             />
             <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+            <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
           </Metric>
 
           {/* Metric 2: Total Sessions */}
@@ -158,6 +159,7 @@ export function InsightsSection({
               style={DOT_MASK_VERTICAL}
             />
             <div className="hidden md:block absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+            <div className="hidden md:block absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
           </Metric>
 
           {/* Metric 3: Screen Views */}
@@ -175,6 +177,7 @@ export function InsightsSection({
               style={DOT_MASK_VERTICAL}
             />
             <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+            <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
           </Metric>
 
           {/* Metric 4: Avg Duration */}
@@ -189,6 +192,17 @@ export function InsightsSection({
           </Metric>
         </dl>
       </motion.div>
+
+      {/* Divider above chart */}
+      <div className="relative h-0">
+        <div
+          className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={DOT_MASK_HORIZONTAL}
+        />
+        {/* Intersections */}
+        <div className="absolute top-0 -left-3 sm:-left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+        <div className="absolute top-0 -right-3 sm:-right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+      </div>
 
       {/* Line Chart */}
       <motion.div
