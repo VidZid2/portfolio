@@ -58,7 +58,8 @@ export default function LogoTraceLoader({
     const isFinishedLoading = isComplete === true || loading === false;
 
     if (!isFinishedLoading) return;
-    setPhase("closingOutline");
+    const frame = requestAnimationFrame(() => setPhase("closingOutline"));
+    return () => cancelAnimationFrame(frame);
   }, [loading, isComplete, phase]);
 
   useEffect(() => {

@@ -552,6 +552,12 @@ export const GithubCalendar = memo(function GithubCalendar({
   const lastTickTime = useRef(0);
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isFirstShowRef = useRef(true);
+  const [isFirstShow, setIsFirstShow] = useState(true);
+
+  const markFirstShow = useCallback((value: boolean) => {
+    isFirstShowRef.current = value;
+    setIsFirstShow(value);
+  }, []);
 
   const triggerHoverSound = useCallback(() => {
     const now = performance.now();
@@ -560,6 +566,16 @@ export const GithubCalendar = memo(function GithubCalendar({
       playHoverTick(0.02);
     }
   }, []);
+
+  // ── Tooltip state ──────────────────────────────────────────────────────
+  const [tooltip, setTooltip] = useState<TooltipState>({
+    visible: false,
+    date: "",
+    count: undefined,
+    label: undefined,
+    x: 0,
+    y: 0,
+  });
 
   const handleCellEnter = useCallback(
     (
@@ -590,12 +606,12 @@ export const GithubCalendar = memo(function GithubCalendar({
 
       setTooltip((prev) => {
         if (!prev.visible) {
-          isFirstShowRef.current = true;
+          markFirstShow(true);
           setTimeout(() => {
-            isFirstShowRef.current = false;
+            markFirstShow(false);
           }, 40);
         } else {
-          isFirstShowRef.current = false;
+          markFirstShow(false);
         }
         return {
           visible: true,
@@ -609,7 +625,7 @@ export const GithubCalendar = memo(function GithubCalendar({
 
       triggerHoverSound();
     },
-    [triggerHoverSound]
+    [markFirstShow, triggerHoverSound]
   );
 
   const handleCellLeave = useCallback(() => {
@@ -618,26 +634,16 @@ export const GithubCalendar = memo(function GithubCalendar({
       setHoveredCell(null);
       if (!selectedDate) {
         setTooltip((t) => (t.visible ? { ...t, visible: false } : t));
-        isFirstShowRef.current = true;
+        markFirstShow(true);
       }
     }, 140);
-  }, [selectedDate]);
+  }, [markFirstShow, selectedDate]);
 
   useEffect(() => {
     return () => {
       if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
     };
   }, []);
-
-  // ── Tooltip state ──────────────────────────────────────────────────────
-  const [tooltip, setTooltip] = useState<TooltipState>({
-    visible: false,
-    date: "",
-    count: undefined,
-    label: undefined,
-    x: 0,
-    y: 0,
-  });
 
   const { weeks, monthLabels, gridStart } = useMemo(
     () => buildGrid(resolvedStart, resolvedEnd, startsOnSunday),
@@ -2427,7 +2433,7 @@ export const GithubCalendar = memo(function GithubCalendar({
                 left: tooltip.x,
                 top: tooltip.y,
                 transform: `translate(-${transformPercent}%, calc(-100% - 8px))`,
-                transition: isFirstShowRef.current
+                transition: isFirstShow
                   ? "none"
                   : "left 0.16s cubic-bezier(0.16, 1, 0.3, 1), top 0.16s cubic-bezier(0.16, 1, 0.3, 1), transform 0.16s cubic-bezier(0.16, 1, 0.3, 1)",
               }}
