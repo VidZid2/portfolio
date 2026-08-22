@@ -19,6 +19,10 @@ import {
   CenterMorphModal,
   CenterMorphModalContent,
 } from "@/components/motion/center-morph-modal";
+import {
+  ActionSwapCascadeIcon,
+  ActionSwapCascadeText,
+} from "@/components/motion/action-swap-cascade";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 
 const DOT_MASK_HORIZONTAL = {
@@ -181,20 +185,22 @@ export function CommunitySupportSection({
           <button
             type="button"
             onClick={handleCopyEmail}
-            className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-800 dark:text-zinc-200 text-[10.5px] font-medium transition-colors cursor-pointer border-0 shrink-0"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-800 dark:text-zinc-200 text-[11px] font-medium transition-colors cursor-pointer border-0 shrink-0 select-none overflow-hidden active:scale-95"
             title="Copy Email"
           >
-            {copiedEmail ? (
-              <>
-                <Check className="w-3 h-3 text-emerald-500" />
-                <span className="text-emerald-500 font-medium">Copied</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3 h-3 text-zinc-400" />
-                <span>Copy</span>
-              </>
-            )}
+            <ActionSwapCascadeIcon value={copiedEmail ? "copied" : "copy"} className="w-3.5 h-3.5">
+              {copiedEmail ? (
+                <Check className="w-3.5 h-3.5 text-emerald-500" />
+              ) : (
+                <Copy className="w-3.5 h-3.5 text-zinc-400" />
+              )}
+            </ActionSwapCascadeIcon>
+            <ActionSwapCascadeText
+              value={copiedEmail ? "copied" : "copy"}
+              className={copiedEmail ? "text-emerald-500 font-medium" : "text-zinc-700 dark:text-zinc-300"}
+            >
+              {copiedEmail ? "Copied" : "Copy"}
+            </ActionSwapCascadeText>
           </button>
         </div>
 
