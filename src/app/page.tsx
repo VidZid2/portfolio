@@ -241,24 +241,6 @@ export default function Home() {
             {/* 12. Insights / Viewers Section */}
             <InsightsSection key={`insights-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
-            {/* Blueprint Diagonal Slanted Line Spacer (Between Insights and Community Support Section) */}
-            <div className="relative h-6 sm:h-8 my-0">
-              {/* Slanted diagonal hatch pattern spanning full width across the margins */}
-              <div
-                className="absolute inset-y-0 left-[-100vw] right-[-100vw] pointer-events-none opacity-40 dark:opacity-20"
-                style={DIAGONAL_HATCH_PATTERN}
-              />
-              {/* Left & Right continuous vertical dotted boundary lines */}
-              <div
-                className="absolute top-0 bottom-0 -left-3 sm:-left-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
-                style={DOT_MASK_VERTICAL}
-              />
-              <div
-                className="absolute top-0 bottom-0 -right-3 sm:-right-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
-                style={DOT_MASK_VERTICAL}
-              />
-            </div>
-
             {/* 13. Backed by the Community / Support Section */}
             <CommunitySupportSection key={`support-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
