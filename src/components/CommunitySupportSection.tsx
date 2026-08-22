@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowUpRightIcon, Heart, Mail, Check, Copy, ExternalLink, Smartphone, Gift } from "lucide-react";
 import { toast } from "sonner";
 
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 import ScrambleText from "@/components/ruixen/scramble-text";
@@ -94,10 +95,15 @@ export function CommunitySupportSection({
         className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group cursor-pointer active:scale-[0.99] select-none"
       >
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-[#003087]/10 dark:bg-[#0079C1]/20 text-[#0079C1] flex items-center justify-center shrink-0 font-bold shadow-xs">
-            <svg className="w-4 h-4 fill-current text-[#0079C1]" viewBox="0 0 24 24">
-              <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.009.4 5.438 0 5.945 0h7.625c3.554 0 6.046 1.776 5.679 5.372-.379 3.731-2.909 5.823-6.529 5.823H9.98l-1.393 8.847a.784.784 0 0 1-.777.653l-.734.642zm8.128-13.882c.162-1.583-.91-2.355-2.836-2.355H8.79l-1.46 9.255h2.463c2.404 0 4.156-1.337 4.411-3.844.02-.204.03-.396.03-.574a4.07 4.07 0 0 0-.03-.482h.001z" />
-            </svg>
+          <div className="w-8 h-8 rounded-lg bg-[#003087]/10 dark:bg-[#0079C1]/20 flex items-center justify-center shrink-0 shadow-xs">
+            <Image
+              src="/SVG's/Support SVG'S/Paypal.svg"
+              alt="PayPal"
+              width={20}
+              height={20}
+              className="w-4.5 h-4.5 object-contain"
+              unoptimized
+            />
           </div>
           <div className="text-left min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -125,10 +131,15 @@ export function CommunitySupportSection({
         className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group cursor-pointer active:scale-[0.99]"
       >
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-[#FF5E5B]/10 dark:bg-[#FF5E5B]/20 text-[#FF5E5B] flex items-center justify-center shrink-0 shadow-xs">
-            <svg className="w-4 h-4 fill-current text-[#FF5E5B]" viewBox="0 0 24 24">
-              <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.047 3.974-4.047 3.974s-2.7-2.486-3.92-3.938c-1.309-1.557-.775-3.66.906-4.102 1.637-.43 2.879.71 3.014.85.137-.14 1.379-1.28 3.016-.85 1.681.442 2.217 2.545.908 4.098l.123-.032zm6.757-1.12c-.22 1.488-1.579 2.012-3.111 2.012h-.809v-4.14h.983c1.533 0 2.719.64 2.937 2.128z" />
-            </svg>
+          <div className="w-8 h-8 rounded-lg bg-[#FF5E5B]/10 dark:bg-[#FF5E5B]/20 flex items-center justify-center shrink-0 shadow-xs">
+            <Image
+              src="/SVG's/Support SVG'S/Kofi_Symbol.svg"
+              alt="Ko-fi"
+              width={20}
+              height={20}
+              className="w-4.5 h-4.5 object-contain"
+              unoptimized
+            />
           </div>
           <div className="text-left min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
