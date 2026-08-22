@@ -40,7 +40,7 @@ export function HighlightSegment({
   useLayoutEffect(() => {
     const next = pathRef.current?.getAttribute("d") ?? null;
     setD((previous) => (previous === next ? previous : next));
-  });
+  }, [pathRef]);
   if (!(visible && d)) {
     return null;
   }

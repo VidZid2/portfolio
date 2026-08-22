@@ -594,7 +594,7 @@ function FormButton({
       }
       setTimeout(() => setState("idle"), 3000);
     }, 600);
-  }, [onClick, sound, tick, type]);
+  }, [onClick, sound, type]);
 
   const startHolding = React.useCallback(
     (e: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>) => {

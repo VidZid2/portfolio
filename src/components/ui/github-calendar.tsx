@@ -550,12 +550,71 @@ export const GithubCalendar = memo(function GithubCalendar({
   } | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const lastTickTime = useRef(0);
+  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const triggerHoverSound = useCallback(() => {
     const now = performance.now();
     if (now - lastTickTime.current > 75) {
       lastTickTime.current = now;
       playHoverTick(0.02);
     }
+  }, []);
+
+  const handleCellEnter = useCallback(
+    (
+      date: string,
+      wi: number,
+      di: number,
+      cellX: number,
+      cellY: number,
+      level: number,
+      entry: { count?: number; label?: string; level?: number } | undefined,
+      domRect: DOMRect
+    ) => {
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+        hideTimeoutRef.current = null;
+      }
+
+      setHoveredCell({
+        date,
+        wi,
+        di,
+        x: cellX,
+        y: cellY,
+        level,
+        count: entry?.count,
+        label: entry?.label,
+      });
+
+      setTooltip({
+        visible: true,
+        date,
+        count: entry?.count,
+        label: entry?.label,
+        x: domRect.left + domRect.width / 2,
+        y: domRect.top,
+      });
+
+      triggerHoverSound();
+    },
+    [triggerHoverSound]
+  );
+
+  const handleCellLeave = useCallback(() => {
+    if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+    hideTimeoutRef.current = setTimeout(() => {
+      setHoveredCell(null);
+      if (!selectedDate) {
+        setTooltip((t) => (t.visible ? { ...t, visible: false } : t));
+      }
+    }, 140);
+  }, [selectedDate]);
+
+  useEffect(() => {
+    return () => {
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+    };
   }, []);
 
   // ── Tooltip state ──────────────────────────────────────────────────────
@@ -2150,49 +2209,37 @@ export const GithubCalendar = memo(function GithubCalendar({
                     onMouseEnter={(e) => {
                       if (!date || gameActive) return;
                       const rect = e.currentTarget.getBoundingClientRect();
-                      setHoveredCell({
+                      handleCellEnter(
                         date,
                         wi,
                         di,
-                        x: leftMargin + wi * step,
-                        y: cellTopY,
+                        leftMargin + wi * step,
+                        cellTopY,
                         level,
-                        count: entry?.count,
-                        label: entry?.label,
-                      });
-                      setTooltip({
-                        visible: true,
-                        date,
-                        count: entry?.count,
-                        label: entry?.label,
-                        x: rect.left + rect.width / 2,
-                        y: rect.top,
-                      });
-                      triggerHoverSound();
+                        entry,
+                        rect
+                      );
                     }}
-                    onMouseLeave={() => {
-                      setHoveredCell(null);
-                      if (!selectedDate) {
-                        setTooltip((t) => ({ ...t, visible: false }));
-                      }
-                    }}
+                    onMouseLeave={handleCellLeave}
                     onClick={(e) => {
                       if (!date || gameActive) return;
                       const rect = e.currentTarget.getBoundingClientRect();
                       const isNowSelected = selectedDate !== date;
                       setSelectedDate(isNowSelected ? date : null);
                       if (isNowSelected) {
-                        setTooltip({
-                          visible: true,
+                        handleCellEnter(
                           date,
-                          count: entry?.count,
-                          label: entry?.label,
-                          x: rect.left + rect.width / 2,
-                          y: rect.top,
-                        });
+                          wi,
+                          di,
+                          leftMargin + wi * step,
+                          cellTopY,
+                          level,
+                          entry,
+                          rect
+                        );
                         playSound("hit", 1);
                       } else {
-                        setTooltip((t) => ({ ...t, visible: false }));
+                        handleCellLeave();
                       }
                     }}
                   />
@@ -2371,13 +2418,13 @@ export const GithubCalendar = memo(function GithubCalendar({
                 left: tooltip.x,
                 top: tooltip.y,
                 transform: `translate(-${transformPercent}%, calc(-100% - ${tooltip.visible ? '8px' : '4px'})) scale(${tooltip.visible ? 1 : 0.95})`,
-                transition: "left 0.12s cubic-bezier(0.16, 1, 0.3, 1), top 0.12s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.15s ease, transform 0.15s cubic-bezier(0.16, 1, 0.3, 1)",
+                transition: "left 0.2s cubic-bezier(0.2, 0.9, 0.3, 1), top 0.2s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.22s ease-out, transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1)",
               }}
             >
               <span>{tooltip.date ? tooltipText : ""}</span>
               {/* Small arrow pointing down */}
               <div
-                className="absolute bg-[#181a1f] dark:bg-[#181a1f] border-r border-b border-zinc-700/60"
+                className="absolute bg-[#181a1f] dark:bg-[#181a1f] border-r border-b border-zinc-700/60 transition-all duration-200"
                 style={{
                   width: 6,
                   height: 6,
