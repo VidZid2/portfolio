@@ -2,9 +2,7 @@
 import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 
 import React, { useEffect, useState } from "react";
-import ScrambleText from "@/components/ruixen/scramble-text";
 import { GithubCalendar } from "@/components/ui/github-calendar";
-import { StatusDot } from "@/components/ui/status-dot";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
 import { usePerformance } from "@/hooks/usePerformance";

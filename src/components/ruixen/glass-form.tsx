@@ -271,7 +271,7 @@ function FormField({
       </label>
       {isTextarea ? (
         <textarea
-          ref={textareaRef as any}
+          ref={textareaRef}
           placeholder={placeholder}
           value={value}
           defaultValue={defaultValue}
@@ -571,45 +571,12 @@ function FormButton({
   const progressIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = React.useRef<number>(0);
 
-  const startHolding = (e: any) => {
-    if (disabled || state !== "idle") return;
-    
-    if (e.type === "mousedown") e.preventDefault();
-
-    setState("holding");
-    setProgress(0);
-    setAnimKey((k) => k + 1);
-    startTimeRef.current = Date.now();
-
-    progressIntervalRef.current = setInterval(() => {
-      const elapsed = Date.now() - startTimeRef.current;
-      const pct = Math.min((elapsed / holdDuration) * 100, 100);
-      setProgress(pct);
-      if (pct >= 100) {
-        clearInterval(progressIntervalRef.current!);
-      }
-    }, 30);
-
-    holdTimerRef.current = setTimeout(() => {
-      confirmPublish();
-    }, holdDuration);
-  };
-
-  const cancelHolding = () => {
-    if (state !== "holding") return;
-    if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
-    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
-    setProgress(0);
-    setState("idle");
-    setAnimKey((k) => k + 1);
-  };
-
-  const confirmPublish = () => {
+  const confirmPublish = React.useCallback(() => {
     setState("publishing");
     setAnimKey((k) => k + 1);
     setProgress(100);
     if (sound) tick();
-    
+
     if (onClick) {
       onClick();
     } else if (type === "submit" && buttonRef.current) {
@@ -627,7 +594,43 @@ function FormButton({
       }
       setTimeout(() => setState("idle"), 3000);
     }, 600);
-  };
+  }, [onClick, sound, tick, type]);
+
+  const startHolding = React.useCallback(
+    (e: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>) => {
+      if (disabled || state !== "idle") return;
+
+      if (e.type === "mousedown") e.preventDefault();
+
+      setState("holding");
+      setProgress(0);
+      setAnimKey((k) => k + 1);
+      startTimeRef.current = Date.now();
+
+      progressIntervalRef.current = setInterval(() => {
+        const elapsed = Date.now() - startTimeRef.current;
+        const pct = Math.min((elapsed / holdDuration) * 100, 100);
+        setProgress(pct);
+        if (pct >= 100) {
+          clearInterval(progressIntervalRef.current!);
+        }
+      }, 30);
+
+      holdTimerRef.current = setTimeout(() => {
+        confirmPublish();
+      }, holdDuration);
+    },
+    [confirmPublish, disabled, holdDuration, state]
+  );
+
+  const cancelHolding = React.useCallback(() => {
+    if (state !== "holding") return;
+    if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+    setProgress(0);
+    setState("idle");
+    setAnimKey((k) => k + 1);
+  }, [state]);
 
   React.useEffect(() => {
     return () => {

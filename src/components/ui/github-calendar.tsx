@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo, useState, useEffect, useId, useRef } from "react";
+import { memo, useMemo, useState, useEffect, useId, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { DrawUnderlineLink } from "@/components/sora-ui/texts/draw-underline-link";
@@ -141,7 +141,7 @@ function formatTooltipDate(dateStr: string): string {
     const day = date.getDate();
     const suffix = getOrdinalSuffix(day);
     return `${month} ${day}${suffix}`;
-  } catch (e) {
+  } catch {
     return dateStr;
   }
 }
@@ -155,6 +155,7 @@ import {
   playPowerUpSound,
   playUFOSound,
   playEMPNukeSound,
+  playHoverTick,
 } from "@/lib/synth-sounds";
 
 function playSound(
@@ -308,57 +309,27 @@ type TooltipState = {
 
 // ─── Loading Skeleton ─────────────────────────────────────────────────────────
 
-function CalendarSkeleton({
-  cellSize = 12,
-  cellGap = 3,
-  className,
-}: {
-  cellSize?: number;
-  cellGap?: number;
-  className?: string;
-}) {
-  const step = cellSize + cellGap;
-  const weeks = 53;
-  const days = 7;
-  return (
-    <div className={cn("w-fit mx-auto space-y-3 animate-pulse", className)}>
-      <div className="flex gap-6">
-        <div className="h-4 w-32 rounded bg-muted" />
-        <div className="h-4 w-20 rounded bg-muted" />
-        <div className="h-4 w-24 rounded bg-muted" />
-      </div>
-      <div className="overflow-x-auto">
-        <svg
-          width={weeks * step - cellGap}
-          height={16 + days * step - cellGap}
-          className="overflow-visible"
-        >
-          {Array.from({ length: weeks }).map((_, wi) =>
-            Array.from({ length: days }).map((_, di) => (
-              <rect
-                key={`${wi}-${di}`}
-                x={wi * step}
-                y={16 + di * step}
-                width={cellSize}
-                height={cellSize}
-                rx={cellSize * 0.2}
-                className="fill-muted"
-              />
-            )),
-          )}
-        </svg>
-      </div>
-    </div>
-  );
-}
-
 // ─── Animation Overlay Cell ─────────────────────────────────────────────────────
 
 const ASCII_CHARS = ['*', '+', '#', '~', 'x', '.', ':', '-', '<', '>', '/', '\\', 'o', '0', '1'];
 
+interface AnimOverlayCellProps {
+  wi: number;
+  di: number;
+  x: number;
+  y: number;
+  size: number;
+  rx: number;
+  defaultFill: string;
+  animClass: string;
+  animData?: { delay: string; shouldFlash: boolean };
+  isHighlighted: boolean;
+  isDark: boolean;
+}
+
 function AnimOverlayCell({
-  wi,
-  di,
+  wi: _wi,
+  di: _di,
   x,
   y,
   size,
@@ -368,18 +339,21 @@ function AnimOverlayCell({
   animData,
   isHighlighted,
   isDark,
-}: any) {
+}: AnimOverlayCellProps) {
   const textRef = useRef<SVGTextElement>(null);
   const [phase, setPhase] = useState<"ascii" | "solid">("ascii");
 
   // Store a random disperse delay on mount so it doesn't change
-  const disperseDelay = useRef(800 + Math.random() * 1800);
+  const disperseDelay = useRef(0);
 
   useEffect(() => {
+    if (disperseDelay.current === 0) {
+      disperseDelay.current = 800 + Math.random() * 1800;
+    }
     // Gradually disperse the ASCII effect based on the random delay
     const timer = setTimeout(() => {
       setPhase("solid");
-    }, disperseDelay.current); 
+    }, disperseDelay.current);
     return () => clearTimeout(timer);
   }, []);
 
@@ -407,8 +381,8 @@ function AnimOverlayCell({
         className={phase === "solid" ? animClass : ""}
         style={{
           animationDelay: animData?.delay,
-          "--highlight": "#6495ED",
-        } as any}
+          ...({ "--highlight": "#6495ED" } as React.CSSProperties),
+        }}
       />
       {phase === "ascii" && (
         <text
@@ -475,7 +449,7 @@ export const GithubCalendar = memo(function GithubCalendar({
 
   // ── Fetch state ────────────────────────────────────────────────────────
   const [fetchedData, setFetchedData] = useState<ContributionData | null>(null);
-  const [loading, setLoading] = useState(!!username);
+  const [, setLoading] = useState(!!username);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [animationPhase, setAnimationPhase] = useState<"idle" | "animating" | "fading" | "done">("idle");
   const [shakeError, setShakeError] = useState(false);
@@ -520,9 +494,11 @@ export const GithubCalendar = memo(function GithubCalendar({
 
   useEffect(() => {
     if (!username) return;
-    setFetchedData(null);
-    setFetchError(null);
-    setLoading(true);
+    const frame = requestAnimationFrame(() => {
+      setFetchedData(null);
+      setFetchError(null);
+      setLoading(true);
+    });
     onStatusChange?.("loading");
 
     fetchContributions(username)
@@ -536,10 +512,14 @@ export const GithubCalendar = memo(function GithubCalendar({
         onStatusChange?.("down");
       })
       .finally(() => setLoading(false));
+    return () => cancelAnimationFrame(frame);
   }, [username, onStatusChange]);
 
   // ── Choose data source ─────────────────────────────────────────────────
-  const data: ContributionData = dataProp ?? fetchedData ?? {};
+  const data: ContributionData = useMemo(
+    () => dataProp ?? fetchedData ?? {},
+    [dataProp, fetchedData]
+  );
 
   // ── Resolve dates ──────────────────────────────────────────────────────
   const resolvedEnd = endDate ?? formatDate(new Date());
@@ -556,6 +536,27 @@ export const GithubCalendar = memo(function GithubCalendar({
     if (typeof theme === "object") return theme;
     return isDark ? DARK_THEMES.github : THEMES.github;
   }, [theme, isDark]);
+
+  // ── Hover & Selection state ──────────────────────────────────────────
+  const [hoveredCell, setHoveredCell] = useState<{
+    date: string;
+    wi: number;
+    di: number;
+    x: number;
+    y: number;
+    level: number;
+    count?: number;
+    label?: string;
+  } | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const lastTickTime = useRef(0);
+  const triggerHoverSound = useCallback(() => {
+    const now = performance.now();
+    if (now - lastTickTime.current > 75) {
+      lastTickTime.current = now;
+      playHoverTick(0.02);
+    }
+  }, []);
 
   // ── Tooltip state ──────────────────────────────────────────────────────
   const [tooltip, setTooltip] = useState<TooltipState>({
@@ -596,7 +597,7 @@ export const GithubCalendar = memo(function GithubCalendar({
       }
     }
     return { highlightedCells: highlighted, cellAnimations: animations };
-  }, [weeks.length]);
+  }, [weeks.length, deviceType]);
 
   // ── Stats ──────────────────────────────────────────────────────────────
   const stats = useMemo(() => {
@@ -1976,6 +1977,7 @@ export const GithubCalendar = memo(function GithubCalendar({
     svgWidth,
     svgHeight,
     leftMargin,
+    isDark,
   ]);
 
   if (fetchError) {
@@ -2120,13 +2122,8 @@ export const GithubCalendar = memo(function GithubCalendar({
                 const entry = date ? data[date] : undefined;
                 const level: ContributionLevel = entry?.level ?? 0;
                 const cellTopY = monthLabelHeight + di * step;
-
-                if (!date) {
-                  const cellDate = formatDate(
-                    addDays(parseDate(gridStart), wi * 7 + di),
-                  );
-                  // We removed the return null here so the graph remains a perfect rectangle
-                }
+                const isHovered = hoveredCell?.date === date;
+                const isSelected = selectedDate === date;
 
                 return (
                   <rect
@@ -2139,12 +2136,13 @@ export const GithubCalendar = memo(function GithubCalendar({
                     rx={cellRx}
                     fill={activeColors[`level${level}` as keyof ThemeColors]}
                     className={cn(
-                      !gameActive && date && "cursor-pointer hover:stroke-black/40 dark:hover:stroke-white/40 stroke-transparent stroke-[1.5px] origin-center hover:scale-[1.15]"
+                      !gameActive && date && "cursor-pointer origin-center transition-all duration-200",
+                      !gameActive && date && (isHovered || isSelected ? "opacity-100" : "hover:opacity-90")
                     )}
                     style={{
                       transition: gameActive 
-                        ? "opacity 0.1s, fill 0.1s, stroke 0.3s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)"
-                        : "opacity 1s ease-in-out, fill 1s ease-in-out, stroke 0.3s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                        ? "opacity 0.1s, fill 0.1s"
+                        : "opacity 0.4s ease, fill 0.4s ease",
                       opacity: gameActive ? (level === 0 || !date ? 0 : 1) : 1,
                       pointerEvents: gameActive ? (level === 0 || !date ? "none" : "auto") : "auto",
                       transformBox: "fill-box",
@@ -2152,6 +2150,16 @@ export const GithubCalendar = memo(function GithubCalendar({
                     onMouseEnter={(e) => {
                       if (!date || gameActive) return;
                       const rect = e.currentTarget.getBoundingClientRect();
+                      setHoveredCell({
+                        date,
+                        wi,
+                        di,
+                        x: leftMargin + wi * step,
+                        y: cellTopY,
+                        level,
+                        count: entry?.count,
+                        label: entry?.label,
+                      });
                       setTooltip({
                         visible: true,
                         date,
@@ -2160,14 +2168,102 @@ export const GithubCalendar = memo(function GithubCalendar({
                         x: rect.left + rect.width / 2,
                         y: rect.top,
                       });
+                      triggerHoverSound();
                     }}
-                    onMouseLeave={() =>
-                      setTooltip((t) => ({ ...t, visible: false }))
-                    }
+                    onMouseLeave={() => {
+                      setHoveredCell(null);
+                      if (!selectedDate) {
+                        setTooltip((t) => ({ ...t, visible: false }));
+                      }
+                    }}
+                    onClick={(e) => {
+                      if (!date || gameActive) return;
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const isNowSelected = selectedDate !== date;
+                      setSelectedDate(isNowSelected ? date : null);
+                      if (isNowSelected) {
+                        setTooltip({
+                          visible: true,
+                          date,
+                          count: entry?.count,
+                          label: entry?.label,
+                          x: rect.left + rect.width / 2,
+                          y: rect.top,
+                        });
+                        playSound("hit", 1);
+                      } else {
+                        setTooltip((t) => ({ ...t, visible: false }));
+                      }
+                    }}
                   />
                 );
               }),
             )}
+
+            {/* Active / Hovered Highlight Ring Overlay (Rendered in front for crisp border stroke, matching Image 1) */}
+            {hoveredCell && !gameActive && (
+              <rect
+                x={hoveredCell.x}
+                y={hoveredCell.y}
+                width={cellSize}
+                height={cellSize}
+                rx={cellRx}
+                fill={activeColors[`level${hoveredCell.level}` as keyof ThemeColors]}
+                stroke={isDark ? "rgba(255, 255, 255, 0.7)" : "rgba(0, 0, 0, 0.55)"}
+                strokeWidth={1.5}
+                style={{
+                  pointerEvents: "none",
+                  transformBox: "fill-box",
+                  transformOrigin: "center",
+                  transform: "scale(1.08)",
+                  transition: "transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), stroke 0.15s ease",
+                  filter: isDark 
+                    ? "drop-shadow(0 0 4px rgba(255, 255, 255, 0.18))" 
+                    : "drop-shadow(0 1px 3px rgba(0, 0, 0, 0.15))",
+                }}
+              />
+            )}
+
+            {/* Selected Date Highlight Ring (When clicked/locked) */}
+            {selectedDate && (!hoveredCell || hoveredCell.date !== selectedDate) && !gameActive && (() => {
+              let selWi = -1;
+              let selDi = -1;
+              let selLevel = 0;
+              for (let wi = 0; wi < weeks.length; wi++) {
+                for (let di = 0; di < 7; di++) {
+                  if (weeks[wi][di] === selectedDate) {
+                    selWi = wi;
+                    selDi = di;
+                    selLevel = data[selectedDate]?.level ?? 0;
+                    break;
+                  }
+                }
+                if (selWi !== -1) break;
+              }
+              if (selWi === -1) return null;
+              const selX = leftMargin + selWi * step;
+              const selY = monthLabelHeight + selDi * step;
+
+              return (
+                <rect
+                  x={selX}
+                  y={selY}
+                  width={cellSize}
+                  height={cellSize}
+                  rx={cellRx}
+                  fill={activeColors[`level${selLevel}` as keyof ThemeColors]}
+                  stroke={isDark ? "#6495ED" : "#3b82f6"}
+                  strokeWidth={1.75}
+                  style={{
+                    pointerEvents: "none",
+                    transformBox: "fill-box",
+                    transformOrigin: "center",
+                    transform: "scale(1.1)",
+                    filter: "drop-shadow(0 0 6px rgba(100, 149, 237, 0.45))",
+                  }}
+                />
+              );
+            })()}
 
             {/* Animation Overlay Cells */}
             {(animationPhase === "animating" || animationPhase === "fading") && (
@@ -2258,9 +2354,9 @@ export const GithubCalendar = memo(function GithubCalendar({
 
           let transformPercent = 50;
           if (tooltip.visible && typeof window !== "undefined") {
-            if (tooltip.x > window.innerWidth - 130) {
+            if (tooltip.x > window.innerWidth - 140) {
               transformPercent = 85;
-            } else if (tooltip.x < 130) {
+            } else if (tooltip.x < 140) {
               transformPercent = 15;
             }
           }
@@ -2268,19 +2364,20 @@ export const GithubCalendar = memo(function GithubCalendar({
           return (
             <div
               className={cn(
-                "pointer-events-none fixed z-50 rounded bg-[#24292e] dark:bg-[#161b22] px-2.5 py-1 text-[11px] font-medium text-white shadow-md border border-neutral-700/30 whitespace-nowrap transition-all duration-200",
+                "pointer-events-none fixed z-50 rounded-md bg-[#181a1f] dark:bg-[#181a1f] px-3 py-1.5 text-xs font-semibold text-white shadow-xl border border-zinc-700/60 dark:border-zinc-700/60 whitespace-nowrap select-none",
                 tooltip.visible ? "opacity-100 visible" : "opacity-0 invisible"
               )}
               style={{
                 left: tooltip.x,
                 top: tooltip.y,
-                transform: `translate(-${transformPercent}%, calc(-100% - ${tooltip.visible ? '6px' : '2px'})) scale(${tooltip.visible ? 1 : 0.95})`,
+                transform: `translate(-${transformPercent}%, calc(-100% - ${tooltip.visible ? '8px' : '4px'})) scale(${tooltip.visible ? 1 : 0.95})`,
+                transition: "left 0.12s cubic-bezier(0.16, 1, 0.3, 1), top 0.12s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.15s ease, transform 0.15s cubic-bezier(0.16, 1, 0.3, 1)",
               }}
             >
-              {tooltip.date ? tooltipText : ""}
+              <span>{tooltip.date ? tooltipText : ""}</span>
               {/* Small arrow pointing down */}
               <div
-                className="absolute bg-[#24292e] dark:bg-[#161b22] border-r border-b border-neutral-700/30"
+                className="absolute bg-[#181a1f] dark:bg-[#181a1f] border-r border-b border-zinc-700/60"
                 style={{
                   width: 6,
                   height: 6,
