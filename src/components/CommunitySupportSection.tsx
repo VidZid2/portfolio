@@ -247,19 +247,37 @@ export function CommunitySupportSection({
         <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
 
         {/* Section Header */}
-        <div className="flex items-center justify-between px-3 sm:px-4 py-2 border-b border-black/30 dark:border-white/[0.15]">
+        <motion.div
+          variants={{
+            hidden: { opacity: 0, y: -8 },
+            visible: {
+              opacity: 1,
+              y: 0,
+              transition: { type: "spring", bounce: 0.3 },
+            },
+          }}
+          className="pt-2.5 pb-3 px-3 sm:px-4 relative flex flex-col justify-start"
+        >
           <div className="flex items-center gap-2">
-            <span className="p-1 rounded bg-black/[0.04] dark:bg-white/[0.06] text-zinc-900 dark:text-zinc-100">
-              <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500/20" />
-            </span>
-            <h2 className="text-[13px] sm:text-[14px] font-mono font-medium tracking-tight text-zinc-900 dark:text-zinc-100">
-              <ScrambleText>Community Support</ScrambleText>
-            </h2>
+            <ScrambleText
+              as="h2"
+              className="text-[17px] sm:text-[18px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight leading-tight"
+            >
+              Support My Work
+            </ScrambleText>
           </div>
-          <span className="text-[10px] sm:text-[11px] font-mono text-zinc-400 dark:text-zinc-500">
-            {SPONSORS.length} Backers
-          </span>
-        </div>
+          <p className="text-[12px] sm:text-[13px] text-zinc-500 dark:text-zinc-400 mt-1 font-sans">
+            Send a tip or become a sponsor to help support my open-source projects and creative work.
+          </p>
+
+          {/* Dotted horizontal blueprint line underneath the header */}
+          <div
+            className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+            style={DOT_MASK_HORIZONTAL}
+          />
+          <div className="absolute bottom-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+          <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+        </motion.div>
 
         {/* 2-Column Responsive Blueprint Grid */}
         <motion.div
@@ -328,31 +346,38 @@ export function CommunitySupportSection({
                 </div>
               </>
             ) : (
+              /* Initially Empty State Grid Matching Picture 4 — Full Envelope */
               <>
-                {/* 1. Reserved Slot (Left) */}
+                {/* 1. Reserved Sponsor Placeholder Slot (Left) */}
                 <div
+                  onClick={handleOpenModal}
                   onMouseEnter={() => playHoverTick(0.04)}
-                  className="relative flex flex-col justify-between p-3.5 sm:p-4 min-h-[100px] sm:min-h-[112px] hover:bg-zinc-50/50 dark:hover:bg-zinc-900/25 transition-colors duration-200 cursor-default"
+                  className="relative flex flex-col items-center justify-center p-6 sm:p-8 min-h-[100px] sm:min-h-[112px] transition-all duration-300 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] cursor-pointer group select-none"
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-[11px] sm:text-[12px] font-mono tracking-tight text-zinc-500 dark:text-zinc-400 truncate select-none">
-                        Spot Reserved
-                      </span>
-                    </div>
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 shrink-0 select-none">
-                      Available
+                  <div className="flex items-center gap-2 text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-800 dark:group-hover:text-zinc-200 transition-colors duration-200">
+                    <span className="font-mono text-[11px] uppercase tracking-wider font-medium">
+                      Spot Reserved
                     </span>
                   </div>
+                  <p className="text-[12px] text-zinc-400/80 dark:text-zinc-500/80 font-sans mt-1 group-hover:text-zinc-500 dark:group-hover:text-zinc-400 transition-colors">
+                    Become the first community backer
+                  </p>
 
-                  <div className="flex flex-col mt-auto leading-tight">
-                    <span className="text-[13px] sm:text-[14px] font-mono font-bold text-zinc-900 dark:text-zinc-100">
-                      Become a Backer
-                    </span>
-                    <span className="text-[10px] sm:text-[11px] font-mono text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">
-                      Help sponsor ongoing projects
-                    </span>
-                  </div>
+                  {/* Desktop Middle Vertical Dotted Blueprint Divider */}
+                  <div
+                    className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
+                    style={DOT_MASK_VERTICAL}
+                  />
+                  <div className="hidden sm:block absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+                  <div className="hidden sm:block absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+
+                  {/* Mobile Horizontal Dotted Divider between Card 1 and Card 2 */}
+                  <div
+                    className="sm:hidden absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+                    style={DOT_MASK_HORIZONTAL}
+                  />
+                  <div className="sm:hidden absolute bottom-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+                  <div className="sm:hidden absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
                 </div>
 
                 {/* 2. Interactive Plus (+) Slot (Right) - Pure icon without outline */}
