@@ -43,17 +43,17 @@ export function TimescaleRoot({
         )}
         {...props}
       >
-        {/* Left Fade Gradient - Active only when scrolled away from left */}
+        {/* Left Fade Gradient - Pure white in light mode, pitch black in dark mode matching site background */}
         <div
           className={cn(
-            "pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 z-20 bg-gradient-to-r from-background via-background/80 to-transparent transition-opacity duration-300",
+            "pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 z-20 bg-gradient-to-r from-white dark:from-black via-white/80 dark:via-black/80 to-transparent transition-opacity duration-300",
             canScrollLeft ? "opacity-100" : "opacity-0"
           )}
         />
-        {/* Right Fade Gradient - Active only when more items are available on right */}
+        {/* Right Fade Gradient - Pure white in light mode, pitch black in dark mode matching site background */}
         <div
           className={cn(
-            "pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 z-20 bg-gradient-to-l from-background via-background/80 to-transparent transition-opacity duration-300",
+            "pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 z-20 bg-gradient-to-l from-white dark:from-black via-white/80 dark:via-black/80 to-transparent transition-opacity duration-300",
             canScrollRight ? "opacity-100" : "opacity-0"
           )}
         />
@@ -239,7 +239,7 @@ export function TimescaleHeader({ className, ...props }: TimescaleHeaderProps) {
       className={cn(
         "z-10 select-none",
         "group-data-[orientation=horizontal]/timescale:absolute group-data-[orientation=horizontal]/timescale:top-0 group-data-[orientation=horizontal]/timescale:left-0 group-data-[orientation=horizontal]/timescale:w-16 group-data-[orientation=horizontal]/timescale:shrink-0 group-data-[orientation=horizontal]/timescale:pr-2 group-data-[orientation=horizontal]/timescale:text-right group-data-[orientation=horizontal]/timescale:bg-transparent",
-        "group-data-[orientation=vertical]/timescale:grid group-data-[orientation=vertical]/timescale:w-full group-data-[orientation=vertical]/timescale:grid-cols-[var(--timescale-rail)_1fr] group-data-[orientation=vertical]/timescale:gap-x-4 group-data-[orientation=vertical]/timescale:bg-background",
+        "group-data-[orientation=vertical]/timescale:grid group-data-[orientation=vertical]/timescale:w-full group-data-[orientation=vertical]/timescale:grid-cols-[var(--timescale-rail)_1fr] group-data-[orientation=vertical]/timescale:gap-x-4 group-data-[orientation=vertical]/timescale:bg-white dark:group-data-[orientation=vertical]/timescale:bg-black",
         className
       )}
       {...props}
