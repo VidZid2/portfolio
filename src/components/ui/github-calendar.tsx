@@ -2422,38 +2422,51 @@ export const GithubCalendar = memo(function GithubCalendar({
 
           return (
             <div
-              className={cn(
-                "pointer-events-none fixed z-50 transition-opacity duration-150 select-none",
-                tooltip.visible && tooltip.date ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
-              )}
+              className="pointer-events-none fixed z-50 select-none"
               style={{
                 left: tooltip.x,
                 top: tooltip.y,
                 transform: `translate(-${transformPercent}%, calc(-100% - 8px))`,
                 transition: isFirstShowRef.current
-                  ? "opacity 0.16s ease-out"
-                  : "left 0.16s cubic-bezier(0.16, 1, 0.3, 1), top 0.16s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.16s ease-out, transform 0.16s cubic-bezier(0.16, 1, 0.3, 1)",
+                  ? "none"
+                  : "left 0.16s cubic-bezier(0.16, 1, 0.3, 1), top 0.16s cubic-bezier(0.16, 1, 0.3, 1), transform 0.16s cubic-bezier(0.16, 1, 0.3, 1)",
               }}
             >
-              <div
-                className={cn(
-                  "relative rounded-md bg-[#181a1f] dark:bg-[#181a1f] px-3 py-1.5 text-xs font-semibold text-white shadow-xl border border-zinc-700/60 dark:border-zinc-700/60 whitespace-nowrap transition-transform duration-200 ease-out",
-                  tooltip.visible ? "scale-100 translate-y-0" : "scale-95 translate-y-1.5"
+              <AnimatePresence>
+                {tooltip.visible && tooltip.date && (
+                  <motion.div
+                    key="calendar-tooltip-card"
+                    initial={{ opacity: 0, scale: 0.84, y: 7 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{
+                      opacity: 0,
+                      scale: 0.88,
+                      y: 4,
+                      transition: { duration: 0.14, ease: "easeOut" },
+                    }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 420,
+                      damping: 24,
+                      mass: 0.5,
+                    }}
+                    className="relative rounded-md bg-[#181a1f] dark:bg-[#181a1f] px-3 py-1.5 text-xs font-semibold text-white shadow-2xl border border-zinc-700/60 dark:border-zinc-700/60 whitespace-nowrap"
+                  >
+                    <span>{tooltipText}</span>
+                    {/* Downward Caret Arrow pointing directly at hovered cell */}
+                    <div
+                      className="absolute bg-[#181a1f] dark:bg-[#181a1f] border-r border-b border-zinc-700/60 transition-all duration-150"
+                      style={{
+                        width: 6,
+                        height: 6,
+                        left: `${transformPercent}%`,
+                        bottom: -3,
+                        transform: "translateX(-50%) rotate(45deg)",
+                      }}
+                    />
+                  </motion.div>
                 )}
-              >
-                <span>{tooltip.date ? tooltipText : ""}</span>
-                {/* Downward Caret Arrow pointing directly at hovered cell */}
-                <div
-                  className="absolute bg-[#181a1f] dark:bg-[#181a1f] border-r border-b border-zinc-700/60 transition-all duration-150"
-                  style={{
-                    width: 6,
-                    height: 6,
-                    left: `${transformPercent}%`,
-                    bottom: -3,
-                    transform: "translateX(-50%) rotate(45deg)",
-                  }}
-                />
-              </div>
+              </AnimatePresence>
             </div>
           );
         })()}
