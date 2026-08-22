@@ -103,6 +103,7 @@ Major architectural redesign and interactive blueprint system.
 export default function ChangelogPage() {
   return (
     <BlueprintGrid
+      wideContent
       headerSlot={
         <SubpageHeader
           title="Portfolio Changelog"
@@ -115,7 +116,7 @@ export default function ChangelogPage() {
         initial={{ opacity: 0, filter: "blur(4px)", y: 12 }}
         animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
-        className="ml-3 mr-3 sm:ml-4 sm:mr-4 md:ml-[24.5%] md:mr-[24.5%] md:mx-0 pt-[calc(22vh+112px)] pb-16 px-3 sm:px-4 flex flex-col z-10 relative overflow-hidden"
+        className="w-full pt-[calc(22vh+112px)] pb-16 px-4 sm:px-6 md:px-8 lg:px-12 flex flex-col z-10 relative overflow-hidden"
       >
         {/* Drag Hint Banner */}
         <div className="flex items-center justify-between text-[11.5px] sm:text-[12px] font-mono text-zinc-500 dark:text-zinc-400 pt-3 sm:pt-4 pb-3 px-2 sm:px-3 mb-2 select-none">
