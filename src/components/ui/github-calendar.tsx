@@ -551,6 +551,7 @@ export const GithubCalendar = memo(function GithubCalendar({
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const lastTickTime = useRef(0);
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isFirstShowRef = useRef(true);
 
   const triggerHoverSound = useCallback(() => {
     const now = performance.now();
@@ -587,13 +588,23 @@ export const GithubCalendar = memo(function GithubCalendar({
         label: entry?.label,
       });
 
-      setTooltip({
-        visible: true,
-        date,
-        count: entry?.count,
-        label: entry?.label,
-        x: domRect.left + domRect.width / 2,
-        y: domRect.top,
+      setTooltip((prev) => {
+        if (!prev.visible) {
+          isFirstShowRef.current = true;
+          setTimeout(() => {
+            isFirstShowRef.current = false;
+          }, 40);
+        } else {
+          isFirstShowRef.current = false;
+        }
+        return {
+          visible: true,
+          date,
+          count: entry?.count,
+          label: entry?.label,
+          x: domRect.left + domRect.width / 2,
+          y: domRect.top,
+        };
       });
 
       triggerHoverSound();
@@ -607,6 +618,7 @@ export const GithubCalendar = memo(function GithubCalendar({
       setHoveredCell(null);
       if (!selectedDate) {
         setTooltip((t) => (t.visible ? { ...t, visible: false } : t));
+        isFirstShowRef.current = true;
       }
     }, 140);
   }, [selectedDate]);
@@ -2409,51 +2421,40 @@ export const GithubCalendar = memo(function GithubCalendar({
           }
 
           return (
-            <AnimatePresence>
-              {tooltip.visible && tooltip.date && (
-                <motion.div
-                  key="github-calendar-tooltip"
-                  initial={{ opacity: 0, scale: 0.92, y: -4 }}
-                  animate={{ 
-                    opacity: 1, 
-                    scale: 1, 
-                    y: 0,
-                    left: tooltip.x,
-                    top: tooltip.y,
-                  }}
-                  exit={{ 
-                    opacity: 0, 
-                    scale: 0.92,
-                    y: -2,
-                    transition: { duration: 0.14, ease: "easeOut" } 
-                  }}
-                  transition={{
-                    left: { type: "spring", stiffness: 350, damping: 28, mass: 0.4 },
-                    top: { type: "spring", stiffness: 350, damping: 28, mass: 0.4 },
-                    opacity: { duration: 0.16, ease: "easeOut" },
-                    scale: { type: "spring", stiffness: 450, damping: 26 },
-                    y: { type: "spring", stiffness: 450, damping: 26 },
-                  }}
-                  className="pointer-events-none fixed z-50 rounded-md bg-[#181a1f] dark:bg-[#181a1f] px-3 py-1.5 text-xs font-semibold text-white shadow-xl border border-zinc-700/60 dark:border-zinc-700/60 whitespace-nowrap select-none"
-                  style={{
-                    transform: `translate(-${transformPercent}%, calc(-100% - 8px))`,
-                  }}
-                >
-                  <span>{tooltipText}</span>
-                  {/* Small arrow pointing down */}
-                  <div
-                    className="absolute bg-[#181a1f] dark:bg-[#181a1f] border-r border-b border-zinc-700/60 transition-all duration-200"
-                    style={{
-                      width: 6,
-                      height: 6,
-                      left: `${transformPercent}%`,
-                      bottom: 0,
-                      transform: "translateX(-50%) translateY(50%) rotate(45deg)",
-                    }}
-                  />
-                </motion.div>
+            <div
+              className={cn(
+                "pointer-events-none fixed z-50 transition-opacity duration-150 select-none",
+                tooltip.visible && tooltip.date ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
               )}
-            </AnimatePresence>
+              style={{
+                left: tooltip.x,
+                top: tooltip.y,
+                transform: `translate(-${transformPercent}%, calc(-100% - 8px))`,
+                transition: isFirstShowRef.current
+                  ? "opacity 0.16s ease-out"
+                  : "left 0.16s cubic-bezier(0.16, 1, 0.3, 1), top 0.16s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.16s ease-out, transform 0.16s cubic-bezier(0.16, 1, 0.3, 1)",
+              }}
+            >
+              <div
+                className={cn(
+                  "relative rounded-md bg-[#181a1f] dark:bg-[#181a1f] px-3 py-1.5 text-xs font-semibold text-white shadow-xl border border-zinc-700/60 dark:border-zinc-700/60 whitespace-nowrap transition-transform duration-200 ease-out",
+                  tooltip.visible ? "scale-100 translate-y-0" : "scale-95 translate-y-1.5"
+                )}
+              >
+                <span>{tooltip.date ? tooltipText : ""}</span>
+                {/* Downward Caret Arrow pointing directly at hovered cell */}
+                <div
+                  className="absolute bg-[#181a1f] dark:bg-[#181a1f] border-r border-b border-zinc-700/60 transition-all duration-150"
+                  style={{
+                    width: 6,
+                    height: 6,
+                    left: `${transformPercent}%`,
+                    bottom: -3,
+                    transform: "translateX(-50%) rotate(45deg)",
+                  }}
+                />
+              </div>
+            </div>
           );
         })()}
 
