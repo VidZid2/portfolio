@@ -183,8 +183,8 @@ export default function ChangelogPage() {
                 "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
             }}
           />
-          <div className="absolute left-3 sm:left-4 md:left-6 lg:left-8 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
-          <div className="absolute right-3 sm:right-4 md:right-6 lg:right-8 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
+          <div className="absolute left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
+          <div className="absolute right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
         </div>
       </motion.div>
     </BlueprintGrid>
