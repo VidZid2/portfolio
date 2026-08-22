@@ -428,8 +428,8 @@ export function CommunitySupportSection({
           <ExpandingArrowButton
             onSlideComplete={handleOpenModal}
             className="h-9 sm:h-10 w-48 sm:w-52 rounded-[15px]"
-            accentClassName="bg-lime-300 dark:bg-lime-400 text-neutral-950"
-            labelClassName="text-[11px] sm:text-xs font-semibold tracking-tight"
+            accentClassName="bg-[#6495ED] text-white"
+            labelClassName="text-[11px] sm:text-xs font-semibold tracking-tight text-zinc-800 dark:text-zinc-200"
           >
             Slide to sponsor
           </ExpandingArrowButton>

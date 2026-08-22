@@ -5,7 +5,6 @@ import {
   useMotionValue,
   useTransform,
   animate,
-  useReducedMotion,
   type HTMLMotionProps,
 } from "motion/react";
 import {
@@ -87,7 +86,7 @@ export const ExpandingArrowButton = forwardRef<
     return () => window.removeEventListener("resize", updateMaxDrag);
   }, []);
 
-  // Dynamically calculate the enveloping lime pill width from drag x
+  // Dynamically calculate the enveloping accent pill width from drag x
   const envelopeWidth = useTransform(x, (val) => `${initialThumbWidth + val}px`);
 
   // Single center chevron fades out as multiple chevrons fade in
@@ -151,27 +150,27 @@ export const ExpandingArrowButton = forwardRef<
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       className={cn(
-        "relative inline-flex h-9 sm:h-10 w-48 sm:w-52 items-center overflow-hidden rounded-[15px] bg-neutral-950 dark:bg-zinc-900 p-0.5 sm:p-1 text-white select-none border border-black/10 dark:border-white/10 shadow-xs cursor-default",
-        "focus-within:ring-2 focus-within:ring-lime-300 focus-within:ring-offset-2",
+        "relative inline-flex h-9 sm:h-10 w-48 sm:w-52 items-center overflow-hidden rounded-[15px] bg-white dark:bg-black p-0.5 sm:p-1 text-zinc-900 dark:text-zinc-100 select-none border border-black/10 dark:border-white/15 shadow-xs cursor-default",
+        "focus-within:ring-2 focus-within:ring-[#6495ED] focus-within:ring-offset-2",
         disabled && "pointer-events-none opacity-50",
         className,
       )}
       {...rest}
     >
-      {/* Expanding / Enveloping Lime Container with smooth curved square corners */}
+      {/* Expanding / Enveloping Cornflower Blue Container */}
       <motion.div
         style={{
           width: envelopeWidth,
         }}
         className={cn(
-          "absolute left-0.5 sm:left-1 top-0.5 sm:top-1 bottom-0.5 sm:bottom-1 z-20 flex items-center overflow-hidden rounded-[12px] bg-lime-300 dark:bg-lime-400 text-neutral-950 shadow-xs select-none pointer-events-none",
+          "absolute left-0.5 sm:left-1 top-0.5 sm:top-1 bottom-0.5 sm:bottom-1 z-20 flex items-center overflow-hidden rounded-[12px] bg-[#6495ED] text-white shadow-xs select-none pointer-events-none",
           accentClassName,
         )}
       >
         {/* State 1: Single Center Chevron (Visible at rest) */}
         <motion.div
           style={{ opacity: singleChevronOpacity }}
-          className="absolute inset-0 grid place-items-center w-8.5 sm:w-9 h-full pointer-events-none"
+          className="absolute inset-0 grid place-items-center w-8.5 sm:w-9 h-full pointer-events-none text-white"
         >
           <DottedChevron className="h-4 w-3.5" />
         </motion.div>
@@ -184,7 +183,7 @@ export const ExpandingArrowButton = forwardRef<
           {ARROW_OPACITY.map((opacity, index) => (
             <motion.span
               key={index}
-              style={{ color: `rgb(10 10 10 / ${opacity})` }}
+              style={{ color: `rgb(255 255 255 / ${opacity})` }}
               className="inline-grid place-items-center shrink-0"
             >
               <DottedChevron className="h-4 w-3.5" />
@@ -193,7 +192,7 @@ export const ExpandingArrowButton = forwardRef<
         </motion.div>
       </motion.div>
 
-      {/* Draggable Handle Thumb driving x (strictly slide-to-confirm only, not clickable) */}
+      {/* Draggable Handle Thumb driving x */}
       <motion.div
         drag={disabled ? false : "x"}
         dragConstraints={{ left: 0, right: maxDrag }}
@@ -205,14 +204,14 @@ export const ExpandingArrowButton = forwardRef<
         className="absolute left-0.5 sm:left-1 top-0.5 sm:top-1 bottom-0.5 sm:bottom-1 w-8.5 sm:w-9 h-full z-30 cursor-grab active:cursor-grabbing opacity-0 touch-none"
       />
 
-      {/* Button Label Text (Fades smoothly as envelope expands over it) */}
+      {/* Button Label Text */}
       <motion.div
         style={{
           opacity: textOpacity,
           x: textTranslate,
         }}
         className={cn(
-          "relative z-10 w-full pl-10 pr-3 text-center text-[11px] sm:text-xs font-semibold text-zinc-200 dark:text-zinc-200 tracking-tight whitespace-nowrap pointer-events-none font-sans",
+          "relative z-10 w-full pl-10 pr-3 text-center text-[11px] sm:text-xs font-semibold text-zinc-800 dark:text-zinc-200 tracking-tight whitespace-nowrap pointer-events-none font-sans",
           labelClassName,
         )}
       >
