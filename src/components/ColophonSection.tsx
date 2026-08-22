@@ -4,7 +4,11 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { DrawUnderlineLink } from "@/components/sora-ui/texts/draw-underline-link";
-import { playToastError } from "@/lib/synth-sounds";
+import {
+  CenterMorphModal,
+  CenterMorphModalContent,
+} from "@/components/motion/center-morph-modal";
+import { playToastError, playSoftClick } from "@/lib/synth-sounds";
 
 const dashedMaskHorizontal = {
   maskImage:
@@ -48,6 +52,7 @@ const LABEL_CLASS =
 
 export function ColophonSection() {
   const [isXError, setIsXError] = useState(false);
+  const [isChangelogOpen, setIsChangelogOpen] = useState(false);
 
   const handleXClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -143,11 +148,68 @@ export function ColophonSection() {
           />
         </div>
 
-        {/* Cell 4: Portfolio Version */}
+        {/* Cell 4: Portfolio Version + Changelog Trigger */}
         <div className="relative p-3 sm:p-4 flex flex-col gap-1">
-          <span className={LABEL_CLASS}>
-            Portfolio
-          </span>
+          {/* Handwritten Annotation in Right Gutter: changelog ↙ - PC/Desktop only */}
+          <div className="absolute left-full top-[-14px] pl-4 sm:pl-5 hidden md:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
+            <span className="font-caveat italic text-[16px] sm:text-[18px] leading-none font-medium text-zinc-500 dark:text-zinc-400 rotate-[3deg] tracking-wide ml-1">
+              changelog
+            </span>
+            <svg
+              className="w-12 h-6 text-zinc-400 dark:text-zinc-500 overflow-visible mt-1 -ml-3"
+              viewBox="0 0 46 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M42 4 C 30 9, 16 15, 3 17" />
+              <path d="m 11 12 -8 5 8 4" />
+            </svg>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span className={LABEL_CLASS}>
+              Portfolio
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                playSoftClick(0.04);
+                setIsChangelogOpen(true);
+              }}
+              className="group flex items-center justify-center size-[20px] sm:size-[22px] rounded-[5px] sm:rounded-[6px] bg-zinc-200/90 dark:bg-zinc-800/90 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 hover:text-black dark:hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shadow-xs focus:outline-none -mt-0.5 -mr-0.5"
+              title="Open Portfolio Changelog"
+              aria-label="Open Portfolio Changelog"
+            >
+              <svg
+                className="size-3 sm:size-3.5 transition-transform duration-200 group-hover:scale-110"
+                viewBox="0 0 18 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M13.9928 1.0404C14.2962 1.14421 14.5 1.42938 14.5 1.75V13.25C14.5 13.5707 14.2961 13.8559 13.9927 13.9596C13.6897 14.0633 13.3544 13.9631 13.1579 13.7103L13.1571 13.7094C12.8251 13.2933 12.4342 12.9173 12.021 12.5833C11.2941 11.9959 10.3992 11.5 9.5 11.5H5C2.79079 11.5 1 9.70922 1 7.5C1 5.29079 2.79079 3.5 5 3.5H9.5C10.3986 3.5 11.2935 3.00417 12.0206 2.41664C12.5486 1.99001 12.9365 1.55507 13.0883 1.37461C13.3178 1.10177 13.6232 0.913921 13.9928 1.0404Z"
+                  className="fill-[#6495ED]"
+                />
+                <path
+                  d="M5.14069 11.5L6.11812 16.1716C6.31746 17.1176 7.245 17.7208 8.18852 17.5235L8.63573 17.433L8.64148 17.4318C9.58859 17.2322 10.1921 16.3025 9.99263 15.3578L9.1774 11.5H5.14069Z"
+                  className="fill-[#1C1F21] dark:fill-[#F4F4F5]"
+                />
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M16.3715 5.52744C16.6421 5.40696 16.9582 5.45703 17.1784 5.65523C17.6817 6.10843 18 6.76754 18 7.50001C18 8.23247 17.6817 8.89158 17.1784 9.34478C16.9582 9.54298 16.6421 9.59305 16.3715 9.47257C16.1009 9.35208 15.9265 9.08362 15.9265 8.78741V6.2126C15.9265 5.91639 16.1009 5.64793 16.3715 5.52744Z"
+                  className="fill-[#1C1F21] dark:fill-[#F4F4F5]"
+                />
+                <path
+                  d="M4 11.374C2.27473 10.93 1 9.36391 1 7.5C1 5.63609 2.27473 4.07003 4 3.62601V11.374Z"
+                  className="fill-[#6495ED]"
+                />
+              </svg>
+            </button>
+          </div>
           <span className="text-[13px] sm:text-[14px] font-mono font-normal text-zinc-800 dark:text-zinc-200">
             v2.0.0
           </span>
@@ -414,6 +476,117 @@ export function ColophonSection() {
         <div className="absolute bottom-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
         <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
       </div>
+
+      {/* Changelog CenterMorphModal */}
+      <CenterMorphModal open={isChangelogOpen} onOpenChange={setIsChangelogOpen}>
+        <CenterMorphModalContent
+          ariaLabel="Portfolio Changelog"
+          className="max-w-lg p-6 bg-white dark:bg-zinc-950 border border-zinc-200/80 dark:border-zinc-800/80 rounded-[28px] shadow-2xl z-[9999] max-h-[85vh] overflow-y-auto"
+        >
+          <div className="flex flex-col gap-5 text-left font-sans">
+            {/* Header */}
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-xl bg-[#6495ED]/10 text-[#6495ED] shrink-0">
+                <svg
+                  className="size-5"
+                  viewBox="0 0 18 18"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M13.9928 1.0404C14.2962 1.14421 14.5 1.42938 14.5 1.75V13.25C14.5 13.5707 14.2961 13.8559 13.9927 13.9596C13.6897 14.0633 13.3544 13.9631 13.1579 13.7103L13.1571 13.7094C12.8251 13.2933 12.4342 12.9173 12.021 12.5833C11.2941 11.9959 10.3992 11.5 9.5 11.5H5C2.79079 11.5 1 9.70922 1 7.5C1 5.29079 2.79079 3.5 5 3.5H9.5C10.3986 3.5 11.2935 3.00417 12.0206 2.41664C12.5486 1.99001 12.9365 1.55507 13.0883 1.37461C13.3178 1.10177 13.6232 0.913921 13.9928 1.0404Z"
+                    className="fill-[#6495ED]"
+                  />
+                  <path
+                    d="M5.14069 11.5L6.11812 16.1716C6.31746 17.1176 7.245 17.7208 8.18852 17.5235L8.63573 17.433L8.64148 17.4318C9.58859 17.2322 10.1921 16.3025 9.99263 15.3578L9.1774 11.5H5.14069Z"
+                    className="fill-[#1C1F21] dark:fill-[#F4F4F5]"
+                  />
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M16.3715 5.52744C16.6421 5.40696 16.9582 5.45703 17.1784 5.65523C17.6817 6.10843 18 6.76754 18 7.50001C18 8.23247 17.6817 8.89158 17.1784 9.34478C16.9582 9.54298 16.6421 9.59305 16.3715 9.47257C16.1009 9.35208 15.9265 9.08362 15.9265 8.78741V6.2126C15.9265 5.91639 16.1009 5.64793 16.3715 5.52744Z"
+                    className="fill-[#1C1F21] dark:fill-[#F4F4F5]"
+                  />
+                  <path
+                    d="M4 11.374C2.27473 10.93 1 9.36391 1 7.5C1 5.63609 2.27473 4.07003 4 3.62601V11.374Z"
+                    className="fill-[#6495ED]"
+                  />
+                </svg>
+              </div>
+              <div className="flex flex-col">
+                <h3 className="text-lg sm:text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+                  Portfolio Changelog
+                </h3>
+                <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
+                  Track major releases, architectural changes, and new features.
+                </p>
+              </div>
+            </div>
+
+            {/* Timeline */}
+            <div className="flex flex-col gap-6 mt-1 font-sans">
+              {/* v2.0.0 */}
+              <div className="relative pl-5 border-l-2 border-[#6495ED]/40 dark:border-[#6495ED]/30 flex flex-col gap-2">
+                <div className="absolute -left-[5px] top-1 size-2 rounded-full bg-[#6495ED]" />
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-bold font-mono text-zinc-900 dark:text-zinc-100">
+                    v2.0.0
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#6495ED]/10 text-[#6495ED] dark:text-[#38bdf8]">
+                    Latest Release
+                  </span>
+                  <span className="text-[11px] text-zinc-400 font-mono">
+                    August 2026
+                  </span>
+                </div>
+                <ul className="text-xs sm:text-[13px] text-zinc-600 dark:text-zinc-400 space-y-1.5 leading-relaxed">
+                  <li>• <strong className="text-zinc-800 dark:text-zinc-200">Architectural Blueprint Grid:</strong> Complete visual overhaul with margin guidelines, intersection markers, and fluid typography.</li>
+                  <li>• <strong className="text-zinc-800 dark:text-zinc-200">Motion & Sound Engine:</strong> Integrated center-morph modals, action swap cascade roll effects, and synthesizer audio feedback.</li>
+                  <li>• <strong className="text-zinc-800 dark:text-zinc-200">Live Telemetry & Analytics:</strong> Real-time visitor tracking and interactive line charts.</li>
+                  <li>• <strong className="text-zinc-800 dark:text-zinc-200">Community Support:</strong> Sponsor drawers with PayPal, Ko-fi, and smooth contact page transitions.</li>
+                  <li>• <strong className="text-zinc-800 dark:text-zinc-200">Creator Inspirations:</strong> 3D convex cylinder carousel honoring open-source UI libraries.</li>
+                </ul>
+              </div>
+
+              {/* v1.5.0 */}
+              <div className="relative pl-5 border-l-2 border-zinc-200 dark:border-zinc-800 flex flex-col gap-2">
+                <div className="absolute -left-[5px] top-1 size-2 rounded-full bg-zinc-400 dark:bg-zinc-600" />
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-bold font-mono text-zinc-900 dark:text-zinc-100">
+                    v1.5.0
+                  </span>
+                  <span className="text-[11px] text-zinc-400 font-mono">
+                    May 2026
+                  </span>
+                </div>
+                <ul className="text-xs sm:text-[13px] text-zinc-600 dark:text-zinc-400 space-y-1.5 leading-relaxed">
+                  <li>• <strong className="text-zinc-800 dark:text-zinc-200">Live Project Previews:</strong> Sandboxed responsive iframe engine for featured client and agency builds.</li>
+                  <li>• <strong className="text-zinc-800 dark:text-zinc-200">Dual-Mode Credential Viewer:</strong> High-resolution certificate inspection with photo and vector PDF modes.</li>
+                  <li>• <strong className="text-zinc-800 dark:text-zinc-200">AI Prompt Box Terminal:</strong> Natural language assistant and interactive search.</li>
+                </ul>
+              </div>
+
+              {/* v1.0.0 */}
+              <div className="relative pl-5 border-l-2 border-zinc-200 dark:border-zinc-800 flex flex-col gap-2">
+                <div className="absolute -left-[5px] top-1 size-2 rounded-full bg-zinc-400 dark:bg-zinc-600" />
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-bold font-mono text-zinc-900 dark:text-zinc-100">
+                    v1.0.0
+                  </span>
+                  <span className="text-[11px] text-zinc-400 font-mono">
+                    January 2026
+                  </span>
+                </div>
+                <ul className="text-xs sm:text-[13px] text-zinc-600 dark:text-zinc-400 space-y-1.5 leading-relaxed">
+                  <li>• <strong className="text-zinc-800 dark:text-zinc-200">Initial Launch:</strong> First official release built with Next.js App Router, Tailwind CSS, TypeScript, and Framer Motion.</li>
+                  <li>• <strong className="text-zinc-800 dark:text-zinc-200">Career Roadmap:</strong> Interactive timeline mapping engineering milestones and education.</li>
+                  <li>• <strong className="text-zinc-800 dark:text-zinc-200">Theme Engine:</strong> Fluid dark and light mode with system preference detection.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </CenterMorphModalContent>
+      </CenterMorphModal>
     </motion.section>
   );
 }
