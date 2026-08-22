@@ -21,6 +21,13 @@ import {
   CenterMorphModal,
   CenterMorphModalContent,
 } from "@/components/motion/center-morph-modal";
+import { X } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { CurvedMenu } from "@/components/ui/curved-menu";
 import { CylinderCarousel } from "@/components/motion/cylinder-carousel";
 import { playSoftClick } from "@/lib/synth-sounds";
@@ -493,25 +500,31 @@ export function SupportedBySection({
   const renderGalleryContent = () => (
     <div className="relative w-full h-full flex flex-col justify-between overflow-y-auto overscroll-contain bg-white dark:bg-black text-zinc-900 dark:text-zinc-100 p-0">
       {/* Floating Close Button */}
-      <button
-        type="button"
-        onClick={() => setIsDrawerOpen(false)}
-        className="absolute top-4 right-4 z-40 size-8 rounded-[8px] bg-zinc-100/80 dark:bg-zinc-900/80 backdrop-blur-md flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-all cursor-pointer border-0 outline-none ring-0 shadow-sm"
-        title="Close modal (Esc)"
-        aria-label="Close modal"
-      >
-        <svg
-          className="size-3.5 shrink-0"
-          viewBox="0 0 16 16"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.75"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M12 4L4 12M4 4l8 8" />
-        </svg>
-      </button>
+      <TooltipProvider delayDuration={200}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={() => {
+                playSoftClick(0.04);
+                setIsDrawerOpen(false);
+              }}
+              className="absolute top-4 right-4 z-40 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/[0.05] text-muted-foreground transition-all duration-150 hover:bg-foreground/[0.08] hover:text-foreground active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer border-0 outline-none shadow-none"
+              aria-label="Close modal"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent
+            side="bottom"
+            sideOffset={6}
+            hideArrow
+            className="hidden md:flex px-2 py-1 text-[11px] font-medium rounded-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 border-none shadow-md z-[10000]"
+          >
+            Close
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       {/* Tribute & Credits Header (Concise & Horizontal SaaS Style) */}
       <div className="pt-12 sm:pt-14 pb-2 px-6 sm:px-12 flex flex-col items-center text-center max-w-4xl mx-auto font-sans">
