@@ -9,6 +9,7 @@ import {
   TimescaleAge,
   TimescaleBadge,
   TimescaleContent,
+  TimescaleHeader,
   TimescaleIntroScroll,
   TimescaleItem,
   TimescaleRail,
@@ -102,7 +103,6 @@ Major architectural redesign and interactive blueprint system.
 export default function ChangelogPage() {
   return (
     <BlueprintGrid
-      verticalLinesDesktopOnly={true}
       headerSlot={
         <SubpageHeader
           title="Portfolio Changelog"
@@ -115,7 +115,7 @@ export default function ChangelogPage() {
         initial={{ opacity: 0, filter: "blur(4px)", y: 12 }}
         animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
-        className="w-full max-w-6xl mx-auto pt-[calc(22vh+112px)] pb-16 px-3 sm:px-6 md:px-10 flex flex-col z-10 relative overflow-hidden"
+        className="ml-3 mr-3 sm:ml-4 sm:mr-4 md:ml-[24.5%] md:mr-[24.5%] md:mx-0 pt-[calc(22vh+112px)] pb-16 px-3 sm:px-4 flex flex-col z-10 relative overflow-hidden"
       >
         {/* Drag Hint Banner */}
         <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400 dark:text-zinc-500 mb-2 px-1 select-none">
@@ -123,7 +123,7 @@ export default function ChangelogPage() {
             <svg className="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
             </svg>
-            Hold & drag horizontally to explore timeline
+            Drag horizontally to explore timeline
           </span>
           <span className="hidden sm:inline">0.1 Start ➔ 0.2 Start (Now)</span>
         </div>
@@ -134,16 +134,6 @@ export default function ChangelogPage() {
               <TimescaleViewport>
                 <TimescaleTrack>
                   <TimescaleRail />
-
-                  {/* Clean In-Flow Timeline Column Header */}
-                  <div className="w-14 sm:w-16 shrink-0 text-right pr-3 sm:pr-4 select-none flex flex-col justify-start">
-                    <p className="text-[10px] sm:text-[11px] leading-5 font-mono font-medium text-muted-foreground uppercase tracking-widest">
-                      VER
-                    </p>
-                    <p className="text-[10px] sm:text-[11px] leading-5 font-mono font-medium text-muted-foreground uppercase tracking-widest">
-                      DATE
-                    </p>
-                  </div>
 
                   {MILESTONES.map((milestone) => (
                     <TimescaleItem

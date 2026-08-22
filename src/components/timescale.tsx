@@ -19,16 +19,16 @@ export function TimescaleRoot({
       data-slot="timescale-root"
       data-orientation={orientation}
       className={cn(
-        "group/timescale relative flex w-full [--timescale-rail:3.5rem] overflow-hidden select-none",
+        "group/timescale relative flex w-full [--timescale-rail:3.5rem] overflow-hidden",
         "data-[orientation=vertical]:flex-col",
         "[mask-image:linear-gradient(to_right,transparent_0%,black_36px,black_calc(100%-36px),transparent_100%)]",
         className
       )}
       {...props}
     >
-      {/* Left Fade Gradient Overlay */}
+      {/* Left Fade Gradient */}
       <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 sm:w-16 z-20 bg-gradient-to-r from-background via-background/80 to-transparent" />
-      {/* Right Fade Gradient Overlay */}
+      {/* Right Fade Gradient */}
       <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 sm:w-16 z-20 bg-gradient-to-l from-background via-background/80 to-transparent" />
       {children}
     </div>
@@ -46,7 +46,9 @@ export function TimescaleViewport({
   const isDown = useRef(false);
   const startX = useRef(0);
   const startScrollLeft = useRef(0);
-  const history = useRef<{ x: number; time: number }[]>([]);
+  const velocity = useRef(0);
+  const lastX = useRef(0);
+  const lastTime = useRef(0);
   const animFrameId = useRef<number | null>(null);
   const hasMoved = useRef(false);
   const [isDraggingState, setIsDraggingState] = useState(false);
@@ -63,12 +65,13 @@ export function TimescaleViewport({
     if (e.button !== 0) return; // Only primary mouse button
 
     stopMomentum();
-    viewportRef.current.style.scrollBehavior = "auto";
     isDown.current = true;
     hasMoved.current = false;
     startX.current = e.clientX;
     startScrollLeft.current = viewportRef.current.scrollLeft;
-    history.current = [{ x: e.clientX, time: performance.now() }];
+    lastX.current = e.clientX;
+    lastTime.current = performance.now();
+    velocity.current = 0;
 
     try {
       e.currentTarget.setPointerCapture(e.pointerId);
@@ -81,17 +84,20 @@ export function TimescaleViewport({
     if (!isDown.current || !viewportRef.current) return;
     const currentX = e.clientX;
     const now = performance.now();
+    const dt = now - lastTime.current;
 
-    history.current.push({ x: currentX, time: now });
-    // Keep past 100ms
-    history.current = history.current.filter((entry) => now - entry.time <= 100);
+    if (dt > 0) {
+      const instantVel = (lastX.current - currentX) / dt;
+      velocity.current = velocity.current * 0.7 + instantVel * 0.3;
+      lastX.current = currentX;
+      lastTime.current = now;
+    }
 
     const deltaX = currentX - startX.current;
     if (Math.abs(deltaX) > 3) {
       hasMoved.current = true;
     }
 
-    // Direct linear tracking without lag or snap fighting
     viewportRef.current.scrollLeft = startScrollLeft.current - deltaX;
   };
 
@@ -106,44 +112,30 @@ export function TimescaleViewport({
       }
     } catch (_) {}
 
-    const now = performance.now();
-    const recent = history.current.filter((entry) => now - entry.time <= 100);
+    if (Math.abs(velocity.current) > 0.05) {
+      let vel = velocity.current * 16.6;
+      const maxVel = 50;
+      vel = Math.max(-maxVel, Math.min(maxVel, vel));
+      let lastTick = performance.now();
 
-    if (recent.length >= 2) {
-      const first = recent[0];
-      const last = recent[recent.length - 1];
-      const dt = last.time - first.time;
-      const dx = last.x - first.x;
+      const glide = (time: number) => {
+        if (!viewportRef.current) return;
+        const deltaMs = Math.min(32, time - lastTick);
+        lastTick = time;
 
-      if (dt > 8) {
-        let velocity = -(dx / dt) * 16.6;
-        const maxVelocity = 40;
-        velocity = Math.max(-maxVelocity, Math.min(maxVelocity, velocity));
+        const decay = Math.pow(0.95, deltaMs / 16.6);
+        vel *= decay;
 
-        if (Math.abs(velocity) > 0.4) {
-          let currentVel = velocity;
-          let lastTick = performance.now();
+        viewportRef.current.scrollLeft += vel * (deltaMs / 16.6);
 
-          const glide = (time: number) => {
-            if (!viewportRef.current) return;
-            const deltaMs = Math.min(32, time - lastTick);
-            lastTick = time;
-
-            const decay = Math.pow(0.95, deltaMs / 16.6);
-            currentVel *= decay;
-
-            viewportRef.current.scrollLeft += currentVel * (deltaMs / 16.6);
-
-            if (Math.abs(currentVel) > 0.1) {
-              animFrameId.current = requestAnimationFrame(glide);
-            } else {
-              animFrameId.current = null;
-            }
-          };
-
+        if (Math.abs(vel) > 0.2) {
           animFrameId.current = requestAnimationFrame(glide);
+        } else {
+          animFrameId.current = null;
         }
-      }
+      };
+
+      animFrameId.current = requestAnimationFrame(glide);
     }
   };
 
@@ -175,14 +167,31 @@ export function TimescaleViewport({
       className={cn(
         "no-scrollbar w-full overflow-x-auto overscroll-x-contain select-none touch-pan-y",
         isDraggingState ? "cursor-grabbing" : "cursor-default",
-        "group-data-[orientation=horizontal]/timescale:flex group-data-[orientation=horizontal]/timescale:flex-1",
+        "group-data-[orientation=horizontal]/timescale:flex group-data-[orientation=horizontal]/timescale:flex-1 group-data-[orientation=horizontal]/timescale:px-6 sm:group-data-[orientation=horizontal]/timescale:px-10",
         className
       )}
-      style={{ scrollBehavior: "auto" }}
       {...props}
     >
       {children}
     </div>
+  );
+}
+
+export type TimescaleHeaderProps = React.ComponentProps<"div">;
+
+export function TimescaleHeader({ className, ...props }: TimescaleHeaderProps) {
+  return (
+    <div
+      data-slot="timescale-header"
+      aria-hidden="true"
+      className={cn(
+        "z-10 select-none",
+        "group-data-[orientation=horizontal]/timescale:hidden",
+        "group-data-[orientation=vertical]/timescale:grid group-data-[orientation=vertical]/timescale:w-full group-data-[orientation=vertical]/timescale:grid-cols-[var(--timescale-rail)_1fr] group-data-[orientation=vertical]/timescale:gap-x-4 group-data-[orientation=vertical]/timescale:bg-background",
+        className
+      )}
+      {...props}
+    />
   );
 }
 
@@ -193,7 +202,7 @@ export function TimescaleTrack({ className, ...props }: TimescaleTrackProps) {
     <div
       data-slot="timescale-track"
       className={cn(
-        "relative flex px-4 sm:px-8",
+        "relative flex",
         "group-data-[orientation=horizontal]/timescale:w-max group-data-[orientation=horizontal]/timescale:items-start pb-8",
         "group-data-[orientation=vertical]/timescale:w-full group-data-[orientation=vertical]/timescale:flex-col group-data-[orientation=vertical]/timescale:pt-4",
         className
@@ -274,6 +283,7 @@ export function TimescaleAge({ className, ...props }: TimescaleAgeProps) {
       className={cn(
         "text-xs leading-5 font-mono font-medium transition-colors duration-200 tabular-nums select-none",
         "text-muted-foreground group-hover/item:text-zinc-800 dark:group-hover/item:text-zinc-200 group-data-[active=true]/item:text-zinc-800 dark:group-data-[active=true]/item:text-zinc-200",
+        "in-[[data-slot=timescale-header]]:tracking-widest in-[[data-slot=timescale-header]]:uppercase",
         "group-data-[orientation=vertical]/timescale:col-start-1 group-data-[orientation=vertical]/timescale:row-start-1 group-data-[orientation=vertical]/timescale:pr-4 group-data-[orientation=vertical]/timescale:text-right",
         className
       )}
@@ -291,6 +301,7 @@ export function TimescaleYear({ className, ...props }: TimescaleYearProps) {
       className={cn(
         "text-xs sm:text-[13px] leading-5 font-mono font-semibold transition-all duration-200 tabular-nums select-none",
         "text-zinc-600 dark:text-zinc-400 group-hover/item:text-zinc-950 dark:group-hover/item:text-white group-data-[active=true]/item:text-zinc-950 dark:group-data-[active=true]/item:text-white group-hover/item:font-bold group-data-[active=true]/item:font-bold",
+        "in-[[data-slot=timescale-header]]:tracking-widest in-[[data-slot=timescale-header]]:uppercase in-[[data-slot=timescale-header]]:text-muted-foreground",
         "group-data-[orientation=vertical]/timescale:col-start-2 group-data-[orientation=vertical]/timescale:row-start-1",
         className
       )}
@@ -340,8 +351,6 @@ export function TimescaleContent({
   );
 }
 
-const INTRO_SCROLL_START_HOLD = 100;
-
 export function TimescaleIntroScroll({
   children,
 }: {
@@ -358,16 +367,7 @@ export function TimescaleIntroScroll({
     const distance = viewport.scrollWidth - viewport.clientWidth;
     if (distance <= 0) return;
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      viewport.scrollLeft = distance;
-      return;
-    }
-
-    const timer = window.setTimeout(() => {
-      viewport.scrollLeft = distance;
-    }, INTRO_SCROLL_START_HOLD);
-
-    return () => window.clearTimeout(timer);
+    viewport.scrollLeft = distance;
   }, []);
 
   return (
