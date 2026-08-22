@@ -1,7 +1,7 @@
 "use client";
 
 // Inspired by Evil Rabbit's Lifeline & Chánh Đại Timescale
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export type TimescaleRootProps = React.ComponentProps<"div"> & {
@@ -46,11 +46,10 @@ export function TimescaleViewport({
   const isDown = useRef(false);
   const startX = useRef(0);
   const startScrollLeft = useRef(0);
-  const lastX = useRef(0);
-  const lastTime = useRef(0);
-  const velocity = useRef(0);
+  const history = useRef<{ x: number; time: number }[]>([]);
   const animFrameId = useRef<number | null>(null);
   const hasMoved = useRef(false);
+  const [isDraggingState, setIsDraggingState] = useState(false);
 
   const stopMomentum = () => {
     if (animFrameId.current !== null) {
@@ -59,62 +58,94 @@ export function TimescaleViewport({
     }
   };
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!viewportRef.current) return;
+    if (e.button !== 0) return; // Only primary mouse button
+
     stopMomentum();
     isDown.current = true;
     hasMoved.current = false;
-    startX.current = e.pageX;
+    startX.current = e.clientX;
     startScrollLeft.current = viewportRef.current.scrollLeft;
-    lastX.current = e.pageX;
-    lastTime.current = performance.now();
-    velocity.current = 0;
+    history.current = [{ x: e.clientX, time: performance.now() }];
+
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch (_) {}
+
+    setIsDraggingState(true);
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!isDown.current || !viewportRef.current) return;
-    const currentX = e.pageX;
+    const currentX = e.clientX;
     const now = performance.now();
-    const dt = now - lastTime.current;
 
-    if (dt > 0) {
-      velocity.current = (lastX.current - currentX) / dt;
-      lastX.current = currentX;
-      lastTime.current = now;
-    }
+    history.current.push({ x: currentX, time: now });
+    history.current = history.current.filter((entry) => now - entry.time <= 120);
 
     const deltaX = currentX - startX.current;
-    if (Math.abs(deltaX) > 3) {
+    if (Math.abs(deltaX) > 4) {
       hasMoved.current = true;
     }
 
     viewportRef.current.scrollLeft = startScrollLeft.current - deltaX;
   };
 
-  const handleMouseUp = () => {
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!isDown.current || !viewportRef.current) return;
     isDown.current = false;
+    setIsDraggingState(false);
 
-    if (Math.abs(velocity.current) > 0.05) {
-      let vel = velocity.current * 16;
-      const glide = () => {
-        if (!viewportRef.current) return;
-        viewportRef.current.scrollLeft += vel;
-        vel *= 0.94;
-        if (Math.abs(vel) > 0.5) {
+    try {
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+    } catch (_) {}
+
+    const now = performance.now();
+    const recent = history.current.filter((entry) => now - entry.time <= 120);
+
+    if (recent.length >= 2) {
+      const first = recent[0];
+      const last = recent[recent.length - 1];
+      const dt = last.time - first.time;
+      const dx = last.x - first.x;
+
+      if (dt > 10) {
+        let velocity = -(dx / dt) * 16.6;
+        const maxVelocity = 45;
+        velocity = Math.max(-maxVelocity, Math.min(maxVelocity, velocity));
+
+        if (Math.abs(velocity) > 0.5) {
+          let currentVel = velocity;
+          let lastTick = performance.now();
+
+          const glide = (time: number) => {
+            if (!viewportRef.current) return;
+            const deltaMs = Math.min(32, time - lastTick);
+            lastTick = time;
+
+            const decay = Math.pow(0.95, deltaMs / 16.6);
+            currentVel *= decay;
+
+            viewportRef.current.scrollLeft += currentVel * (deltaMs / 16.6);
+
+            if (Math.abs(currentVel) > 0.2) {
+              animFrameId.current = requestAnimationFrame(glide);
+            } else {
+              animFrameId.current = null;
+            }
+          };
+
           animFrameId.current = requestAnimationFrame(glide);
-        } else {
-          animFrameId.current = null;
         }
-      };
-      animFrameId.current = requestAnimationFrame(glide);
+      }
     }
   };
 
-  const handleMouseLeave = () => {
-    if (isDown.current) {
-      handleMouseUp();
-    }
+  const handlePointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
+    handlePointerUp(e);
   };
 
   const handleClickCapture = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -133,13 +164,14 @@ export function TimescaleViewport({
     <div
       ref={viewportRef}
       data-slot="timescale-viewport"
-      onMouseDown={handleMouseDown}
-      onMouseLeave={handleMouseLeave}
-      onMouseUp={handleMouseUp}
-      onMouseMove={handleMouseMove}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
       onClickCapture={handleClickCapture}
       className={cn(
-        "no-scrollbar w-full overflow-x-auto overscroll-x-contain cursor-grab active:cursor-grabbing select-none",
+        "no-scrollbar w-full overflow-x-auto overscroll-x-contain select-none touch-pan-y",
+        isDraggingState ? "cursor-grabbing" : "cursor-default",
         "group-data-[orientation=horizontal]/timescale:flex group-data-[orientation=horizontal]/timescale:flex-1 group-data-[orientation=horizontal]/timescale:pl-20 sm:group-data-[orientation=horizontal]/timescale:pl-24",
         className
       )}
