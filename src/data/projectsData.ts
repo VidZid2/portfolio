@@ -2,7 +2,6 @@ import type { ComponentType } from "react";
 import { Network, Search } from "lucide-react";
 import {
   SiNextdotjs,
-  SiTypescript,
   SiReact,
   SiThreedotjs,
   SiPrisma,
@@ -20,7 +19,6 @@ import {
   SiRedis,
   SiCelery,
   SiTldraw,
-  SiCss,
   SiPython,
   SiAnthropic,
   SiClaude,

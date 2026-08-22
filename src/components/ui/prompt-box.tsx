@@ -12,6 +12,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { createPortal, flushSync } from "react-dom";
 import { useReducedMotion } from "motion/react";
@@ -188,13 +189,11 @@ function usePrefersHover() {
 }
 
 function useIsMounted() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  return mounted;
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 }
 
 function isInsideDropdownPanel(node: Node | null) {
@@ -1138,9 +1137,9 @@ function SettingsDropdown({
   );
 
   useEffect(() => {
-    if (open) {
-      setInstantDismiss(false);
-    }
+    if (!open) return;
+    const frame = requestAnimationFrame(() => setInstantDismiss(false));
+    return () => cancelAnimationFrame(frame);
   }, [open]);
 
   const handleSubmenuSelect = useCallback(
@@ -1471,9 +1470,9 @@ function PlusMenuDropdown({
   );
 
   useEffect(() => {
-    if (open) {
-      setInstantDismiss(false);
-    }
+    if (!open) return;
+    const frame = requestAnimationFrame(() => setInstantDismiss(false));
+    return () => cancelAnimationFrame(frame);
   }, [open]);
 
   const updatePosition = useCallback(() => {
@@ -1792,7 +1791,9 @@ export function PromptInput({
     onValueChange?.(val);
   }, [onValueChange]);
   const valueRef = useRef(value);
-  valueRef.current = value;
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
   const [internalSettings, setInternalSettings] = useState(() =>
     getDefaultSettings(settingGroups, defaultSettings)
   );
@@ -1802,8 +1803,10 @@ export function PromptInput({
   const [plusOpen, setPlusOpen] = useState(false);
   const settingsOpenRef = useRef(settingsOpen);
   const plusOpenRef = useRef(plusOpen);
-  settingsOpenRef.current = settingsOpen;
-  plusOpenRef.current = plusOpen;
+  useEffect(() => {
+    settingsOpenRef.current = settingsOpen;
+    plusOpenRef.current = plusOpen;
+  }, [settingsOpen, plusOpen]);
 
   useEffect(() => {
     onMenuOpenChange?.(settingsOpen || plusOpen);
@@ -1813,7 +1816,6 @@ export function PromptInput({
   const inputRef = useRef<HTMLElement | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const textareaPanelHeight = expandedHeight - FOOTER_HEIGHT;
-  const isPanelScrollable = textareaPanelHeight >= MAX_TEXTAREA_PANEL_HEIGHT;
   const showSettings = settingGroups.length > 0 || menuActions.length > 0;
 
   const [isScrolling, setIsScrolling] = useState(false);
@@ -1843,23 +1845,27 @@ export function PromptInput({
   useEffect(() => {
     if (isSettingsControlled) return;
 
-    setInternalSettings((previous) => {
-      const defaults = getDefaultSettings(settingGroups, defaultSettings);
-      const next = { ...defaults };
+    const frame = requestAnimationFrame(() => {
+      setInternalSettings((previous) => {
+        const defaults = getDefaultSettings(settingGroups, defaultSettings);
+        const next = { ...defaults };
 
-      for (const group of settingGroups) {
-        const previousValue = previous[group.id];
-        const isValid = group.options.some(
-          (option) => option.value === previousValue
-        );
+        for (const group of settingGroups) {
+          const previousValue = previous[group.id];
+          const isValid = group.options.some(
+            (option) => option.value === previousValue
+          );
 
-        if (isValid && previousValue) {
-          next[group.id] = previousValue;
+          if (isValid && previousValue) {
+            next[group.id] = previousValue;
+          }
         }
-      }
 
-      return next;
+        return next;
+      });
     });
+
+    return () => cancelAnimationFrame(frame);
   }, [defaultSettings, isSettingsControlled, settingGroups]);
 
   const syncExpandedHeight = useCallback(() => {
@@ -1885,8 +1891,10 @@ export function PromptInput({
 
   useLayoutEffect(() => {
     if (!expanded) {
-      setExpandedHeight(MIN_EXPANDED_HEIGHT);
-      return;
+      const resetFrame = requestAnimationFrame(() => {
+        setExpandedHeight(MIN_EXPANDED_HEIGHT);
+      });
+      return () => cancelAnimationFrame(resetFrame);
     }
 
     const frame = requestAnimationFrame(() => {
@@ -1906,7 +1914,7 @@ export function PromptInput({
         syncExpandedHeight();
       });
     },
-    [expanded, syncExpandedHeight]
+    [expanded, setValue, syncExpandedHeight]
   );
 
   const expand = useCallback(() => {
@@ -1914,7 +1922,7 @@ export function PromptInput({
     requestAnimationFrame(() => {
       inputRef.current?.focus();
     });
-  }, []);
+  }, [setExpanded]);
 
   useEffect(() => {
     const handleGlobalEnter = (e: KeyboardEvent) => {
@@ -1940,7 +1948,7 @@ export function PromptInput({
 
       setExpanded(false);
     });
-  }, []);
+  }, [setExpanded]);
 
   const handleBlur = useCallback(
     (event: React.FocusEvent<HTMLDivElement>) => {
@@ -1985,14 +1993,16 @@ export function PromptInput({
         }
       }
     },
-    [handleSubmit, value]
+    [handleSubmit, setExpanded, value]
   );
 
   useEffect(() => {
-    if (!expanded) {
+    if (expanded) return;
+    const frame = requestAnimationFrame(() => {
       setSettingsOpen(false);
       setPlusOpen(false);
-    }
+    });
+    return () => cancelAnimationFrame(frame);
   }, [expanded]);
 
   return (
@@ -2073,7 +2083,7 @@ export function PromptInput({
         )}
       </AnimatePresence>
 
-      {/* Footer is pinned at its final position from the top — it never moves
+      {/* Footer is pinned at its final position from the top Ã¢â‚¬â€ it never moves
           as the surface grows; the container edge sweeps over and reveals it. */}
       <AnimatePresence>
         {expanded && (
@@ -2131,7 +2141,7 @@ export function PromptInput({
         )}
       </AnimatePresence>
 
-      {/* Send button — visible only when expanded */}
+      {/* Send button Ã¢â‚¬â€ visible only when expanded */}
       <AnimatePresence>
         {expanded && (
           <motion.button

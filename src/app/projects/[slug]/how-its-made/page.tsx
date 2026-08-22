@@ -1,15 +1,12 @@
 // Force Turbopack rebuild to clear stale SSR cache
 import { projectsData } from "@/data/projectsData";
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, BrainCircuit, Terminal, ShieldCheck, Layers, MousePointerClick, Trash2, Zap, Scissors, Cpu, Database, Battery, CircleDashed, Home } from "lucide-react";
-import { RightNavbar } from "@/components/RightNavbar";
+import { ArrowLeft, BrainCircuit, Terminal, ShieldCheck, Layers, MousePointerClick, Home } from "lucide-react";
 
 import { BlueprintGrid } from "@/components/BlueprintGrid";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CommandMenu } from "@/components/command-menu";
 import { TransitionLink } from "@/components/TransitionLink";
-import { NumberTicker } from "@/components/ui/number-ticker";
 import { AnimatedRoadmap } from "@/components/AnimatedRoadmap";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { AsciiText } from "@/components/ui/ascii-text";
@@ -44,7 +41,7 @@ export default async function HowItsMadePage({ params }: { params: Promise<{ slu
               </TransitionLink>
               <div className="flex flex-col justify-center min-w-0">
                 <h1 className="text-[20px] sm:text-[24px] font-bold text-zinc-800 dark:text-zinc-100 tracking-tight leading-none mb-1 [text-shadow:-1.5px_0_0_rgba(0,200,255,0.15),1.5px_0_0_rgba(255,80,0,0.15)] dark:[text-shadow:-1.5px_0_0_rgba(0,200,255,0.25),1.5px_0_0_rgba(255,80,0,0.25)] truncate">
-                  How it's made
+                  How it&apos;s made
                 </h1>
                 <div className="truncate">
                   <Breadcrumbs
@@ -65,7 +62,7 @@ export default async function HowItsMadePage({ params }: { params: Promise<{ slu
                         ), 
                         href: `/projects/${slug}` 
                       },
-                      { label: "How it's made" },
+                      { label: "How it&apos;s made" },
                     ]}
                   />
                 </div>
@@ -95,10 +92,10 @@ export default async function HowItsMadePage({ params }: { params: Promise<{ slu
                     <strong>PRIMA</strong> started as my very first foundational project, a basic HTML and CSS site designed merely to grasp the fundamentals of how websites work. 
                   </p>
                   <p className="mb-4">
-                    But as I entered my second year as an IT student, the project took on a completely new meaning. PRIMA isn't just a fictional sandbox; it is a real, growing digital agency founded by an industry mentor. I decided to take the initiative and build this premium landing page to help elevate their professional portfolio. This collaboration evolved into my first true B2B (Business-to-Business) project, establishing a professional partnership where I am trusted to develop full-stack applications for the agency's future clients.
+                    But as I entered my second year as an IT student, the project took on a completely new meaning. PRIMA isn&apos;t just a fictional sandbox; it is a real, growing digital agency founded by an industry mentor. I decided to take the initiative and build this premium landing page to help elevate their professional portfolio. This collaboration evolved into my first true B2B (Business-to-Business) project, establishing a professional partnership where I am trusted to develop full-stack applications for the agency&apos;s future clients.
                   </p>
                   <p className="mb-6">
-                    With only about two years of coding fundamentals and a lot of "vibe coding" (relying on intuition, AI assistance, and rapid prototyping), I dove into a rigorous development sprint. Through a lot of trial, error, and late nights, I managed to re-architect the platform from the ground up, evolving it from a basic static HTML folder into a massive, production-ready web application.
+                    With only about two years of coding fundamentals and a lot of &quot;vibe coding&quot; (relying on intuition, AI assistance, and rapid prototyping), I dove into a rigorous development sprint. Through a lot of trial, error, and late nights, I managed to re-architect the platform from the ground up, evolving it from a basic static HTML folder into a massive, production-ready web application.
                   </p>
                   
                   {/* Metric Cards */}
@@ -119,7 +116,7 @@ export default async function HowItsMadePage({ params }: { params: Promise<{ slu
                     <span className="w-8 h-[1px] bg-zinc-300 dark:bg-zinc-700"></span>
                     <AsciiText text="Part 3: The &quot;Ask AI Helper&quot; — My Biggest Learning Curve" delay={0} />
                   </h2>
-                  <p className="mb-6">One of the most complex features I tackled was an embedded AI chat interface utilizing the Google Gemini SDK. I honestly didn't know if I could pull it off, but the core prompt interface code alone eventually grew into a massive <strong>2,100+ lines of logic</strong>.</p>
+                  <p className="mb-6">One of the most complex features I tackled was an embedded AI chat interface utilizing the Google Gemini SDK. I honestly didn&apos;t know if I could pull it off, but the core prompt interface code alone eventually grew into a massive <strong>2,100+ lines of logic</strong>.</p>
                   
                   <div className="mb-8 w-full">
                     <FigmaVideoWrapper>
@@ -171,7 +168,7 @@ export default async function HowItsMadePage({ params }: { params: Promise<{ slu
                     <span className="w-8 h-[1px] bg-zinc-300 dark:bg-zinc-700"></span>
                     <AsciiText text="Part 4: Visual Excellence and Shaders" delay={0} />
                   </h2>
-                  <p className="mb-6">Beyond standard React, I wanted to experiment with graphical limits. I integrated <code>Three.js</code> and <code>@paper-design/shaders</code> to render true 3D visual elements that respond to the user's cursor.</p>
+                  <p className="mb-6">Beyond standard React, I wanted to experiment with graphical limits. I integrated <code>Three.js</code> and <code>@paper-design/shaders</code> to render true 3D visual elements that respond to the user&apos;s cursor.</p>
                   <div className="flex flex-col gap-4">
                     <div className="p-5 rounded-lg border border-black/10 dark:border-white/10 bg-zinc-50 dark:bg-zinc-900/50 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors relative overflow-hidden group">
                       <CardSwirlBackground className="absolute -top-32 -left-32 w-[600px] h-[600px]" word=" " />
@@ -182,7 +179,7 @@ export default async function HowItsMadePage({ params }: { params: Promise<{ slu
                           </div>
                           <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Dynamic Layouts</h4>
                           <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-0">
-                            Using Framer Motion's `layout` tags, I learned how to make containers behave like liquid. For example, the Hero section swapping between the words "brand," "business," and "future" dynamically snaps its container bounds to the exact width of the changing text in real-time.
+                            Using Framer Motion&apos;s `layout` tags, I learned how to make containers behave like liquid. For example, the Hero section swapping between the words &quot;brand,&quot; &quot;business,&quot; and &quot;future&quot; dynamically snaps its container bounds to the exact width of the changing text in real-time.
                           </p>
                         </div>
                         <div className="relative w-full md:w-1/2 aspect-[4/3] rounded-md overflow-hidden bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 shadow-sm shrink-0">
@@ -232,7 +229,7 @@ export default async function HowItsMadePage({ params }: { params: Promise<{ slu
                     <AsciiText text="Part 6: Global Hardware-Aware Progressive Degradation" delay={0} />
                   </h2>
                   <p className="mb-4">
-                    I wanted to make sure the site wouldn't crash on even weaker phones. I researched native browser APIs and wrote a custom React hook that acts as a global safety net.
+                    I wanted to make sure the site wouldn&apos;t crash on even weaker phones. I researched native browser APIs and wrote a custom React hook that acts as a global safety net.
                   </p>
                   <p className="mb-4">
                     The millisecond a user opens the page, this hook silently checks their hardware (<code>navigator.deviceMemory</code> and <code>navigator.hardwareConcurrency</code>). 
@@ -249,7 +246,7 @@ export default async function HowItsMadePage({ params }: { params: Promise<{ slu
                     <AsciiText text="Part 7: The Future Roadmap & Brutal Honesty" delay={0} />
                   </h2>
                   <p className="mb-6">
-                    While engineering a comprehensive Next.js platform under tight timelines was an intensive technical milestone, I know that true enterprise software is never truly "done." The current architecture is a high-fidelity front-end, but to scale this into a fully finished, multi-tenant product, my roadmap includes:
+                    While engineering a comprehensive Next.js platform under tight timelines was an intensive technical milestone, I know that true enterprise software is never truly &quot;done.&quot; The current architecture is a high-fidelity front-end, but to scale this into a fully finished, multi-tenant product, my roadmap includes:
                   </p>
                   <AnimatedRoadmap />
                   <p className="italic text-zinc-500 dark:text-zinc-400">

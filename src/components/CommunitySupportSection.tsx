@@ -2,19 +2,18 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRightIcon, Heart, Mail, Check, Copy, ExternalLink, Smartphone, Gift } from "lucide-react";
+import { ArrowUpRightIcon, Mail, Check, Copy, ExternalLink, Gift } from "lucide-react";
 import { toast } from "sonner";
 
 import Image from "next/image";
-import { cn } from "@/lib/utils";
 import { useTransition } from "@/components/TransitionProvider";
 import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 import ScrambleText from "@/components/ruixen/scramble-text";
 import { usePerformance } from "@/hooks/usePerformance";
 import { PlusIcon } from "@/components/animated-icons/plus-icon";
 import { ExpandingArrowButton } from "@/components/ui/expanding-arrow-button";
-import { SPONSORS, type Sponsor } from "@/data/sponsorsData";
-import { playHoverTick, playSoftClick, playPowerUpSound } from "@/lib/synth-sounds";
+import { SPONSORS } from "@/data/sponsorsData";
+import { playHoverTick, playSoftClick } from "@/lib/synth-sounds";
 import {
   CenterMorphModal,
   CenterMorphModalContent,

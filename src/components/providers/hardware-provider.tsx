@@ -9,52 +9,51 @@ type HardwareContextType = {
 
 const HardwareContext = createContext<HardwareContextType>({ isLowEndDevice: false });
 
+/** Chromium-only hardware hints absent from the standard DOM types. */
+interface ExtendedNavigator extends Navigator {
+  deviceMemory?: number;
+  getBattery?: () => Promise<{ charging: boolean; level: number }>;
+}
+
 export function useHardware() {
   return useContext(HardwareContext);
 }
 
 export function HardwareProvider({ children }: { children: ReactNode }) {
   const [isLowEndDevice, setIsLowEndDevice] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
     let lowEnd = false;
+    const nav = navigator as ExtendedNavigator;
 
     // 1. Check Device Memory (RAM) -> primarily Chromium browsers
-    if (
-      "deviceMemory" in navigator &&
-      typeof (navigator as any).deviceMemory === "number"
-    ) {
-      if ((navigator as any).deviceMemory < 4) {
-        lowEnd = true;
-      }
+    if (typeof nav.deviceMemory === "number" && nav.deviceMemory < 4) {
+      lowEnd = true;
     }
 
     // 2. Check CPU Cores
-    if (
-      "hardwareConcurrency" in navigator &&
-      typeof navigator.hardwareConcurrency === "number"
-    ) {
-      if (navigator.hardwareConcurrency < 4) {
-        lowEnd = true;
-      }
+    if (typeof navigator.hardwareConcurrency === "number" && navigator.hardwareConcurrency < 4) {
+      lowEnd = true;
     }
 
     // 3. Check Battery API (Chromium mostly) to guess power-saving mode
-    if ("getBattery" in navigator && typeof (navigator as any).getBattery === "function") {
-      (navigator as any).getBattery().then((battery: any) => {
-        // If unplugged and battery is very low, browsers often throttle CPU
-        if (!battery.charging && battery.level <= 0.2) {
-          setIsLowEndDevice(true);
-        }
-      }).catch(() => {});
+    if (typeof nav.getBattery === "function") {
+      // If unplugged and battery is very low, browsers often throttle CPU
+      nav
+        .getBattery()
+        .then((battery) => {
+          if (!battery.charging && battery.level <= 0.2) {
+            setIsLowEndDevice(true);
+          }
+        })
+        .catch(() => {});
     }
 
     // To test the fallback state manually, uncomment this line:
     // lowEnd = true;
 
-    setIsLowEndDevice(lowEnd);
+    const frame = requestAnimationFrame(() => setIsLowEndDevice(lowEnd));
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   // Before hydration finishes, we don't know the hardware, 

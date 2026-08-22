@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles } from "lucide-react";
 import { playSoftClick, playChatOpen } from "@/lib/synth-sounds";
 
 export function TextSelectionMenu() {

@@ -2,7 +2,6 @@
 // beui.dev/components/motion/cylinder-carousel
 
 import {
-  AnimatePresence,
   animate,
   type AnimationPlaybackControls,
   motion,
@@ -13,7 +12,6 @@ import {
 } from "motion/react";
 import {
   Children,
-  isValidElement,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
   useCallback,

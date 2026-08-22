@@ -2,10 +2,8 @@
 
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
 import SoftPillButton from "@/components/pixel-perfect/soft-pill-button";
 import { socialProfiles, SocialProfileContent } from "@/components/pixel-perfect/social-hover-card";
-import { FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SocialItem {

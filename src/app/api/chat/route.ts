@@ -111,12 +111,22 @@ function checkServerRateLimit(ip: string, effort: string): boolean {
   return true;
 }
 
+interface IncomingChatMessage {
+  role?: unknown;
+  content?: unknown;
+  parts?: Array<{ type?: unknown; text?: unknown }>;
+}
+
 export async function POST(req: Request) {
   let userQuery = "";
   let effort = "high";
 
   try {
-    const body = await req.json();
+    const body = (await req.json()) as {
+      messages?: IncomingChatMessage[];
+      model?: unknown;
+      effort?: unknown;
+    };
     const { messages } = body;
     const rawModel: unknown = body.model;
     const rawEffort: unknown = body.effort;
@@ -141,13 +151,13 @@ export async function POST(req: Request) {
     }
 
     // Extract last user message
-    const lastUserMsg = [...messages].reverse().find((m: any) => m.role === 'user');
+    const lastUserMsg = [...(messages ?? [])].reverse().find((m) => m.role === 'user');
     if (lastUserMsg) {
       if (typeof lastUserMsg.content === 'string') {
         userQuery = lastUserMsg.content;
       } else if (Array.isArray(lastUserMsg.parts)) {
-        const textPart = lastUserMsg.parts.find((p: any) => p.type === 'text');
-        if (textPart) userQuery = textPart.text || '';
+        const textPart = lastUserMsg.parts.find((p) => p.type === 'text');
+        if (textPart && typeof textPart.text === 'string') userQuery = textPart.text;
       }
     }
     userQuery = String(userQuery).slice(0, MAX_MESSAGE_CHARS);
@@ -197,19 +207,21 @@ When answering:
 - Do not make up facts. Focus on explaining Josiah's skills, projects, and learning journey.
 - If asked about this portfolio's code, highlight that it's built with Next.js, React 19, Tailwind CSS, and Framer Motion.
 - Be concise but complete. Format output beautifully using Markdown.
-- CRITICAL: Do NOT use long dashes (em-dashes "—" or en-dashes "–"). ALWAYS use a single hyphen "-" or a comma instead to separate clauses.
+- CRITICAL: Do NOT use long dashes (em-dashes "â€”" or en-dashes "â€“"). ALWAYS use a single hyphen "-" or a comma instead to separate clauses.
 
 ${reasoningInstruction}`;
 
     // Only user/assistant roles survive from the client; system messages are
     // server-constructed exclusively, so client-supplied ones are dropped.
-    const formattedMessages = (messages || [])
-      .filter((m: any) => m && (m.role === 'user' || m.role === 'assistant'))
+    const formattedMessages = (messages ?? [])
+      .filter((m) => m && (m.role === 'user' || m.role === 'assistant'))
       .slice(-MAX_MESSAGES)
-      .map((m: any) => {
-        let content = m.content;
+      .map((m): { role: string; content: string } => {
+        let content = typeof m.content === 'string' ? m.content : '';
         if (m.parts && Array.isArray(m.parts)) {
-          const textParts = m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text);
+          const textParts = m.parts
+            .filter((p) => p.type === 'text' && typeof p.text === 'string')
+            .map((p) => p.text as string);
           if (textParts.length > 0) content = textParts.join('\n');
         }
         return { role: m.role as string, content: String(content || '').slice(0, MAX_MESSAGE_CHARS) };
@@ -321,7 +333,7 @@ ${reasoningInstruction}`;
                         flushDeltas();
                       }
                     }
-                  } catch (jsonErr) {
+                  } catch {
                     // Ignore SSE json chunk errors
                   }
                 }

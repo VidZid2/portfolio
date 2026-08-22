@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils";
 import type { LanguageModelUsage } from "ai";
 import type { ComponentProps } from "react";
 import { createContext, useContext, useMemo } from "react";
-import { getUsage } from "tokenlens";
 
 const PERCENT_MAX = 100;
 const ICON_RADIUS = 10;
@@ -20,6 +19,20 @@ const ICON_CENTER = 12;
 const ICON_STROKE_WIDTH = 2;
 
 type ModelId = string;
+
+/** Reads numeric fields by candidate name across SDK usage shapes. */
+function usageField(
+  usage: LanguageModelUsage | undefined,
+  ...keys: string[]
+): number | undefined {
+  if (!usage) return undefined;
+  const record = usage as Record<string, unknown>;
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === "number") return value;
+  }
+  return undefined;
+}
 
 interface ContextSchema {
   usedTokens: number;
@@ -156,7 +169,7 @@ export const ContextContentHeader = ({
         <div className="flex items-center justify-between gap-3 text-xs">
           <span className="text-muted-foreground">User Memory</span>
           <TokensWithCost
-            tokens={(usage as any)?.promptTokens ?? (usage as any)?.inputTokens}
+            tokens={usageField(usage, "promptTokens", "inputTokens")}
           />
         </div>
       )}
@@ -186,7 +199,6 @@ export const ContextContentFooter = ({
   className,
   ...props
 }: ContextContentFooterProps) => {
-  const { modelId, usage } = useContextValue();
   const totalCost = "Local Model";
 
   return (
@@ -209,14 +221,12 @@ export const ContextContentFooter = ({
 
 const TokensWithCost = ({
   tokens,
-  costText,
 }: {
   tokens?: number;
-  costText?: string;
 }) => (
   <span className="text-black dark:text-[#6495ED] font-medium">
     {tokens === undefined
-      ? "—"
+      ? "Ã¢â‚¬â€"
       : new Intl.NumberFormat("en-US", {
           notation: "compact",
         }).format(tokens)}
@@ -230,8 +240,8 @@ export const ContextInputUsage = ({
   children,
   ...props
 }: ContextInputUsageProps) => {
-  const { usage, modelId } = useContextValue();
-  const inputTokens = (usage as any)?.promptTokens ?? (usage as any)?.inputTokens ?? 0;
+  const { usage } = useContextValue();
+  const inputTokens = usageField(usage, "promptTokens", "inputTokens") ?? 0;
 
   if (children) {
     return children;
@@ -266,7 +276,7 @@ export const ContextOutputUsage = ({
     <div className={cn("flex items-center justify-between gap-3 text-xs", className)} {...props}>
       <span className="text-muted-foreground">AI Memory</span>
       <TokensWithCost
-        tokens={(usage as any)?.completionTokens ?? (usage as any)?.outputTokens}
+        tokens={usageField(usage, "completionTokens", "outputTokens")}
       />
     </div>
   );
@@ -279,8 +289,8 @@ export const ContextReasoningUsage = ({
   children,
   ...props
 }: ContextReasoningUsageProps) => {
-  const { usage, modelId } = useContextValue();
-  const reasoningTokens = (usage as any)?.reasoningTokens ?? 0;
+  const { usage } = useContextValue();
+  const reasoningTokens = usageField(usage, "reasoningTokens") ?? 0;
 
   if (children) {
     return children;
@@ -290,24 +300,14 @@ export const ContextReasoningUsage = ({
     return null;
   }
 
-  const reasoningCost = modelId
-    ? getUsage({
-        modelId,
-        usage: { reasoningTokens },
-      }).costUSD?.totalUSD
-    : undefined;
-  const reasoningCostText = new Intl.NumberFormat("en-US", {
-    currency: "USD",
-    style: "currency",
-  }).format(reasoningCost ?? 0);
-
+  
   return (
     <div
       className={cn("flex items-center justify-between text-xs", className)}
       {...props}
     >
       <span className="text-muted-foreground">Reasoning</span>
-      <TokensWithCost costText={reasoningCostText} tokens={reasoningTokens} />
+      <TokensWithCost tokens={reasoningTokens} />
     </div>
   );
 };
@@ -319,8 +319,8 @@ export const ContextCacheUsage = ({
   children,
   ...props
 }: ContextCacheUsageProps) => {
-  const { usage, modelId } = useContextValue();
-  const cacheTokens = (usage as any)?.cachedInputTokens ?? 0;
+  const { usage } = useContextValue();
+  const cacheTokens = usageField(usage, "cachedInputTokens") ?? 0;
 
   if (children) {
     return children;
@@ -330,24 +330,14 @@ export const ContextCacheUsage = ({
     return null;
   }
 
-  const cacheCost = modelId
-    ? getUsage({
-        modelId,
-        usage: { cacheReads: cacheTokens, input: 0, output: 0 },
-      }).costUSD?.totalUSD
-    : undefined;
-  const cacheCostText = new Intl.NumberFormat("en-US", {
-    currency: "USD",
-    style: "currency",
-  }).format(cacheCost ?? 0);
-
+  
   return (
     <div
       className={cn("flex items-center justify-between text-xs", className)}
       {...props}
     >
       <span className="text-muted-foreground">Cache</span>
-      <TokensWithCost costText={cacheCostText} tokens={cacheTokens} />
+      <TokensWithCost tokens={cacheTokens} />
     </div>
   );
 };

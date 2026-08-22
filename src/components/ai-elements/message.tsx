@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { cjk } from "@streamdown/cjk";
-import { math, createMathPlugin } from "@streamdown/math";
+import { createMathPlugin } from "@streamdown/math";
 import "katex/dist/katex.min.css";
 import { mermaid } from "@streamdown/mermaid";
 import type { UIMessage } from "ai";

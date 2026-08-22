@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { ReactNode, useEffect, useLayoutEffect, useState } from "react";
-import { cn } from "@/lib/utils";
 
 import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 

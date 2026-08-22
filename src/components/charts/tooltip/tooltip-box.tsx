@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion, useSpring } from "motion/react";
 import type { RefObject } from "react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { type SpringConfig, useChartConfig } from "../chart-config-context";
@@ -51,11 +51,11 @@ export interface TooltipBoxProps {
 // Inner-only-on-visible so `useSpring` initializes at the cursor's actual x/y
 // instead of (0, 0) on first hover.
 export function TooltipBox(props: TooltipBoxProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   const container = props.containerRef.current;
   if (!(mounted && container)) {
@@ -86,7 +86,6 @@ function TooltipBoxInner({
   animate = true,
   entrance = true,
   panelStyle,
-  backgroundColor = chartCssVars.tooltipBackground,
   container,
 }: Omit<TooltipBoxProps, "visible" | "containerRef"> & {
   container: HTMLElement;
@@ -95,12 +94,11 @@ function TooltipBoxInner({
   const effectiveSpring = springConfig ?? tooltipBoxSpring;
 
   const tooltipRef = useRef<HTMLDivElement>(null);
-  const tooltipWidthRef = useRef(180);
-  const tooltipHeightRef = useRef(80);
+  const [measuredSize, setMeasuredSize] = useState({ width: 180, height: 80 });
   const [staticPosition, setStaticPosition] = useState({ left: x, top: y });
 
-  const tw = tooltipWidthRef.current;
-  const th = tooltipHeightRef.current;
+  const tw = measuredSize.width;
+  const th = measuredSize.height;
   const shouldFlipX = x + tw + offset > containerWidth;
   const targetX = shouldFlipX ? x - offset - tw : x + offset;
   const targetY = Math.max(
@@ -125,14 +123,14 @@ function TooltipBoxInner({
     const el = tooltipRef.current;
     const w = el.offsetWidth;
     const h = el.offsetHeight;
-    if (w > 0) {
-      tooltipWidthRef.current = w;
+    if (w > 0 || h > 0) {
+      setMeasuredSize((previous) => ({
+        width: w > 0 ? w : previous.width,
+        height: h > 0 ? h : previous.height,
+      }));
     }
-    if (h > 0) {
-      tooltipHeightRef.current = h;
-    }
-    const w2 = tooltipWidthRef.current;
-    const h2 = tooltipHeightRef.current;
+    const w2 = w > 0 ? w : measuredSize.width;
+    const h2 = h > 0 ? h : measuredSize.height;
     const flip = x + w2 + offset > containerWidth;
     const tx = flip ? x - offset - w2 : x + offset;
     const ty = Math.max(
@@ -160,10 +158,11 @@ function TooltipBoxInner({
     animate,
     animatedLeft,
     animatedTop,
+    measuredSize,
   ]);
 
   const prevFlipRef = useRef(shouldFlipX);
-  const [flipKey, setFlipKey] = useState(0);
+  const [, setFlipKey] = useState(0);
 
   useEffect(() => {
     if (prevFlipRef.current !== shouldFlipX) {

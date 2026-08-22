@@ -123,15 +123,19 @@ function DrawUnderlineLink({
   const [isHovered, setIsHovered] = useState(false);
   const [phase, setPhase] = useState<DrawPhase>("idle");
   const phaseRef = useRef<DrawPhase>("idle");
-  phaseRef.current = phase;
+  useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
   const cycleRef = useRef<number | null>(null);
   const pendingLeaveRef = useRef(false);
 
-  // Initialize path index on mount
+  // Initialize path index on mount (deferred so SSR/client random picks never clash)
   useEffect(() => {
-    if (activePathIndex === null) {
-      setActivePathIndex(Math.floor(Math.random() * paths.length));
-    }
+    if (activePathIndex !== null) return;
+    const frame = requestAnimationFrame(() =>
+      setActivePathIndex(Math.floor(Math.random() * paths.length))
+    );
+    return () => cancelAnimationFrame(frame);
   }, [activePathIndex, paths.length]);
 
   const pickAndAdvancePathIndex = useCallback(() => {
@@ -167,8 +171,8 @@ function DrawUnderlineLink({
     setPhase("leave");
   }, [activePathIndex, phase]);
 
-  const handleMouseEnter = (event: MouseEvent<HTMLAnchorElement>) => {
-    onMouseEnterProp?.(event);
+  const handleMouseEnter = (event: MouseEvent<HTMLElement>) => {
+    onMouseEnterProp?.(event as MouseEvent<HTMLAnchorElement>);
 
     if (prefersReducedMotion) {
       setIsHovered(true);
@@ -183,8 +187,8 @@ function DrawUnderlineLink({
     beginEnter();
   };
 
-  const handleMouseLeave = (event: MouseEvent<HTMLAnchorElement>) => {
-    onMouseLeaveProp?.(event);
+  const handleMouseLeave = (event: MouseEvent<HTMLElement>) => {
+    onMouseLeaveProp?.(event as MouseEvent<HTMLAnchorElement>);
 
     if (prefersReducedMotion) {
       setIsHovered(false);
@@ -234,10 +238,10 @@ function DrawUnderlineLink({
       aria-label={ariaLabel ?? (textString || undefined)}
       className={cn(drawUnderlineLinkVariants({ variant, className }))}
       href={href}
-      onMouseEnter={handleMouseEnter as any}
-      onMouseLeave={handleMouseLeave as any}
-      ref={ref as any}
-      {...(props as any)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      ref={ref as Ref<HTMLAnchorElement> & Ref<HTMLSpanElement>}
+      {...(props as ComponentPropsWithoutRef<"a"> & ComponentPropsWithoutRef<"span">)}
     >
       <span className={cn(drawUnderlineLinkTextVariants(), textClassName)}>
         {children ?? text}

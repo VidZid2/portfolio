@@ -46,20 +46,19 @@ export default function LogoTraceLoader({
   useEffect(() => {
     // Respect user's motion preferences immediately
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mediaQuery.matches) {
-      setPhase("done");
-    }
+    if (!mediaQuery.matches) return;
+    const frame = requestAnimationFrame(() => setPhase("done"));
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
-    if (phase === "done" || phase === "ascii") return;
-    
+    if (phase !== "loop") return;
+
     // Switch to closing state when explicitly completed
     const isFinishedLoading = isComplete === true || loading === false;
-    
-    if (phase === "loop" && isFinishedLoading) {
-      setPhase("closingOutline");
-    }
+
+    if (!isFinishedLoading) return;
+    setPhase("closingOutline");
   }, [loading, isComplete, phase]);
 
   useEffect(() => {
@@ -90,7 +89,9 @@ export default function LogoTraceLoader({
           .map(() => chars[Math.floor(Math.random() * chars.length)])
           .join("");
           
-      setAsciiLines(Array.from({ length: 20 }).map(generateLine));
+      const frame = requestAnimationFrame(() =>
+        setAsciiLines(Array.from({ length: 20 }).map(generateLine))
+      );
 
       // Rapidly scramble characters
       const interval = setInterval(() => {
@@ -103,6 +104,7 @@ export default function LogoTraceLoader({
       }, 1200);
 
       return () => {
+        cancelAnimationFrame(frame);
         clearInterval(interval);
         clearTimeout(timeout);
       };

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
 import { JapaneseAsciiText } from "@/components/ui/japanese-ascii-text";
 
 export function AutoShowTooltip({ children }: { children: React.ReactNode }) {

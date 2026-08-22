@@ -40,7 +40,7 @@ export function AnimatedRoadmap() {
     if (isInView) {
       // Wait for the staggered entrance animation to finish (1.5s)
       const timeout = setTimeout(() => {
-        let currentArr: number[] = [];
+        const currentArr: number[] = [];
         let i = 0;
         const interval = setInterval(() => {
           currentArr.push(i);

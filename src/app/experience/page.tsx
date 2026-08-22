@@ -5,7 +5,7 @@ import { SubpageHeader } from "@/components/SubpageHeader";
 import { useState } from "react";
 import Image from "next/image";
 
-import { type ExperienceData, experiences } from "@/data/experienceData";
+import { experiences } from "@/data/experienceData";
 
 export default function AllExperiencePage() {
   const [openIdx, setOpenIdx] = useState<number | null>(null);

@@ -7,12 +7,12 @@ import {
   useDragControls,
   useReducedMotion,
 } from "framer-motion";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 
-const EASE_DRAWER = [0.16, 1, 0.3, 1];
-const DRAWER = { duration: 0.5, ease: EASE_DRAWER } as any;
+const EASE_DRAWER = [0.16, 1, 0.3, 1] as const;
+const DRAWER = { duration: 0.5, ease: [...EASE_DRAWER] as [number, number, number, number] };
 
 export interface BottomSheetProps {
   open: boolean;
@@ -38,18 +38,20 @@ export function BottomSheet({
   dismissThreshold = 120,
 }: BottomSheetProps) {
   const [snap, setSnap] = useState(defaultSnap);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const dragControls = useDragControls();
   const sheetRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const heightRef = useRef(0);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (open) setSnap(defaultSnap);
+    if (!open) return;
+    const frame = requestAnimationFrame(() => setSnap(defaultSnap));
+    return () => cancelAnimationFrame(frame);
   }, [open, defaultSnap]);
 
   useEffect(() => {

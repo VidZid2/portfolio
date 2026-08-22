@@ -33,7 +33,7 @@ export function AsciiGlitchBlock({ className }: { className?: string }) {
             }
             
             // Randomly glitch the remaining cells
-            for (let i of [0, 1, 2, 3, 12, 13, 14, 15]) {
+            for (const i of [0, 1, 2, 3, 12, 13, 14, 15]) {
               if (Math.random() > 0.6) {
                 newCells[i] = JAPANESE_CHARS[Math.floor(Math.random() * JAPANESE_CHARS.length)];
               }

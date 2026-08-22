@@ -7,7 +7,6 @@ import {
   ChevronLeft,
   ChevronRight,
   RotateCw,
-  Sparkles,
   Briefcase,
   FolderOpen,
   Code,
@@ -18,7 +17,7 @@ import {
 } from "lucide-react";
 import { homeItems, primaItems } from "@/components/RightNavbar";
 import { useTransition } from "@/components/TransitionProvider";
-import { playSoftClick, playListSelect } from "@/lib/synth-sounds";
+import { playSoftClick } from "@/lib/synth-sounds";
 import { SharedLayoutBg } from "@/components/motion/shared-layout-bg";
 
 export function GlobalContextMenu({ children }: { children: React.ReactNode }) {

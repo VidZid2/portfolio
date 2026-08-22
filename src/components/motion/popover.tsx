@@ -207,6 +207,7 @@ interface PopoverContextValue {
   contentId: string;
   progress: MotionValue<number>;
   triggerRef: React.MutableRefObject<HTMLElement | null>;
+  setTriggerNode: (node: HTMLElement | null) => void;
   contentRef: React.MutableRefObject<HTMLDivElement | null>;
 }
 
@@ -327,6 +328,10 @@ export function Popover({
 
   useDismiss(open, close, rootRef, { ignore: ignoreContent });
 
+  const setTriggerNode = useCallback((node: HTMLElement | null) => {
+    triggerRef.current = node;
+  }, [triggerRef]);
+
   const ctx = useMemo<PopoverContextValue>(
     () => ({
       open,
@@ -346,6 +351,7 @@ export function Popover({
       contentId,
       progress,
       triggerRef,
+      setTriggerNode,
       contentRef,
     }),
     [
@@ -365,12 +371,20 @@ export function Popover({
       gooId,
       contentId,
       progress,
+      setTriggerNode,
     ],
   );
 
   const hoverHandlers =
     trigger === "hover"
-      ? makeHoverHandlers(rootHover, openHover, scheduleClose)
+      ? {
+          onPointerEnter: (event: React.PointerEvent) => {
+            if (rootHover.enter(event)) openHover();
+          },
+          onPointerLeave: (event: React.PointerEvent) => {
+            if (rootHover.leave(event)) scheduleClose();
+          },
+        }
       : {};
 
   return (
@@ -448,9 +462,7 @@ export function PopoverTrigger({ children }: PopoverTriggerProps) {
 
   return cloneElement(child, {
     ...handlers,
-    ref: mergeRefs(childRef, (node: HTMLElement | null) => {
-      ctx.triggerRef.current = node;
-    }),
+    ref: mergeRefs(childRef, ctx.setTriggerNode),
     className: cn("relative z-0", childProps.className as string | undefined),
     "aria-haspopup": "dialog",
     "aria-expanded": ctx.open,
@@ -504,7 +516,10 @@ export function PopoverContent({ children, className }: PopoverContentProps) {
     open,
   );
 
-  useEffect(() => setPortalReady(true), []);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setPortalReady(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   const geo = useMemo(
     () =>
@@ -552,7 +567,9 @@ export function PopoverContent({ children, className }: PopoverContentProps) {
   });
 
   useEffect(() => {
-    if (open) setIsRendered(true);
+    if (!open) return;
+    const frame = requestAnimationFrame(() => setIsRendered(true));
+    return () => cancelAnimationFrame(frame);
   }, [open]);
 
   const hoverHandlers =

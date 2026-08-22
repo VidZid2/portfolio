@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion, AnimatePresence } from "framer-motion";
 import { Combobox } from "@base-ui/react/combobox";
@@ -11,10 +11,10 @@ import {
   PaperPlaneTiltIcon,
   InfoIcon,
 } from "@phosphor-icons/react";
-import { Loader2, ChevronLeft } from "lucide-react";
-import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import {
   type ReactNode,
+  type Ref,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -32,8 +32,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { playKeyTick, playSoftClick, playHoverTick, playReasoningSound } from "@/lib/synth-sounds";
-import { MobiusLoopIcon, MorphingSpinner } from "@/components/loading-ui/morphing-spinner";
+import { playKeyTick, playSoftClick, playHoverTick } from "@/lib/synth-sounds";
+import { MobiusLoopIcon } from "@/components/loading-ui/morphing-spinner";
 import ClaudeModelSelector, { EffortLevel } from "@/components/ui/claude-model-selector";
 import { getReasoningQuota } from "@/lib/ai-rate-limiter";
 import {
@@ -522,7 +522,6 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
   onConfigurationChange: (update: Partial<ModelConfiguration>) => void;
 }) {
   const [measureRef, { height }] = useMeasure();
-  const [hasMounted, setHasMounted] = useState(false);
   const [view, setView] = useState<"details" | "changelog">("details");
   const [hasTransitionedView, setHasTransitionedView] = useState(false);
   const [animationCounter] = useState(() => Date.now());
@@ -531,34 +530,30 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
 
   useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (view !== "details") {
-      setHasTransitionedView(true);
-    }
+    if (view === "details") return;
+    const frame = requestAnimationFrame(() => setHasTransitionedView(true));
+    return () => cancelAnimationFrame(frame);
   }, [view]);
 
   useEffect(() => {
-    if (isMobile) {
-      const timer0 = setTimeout(() => {
-        setActiveTooltip("Context");
-      }, 600);
-      const timer1 = setTimeout(() => {
-        setActiveTooltip("Cost");
-      }, 2600);
-      const timer2 = setTimeout(() => {
-        setActiveTooltip(null);
-      }, 4600);
-      return () => {
-        clearTimeout(timer0);
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-      };
-    } else {
-      setActiveTooltip(null);
+    if (!isMobile) {
+      const frame = requestAnimationFrame(() => setActiveTooltip(null));
+      return () => cancelAnimationFrame(frame);
     }
+    const timer0 = setTimeout(() => {
+      setActiveTooltip("Context");
+    }, 600);
+    const timer1 = setTimeout(() => {
+      setActiveTooltip("Cost");
+    }, 2600);
+    const timer2 = setTimeout(() => {
+      setActiveTooltip(null);
+    }, 4600);
+    return () => {
+      clearTimeout(timer0);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
   }, [isMobile]);
 
   const adjustedMetrics = useMemo(
@@ -580,10 +575,13 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
   const [quota, setQuota] = useState(() => getReasoningQuota(reasoning));
 
   useEffect(() => {
-    setQuota(getReasoningQuota(reasoning));
+    const frame = requestAnimationFrame(() => setQuota(getReasoningQuota(reasoning)));
     const handleUpdate = () => setQuota(getReasoningQuota(reasoning));
     window.addEventListener("ai-quota-updated", handleUpdate);
-    return () => window.removeEventListener("ai-quota-updated", handleUpdate);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("ai-quota-updated", handleUpdate);
+    };
   }, [reasoning]);
 
   return (
@@ -597,7 +595,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
       className={cn("flex w-full flex-col", hasTransitionedView && "overflow-hidden")}
     >
       <div
-        ref={measureRef as any}
+        ref={measureRef as Ref<HTMLDivElement>}
         className="flex w-full flex-col divide-y divide-neutral-200 dark:divide-neutral-700/80"
       >
         <AnimatePresence mode="wait" initial={false}>
@@ -700,7 +698,7 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
                     />
                     <MetricBar
                       animationKey={`${model.value}-${animationCounter}`}
-                      info={model.inputPrice === "Free" && model.outputPrice === "Free" ? "Free" : `${model.inputPrice} input · ${model.outputPrice} output`}
+                      info={model.inputPrice === "Free" && model.outputPrice === "Free" ? "Free" : `${model.inputPrice} input Â· ${model.outputPrice} output`}
                       invert
                       label="Cost"
                       value={adjustedMetrics.cost}
@@ -851,7 +849,11 @@ const ModelPreviewPanel = memo(function ModelPreviewPanel({
   );
 });
 
-function ModelListWithScrollFade({ children }: { children: ReactNode | ((item: any) => ReactNode) }) {
+function ModelListWithScrollFade({
+  children,
+}: {
+  children: ReactNode | ((model: LlmModel) => ReactNode);
+}) {
   const listRef = useRef<HTMLDivElement>(null);
   const [showBottomFade, setShowBottomFade] = useState(false);
   useEffect(() => {
@@ -1009,7 +1011,7 @@ export function ModelSelectorPrompt({
   }, [promptValue, isExpanded]);
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(_event: MouseEvent) {
       // Intentionally left blank so it never collapses
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -1105,9 +1107,6 @@ export function ModelSelectorPrompt({
   }
 
   const contextWindowStr = selectedModel.contextWindow || "1M";
-  const maxTokens = contextWindowStr.toUpperCase().includes("M")
-    ? (parseFloat(contextWindowStr.replace(/[^\d.]/g, "")) || 1) * 1000000
-    : (parseInt(contextWindowStr.replace(/\D/g, "")) || 128) * 1000;
 
   return (
     <div

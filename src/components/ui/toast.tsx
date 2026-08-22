@@ -14,7 +14,7 @@ export type ToastOptions = {
 export type ToastPromiseCallbacks<T> = {
   loading: ToastOptions | string;
   success: ((data: T) => ToastOptions | string) | ToastOptions | string;
-  error: ((err: any) => ToastOptions | string) | ToastOptions | string;
+  error: ((err: unknown) => ToastOptions | string) | ToastOptions | string;
   finally?: () => void;
 };
 
@@ -43,7 +43,7 @@ export const toastManager = {
         }
         return resolved;
       },
-      error: (err: any) => {
+      error: (err: unknown) => {
         playToastError(0.04);
         const resolved = typeof callbacks.error === "function" ? callbacks.error(err) : callbacks.error;
         if (typeof resolved === "object" && resolved !== null) {
@@ -196,11 +196,11 @@ function ErrorCrossMorph() {
 
 export function Toaster() {
   const { resolvedTheme } = useTheme();
-  const [mounted, ReactSetMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    ReactSetMounted(true);
-  }, []);
+  const mounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   React.useEffect(() => {
     if (!mounted) return;

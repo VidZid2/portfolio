@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, motion, useReducedMotion, LayoutGroup } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { X, Download, FileText, Image as ImageIcon, Sparkles, MoreHorizontal } from "lucide-react";
 import { PDFViewer } from "@/components/ui/pdf-viewer";
 import { PresenceGate } from "@/lib/presence-gate";

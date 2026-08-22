@@ -3,7 +3,6 @@ import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 
 import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { TransitionLink } from "@/components/TransitionLink";
 import { ExperienceList } from "@/components/ExperienceList";
 import { LessonsLearned } from "@/components/LessonsLearned";

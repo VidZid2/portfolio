@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
 import { AnimatePresence, motion } from "framer-motion";
 import { 
   playChatSend, 
@@ -14,7 +15,7 @@ import {
   playAttachmentSound,
   playCopySuccess 
 } from "@/lib/synth-sounds";
-import { canMakeReasoningRequest, consumeReasoningQuota, showQuotaExceededToast } from "@/lib/ai-rate-limiter";
+import { canMakeReasoningRequest, consumeReasoningQuota, showQuotaExceededToast, type ReasoningLevel, type TrackedReasoningLevel } from "@/lib/ai-rate-limiter";
 
 function parseReasoningSteps(text: string) {
   if (!text) return [];
@@ -67,7 +68,7 @@ function parseReasoningSteps(text: string) {
   return [{ label: "Thought Process", content: cleaned }];
 }
 
-import { Camera, FolderKanban, Paperclip, MessageSquareIcon, CopyIcon, RefreshCcwIcon, ThumbsDownIcon, ThumbsUpIcon, XIcon, DownloadIcon } from "lucide-react";
+import { MessageSquareIcon, CopyIcon, RefreshCcwIcon, XIcon, DownloadIcon } from "lucide-react";
 import { nanoid } from "nanoid";
 import { memo, useCallback, useRef } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -81,7 +82,6 @@ import {
 import {
   Conversation,
   ConversationContent,
-  ConversationDownload,
   ConversationEmptyState,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
@@ -111,11 +111,6 @@ import {
 } from "@/components/ai-elements/reasoning-steps";
 import { ThinkingIndicator } from "@/components/ai-elements/thinking-indicator";
 import { cn } from "@/lib/utils";
-import {
-  PromptInput,
-  type PromptPlusMenuItem,
-  type PromptSettingGroup,
-} from "@/components/ui/prompt-box";
 import { ArcRevealHero } from "@/components/ruixen/arc-reveal-hero";
 import {
   DEFAULT_LLM_MODELS,
@@ -146,37 +141,37 @@ export type LlmModel = {
 };
 
 import { ProgressiveBlur } from "@/components/ui/progressive-blur";
-import { Button } from "@/components/ui/button";
 
-const settingGroups: PromptSettingGroup[] = [
-  {
-    id: "model",
-    label: "Model",
-    display: "featured",
-    moreMenuLabel: "More models",
-    options: [
-      {
-        value: "mimo-2.5",
-        label: "AI Helper",
-        description: "Intelligent assistant engineered to answer questions and explore this portfolio",
-      },
-    ],
-  },
-  {
-    id: "effort",
-    label: "Effort",
-    display: "submenu",
-    options: [
-      { value: "low", label: "Low" },
-      { value: "medium", label: "Medium" },
-      { value: "high", label: "High" },
-    ],
-  },
-];
+type ChatMessagePart =
+  | { type: "text"; text: string }
+  | { type: "reasoning"; text?: string; reasoning?: string }
+  | { type: "file"; url?: string; mediaType?: string; filename?: string };
+
+interface StoredChatMessage {
+  id?: string;
+  role: string;
+  content?: string;
+  reasoning?: string;
+  parts?: ChatMessagePart[];
+  experimental_attachments?: StoredAttachment[];
+}
 
 interface AttachmentItemProps {
-  attachment: any;
+  attachment: StoredAttachment;
   onRemove: (id: string) => void;
+}
+
+/** Structural surface of useChat() this component relies on across SDK versions. */
+interface ChatHookResult {
+  messages: StoredChatMessage[];
+  sendMessage?: (
+    msg: { role: string; content: string },
+    options?: { data?: Record<string, unknown>; body?: Record<string, unknown> }
+  ) => void;
+  status: string;
+  regenerate?: () => void;
+  setMessages: (messages: StoredChatMessage[]) => void;
+  error?: Error;
 }
 
 const AttachmentItem = memo(({ attachment, onRemove }: AttachmentItemProps) => {
@@ -229,9 +224,20 @@ function DislikeIcon({ className }: { className?: string }) {
   );
 }
 
+interface StoredAttachment {
+  id: string;
+  filename: string;
+  mediaType: string;
+  contentType?: string;
+  name?: string;
+  type: "file";
+  url: string;
+  file?: File;
+}
+
 interface ChatMessageItemProps {
-  m: any;
-  index: number;
+  m: StoredChatMessage;
+  _index: number;
   isLast: boolean;
   isLoading: boolean;
   triggerReload?: () => void;
@@ -239,7 +245,7 @@ interface ChatMessageItemProps {
 
 const ChatMessageItem = memo(function ChatMessageItem({
   m,
-  index,
+  _index,
   isLast,
   isLoading,
   triggerReload,
@@ -247,28 +253,35 @@ const ChatMessageItem = memo(function ChatMessageItem({
   const [feedback, setFeedback] = useState<"like" | "dislike" | null>(null);
   const role = m.role;
   const id = m.id;
-  const textContent = m.content || m.parts?.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('') || '';
-  const reasoningContent = m.reasoning || m.parts?.filter((p: any) => p.type === 'reasoning').map((p: any) => p.reasoning).join('') || m.parts?.filter((p: any) => p.type === 'reasoning').map((p: any) => p.text).join('') || '';
+  const textContent = m.content || m.parts?.filter((p: ChatMessagePart): p is { type: "text"; text: string } => p.type === 'text').map((p) => p.text).join('') || '';
+  const reasoningContent = m.reasoning || m.parts?.filter((p: ChatMessagePart) => p.type === 'reasoning').map((p) => ('reasoning' in p ? (p.reasoning ?? '') : '')).join('') || m.parts?.filter((p: ChatMessagePart) => p.type === 'reasoning').map((p) => ('text' in p ? (p.text ?? '') : '')).join('') || '';
 
   const parsedSteps = useMemo(() => parseReasoningSteps(reasoningContent), [reasoningContent]);
   const isThinkingActive = isLoading && isLast;
 
-  const attachments = useMemo(() => {
-    return m.experimental_attachments || 
-           m.parts?.filter((p: any) => p.type === 'file') || 
-           [];
+  const attachments: StoredAttachment[] = useMemo(() => {
+    if (m.experimental_attachments) return m.experimental_attachments;
+    return m.parts?.filter((p): p is Extract<ChatMessagePart, { type: "file" }> => p.type === 'file')
+      .map((p, i) => ({
+        id: String(i),
+        type: "file" as const,
+        filename: p.filename ?? "",
+        mediaType: p.mediaType ?? "",
+        url: p.url ?? "",
+      })) ?? [];
   }, [m]);
 
   return (
     <Message from={role as "user" | "assistant"} key={id}>
       {role === "user" && attachments.length > 0 && (
         <Attachments variant="grid">
-          {attachments.map((attachment: any, i: number) => {
-            const url = attachment.url || (attachment instanceof File ? URL.createObjectURL(attachment) : "");
-            const type = attachment.contentType || attachment.mediaType || (attachment instanceof File ? attachment.type : "");
-            const name = attachment.name || attachment.filename || (attachment instanceof File ? attachment.name : "");
+          {attachments.map((attachment, i) => {
+            const fileLike = attachment.file ?? null;
+            const url = attachment.url || (fileLike ? URL.createObjectURL(fileLike) : "");
+            const type = attachment.contentType || attachment.mediaType || (fileLike ? fileLike.type : "");
+            const name = attachment.name || attachment.filename || (fileLike ? fileLike.name : "");
             return (
-              <Attachment data={{ url, type: "file", mediaType: type, name, filename: name } as any} key={i}>
+              <Attachment data={{ id: String(i), type: "file", url, mediaType: type, filename: name }} key={i}>
                 <AttachmentPreview />
               </Attachment>
             );
@@ -410,15 +423,14 @@ const SUGGESTIONS = [
 export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () => void, initialQuery?: string }) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [isHovered, setIsHovered] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDropdownOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [sessionActive, setSessionActive] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [inputValue, setInputValue] = useState(initialQuery);
-  const [effort, setEffort] = useState("high");
+  const [effort, setEffort] = useState<ReasoningLevel>("high");
   const [modelValue, setModelValue] = useState("sync-ai");
   const [configurations, setConfigurations] = useState<Record<string, ModelConfiguration>>({});
-  const [attachments, setAttachments] = useState<any[]>([]);
+  const [attachments, setAttachments] = useState<StoredAttachment[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showDebug, setShowDebug] = useState(false);
 
@@ -428,16 +440,6 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
       document.body.style.overflow = "";
     };
   }, []);
-
-  const plusMenuItems: PromptPlusMenuItem[] = [
-    {
-      id: "attach",
-      label: "Add files or photos",
-      icon: <Paperclip className="h-4 w-4" />,
-      shortcut: "⌘U",
-      onSelect: () => fileInputRef.current?.click(),
-    },
-  ];
 
   const compressImage = (file: File): Promise<File> => {
     return new Promise((resolve, reject) => {
@@ -495,7 +497,7 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
-      const newAttachments: any[] = [];
+      const newAttachments: StoredAttachment[] = [];
       
       for (const file of filesArray) {
         try {
@@ -534,23 +536,19 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
     setAttachments((prev) => prev.filter((a) => a.id !== id));
   }, []);
 
-  const [initialMessages] = useState<any[]>(() => {
+  const [initialMessages] = useState<StoredChatMessage[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("ai-chat-messages");
       if (saved) {
         try {
           return JSON.parse(saved);
-        } catch (e) {}
+        } catch {}
       }
     }
     return [];
   });
 
-  useEffect(() => {
-    if (initialMessages && initialMessages.length > 0) {
-      setSessionActive(true);
-    }
-  }, [initialMessages]);
+  const [sessionActive, setSessionActive] = useState(() => initialMessages.length > 0);
 
   const [isOpen, setIsOpen] = useState(true);
 
@@ -580,29 +578,22 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
   }, [handleClose]);
 
   const chatResponse = useChat({
-    // @ts-ignore
-    api: "/api/chat",
+    messages: initialMessages as never[],
+    transport: useMemo(() => new DefaultChatTransport({ api: "/api/chat" }), []),
     experimental_throttle: 50,
-    body: {
-      model: modelValue,
-      effort: effort,
-    },
-    initialMessages: initialMessages as any,
-  });
+  }) as unknown as ChatHookResult;
 
-  const { 
-    messages, 
-    append, 
-    sendMessage, 
-    status, 
-    reload, 
-    regenerate, 
-    setMessages, 
-    error 
-  } = chatResponse as any;
+  const {
+    messages,
+    sendMessage,
+    status,
+    regenerate,
+    setMessages,
+    error
+  } = chatResponse;
 
-  const triggerSend = sendMessage || append;
-  const triggerReload = regenerate || reload;
+  const triggerSend = sendMessage;
+  const triggerReload = regenerate;
 
   // Track status transitions for streaming and completion sound cues
   const prevStatusRef = useRef<string>(status);
@@ -624,17 +615,18 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
   }, [status]);
 
   const handleSuggestionClick = (promptText: string) => {
-    if (!canMakeReasoningRequest(effort as any)) {
-      showQuotaExceededToast(effort as any);
+    if (!canMakeReasoningRequest(effort)) {
+      showQuotaExceededToast(effort as TrackedReasoningLevel);
       return;
     }
     setSessionActive(true);
     playChatSend(0.04);
-    consumeReasoningQuota(effort as any);
+    consumeReasoningQuota(effort);
     try {
       if (triggerSend) {
         triggerSend(
-          { role: 'user', content: promptText }
+          { role: 'user', content: promptText },
+          { body: { model: modelValue, effort } }
         );
       }
     } catch (e) {
@@ -645,7 +637,7 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
   useEffect(() => {
     if (messages.length > 0) {
       // Memory limit logic: If user messages reach 50, delete past conversations safely
-      const userMessageCount = messages.filter((m: any) => m.role === 'user').length;
+      const userMessageCount = messages.filter((m) => m.role === 'user').length;
       let activeMessages = messages;
       
       if (userMessageCount >= 50) {
@@ -659,25 +651,25 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
         }
       }
 
-      const estimatedTokens = activeMessages.reduce((acc: number, m: any) => acc + Math.ceil((m.content?.length || 0) / 4), 0);
+      const estimatedTokens = activeMessages.reduce((acc: number, m) => acc + Math.ceil((m.content?.length || 0) / 4), 0);
       if (estimatedTokens > 50000) {
         setMessages([]);
         localStorage.removeItem("ai-chat-messages");
-        setSessionActive(false);
+        queueMicrotask(() => setSessionActive(false));
         return;
       }
       try {
         // Strip out large base64 URLs from attachments/parts before saving to avoid quota errors
-        const sanitizedForStorage = activeMessages.map((m: any) => {
+        const sanitizedForStorage = activeMessages.map((m) => {
           const mCopy = { ...m };
           if (mCopy.experimental_attachments) {
-            mCopy.experimental_attachments = mCopy.experimental_attachments.map((a: any) => ({
+            mCopy.experimental_attachments = mCopy.experimental_attachments.map((a) => ({
               ...a,
               url: a.url?.startsWith('data:') ? '' : a.url
             }));
           }
           if (mCopy.parts) {
-            mCopy.parts = mCopy.parts.map((p: any) => {
+            mCopy.parts = mCopy.parts.map((p: ChatMessagePart): ChatMessagePart => {
               if (p.type === 'file' && p.url?.startsWith('data:')) {
                 return { ...p, url: '' };
               }
@@ -693,29 +685,10 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
     } else {
       localStorage.removeItem("ai-chat-messages");
     }
-  }, [messages]);
-  
+  }, [messages, setMessages]);
   const isLoading = status === "submitted" || status === "streaming";
 
-  const baseInputTokens = useMemo(() => {
-    return messages.filter((m: any) => m.role === 'user').reduce((acc: number, m: any) => {
-      const text = m.content || m.parts?.find((p: any) => p.type === 'text')?.text || '';
-      return acc + Math.ceil(text.length / 4);
-    }, 0);
-  }, [messages]);
-
-  const outputTokens = useMemo(() => {
-    return messages.filter((m: any) => m.role !== 'user').reduce((acc: number, m: any) => {
-      const text = m.content || m.parts?.find((p: any) => p.type === 'text')?.text || '';
-      return acc + Math.ceil(text.length / 4);
-    }, 0);
-  }, [messages]);
-
-  const currentInputTokens = Math.ceil(inputValue.length / 4);
-  const inputTokens = baseInputTokens + currentInputTokens;
-  const totalTokens = inputTokens + outputTokens;
-
-  const showMessages = sessionActive || isExpanded || inputValue.length > 0;
+    const showMessages = sessionActive || isExpanded || inputValue.length > 0;
   const [desktopHoveredAction, setDesktopHoveredAction] = useState<"download" | "close" | null>(null);
   const [mobileHoveredAction, setMobileHoveredAction] = useState<"download" | "close" | null>(null);
 
@@ -756,7 +729,7 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
             <button 
               onClick={() => {
                 const markdown = messages
-                  .map((msg: any) => `### ${msg.role === "user" ? "User" : "AI"}\n\n${msg.content}`)
+                  .map((msg) => `### ${msg.role === "user" ? "User" : "AI"}\n\n${msg.content}`)
                   .join("\n\n");
                 const blob = new Blob([markdown], { type: "text/markdown" });
                 const url = URL.createObjectURL(blob);
@@ -829,7 +802,7 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                   <button 
                     onClick={() => {
                       const markdown = messages
-                        .map((msg: any) => `### ${msg.role === "user" ? "User" : "AI"}\n\n${msg.content}`)
+                        .map((msg) => `### ${msg.role === "user" ? "User" : "AI"}\n\n${msg.content}`)
                         .join("\n\n");
                       const blob = new Blob([markdown], { type: "text/markdown" });
                       const url = URL.createObjectURL(blob);
@@ -911,7 +884,6 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                     <div>messages: {messages?.length ?? "null"}</div>
                     <div>isLoading: {isLoading ? "true" : "false"}</div>
                     <div>status: {status ?? "null"}</div>
-                    <div>append: {append ? "defined" : "undefined"}</div>
                     <div>sendMessage: {sendMessage ? "defined" : "undefined"}</div>
                     <div>error: {error ? error.message : "none"}</div>
                     <div>sessionActive: {sessionActive ? "true" : "false"}</div>
@@ -953,11 +925,11 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
             <Conversation className="relative size-full">
             <ScrollTracker onScrollStateChange={setIsAtBottom} />
             <ConversationContent>
-              {messages.map((m: any, index: number) => (
+              {messages.map((m: StoredChatMessage, index: number) => (
                 <ChatMessageItem
-                  key={(m as any).id || index}
+                  key={m.id || index}
                   m={m}
-                  index={index}
+                  _index={index}
                   isLast={index === messages.length - 1}
                   isLoading={isLoading}
                   triggerReload={triggerReload}
@@ -1065,20 +1037,20 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                   onModelChange={(model) => setModelValue(model.value)}
                   onConfigurationChange={(_, __, nextConfigs) => setConfigurations(nextConfigs)}
                   onPromptChange={setInputValue}
-                  onSubmit={({ model, configuration, prompt }) => {
-                    if (!canMakeReasoningRequest(configuration.reasoning as any)) {
-                      showQuotaExceededToast(configuration.reasoning as any);
-                      return;
-                    }
-                    setSessionActive(true);
-                    setEffort(configuration.reasoning);
-                    playChatSend(0.04);
-                    consumeReasoningQuota(configuration.reasoning as any);
+                    onSubmit={({ model, configuration, prompt }) => {
+                      if (!canMakeReasoningRequest(configuration.reasoning)) {
+                        showQuotaExceededToast(configuration.reasoning as TrackedReasoningLevel);
+                        return;
+                      }
+                      setSessionActive(true);
+                      setEffort(configuration.reasoning);
+                      playChatSend(0.04);
+                      consumeReasoningQuota(configuration.reasoning);
                     try {
                       if (triggerSend) {
                         triggerSend(
                           { role: 'user', content: prompt },
-                          { data: { effort: configuration.reasoning }, body: { effort: configuration.reasoning } }
+                          { body: { model, effort: configuration.reasoning } }
                         );
                       }
                     } catch (e) {

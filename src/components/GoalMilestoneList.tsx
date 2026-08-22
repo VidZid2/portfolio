@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { goalMilestones } from "@/data/goalMilestonesData";
 
@@ -11,7 +11,6 @@ import { AsciiGlitchBlock } from "@/components/ui/ascii-glitch-block";
 import { GlyphMatrix } from "@/components/ui/glyph-matrix";
 import { JapaneseAsciiText } from "@/components/ui/japanese-ascii-text";
 import { cn } from "@/lib/utils";
-import { useInView } from "framer-motion";
 
 function ProjectSyncBackground({ isHovered, isOpen }: { isHovered: boolean; isOpen: boolean }) {
   const [isMobile, setIsMobile] = useState(false);

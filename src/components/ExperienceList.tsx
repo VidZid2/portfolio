@@ -7,7 +7,7 @@ import { createPortal } from "react-dom";
 import { useTheme } from "next-themes";
 import { FlickeringGrid } from "@/components/ui/flickering-grid";
 
-import { type ExperienceData, experiences } from "@/data/experienceData";
+import { experiences } from "@/data/experienceData";
 import { type CarouselApi } from "@/components/ui/carousel";
 
 export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string; carouselApi?: CarouselApi }) {

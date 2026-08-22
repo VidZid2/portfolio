@@ -39,7 +39,6 @@ export function useChartPhaseOrchestrator({
   const [isLoaded, setIsLoaded] = useState(() => chartStatus === "ready");
   const prevStatusRef = useRef(chartStatus);
   const phaseRef = useRef(chartPhase);
-  phaseRef.current = chartPhase;
 
   // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: status transition branches for animation durations
   useEffect(() => {
@@ -49,35 +48,38 @@ export function useChartPhaseOrchestrator({
     }
     prevStatusRef.current = chartStatus;
 
-    if (chartStatus === "ready" && prevStatus === "loading") {
-      setIsLoaded(false);
-      if (animationDuration <= 0) {
-        if (yDomainTweenDuration <= 0) {
-          setPlotData(targetData);
-          setChartPhase("revealing");
+    const frame = requestAnimationFrame(() => {
+      if (chartStatus === "ready" && prevStatus === "loading") {
+        setIsLoaded(false);
+        if (animationDuration <= 0) {
+          if (yDomainTweenDuration <= 0) {
+            setPlotData(targetData);
+            setChartPhase("revealing");
+          } else {
+            setChartPhase("gridTweenReady");
+          }
         } else {
-          setChartPhase("gridTweenReady");
+          setChartPhase("exiting");
         }
-      } else {
-        setChartPhase("exiting");
+        return;
       }
-      return;
-    }
 
-    if (chartStatus === "loading" && prevStatus === "ready") {
-      setIsLoaded(false);
-      if (animationDuration <= 0) {
-        if (yDomainTweenDuration <= 0) {
-          setPlotData(skeletonData);
-          setChartPhase("loading");
+      if (chartStatus === "loading" && prevStatus === "ready") {
+        setIsLoaded(false);
+        if (animationDuration <= 0) {
+          if (yDomainTweenDuration <= 0) {
+            setPlotData(skeletonData);
+            setChartPhase("loading");
+          } else {
+            setChartPhase("gridTweenLoading");
+          }
         } else {
-          setChartPhase("gridTweenLoading");
+          setConcealEpoch((epoch) => epoch + 1);
+          setChartPhase("exitingReady");
         }
-      } else {
-        setConcealEpoch((epoch) => epoch + 1);
-        setChartPhase("exitingReady");
       }
-    }
+    });
+    return () => cancelAnimationFrame(frame);
   }, [
     animationDuration,
     chartStatus,
@@ -103,25 +105,28 @@ export function useChartPhaseOrchestrator({
   }, [animationDuration, chartStatus, revealSignature, skipEnterReveal]);
 
   useEffect(() => {
-    switch (chartPhase) {
-      case "loading":
-        if (chartStatus === "loading") {
+    const frame = requestAnimationFrame(() => {
+      switch (chartPhase) {
+        case "loading":
+          if (chartStatus === "loading") {
+            setPlotData(skeletonData);
+          }
+          break;
+        case "exiting":
           setPlotData(skeletonData);
-        }
-        break;
-      case "exiting":
-        setPlotData(skeletonData);
-        break;
-      case "exitingReady":
-      case "gridTweenLoading":
-      case "gridTweenReady":
-      case "revealing":
-      case "ready":
-        setPlotData(targetData);
-        break;
-      default:
-        break;
-    }
+          break;
+        case "exitingReady":
+        case "gridTweenLoading":
+        case "gridTweenReady":
+        case "revealing":
+        case "ready":
+          setPlotData(targetData);
+          break;
+        default:
+          break;
+      }
+    });
+    return () => cancelAnimationFrame(frame);
   }, [chartPhase, chartStatus, skeletonData, targetData]);
 
   /** Loading pulse exit finished — tween grid to ready spacing next. */
@@ -156,19 +161,35 @@ export function useChartPhaseOrchestrator({
       return;
     }
 
-    setRevealEpoch((epoch) => epoch + 1);
-    if (animationDuration <= 0) {
-      setChartPhase("ready");
-      setIsLoaded(true);
-      return;
-    }
+    let timer: number | undefined;
+    const frame = requestAnimationFrame(() => {
+      setRevealEpoch((epoch) => epoch + 1);
+      if (animationDuration <= 0) {
+        setChartPhase("ready");
+        setIsLoaded(true);
+        return;
+      }
 
-    const timer = window.setTimeout(() => {
-      setChartPhase("ready");
-      setIsLoaded(true);
-    }, animationDuration);
-    return () => window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        setChartPhase("ready");
+        setIsLoaded(true);
+      }, animationDuration);
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
   }, [animationDuration, chartPhase]);
+
+  // Mirror latest values into refs after commit so render-scoped closures and
+  // effects above read the previous committed values, never in-flight ones.
+  useEffect(() => {
+    prevStatusRef.current = chartStatus;
+  }, [chartStatus]);
+
+  useEffect(() => {
+    phaseRef.current = chartPhase;
+  }, [chartPhase]);
 
   return {
     chartPhase,

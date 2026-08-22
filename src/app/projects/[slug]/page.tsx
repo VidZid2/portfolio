@@ -3,8 +3,6 @@ import { CommandMenu } from "@/components/command-menu";
 import { TransitionLink } from "@/components/TransitionLink";
 import { BlueprintGrid } from "@/components/BlueprintGrid";
 import { projectsData, iconMap, techNames, TechItem, TechKey } from "@/data/projectsData";
-import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ExternalLink, ArrowLeft, Home } from "lucide-react";
 import { SiGithub } from "react-icons/si";
