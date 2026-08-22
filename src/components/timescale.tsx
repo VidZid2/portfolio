@@ -1,8 +1,20 @@
 "use client";
 
 // Inspired by Evil Rabbit's Lifeline & Chánh Đại Timescale
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+
+const TimescaleContext = React.createContext<{
+  canScrollLeft: boolean;
+  canScrollRight: boolean;
+  setCanScrollLeft: (v: boolean) => void;
+  setCanScrollRight: (v: boolean) => void;
+}>({
+  canScrollLeft: false,
+  canScrollRight: true,
+  setCanScrollLeft: () => {},
+  setCanScrollRight: () => {},
+});
 
 export type TimescaleRootProps = React.ComponentProps<"div"> & {
   orientation?: "horizontal" | "vertical";
@@ -14,24 +26,40 @@ export function TimescaleRoot({
   children,
   ...props
 }: TimescaleRootProps) {
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
   return (
-    <div
-      data-slot="timescale-root"
-      data-orientation={orientation}
-      className={cn(
-        "group/timescale relative flex w-full [--timescale-rail:3.5rem] overflow-hidden",
-        "data-[orientation=vertical]:flex-col",
-        "[mask-image:linear-gradient(to_right,transparent_0%,black_36px,black_calc(100%-36px),transparent_100%)]",
-        className
-      )}
-      {...props}
+    <TimescaleContext.Provider
+      value={{ canScrollLeft, canScrollRight, setCanScrollLeft, setCanScrollRight }}
     >
-      {/* Left Fade Gradient */}
-      <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 sm:w-16 z-20 bg-gradient-to-r from-background via-background/80 to-transparent" />
-      {/* Right Fade Gradient */}
-      <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 sm:w-16 z-20 bg-gradient-to-l from-background via-background/80 to-transparent" />
-      {children}
-    </div>
+      <div
+        data-slot="timescale-root"
+        data-orientation={orientation}
+        className={cn(
+          "group/timescale relative flex w-full [--timescale-rail:3.5rem] overflow-hidden",
+          "data-[orientation=vertical]:flex-col",
+          className
+        )}
+        {...props}
+      >
+        {/* Left Fade Gradient - Appears only when scrolled away from the left edge */}
+        <div
+          className={cn(
+            "pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 z-20 bg-gradient-to-r from-background via-background/80 to-transparent transition-opacity duration-300",
+            canScrollLeft ? "opacity-100" : "opacity-0 pointer-events-none"
+          )}
+        />
+        {/* Right Fade Gradient - Appears only when there is more content to the right */}
+        <div
+          className={cn(
+            "pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 z-20 bg-gradient-to-l from-background via-background/80 to-transparent transition-opacity duration-300",
+            canScrollRight ? "opacity-100" : "opacity-0 pointer-events-none"
+          )}
+        />
+        {children}
+      </div>
+    </TimescaleContext.Provider>
   );
 }
 
@@ -42,6 +70,7 @@ export function TimescaleViewport({
   children,
   ...props
 }: TimescaleViewportProps) {
+  const { setCanScrollLeft, setCanScrollRight } = React.useContext(TimescaleContext);
   const viewportRef = useRef<HTMLDivElement>(null);
   const isDown = useRef(false);
   const startX = useRef(0);
@@ -52,6 +81,14 @@ export function TimescaleViewport({
   const animFrameId = useRef<number | null>(null);
   const hasMoved = useRef(false);
   const [isDraggingState, setIsDraggingState] = useState(false);
+
+  const updateScrollBounds = useCallback(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollLeft(scrollLeft > 6);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 6);
+  }, [setCanScrollLeft, setCanScrollRight]);
 
   const stopMomentum = () => {
     if (animFrameId.current !== null) {
@@ -99,6 +136,7 @@ export function TimescaleViewport({
     }
 
     viewportRef.current.scrollLeft = startScrollLeft.current - deltaX;
+    updateScrollBounds();
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -127,6 +165,7 @@ export function TimescaleViewport({
         vel *= decay;
 
         viewportRef.current.scrollLeft += vel * (deltaMs / 16.6);
+        updateScrollBounds();
 
         if (Math.abs(vel) > 0.2) {
           animFrameId.current = requestAnimationFrame(glide);
@@ -152,8 +191,17 @@ export function TimescaleViewport({
   };
 
   useEffect(() => {
-    return () => stopMomentum();
-  }, []);
+    const el = viewportRef.current;
+    if (!el) return;
+    updateScrollBounds();
+    el.addEventListener("scroll", updateScrollBounds, { passive: true });
+    window.addEventListener("resize", updateScrollBounds);
+    return () => {
+      stopMomentum();
+      el.removeEventListener("scroll", updateScrollBounds);
+      window.removeEventListener("resize", updateScrollBounds);
+    };
+  }, [updateScrollBounds]);
 
   return (
     <div
@@ -167,7 +215,7 @@ export function TimescaleViewport({
       className={cn(
         "no-scrollbar w-full overflow-x-auto overscroll-x-contain select-none touch-pan-y",
         isDraggingState ? "cursor-grabbing" : "cursor-default",
-        "group-data-[orientation=horizontal]/timescale:flex group-data-[orientation=horizontal]/timescale:flex-1 group-data-[orientation=horizontal]/timescale:px-6 sm:group-data-[orientation=horizontal]/timescale:px-10",
+        "group-data-[orientation=horizontal]/timescale:flex group-data-[orientation=horizontal]/timescale:flex-1 group-data-[orientation=horizontal]/timescale:pl-20 sm:group-data-[orientation=horizontal]/timescale:pl-24 group-data-[orientation=horizontal]/timescale:pr-12 sm:group-data-[orientation=horizontal]/timescale:pr-16",
         className
       )}
       {...props}
@@ -186,7 +234,7 @@ export function TimescaleHeader({ className, ...props }: TimescaleHeaderProps) {
       aria-hidden="true"
       className={cn(
         "z-10 select-none",
-        "group-data-[orientation=horizontal]/timescale:hidden",
+        "group-data-[orientation=horizontal]/timescale:absolute group-data-[orientation=horizontal]/timescale:top-0 group-data-[orientation=horizontal]/timescale:left-0 group-data-[orientation=horizontal]/timescale:w-16 group-data-[orientation=horizontal]/timescale:shrink-0 group-data-[orientation=horizontal]/timescale:pr-2 group-data-[orientation=horizontal]/timescale:text-right group-data-[orientation=horizontal]/timescale:bg-transparent",
         "group-data-[orientation=vertical]/timescale:grid group-data-[orientation=vertical]/timescale:w-full group-data-[orientation=vertical]/timescale:grid-cols-[var(--timescale-rail)_1fr] group-data-[orientation=vertical]/timescale:gap-x-4 group-data-[orientation=vertical]/timescale:bg-background",
         className
       )}
@@ -310,27 +358,6 @@ export function TimescaleYear({ className, ...props }: TimescaleYearProps) {
   );
 }
 
-export type TimescaleBadgeProps = React.ComponentProps<"div">;
-
-export function TimescaleBadge({
-  className,
-  children,
-  ...props
-}: TimescaleBadgeProps) {
-  return (
-    <div
-      data-slot="timescale-badge"
-      className={cn(
-        "mb-2.5 flex size-6 items-center justify-center rounded-full border border-black/15 dark:border-white/20 bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 text-[11px] font-bold shadow-xs select-none",
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-}
-
 export type TimescaleContentProps = React.ComponentProps<"div">;
 
 export function TimescaleContent({
@@ -363,11 +390,7 @@ export function TimescaleIntroScroll({
       '[data-slot="timescale-viewport"]'
     );
     if (!viewport) return;
-
-    const distance = viewport.scrollWidth - viewport.clientWidth;
-    if (distance <= 0) return;
-
-    viewport.scrollLeft = distance;
+    viewport.scrollLeft = 0;
   }, []);
 
   return (

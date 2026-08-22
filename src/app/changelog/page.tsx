@@ -7,8 +7,8 @@ import { BlueprintGrid } from "@/components/BlueprintGrid";
 import { SubpageHeader } from "@/components/SubpageHeader";
 import {
   TimescaleAge,
-  TimescaleBadge,
   TimescaleContent,
+  TimescaleHeader,
   TimescaleIntroScroll,
   TimescaleItem,
   TimescaleRail,
@@ -22,8 +22,6 @@ import {
 type Milestone = {
   version: string;
   date: string;
-  badge?: string;
-  badgeClass?: string;
   content?: string;
 };
 
@@ -31,12 +29,11 @@ const MILESTONES: Milestone[] = [
   {
     version: "0.1",
     date: "2025",
-    badge: "0.1",
     content: `### 0.1 Start — Initial Portfolio Launch
 
 The foundation of the portfolio was established.
 
-- Built with **Next.js**, **React**, **Tailwind CSS**, and **TypeScript**.
+- Built with **Next.js 16**, **React 19**, **Tailwind CSS**, and **TypeScript**.
 - Interactive career experience roadmap and education milestones.
 - Work highlights with case studies and verified credentials.
 - Theme engine with seamless dark and light mode persistence.`,
@@ -44,38 +41,34 @@ The foundation of the portfolio was established.
   {
     version: "0.1.1",
     date: "Jan 2026",
-    badge: "⌘",
-    content: `### Responsive Architecture
+    content: `### Responsive Architecture & Command Menu
 
-- Mobile-first layout optimizations and touch gestures.
+- Mobile-first layout optimizations and fluid touch gestures.
 - Custom command palette menu (⌘K / Ctrl+K).
 - Sound engine prototypes with web audio synthesis.`,
   },
   {
     version: "0.1.2",
     date: "Mar 2026",
-    badge: "◫",
-    content: `### Interactive Preview Engine
+    content: `### Interactive Preview Sandbox
 
-- Sandboxed live iframe previews for featured agency and client builds.
-- Dynamic route metadata and social share cards.
-- Performance tuning with sub-second page loads.`,
+- Sandboxed live iframe previews for featured agency builds.
+- Dynamic route metadata and open graph share cards.
+- Performance optimization with sub-second page loads.`,
   },
   {
     version: "0.1.5",
     date: "May 2026",
-    badge: "✦",
     content: `### AI Terminal & Credential Viewer
 
 - Interactive AI prompt box terminal with natural language assistant.
 - Dual-mode certificate viewer with photo and vector PDF inspection.
-- Enhanced animations with spring physics.`,
+- Enhanced animations with fluid spring physics.`,
   },
   {
     version: "0.1.8",
     date: "Jul 2026",
-    badge: "⚡",
-    content: `### Design System Evolution
+    content: `### Design System & Telemetry Foundation
 
 - Custom UI primitives inspired by top open-source engineering standards.
 - Micro-interactions and fluid hover states.
@@ -84,8 +77,6 @@ The foundation of the portfolio was established.
   {
     version: "0.2",
     date: "Now",
-    badge: "0.2",
-    badgeClass: "bg-[#6495ED]/15 text-[#6495ED] border-[#6495ED]/40 dark:bg-[#6495ED]/20 dark:text-[#38bdf8] dark:border-[#6495ED]/50",
     content: `### 0.2 Start — Blueprint Overhaul (Current)
 
 Major architectural redesign and interactive blueprint system.
@@ -140,6 +131,11 @@ export default function ChangelogPage() {
         <div className="relative py-2 w-full">
           <TimescaleIntroScroll>
             <TimescaleRoot className="mt-2">
+              <TimescaleHeader>
+                <TimescaleAge>VER</TimescaleAge>
+                <TimescaleYear>DATE</TimescaleYear>
+              </TimescaleHeader>
+
               <TimescaleViewport>
                 <TimescaleTrack>
                   <TimescaleRail />
@@ -156,11 +152,6 @@ export default function ChangelogPage() {
 
                       {milestone.content && (
                         <TimescaleContent className="typeset typeset-timescale">
-                          {milestone.badge && (
-                            <TimescaleBadge className={milestone.badgeClass}>
-                              {milestone.badge}
-                            </TimescaleBadge>
-                          )}
                           <Markdown>{milestone.content}</Markdown>
                         </TimescaleContent>
                       )}
