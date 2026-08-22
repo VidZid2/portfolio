@@ -270,8 +270,7 @@ export function InsightsSection({
         <div className="absolute top-0 -right-3 sm:-right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
 
         <p className="text-[11px] sm:text-[12px] text-zinc-500 dark:text-zinc-400 font-sans tracking-tight">
-          <span className="text-zinc-800 dark:text-zinc-200 font-medium mr-1.5">Daily visitor traffic and engagement metrics.</span>
-          <span className="text-zinc-500 dark:text-zinc-400">Source: <span className="underline underline-offset-2 decoration-zinc-400 dark:decoration-zinc-600">Telemetry</span>.</span>
+          <span className="text-zinc-800 dark:text-zinc-200 font-medium">Daily visitor traffic and engagement metrics.</span>
         </p>
       </motion.div>
 
