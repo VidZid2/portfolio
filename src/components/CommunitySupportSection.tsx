@@ -33,20 +33,6 @@ const DOT_MASK_VERTICAL = {
     "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
 };
 
-const PHP_PRESETS = [
-  { amount: "₱50", value: 50, label: "Coffee", icon: "☕" },
-  { amount: "₱150", value: 150, label: "Snack", icon: "🍕" },
-  { amount: "₱500", value: 500, label: "Fuel", icon: "🚀" },
-  { amount: "₱1,000", value: 1000, label: "Hero", icon: "🌟" },
-];
-
-const USD_PRESETS = [
-  { amount: "$3", value: 3, label: "Coffee", icon: "☕" },
-  { amount: "$5", value: 5, label: "Slice", icon: "🍕" },
-  { amount: "$15", value: 15, label: "Fuel", icon: "🚀" },
-  { amount: "$25", value: 25, label: "Hero", icon: "🌟" },
-];
-
 interface CommunitySupportSectionProps {
   hasSeenScrollAnimations?: boolean;
 }
@@ -59,9 +45,7 @@ export function CommunitySupportSection({
   const skip = hasSeenScrollAnimations || isLowTier;
   const [modalOpen, setModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [currency, setCurrency] = useState<"PHP" | "USD">("PHP");
   const [copiedEmail, setCopiedEmail] = useState(false);
-  const [copiedPayPal, setCopiedPayPal] = useState(false);
   const [isPlusHovered, setIsPlusHovered] = useState(false);
   const [isTrailingPlusHovered, setIsTrailingPlusHovered] = useState(false);
 
@@ -80,7 +64,6 @@ export function CommunitySupportSection({
   }, []);
 
   const email = "josiahdeasis009@gmail.com";
-  const paypalAccount = "josiahdeasis009@gmail.com";
   const paypalUrl = "https://paypal.me/josiahdeasis";
   const kofiUrl = "https://ko-fi.com/josiahdeasis";
   const githubSponsorsUrl = "https://github.com/sponsors/VidZid2";
@@ -95,190 +78,74 @@ export function CommunitySupportSection({
     }
   };
 
-  const handleCopyPayPal = () => {
-    playPowerUpSound(0.065);
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(paypalAccount);
-      setCopiedPayPal(true);
-      toast.success("PayPal address copied to clipboard!");
-      setTimeout(() => setCopiedPayPal(false), 2000);
-    }
-  };
-
-  const handlePresetClick = (presetValue: number) => {
-    playSoftClick();
-    if (typeof window !== "undefined") {
-      const presetUrl = `${paypalUrl}/${presetValue}${currency}`;
-      window.open(presetUrl, "_blank", "noopener,noreferrer");
-    }
-  };
-
   const handleOpenModal = () => {
     playSoftClick();
     setModalOpen(true);
   };
 
-  const activePresets = currency === "PHP" ? PHP_PRESETS : USD_PRESETS;
-
   const renderSupportContent = () => (
-    <div className="flex flex-col">
-      {/* Quick Tip Amount Presets with Currency Switcher */}
-      <div className="mt-2 flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-medium">
-            Quick Tip Presets
-          </span>
-          <div className="flex items-center p-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 text-[10px] font-mono">
-            <button
-              type="button"
-              onClick={() => {
-                playHoverTick(0.04);
-                setCurrency("PHP");
-              }}
-              className={cn(
-                "px-2 py-0.5 rounded-md font-medium transition-all duration-150 cursor-pointer border-0",
-                currency === "PHP"
-                  ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs font-bold"
-                  : "text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
-              )}
-            >
-              ₱ PHP
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                playHoverTick(0.04);
-                setCurrency("USD");
-              }}
-              className={cn(
-                "px-2 py-0.5 rounded-md font-medium transition-all duration-150 cursor-pointer border-0",
-                currency === "USD"
-                  ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs font-bold"
-                  : "text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
-              )}
-            >
-              $ USD
-            </button>
+    <div className="flex flex-col gap-2.5 mt-2">
+      {/* 1. PayPal Option */}
+      <a
+        href={paypalUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() => playSoftClick()}
+        className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group cursor-pointer active:scale-[0.99] select-none"
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-[#003087]/10 dark:bg-[#0079C1]/20 text-[#0079C1] flex items-center justify-center shrink-0 font-bold shadow-xs">
+            <svg className="w-4 h-4 fill-current text-[#0079C1]" viewBox="0 0 24 24">
+              <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.009.4 5.438 0 5.945 0h7.625c3.554 0 6.046 1.776 5.679 5.372-.379 3.731-2.909 5.823-6.529 5.823H9.98l-1.393 8.847a.784.784 0 0 1-.777.653l-.734.642zm8.128-13.882c.162-1.583-.91-2.355-2.836-2.355H8.79l-1.46 9.255h2.463c2.404 0 4.156-1.337 4.411-3.844.02-.204.03-.396.03-.574a4.07 4.07 0 0 0-.03-.482h.001z" />
+            </svg>
           </div>
-        </div>
-
-        <div className="grid grid-cols-4 gap-2">
-          {activePresets.map((preset) => (
-            <button
-              key={preset.amount}
-              type="button"
-              onClick={() => handlePresetClick(preset.value)}
-              className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-[#0079C1]/10 dark:hover:bg-[#0079C1]/15 transition-all duration-150 group cursor-pointer active:scale-95 border-0 outline-none"
-            >
-              <span className="text-sm mb-0.5 group-hover:scale-110 transition-transform">
-                {preset.icon}
-              </span>
-              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 font-mono">
-                {preset.amount}
-              </span>
-              <span className="text-[10px] text-zinc-400 dark:text-zinc-500 group-hover:text-[#0079C1] dark:group-hover:text-[#38bdf8] transition-colors font-sans">
-                {preset.label}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-3.5 flex flex-col gap-2.5">
-        <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-medium">
-          Direct Platforms
-        </span>
-
-        {/* 1. PayPal Option */}
-        <div className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group select-none">
-          <a
-            href={paypalUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => playSoftClick()}
-            className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
-          >
-            <div className="w-8 h-8 rounded-lg bg-[#003087]/10 dark:bg-[#0079C1]/20 text-[#0079C1] flex items-center justify-center shrink-0 font-bold shadow-xs">
-              <svg className="w-4 h-4 fill-current text-[#0079C1]" viewBox="0 0 24 24">
-                <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.009.4 5.438 0 5.945 0h7.625c3.554 0 6.046 1.776 5.679 5.372-.379 3.731-2.909 5.823-6.529 5.823H9.98l-1.393 8.847a.784.784 0 0 1-.777.653l-.734.642zm8.128-13.882c.162-1.583-.91-2.355-2.836-2.355H8.79l-1.46 9.255h2.463c2.404 0 4.156-1.337 4.411-3.844.02-.204.03-.396.03-.574a4.07 4.07 0 0 0-.03-.482h.001z" />
-              </svg>
-            </div>
-            <div className="text-left min-w-0">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 font-sans">
-                  PayPal
-                </p>
-                <span className="px-1.5 py-0.2 text-[9.5px] font-mono font-medium rounded bg-[#0079C1]/15 text-[#0079C1] dark:text-[#38bdf8]">
-                  Global & Cards
-                </span>
-              </div>
-              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-sans mt-0.5 truncate">
-                {paypalAccount}
+          <div className="text-left min-w-0">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 font-sans">
+                PayPal
               </p>
+              <span className="px-1.5 py-0.2 text-[9.5px] font-mono font-medium rounded bg-[#0079C1]/15 text-[#0079C1] dark:text-[#38bdf8]">
+                Global & Cards
+              </span>
             </div>
-          </a>
-          <div className="flex items-center gap-1.5 shrink-0 pl-2">
-            <button
-              type="button"
-              onClick={handleCopyPayPal}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-zinc-200/70 hover:bg-zinc-300/80 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 text-[11px] font-medium transition-colors cursor-pointer border-0"
-              title="Copy PayPal address"
-            >
-              {copiedPayPal ? (
-                <>
-                  <Check className="w-3 h-3 text-emerald-500" />
-                  <span className="text-emerald-500">Copied</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3 h-3 text-zinc-400" />
-                  <span>Copy</span>
-                </>
-              )}
-            </button>
-            <a
-              href={paypalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => playSoftClick()}
-              className="p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
-              title="Open PayPal.me"
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
+            <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-sans mt-0.5 truncate">
+              paypal.me/josiahdeasis
+            </p>
           </div>
         </div>
+        <ExternalLink className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors shrink-0" />
+      </a>
 
-        {/* 2. Ko-fi Option */}
-        <a
-          href={kofiUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => playSoftClick()}
-          className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group cursor-pointer active:scale-[0.99]"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#FF5E5B]/10 dark:bg-[#FF5E5B]/20 text-[#FF5E5B] flex items-center justify-center shrink-0 shadow-xs">
-              <svg className="w-4 h-4 fill-current text-[#FF5E5B]" viewBox="0 0 24 24">
-                <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.047 3.974-4.047 3.974s-2.7-2.486-3.92-3.938c-1.309-1.557-.775-3.66.906-4.102 1.637-.43 2.879.71 3.014.85.137-.14 1.379-1.28 3.016-.85 1.681.442 2.217 2.545.908 4.098l.123-.032zm6.757-1.12c-.22 1.488-1.579 2.012-3.111 2.012h-.809v-4.14h.983c1.533 0 2.719.64 2.937 2.128z" />
-              </svg>
-            </div>
-            <div className="text-left">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 font-sans">
-                  Ko-fi
-                </p>
-                <span className="px-1.5 py-0.2 text-[9.5px] font-mono font-medium rounded bg-[#FF5E5B]/15 text-[#FF5E5B]">
-                  0% Fee & Cards
-                </span>
-              </div>
-              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-sans mt-0.5">
-                ko-fi.com/josiahdeasis
-              </p>
-            </div>
+      {/* 2. Ko-fi Option */}
+      <a
+        href={kofiUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() => playSoftClick()}
+        className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group cursor-pointer active:scale-[0.99]"
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-[#FF5E5B]/10 dark:bg-[#FF5E5B]/20 text-[#FF5E5B] flex items-center justify-center shrink-0 shadow-xs">
+            <svg className="w-4 h-4 fill-current text-[#FF5E5B]" viewBox="0 0 24 24">
+              <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.047 3.974-4.047 3.974s-2.7-2.486-3.92-3.938c-1.309-1.557-.775-3.66.906-4.102 1.637-.43 2.879.71 3.014.85.137-.14 1.379-1.28 3.016-.85 1.681.442 2.217 2.545.908 4.098l.123-.032zm6.757-1.12c-.22 1.488-1.579 2.012-3.111 2.012h-.809v-4.14h.983c1.533 0 2.719.64 2.937 2.128z" />
+            </svg>
           </div>
-          <ExternalLink className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors" />
-        </a>
+          <div className="text-left min-w-0">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 font-sans">
+                Ko-fi
+              </p>
+              <span className="px-1.5 py-0.2 text-[9.5px] font-mono font-medium rounded bg-[#FF5E5B]/15 text-[#FF5E5B]">
+                0% Fee & Cards
+              </span>
+            </div>
+            <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-sans mt-0.5">
+              ko-fi.com/josiahdeasis
+            </p>
+          </div>
+        </div>
+        <ExternalLink className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors shrink-0" />
+      </a>
 
         {/* 3. GitHub Sponsors Option */}
         <a
@@ -336,7 +203,6 @@ export function CommunitySupportSection({
             </button>
           </div>
         </div>
-      </div>
     </div>
   );
 
