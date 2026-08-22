@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["react-icons", "lucide-react", "three", "mermaid", "zod", "ai", "@ai-sdk/react", "framer-motion"],
   },
-  productionBrowserSourceMaps: true,
+  productionBrowserSourceMaps: false,
   images: {
     deviceSizes: [360, 414, 512, 600, 640, 768, 1024, 1280],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],

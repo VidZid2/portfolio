@@ -86,14 +86,20 @@ export function useVisitorAnalytics() {
 
     recordAndFetch();
 
-    // Heartbeat duration tracking every 30 seconds
+    // Heartbeat duration tracking every 30 seconds.
+    // Sends only the DELTA since the last beat — the server accumulates,
+    // so sending cumulative elapsed would inflate quadratically.
     const startTime = Date.now();
+    let lastSentSeconds = 0;
     const interval = setInterval(() => {
       const elapsedSeconds = Math.round((Date.now() - startTime) / 1000);
+      const delta = elapsedSeconds - lastSentSeconds;
+      if (delta <= 0) return;
+      lastSentSeconds = elapsedSeconds;
       fetch("/api/insights", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ visitorId, sessionId, duration: elapsedSeconds }),
+        body: JSON.stringify({ visitorId, sessionId, durationSeconds: delta }),
       }).catch(() => {});
     }, 30000);
 

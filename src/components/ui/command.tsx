@@ -67,10 +67,20 @@ function CommandDialog({
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+
+    // Radix used to own Escape-to-close; the custom portal must handle it.
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        onOpenChange?.(false);
+      }
+    };
+    document.addEventListener("keydown", onKeyDown, true);
     return () => {
       document.body.style.overflow = prev;
+      document.removeEventListener("keydown", onKeyDown, true);
     };
-  }, [open]);
+  }, [open, onOpenChange]);
 
   if (!mounted) return null;
 

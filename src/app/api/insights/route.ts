@@ -1,25 +1,26 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import fs from "fs";
 import path from "path";
+import {
+  applyHeartbeat,
+  computeChanges,
+  dateKey,
+  isValidId,
+  pruneAndSanitizeStore,
+  type InsightsStore,
+} from "@/lib/insights-utils";
+import { clientIp, limitInsights } from "@/lib/server-rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type ISODateString = string;
-
-interface DailyMetricRecord {
-  uniqueVisitors: string[]; // List of unique visitor IDs seen on this date
-  totalSessions: string[];  // List of session IDs seen on this date
-  screenViews: number;
-  totalDurationSeconds: number;
-  durationCount: number;
-}
-
-interface InsightsStore {
-  createdTimestamp: number;
-  lastUpdated: number;
-  records: Record<string, DailyMetricRecord>; // "YYYY-MM-DD" -> DailyMetricRecord
-}
+const heartbeatSchema = z.object({
+  visitorId: z.string().regex(/^[a-zA-Z0-9_-]{1,64}$/).optional(),
+  sessionId: z.string().regex(/^[a-zA-Z0-9_-]{1,64}$/).optional(),
+  /** Per-heartboard DELTA in seconds, not cumulative elapsed. */
+  durationSeconds: z.number().int().min(0).max(600).optional(),
+});
 
 const DATA_FILE_PATH = path.join(process.cwd(), ".insights-store.json");
 
@@ -40,21 +41,9 @@ function loadStore(): InsightsStore {
       const content = fs.readFileSync(DATA_FILE_PATH, "utf-8");
       const parsed = JSON.parse(content) as InsightsStore;
       if (parsed && typeof parsed.records === "object") {
-        // Strip any legacy seed records
-        for (const key of Object.keys(parsed.records)) {
-          if (Array.isArray(parsed.records[key].uniqueVisitors)) {
-            parsed.records[key].uniqueVisitors = parsed.records[key].uniqueVisitors.filter(
-              (id) => typeof id === "string" && !id.startsWith("seed-")
-            );
-          }
-          if (Array.isArray(parsed.records[key].totalSessions)) {
-            parsed.records[key].totalSessions = parsed.records[key].totalSessions.filter(
-              (id) => typeof id === "string" && !id.startsWith("seed-")
-            );
-          }
-        }
-        memoryStore = parsed;
-        return parsed;
+        // Hardens legacy stores: strips junk, caps arrays, prunes >90 days.
+        memoryStore = pruneAndSanitizeStore(parsed);
+        return memoryStore;
       }
     }
   } catch {
@@ -79,8 +68,8 @@ function saveStore(store: InsightsStore) {
 }
 
 function getFormattedData(store: InsightsStore) {
-  const today = new Date();
-  const series: Array<{ date: ISODateString; uniqueVisitors: number; totalSessions: number }> = [];
+  type SeriesPoint = { date: string; uniqueVisitors: number; totalSessions: number };
+  const series: SeriesPoint[] = [];
 
   let totalUniqueVisitors = 0;
   let totalSessionsCount = 0;
@@ -90,32 +79,19 @@ function getFormattedData(store: InsightsStore) {
 
   // Past 30 days rolling window
   for (let i = 29; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(d.getDate() - i);
-    const dateKey = d.toISOString().split("T")[0];
-    const isoDate = `${dateKey}T00:00:00.000Z`;
+    const key = dateKey(i);
+    const isoDate = `${key}T00:00:00.000Z`;
+    const record = store.records[key];
 
-    const record = store.records[dateKey] || {
-      uniqueVisitors: [],
-      totalSessions: [],
-      screenViews: 0,
-      totalDurationSeconds: 0,
-      durationCount: 0,
-    };
-
-    const visitorsCount = Array.isArray(record.uniqueVisitors)
-      ? record.uniqueVisitors.filter((id) => typeof id === "string" && !id.startsWith("seed-")).length
-      : 0;
-    const sessionsCount = Array.isArray(record.totalSessions)
-      ? record.totalSessions.filter((id) => typeof id === "string" && !id.startsWith("seed-")).length
-      : 0;
-    const viewsCount = typeof record.screenViews === "number" ? record.screenViews : 0;
+    const visitorsCount = record ? record.uniqueVisitors.length : 0;
+    const sessionsCount = record ? record.totalSessions.length : 0;
+    const viewsCount = record ? record.screenViews : 0;
 
     totalUniqueVisitors += visitorsCount;
     totalSessionsCount += sessionsCount;
     totalViewsCount += viewsCount;
-    totalDurationSum += record.totalDurationSeconds || 0;
-    totalDurationSessions += record.durationCount || 0;
+    totalDurationSum += record ? record.totalDurationSeconds : 0;
+    totalDurationSessions += record ? record.durationCount : 0;
 
     series.push({
       date: isoDate,
@@ -124,30 +100,18 @@ function getFormattedData(store: InsightsStore) {
     });
   }
 
-  const startDate = series[0]?.date ? series[0].date.split("T")[0] : today.toISOString().split("T")[0];
-  const endDate = series[series.length - 1]?.date
-    ? series[series.length - 1].date.split("T")[0]
-    : today.toISOString().split("T")[0];
-
-  const avgSessionDuration =
-    totalDurationSessions > 0 ? totalDurationSum / totalDurationSessions : 0;
-
   return {
     summary: {
       uniqueVisitors: totalUniqueVisitors,
       totalSessions: totalSessionsCount,
       totalScreenViews: totalViewsCount,
-      avgSessionDuration,
+      avgSessionDuration:
+        totalDurationSessions > 0 ? totalDurationSum / totalDurationSessions : 0,
     },
-    changes: {
-      uniqueVisitors: 12.4,
-      totalSessions: 8.1,
-      totalScreenViews: -3.2,
-      avgSessionDuration: 5.7,
-    },
+    changes: computeChanges(store.records),
     series,
-    startDate,
-    endDate,
+    startDate: series[0]?.date.split("T")[0] ?? dateKey(29),
+    endDate: series[series.length - 1]?.date.split("T")[0] ?? dateKey(0),
   };
 }
 
@@ -159,15 +123,30 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    const limit = await limitInsights(clientIp(req));
+    if (!limit.success) {
+      return NextResponse.json(
+        { success: false, error: "Too many requests" },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json().catch(() => ({}));
-    const { visitorId, sessionId, duration } = body as {
-      visitorId?: string;
-      sessionId?: string;
-      duration?: number;
-    };
+    const parsed = heartbeatSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { success: false, error: "Invalid payload" },
+        { status: 400 }
+      );
+    }
+    const input = parsed.data;
+
+    // Defensive: schema guarantees shape, pattern check guards legacy IDs.
+    const visitorId = input.visitorId && isValidId(input.visitorId) ? input.visitorId : undefined;
+    const sessionId = input.sessionId && isValidId(input.sessionId) ? input.sessionId : undefined;
 
     const store = loadStore();
-    const todayKey = new Date().toISOString().split("T")[0];
+    const todayKey = dateKey(0);
 
     if (!store.records[todayKey]) {
       store.records[todayKey] = {
@@ -179,31 +158,16 @@ export async function POST(req: Request) {
       };
     }
 
-    const todayRecord = store.records[todayKey];
-
-    // Register unique visitor if provided and not yet tracked today
-    if (visitorId && !todayRecord.uniqueVisitors.includes(visitorId)) {
-      todayRecord.uniqueVisitors.push(visitorId);
-    }
-
-    // Register session if provided and not yet tracked today
-    if (sessionId && !todayRecord.totalSessions.includes(sessionId)) {
-      todayRecord.totalSessions.push(sessionId);
-    }
-
-    // Increment screen view
-    todayRecord.screenViews = (todayRecord.screenViews || 0) + 1;
-
-    // Track session duration heartbeat if provided
-    if (typeof duration === "number" && duration > 0) {
-      todayRecord.totalDurationSeconds = (todayRecord.totalDurationSeconds || 0) + duration;
-      todayRecord.durationCount = (todayRecord.durationCount || 0) + 1;
-    }
+    applyHeartbeat(store.records[todayKey], {
+      visitorId,
+      sessionId,
+      durationSeconds: input.durationSeconds,
+    });
 
     store.lastUpdated = Date.now();
-    saveStore(store);
+    saveStore(pruneAndSanitizeStore(store));
 
-    const updatedData = getFormattedData(store);
+    const updatedData = getFormattedData(loadStore());
     return NextResponse.json({ success: true, data: updatedData });
   } catch (error) {
     return NextResponse.json(

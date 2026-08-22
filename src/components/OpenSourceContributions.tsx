@@ -36,34 +36,7 @@ type GitHubSearchResponse = {
 
 type FilterType = "merged" | "open" | "closed";
 
-const SEARCH_QUERIES: Record<FilterType, string> = {
-  merged: "author:VidZid2 type:pr is:merged",
-  open: "author:VidZid2 type:pr is:open",
-  closed: "author:VidZid2 type:pr is:closed is:unmerged",
-};
-
-function buildGraphQLQuery(searchQuery: string) {
-  return `query {
-    search(query: "${searchQuery}", type: ISSUE, first: 100) {
-      edges {
-        node {
-          ... on PullRequest {
-            id
-            title
-            url
-            repository {
-              nameWithOwner
-            }
-            state
-            createdAt
-            mergedAt
-            closedAt
-          }
-        }
-      }
-    }
-  }`;
-}
+const CACHE_TTL_MS = 30 * 60 * 1000;
 
 import { usePerformance } from "@/hooks/usePerformance";
 
@@ -97,12 +70,14 @@ export function OpenSourceContributions({ isFullPage = false, hasSeenScrollAnima
     const cacheKey = `github_prs_${type}`;
     const cachedData = typeof window !== 'undefined' ? localStorage.getItem(cacheKey) : null;
 
-    // Immediately populate from cache if available
+    // Immediately populate from cache if available and fresh enough
     if (cachedData) {
       try {
-        const parsed = JSON.parse(cachedData);
-        setPrsByType(prev => ({ ...prev, [type]: parsed }));
-        setLoadedTypes(prev => new Set(prev).add(type));
+        const parsed = JSON.parse(cachedData) as { ts?: number; prs?: PR[] };
+        if (Array.isArray(parsed.prs) && typeof parsed.ts === "number" && Date.now() - parsed.ts < CACHE_TTL_MS) {
+          setPrsByType(prev => ({ ...prev, [type]: parsed.prs as PR[] }));
+          setLoadedTypes(prev => new Set(prev).add(type));
+        }
       } catch {
         // invalid cache, will fetch fresh
       }
@@ -110,11 +85,10 @@ export function OpenSourceContributions({ isFullPage = false, hasSeenScrollAnima
 
     // Fetch fresh data in background
     try {
-      const query = buildGraphQLQuery(SEARCH_QUERIES[type]);
       const response = await fetch("/api/github", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ filter: type }),
       });
 
       const data = (await response.json()) as GitHubSearchResponse;
@@ -129,7 +103,7 @@ export function OpenSourceContributions({ isFullPage = false, hasSeenScrollAnima
         setPrsByType(prev => ({ ...prev, [type]: fetchedPRs }));
         setLoadedTypes(prev => new Set(prev).add(type));
         if (typeof window !== 'undefined') {
-          localStorage.setItem(cacheKey, JSON.stringify(fetchedPRs));
+          localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), prs: fetchedPRs }));
         }
       } else {
         if (data.message === "Bad credentials" || data.error) {

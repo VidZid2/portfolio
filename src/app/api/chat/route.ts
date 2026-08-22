@@ -1,12 +1,22 @@
-import { streamText, createUIMessageStream, createUIMessageStreamResponse } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai';
-
-const openzen = createOpenAI({
-  baseURL: process.env.OPENZEN_BASE_URL || 'https://opencode.ai/zen/v1',
-  apiKey: process.env.OPENZEN_API_KEY,
-});
+import { createUIMessageStream, createUIMessageStreamResponse } from 'ai';
+import { clientIp, limitChat } from '@/lib/server-rate-limit';
 
 export const runtime = 'nodejs';
+
+/** Only these free-tier models may be requested; anything else falls back. */
+const ALLOWED_MODELS = new Set([
+  'deepseek-v4-flash-free',
+  'nemotron-3.5-lightning-free',
+  'laguna-s-2.1-free',
+  'hy3-free',
+]);
+
+const DEFAULT_MODEL = 'deepseek-v4-flash-free';
+const ALLOWED_EFFORTS = new Set(['low', 'medium', 'high', 'max']);
+const MAX_MESSAGES = 30;
+const MAX_MESSAGE_CHARS = 4000;
+const MAX_OUTPUT_TOKENS = 1200;
+const DAILY_SERVER_LIMIT = 20;
 
 function getFallbackText(userPrompt: string): string {
   const query = (userPrompt || '').toLowerCase();
@@ -82,7 +92,7 @@ function createFallbackStream(userPrompt: string, effort: string = 'high') {
   return createUIMessageStreamResponse({ stream });
 }
 
-// In-memory rate limiting map for server-side abuse prevention
+// Per-instance in-memory rate limiting (second layer behind Upstash)
 const ipRateLimitMap = new Map<string, { date: string; count: number }>();
 
 function checkServerRateLimit(ip: string, effort: string): boolean {
@@ -91,7 +101,7 @@ function checkServerRateLimit(ip: string, effort: string): boolean {
   const key = `${ip}_${effort}_${today}`;
   const record = ipRateLimitMap.get(key);
   if (record && record.date === today) {
-    if (record.count >= 25) {
+    if (record.count >= DAILY_SERVER_LIMIT) {
       return false;
     }
     record.count += 1;
@@ -107,31 +117,43 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { messages, model = 'nemotron-3.5-lightning-free', effort: userEffort = 'high' } = body;
-    effort = userEffort;
+    const { messages } = body;
+    const rawModel: unknown = body.model;
+    const rawEffort: unknown = body.effort;
 
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-    if (!checkServerRateLimit(ip, effort)) {
+    // Cross-instance persistent limit (Upstash) + per-instance map above.
+    const ip = clientIp(req);
+    const upstreamLimit = await limitChat(ip);
+    if (!upstreamLimit.success || !checkServerRateLimit(ip, typeof rawEffort === 'string' && ALLOWED_EFFORTS.has(rawEffort) ? rawEffort : 'high')) {
       return new Response(
-        JSON.stringify({ error: `Daily limit reached for ${effort} reasoning (20/20). Switch to Medium or Low to continue.` }),
+        JSON.stringify({ error: `Daily chat limit reached (${DAILY_SERVER_LIMIT}/${DAILY_SERVER_LIMIT}). Please come back tomorrow.` }),
         { status: 429, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    // Extract last user message
-    if (Array.isArray(messages) && messages.length > 0) {
-      const lastUserMsg = [...messages].reverse().find((m: any) => m.role === 'user');
-      if (lastUserMsg) {
-        if (typeof lastUserMsg.content === 'string') {
-          userQuery = lastUserMsg.content;
-        } else if (Array.isArray(lastUserMsg.parts)) {
-          const textPart = lastUserMsg.parts.find((p: any) => p.type === 'text');
-          if (textPart) userQuery = textPart.text || '';
-        }
-      }
+    effort = typeof rawEffort === 'string' && ALLOWED_EFFORTS.has(rawEffort) ? rawEffort : 'high';
+
+    if (!Array.isArray(messages) || messages.length === 0 || messages.length > MAX_MESSAGES) {
+      return new Response(
+        JSON.stringify({ error: "Invalid messages payload." }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
     }
 
-    const requestedModel = (model === 'deepseek-v4' || model === 'sync-ai' || !model) ? 'deepseek-v4-flash-free' : model;
+    // Extract last user message
+    const lastUserMsg = [...messages].reverse().find((m: any) => m.role === 'user');
+    if (lastUserMsg) {
+      if (typeof lastUserMsg.content === 'string') {
+        userQuery = lastUserMsg.content;
+      } else if (Array.isArray(lastUserMsg.parts)) {
+        const textPart = lastUserMsg.parts.find((p: any) => p.type === 'text');
+        if (textPart) userQuery = textPart.text || '';
+      }
+    }
+    userQuery = String(userQuery).slice(0, MAX_MESSAGE_CHARS);
+
+    const requestedModel =
+      typeof rawModel === 'string' && ALLOWED_MODELS.has(rawModel) ? rawModel : DEFAULT_MODEL;
 
     let reasoningInstruction = "";
     if (effort === "max") {
@@ -179,14 +201,19 @@ When answering:
 
 ${reasoningInstruction}`;
 
-    const formattedMessages = (messages || []).map((m: any) => {
-      let content = m.content;
-      if (m.parts && Array.isArray(m.parts)) {
-        const textParts = m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text);
-        if (textParts.length > 0) content = textParts.join('\n');
-      }
-      return { role: m.role, content: content || '' };
-    });
+    // Only user/assistant roles survive from the client; system messages are
+    // server-constructed exclusively, so client-supplied ones are dropped.
+    const formattedMessages = (messages || [])
+      .filter((m: any) => m && (m.role === 'user' || m.role === 'assistant'))
+      .slice(-MAX_MESSAGES)
+      .map((m: any) => {
+        let content = m.content;
+        if (m.parts && Array.isArray(m.parts)) {
+          const textParts = m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text);
+          if (textParts.length > 0) content = textParts.join('\n');
+        }
+        return { role: m.role as string, content: String(content || '').slice(0, MAX_MESSAGE_CHARS) };
+      });
 
     const candidateModels = [
       requestedModel,
@@ -204,6 +231,12 @@ ${reasoningInstruction}`;
 
         for (const candidate of candidateModels) {
           try {
+            // No key configured: skip remote models, serve the local fallback.
+            if (!process.env.OPENZEN_API_KEY) {
+              console.warn("OPENZEN_API_KEY not configured; serving local fallback response.");
+              break;
+            }
+
             const res = await fetch(`${process.env.OPENZEN_BASE_URL || 'https://opencode.ai/zen/v1'}/chat/completions`, {
               method: 'POST',
               headers: {
@@ -217,7 +250,9 @@ ${reasoningInstruction}`;
                   ...formattedMessages
                 ],
                 stream: true,
+                max_tokens: MAX_OUTPUT_TOKENS,
               }),
+              signal: AbortSignal.timeout(60_000),
             });
 
             if (!res.ok || !res.body) {
