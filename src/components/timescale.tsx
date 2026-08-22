@@ -333,9 +333,9 @@ export function TimescaleAge({ className, ...props }: TimescaleAgeProps) {
     <p
       data-slot="timescale-age"
       className={cn(
-        "text-xs leading-5 font-mono font-medium transition-colors duration-200 tabular-nums select-none",
+        "text-xs sm:text-[13px] leading-5 font-sans font-medium transition-colors duration-200 tabular-nums select-none",
         "text-muted-foreground group-hover/item:text-zinc-800 dark:group-hover/item:text-zinc-200 group-data-[active=true]/item:text-zinc-800 dark:group-data-[active=true]/item:text-zinc-200",
-        "in-[[data-slot=timescale-header]]:tracking-widest in-[[data-slot=timescale-header]]:uppercase",
+        "in-[[data-slot=timescale-header]]:tracking-wider in-[[data-slot=timescale-header]]:uppercase",
         "group-data-[orientation=vertical]/timescale:col-start-1 group-data-[orientation=vertical]/timescale:row-start-1 group-data-[orientation=vertical]/timescale:pr-4 group-data-[orientation=vertical]/timescale:text-right",
         className
       )}
@@ -351,9 +351,9 @@ export function TimescaleYear({ className, ...props }: TimescaleYearProps) {
     <p
       data-slot="timescale-year"
       className={cn(
-        "text-xs sm:text-[13px] leading-5 font-mono font-semibold transition-all duration-200 tabular-nums select-none",
+        "text-xs sm:text-[13px] leading-5 font-sans font-semibold transition-all duration-200 tabular-nums select-none",
         "text-zinc-600 dark:text-zinc-400 group-hover/item:text-zinc-950 dark:group-hover/item:text-white group-data-[active=true]/item:text-zinc-950 dark:group-data-[active=true]/item:text-white group-hover/item:font-bold group-data-[active=true]/item:font-bold",
-        "in-[[data-slot=timescale-header]]:tracking-widest in-[[data-slot=timescale-header]]:uppercase in-[[data-slot=timescale-header]]:text-muted-foreground",
+        "in-[[data-slot=timescale-header]]:tracking-wider in-[[data-slot=timescale-header]]:uppercase in-[[data-slot=timescale-header]]:text-muted-foreground",
         "group-data-[orientation=vertical]/timescale:col-start-2 group-data-[orientation=vertical]/timescale:row-start-1",
         className
       )}
