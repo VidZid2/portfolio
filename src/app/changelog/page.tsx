@@ -19,137 +19,74 @@ import {
   TimescaleYear,
 } from "@/components/timescale";
 
-const BIRTH_YEAR = 2000;
-
 type Milestone = {
-  year: number;
+  version: string;
+  date: string;
   content?: string;
 };
 
 const MILESTONES: Milestone[] = [
   {
-    year: 2000,
-    content: "Born in Can Tho, Viet Nam.",
-  },
-  { year: 2001 },
-  { year: 2002 },
-  { year: 2003 },
-  { year: 2004 },
-  { year: 2005 },
-  {
-    year: 2006,
-    content: "Started at Thuan Hung Primary School.",
-  },
-  { year: 2007 },
-  { year: 2008 },
-  { year: 2009 },
-  { year: 2010 },
-  {
-    year: 2011,
-    content: "Started at Thuan Hung Secondary School.",
-  },
-  { year: 2012 },
-  { year: 2013 },
-  {
-    year: 2014,
-    content: `Started learning to code and built my first website.
+    version: "0.1",
+    date: "2025",
+    content: `### 0.1 Start — Initial Portfolio Launch
 
-Won awards:
+The foundation of the portfolio was established.
 
-- 1st Prize — Can Tho City Young Informatics Contest 2014
-- Consolation Prize — National Young Informatics Contest 2014
-
-Visited Ha Noi, the capital, for the first time.`,
+- Built with **Next.js**, **React**, **Tailwind CSS**, and **TypeScript**.
+- Interactive career experience roadmap and education milestones.
+- Work highlights with case studies and verified credentials.
+- Theme engine with seamless dark and light mode persistence.`,
   },
   {
-    year: 2015,
-    content: `Won awards:
+    version: "0.1.1",
+    date: "Jan 2026",
+    content: `### Responsive Architecture
 
-- 3rd Prize — Can Tho City Young Informatics Contest 2015
-- Consolation Prize — National Young Informatics Contest 2015
-- Outstanding Student — Most Outstanding Student of the District
-- 2nd Prize — Can Tho City Youth and Children’s Creativity Contest 2015
-- 3rd Prize — Can Tho City Science and Engineering Fair 2015
-
-Visited Thu Dau Mot, Binh Duong for the first time.
-
-Admitted to the specialized Computer Science class at Ly Tu Trong High School for the Gifted.`,
+- Mobile-first layout optimizations and touch gestures.
+- Custom command palette menu (⌘K / Ctrl+K).
+- Sound engine prototypes with web audio synthesis.`,
   },
   {
-    year: 2016,
-    content: `Won awards:
+    version: "0.1.2",
+    date: "Mar 2026",
+    content: `### Interactive Preview Engine
 
-- Consolation Prize — Can Tho City Young Informatics Contest 2016
-- 1st Prize — Can Tho City Youth and Children’s Creativity Contest 2016
-- 3rd Prize — National Young Informatics Contest 2016
-- Consolation Prize — National Youth and Children’s Creativity Contest 2016
-
-Visited Quy Nhon, Binh Dinh for the first time, and returned to Ha Noi.`,
+- Sandboxed live iframe previews for featured agency and client builds.
+- Dynamic route metadata and social share cards.
+- Performance tuning with sub-second page loads.`,
   },
   {
-    year: 2017,
-    content: `Won awards:
+    version: "0.1.5",
+    date: "May 2026",
+    content: `### AI Terminal & Credential Viewer
 
-- 2nd Prize — Can Tho City Outstanding Student Selection Exam 2016-2017
-- Consolation Prize — Can Tho City Young Informatics Contest 2017
-- 3rd Prize — Can Tho City Young Informatics Contest 2017
-- 2nd Prize — Can Tho City Youth and Children’s Creativity Contest 2017
-- Creative Award — Binh Duong Hackathon 2017`,
+- Interactive AI prompt box terminal with natural language assistant.
+- Dual-mode certificate viewer with photo and vector PDF inspection.
+- Enhanced animations with spring physics.`,
   },
   {
-    year: 2018,
-    content: `Won awards:
+    version: "0.1.8",
+    date: "Jul 2026",
+    content: `### Design System Evolution
 
-- 1st Prize — Can Tho City Science and Engineering Fair 2018
-- 3rd Prize — Can Tho City Outstanding Student Selection Exam 2017-2018
-- 3rd Prize — National Science and Engineering Fair 2018 (ViSEF)
-- 3rd Prize — Can Tho City Young Informatics Contest 2018
-- 2nd Prize — Can Tho City Youth and Children’s Creativity Contest 2018
-- 3rd Prize — National Young Informatics Contest 2018
-
-Earned direct admission to University of Science — VNUHCM, majoring in Information Systems.
-
-Began freelancing and joined Tung Tung as a UI/UX Designer.
-
-Visited Da Lat, Lam Dong and Ba Ria - Vung Tau for the first time.`,
+- Custom UI primitives inspired by top open-source engineering standards.
+- Micro-interactions and fluid hover states.
+- Telemetry analytics collector groundwork.`,
   },
   {
-    year: 2019,
-    content: `Became a Mobile Developer at Tung Tung.
+    version: "0.2",
+    date: "Now",
+    content: `### 0.2 Start — Blueprint Overhaul (Current)
 
-Won 2nd Prize — Business Startup Competition 2019.`,
-  },
-  {
-    year: 2020,
-    content: "Became a Web Developer at Tung Tung.",
-  },
-  { year: 2021 },
-  {
-    year: 2022,
-    content: `Joined Simplamo as a Senior Frontend Developer and UI Lead.
+Major architectural redesign and interactive blueprint system.
 
-Launched [ZaDark](https://zadark.com) — 80k+ downloads, 30k+ active users.
-
-Won Bronze Medal — 10th Design, Manufacturing, and Application Award 2022.`,
-  },
-  { year: 2023 },
-  {
-    year: 2024,
-    content: "Founded [Quaric](https://quaric.com).",
-  },
-  {
-    year: 2025,
-    content: `Open-sourced [chanhdai.com](https://github.com/ncdai/chanhdai.com) — 2k+ stars on GitHub.
-
-Released [React Wheel Picker](https://react-wheel-picker.chanhdai.com) — 50k+ weekly downloads, selected for the [Vercel OSS Program](https://vercel.com/open-source-program).
-
-Followed by [shadcn](https://x.com/shadcn) on X.`,
-  },
-  {
-    year: 2026,
-    content: `Joined [shadcncraft](https://shadcncraft.com) as a Design Engineer.
-
-Selected for the [Claude for Open Source Program](https://claude.com/contact-sales/claude-for-oss).`,
+- **Blueprint UI Grid**: Dotted margin guidelines, intersection crosshairs, and monospaced typography.
+- **Motion Engine**: Integrated center-morph modals, action swap cascade text-roll animations, and spring physics.
+- **Live Analytics**: Real-time telemetry tracking unique visitors, session metrics, and live charts.
+- **Ruler Timescale**: Interactive horizontal drag-to-scroll changelog and milestone tracker.
+- **Community Support**: Integrated sponsor drawers for PayPal, Ko-fi, and seamless curve transitions.
+- **Creator Inspirations**: 3D convex cylinder carousel honoring open-source UI libraries.`,
   },
 ];
 
@@ -158,8 +95,8 @@ export default function ChangelogPage() {
     <BlueprintGrid
       headerSlot={
         <SubpageHeader
-          title="Timescale & Changelog"
-          subtitle="A chronological journey of milestones & evolution"
+          title="Portfolio Changelog"
+          subtitle="From 0.1 Start to 0.2 Start (Now) — Evolution & Milestones"
           backHref="/"
         />
       }
@@ -170,12 +107,23 @@ export default function ChangelogPage() {
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
         className="ml-3 mr-3 sm:ml-4 sm:mr-4 md:ml-[24.5%] md:mr-[24.5%] md:mx-0 pt-[calc(22vh+112px)] pb-16 px-3 sm:px-4 flex flex-col z-10 relative overflow-hidden"
       >
-        <div className="relative py-4 w-full">
+        {/* Drag Hint Banner */}
+        <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400 dark:text-zinc-500 mb-2 px-1 select-none">
+          <span className="flex items-center gap-1.5">
+            <svg className="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+            </svg>
+            Drag horizontally to explore timeline
+          </span>
+          <span className="hidden sm:inline">0.1 Start ➔ 0.2 Start (Now)</span>
+        </div>
+
+        <div className="relative py-2 w-full">
           <TimescaleIntroScroll>
-            <TimescaleRoot className="mt-4">
+            <TimescaleRoot className="mt-2">
               <TimescaleHeader>
-                <TimescaleAge>Age</TimescaleAge>
-                <TimescaleYear>Years</TimescaleYear>
+                <TimescaleAge>VER</TimescaleAge>
+                <TimescaleYear>DATE</TimescaleYear>
               </TimescaleHeader>
 
               <TimescaleViewport>
@@ -183,11 +131,11 @@ export default function ChangelogPage() {
                   <TimescaleRail />
 
                   {MILESTONES.map((milestone) => (
-                    <TimescaleItem key={milestone.year}>
+                    <TimescaleItem key={milestone.version}>
                       <TimescaleTick />
 
-                      <TimescaleAge>{milestone.year - BIRTH_YEAR}</TimescaleAge>
-                      <TimescaleYear>{milestone.year}</TimescaleYear>
+                      <TimescaleAge>{milestone.version}</TimescaleAge>
+                      <TimescaleYear>{milestone.date}</TimescaleYear>
 
                       {milestone.content && (
                         <TimescaleContent className="typeset typeset-timescale">

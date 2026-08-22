@@ -33,11 +33,58 @@ export function TimescaleViewport({
   className,
   ...props
 }: TimescaleViewportProps) {
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const isDown = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
+  const hasMoved = useRef(false);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!viewportRef.current) return;
+    isDown.current = true;
+    hasMoved.current = false;
+    startX.current = e.pageX - viewportRef.current.offsetLeft;
+    scrollLeft.current = viewportRef.current.scrollLeft;
+  };
+
+  const handleMouseLeave = () => {
+    isDown.current = false;
+    hasMoved.current = false;
+  };
+
+  const handleMouseUp = () => {
+    isDown.current = false;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDown.current || !viewportRef.current) return;
+    const x = e.pageX - viewportRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.5;
+    if (Math.abs(x - startX.current) > 3) {
+      hasMoved.current = true;
+    }
+    viewportRef.current.scrollLeft = scrollLeft.current - walk;
+  };
+
+  const handleClickCapture = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (hasMoved.current) {
+      e.stopPropagation();
+      e.preventDefault();
+      hasMoved.current = false;
+    }
+  };
+
   return (
     <div
+      ref={viewportRef}
       data-slot="timescale-viewport"
+      onMouseDown={handleMouseDown}
+      onMouseLeave={handleMouseLeave}
+      onMouseUp={handleMouseUp}
+      onMouseMove={handleMouseMove}
+      onClickCapture={handleClickCapture}
       className={cn(
-        "no-scrollbar w-full overflow-x-auto overscroll-x-contain",
+        "no-scrollbar w-full overflow-x-auto overscroll-x-contain cursor-grab active:cursor-grabbing select-none",
         "group-data-[orientation=horizontal]/timescale:flex group-data-[orientation=horizontal]/timescale:flex-1 group-data-[orientation=horizontal]/timescale:pl-20 sm:group-data-[orientation=horizontal]/timescale:pl-24",
         className
       )}
