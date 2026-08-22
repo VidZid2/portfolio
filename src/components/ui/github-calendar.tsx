@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useMemo, useState, useEffect, useId, useRef, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { DrawUnderlineLink } from "@/components/sora-ui/texts/draw-underline-link";
 
@@ -2409,31 +2409,51 @@ export const GithubCalendar = memo(function GithubCalendar({
           }
 
           return (
-            <div
-              className={cn(
-                "pointer-events-none fixed z-50 rounded-md bg-[#181a1f] dark:bg-[#181a1f] px-3 py-1.5 text-xs font-semibold text-white shadow-xl border border-zinc-700/60 dark:border-zinc-700/60 whitespace-nowrap select-none",
-                tooltip.visible ? "opacity-100 visible" : "opacity-0 invisible"
+            <AnimatePresence>
+              {tooltip.visible && tooltip.date && (
+                <motion.div
+                  key="github-calendar-tooltip"
+                  initial={{ opacity: 0, scale: 0.92, y: -4 }}
+                  animate={{ 
+                    opacity: 1, 
+                    scale: 1, 
+                    y: 0,
+                    left: tooltip.x,
+                    top: tooltip.y,
+                  }}
+                  exit={{ 
+                    opacity: 0, 
+                    scale: 0.92,
+                    y: -2,
+                    transition: { duration: 0.14, ease: "easeOut" } 
+                  }}
+                  transition={{
+                    left: { type: "spring", stiffness: 350, damping: 28, mass: 0.4 },
+                    top: { type: "spring", stiffness: 350, damping: 28, mass: 0.4 },
+                    opacity: { duration: 0.16, ease: "easeOut" },
+                    scale: { type: "spring", stiffness: 450, damping: 26 },
+                    y: { type: "spring", stiffness: 450, damping: 26 },
+                  }}
+                  className="pointer-events-none fixed z-50 rounded-md bg-[#181a1f] dark:bg-[#181a1f] px-3 py-1.5 text-xs font-semibold text-white shadow-xl border border-zinc-700/60 dark:border-zinc-700/60 whitespace-nowrap select-none"
+                  style={{
+                    transform: `translate(-${transformPercent}%, calc(-100% - 8px))`,
+                  }}
+                >
+                  <span>{tooltipText}</span>
+                  {/* Small arrow pointing down */}
+                  <div
+                    className="absolute bg-[#181a1f] dark:bg-[#181a1f] border-r border-b border-zinc-700/60 transition-all duration-200"
+                    style={{
+                      width: 6,
+                      height: 6,
+                      left: `${transformPercent}%`,
+                      bottom: 0,
+                      transform: "translateX(-50%) translateY(50%) rotate(45deg)",
+                    }}
+                  />
+                </motion.div>
               )}
-              style={{
-                left: tooltip.x,
-                top: tooltip.y,
-                transform: `translate(-${transformPercent}%, calc(-100% - ${tooltip.visible ? '8px' : '4px'})) scale(${tooltip.visible ? 1 : 0.95})`,
-                transition: "left 0.2s cubic-bezier(0.2, 0.9, 0.3, 1), top 0.2s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.22s ease-out, transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1)",
-              }}
-            >
-              <span>{tooltip.date ? tooltipText : ""}</span>
-              {/* Small arrow pointing down */}
-              <div
-                className="absolute bg-[#181a1f] dark:bg-[#181a1f] border-r border-b border-zinc-700/60 transition-all duration-200"
-                style={{
-                  width: 6,
-                  height: 6,
-                  left: `${transformPercent}%`,
-                  bottom: 0,
-                  transform: "translateX(-50%) translateY(50%) rotate(45deg)",
-                }}
-              />
-            </div>
+            </AnimatePresence>
           );
         })()}
 
