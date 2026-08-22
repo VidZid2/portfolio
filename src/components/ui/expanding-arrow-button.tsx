@@ -150,7 +150,7 @@ export const ExpandingArrowButton = forwardRef<
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       className={cn(
-        "relative inline-flex h-9 sm:h-10 w-48 sm:w-52 items-center overflow-hidden rounded-[15px] bg-white dark:bg-black p-0.5 sm:p-1 text-zinc-900 dark:text-zinc-100 select-none border border-black/10 dark:border-white/15 shadow-xs cursor-default",
+        "relative inline-flex h-9 sm:h-10 w-48 sm:w-52 items-center overflow-hidden rounded-[15px] bg-white dark:bg-black p-0.5 sm:p-1 text-zinc-900 dark:text-zinc-100 select-none cursor-default",
         "focus-within:ring-2 focus-within:ring-[#6495ED] focus-within:ring-offset-2",
         disabled && "pointer-events-none opacity-50",
         className,
@@ -163,7 +163,7 @@ export const ExpandingArrowButton = forwardRef<
           width: envelopeWidth,
         }}
         className={cn(
-          "absolute left-0.5 sm:left-1 top-0.5 sm:top-1 bottom-0.5 sm:bottom-1 z-20 flex items-center overflow-hidden rounded-[12px] bg-[#6495ED] text-white shadow-xs select-none pointer-events-none",
+          "absolute left-0.5 sm:left-1 top-0.5 sm:top-1 bottom-0.5 sm:bottom-1 z-20 flex items-center overflow-hidden rounded-[12px] bg-[#6495ED] text-white select-none pointer-events-none",
           accentClassName,
         )}
       >
