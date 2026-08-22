@@ -23,6 +23,12 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { EASE_OUT } from "@/lib/ease";
 import { cn } from "@/lib/utils";
 
@@ -292,9 +298,7 @@ export function CenterMorphModalContent({
             )}
           />
 
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-y-auto p-4 drop-shadow-2xl">
-            {/* Drop-shadow reads the clipped child's alpha, so depth follows the
-                unfolding silhouette without introducing another panel layer. */}
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-y-auto p-4">
             <div className="flex w-full flex-col items-center py-8">
               <motion.div
                 ref={panelRef}
@@ -331,37 +335,51 @@ export function CenterMorphModalContent({
                     : CENTER_UNFOLD_TRANSITION
                 }
                 className={cn(
-                  "pointer-events-auto relative w-full max-w-[26rem] origin-center overflow-hidden rounded-[30px] border border-border bg-background will-change-[clip-path]",
+                  "pointer-events-auto relative w-full max-w-[26rem] origin-center overflow-hidden rounded-[30px] border border-border bg-background shadow-2xl will-change-[clip-path]",
                   className,
                 )}
               >
                 {children}
 
                 {showCloseButton ? (
-                  <motion.button
-                    type="button"
-                    aria-label={closeButtonLabel}
-                    onClick={() => context.setOpen(false)}
-                    initial={
-                      reduce
-                        ? { opacity: 0 }
-                        : { opacity: 0, scale: 0.8 }
-                    }
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{
-                      opacity: 0,
-                      scale: reduce ? 1 : 0.88,
-                      transition: { duration: 0.1, ease: EASE_OUT },
-                    }}
-                    transition={{
-                      delay: reduce ? 0 : 0.16,
-                      duration: reduce ? 0.12 : 0.2,
-                      ease: EASE_OUT,
-                    }}
-                    className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-xl bg-foreground/[0.05] text-muted-foreground transition-all duration-150 hover:bg-foreground/[0.08] hover:text-foreground active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
-                  >
-                    <X className="h-4 w-4" aria-hidden="true" />
-                  </motion.button>
+                  <TooltipProvider delayDuration={200}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <motion.button
+                          type="button"
+                          aria-label={closeButtonLabel}
+                          onClick={() => context.setOpen(false)}
+                          initial={
+                            reduce
+                              ? { opacity: 0 }
+                              : { opacity: 0, scale: 0.8 }
+                          }
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{
+                            opacity: 0,
+                            scale: reduce ? 1 : 0.88,
+                            transition: { duration: 0.1, ease: EASE_OUT },
+                          }}
+                          transition={{
+                            delay: reduce ? 0 : 0.16,
+                            duration: reduce ? 0.12 : 0.2,
+                            ease: EASE_OUT,
+                          }}
+                          className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/[0.05] text-muted-foreground transition-all duration-150 hover:bg-foreground/[0.08] hover:text-foreground active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer shadow-none"
+                        >
+                          <X className="h-4 w-4" aria-hidden="true" />
+                        </motion.button>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="bottom"
+                        sideOffset={6}
+                        hideArrow
+                        className="hidden md:flex px-2 py-1 text-[11px] font-medium rounded-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 border-none shadow-md z-[10000]"
+                      >
+                        {closeButtonLabel}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 ) : null}
               </motion.div>
             </div>
