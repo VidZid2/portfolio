@@ -326,8 +326,12 @@ const mathPlugin = createMathPlugin({ singleDollarTextMath: true });
 const streamdownPlugins = { cjk, math: mathPlugin, mermaid };
 
 const streamdownComponents = {
-  pre: ({ children }: any) => <div className="not-prose my-4">{children}</div>,
-  code: ({ node, className, children, ...props }: any) => {
+  pre: ({ children }: { children?: React.ReactNode }) => <div className="not-prose my-4">{children}</div>,
+  code: ({ node, className, children, ...props }: {
+    node?: { data?: { meta?: unknown }; meta?: unknown };
+    className?: string;
+    children?: React.ReactNode;
+  } & React.HTMLAttributes<HTMLElement>) => {
     const match = /language-(\w+)/.exec(className || "");
     const isInline = !match && !className?.includes("language-");
     

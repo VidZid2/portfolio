@@ -5,7 +5,7 @@
 // (z-10, shadow, full rounding) so a control Panel can tuck under it. It
 // forwards pointer moves (cursor bend) and clicks (shockwave) to the stage.
 
-import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";
 import { useSwirlStage, type StageConfig, type StageEvents } from "./use-swirl-stage";
 
 export function ExperimentStage({
@@ -38,7 +38,9 @@ export function ExperimentStage({
   const cfg = useRef<StageConfig>(config);
   // Sync live config (colors, pattern, sliders) into the ref the frame loop
   // reads every frame, so panel controls update the effect without re-init.
-  cfg.current = config;
+  useLayoutEffect(() => {
+    cfg.current = config;
+  }, [config]);
   const [failed, setFailed] = useState(false);
   // The canvas fades in (opacity only) once it has painted AND is in view, and
   // fades back out when scrolled off the play band, so the idle state shows the
@@ -49,17 +51,19 @@ export function ExperimentStage({
   // Merge the caller's events with our reveal tracking; keep in a ref so the
   // stage reads the latest without re-initializing.
   const eventsRef = useRef<StageEvents>({});
-  eventsRef.current = {
-    ...events,
-    onFirstFrame: () => {
-      setPainted(true);
-      events?.onFirstFrame?.();
-    },
-    onVisible: (v) => {
-      setInView(v);
-      events?.onVisible?.(v);
-    },
-  };
+  useLayoutEffect(() => {
+    eventsRef.current = {
+      ...events,
+      onFirstFrame: () => {
+        setPainted(true);
+        events?.onFirstFrame?.();
+      },
+      onVisible: (v) => {
+        setInView(v);
+        events?.onVisible?.(v);
+      },
+    };
+  }, [events]);
 
   const stage = useSwirlStage(canvasRef, cfg, () => setFailed(true), eventsRef);
 

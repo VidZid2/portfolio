@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { useChart, useChartStable } from "./chart-context";
@@ -558,13 +558,18 @@ function appendProjectionTailTicks(
 
 export function XAxis(props: XAxisProps) {
   const { containerRef } = useChartStable();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+  const [container, setContainer] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    const frame = requestAnimationFrame(() => setContainer(containerRef.current));
+    return () => cancelAnimationFrame(frame);
+  }, [containerRef]);
 
-  const container = containerRef.current;
   if (!(mounted && container)) {
     return null;
   }

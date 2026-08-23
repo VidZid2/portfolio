@@ -107,7 +107,8 @@ const getMessageText = (message: UIMessage): string => {
       .map((part) => part.text)
       .join("");
   }
-  return typeof (message as any).content === 'string' ? (message as any).content : "";
+  const content = (message as { content?: unknown }).content;
+  return typeof content === 'string' ? content : "";
 };
 
 export type ConversationDownloadProps = Omit<

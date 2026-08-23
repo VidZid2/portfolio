@@ -29,26 +29,26 @@ export function InteractivePreview({
   const layoutId = useId();
 
   useEffect(() => {
-    if (isInteractive) {
+    if (!isInteractive) return;
+    const frame = requestAnimationFrame(() => {
       setShowHeaderDesktop(true);
       setIsHoveringHeader(false);
-    }
+    });
+    return () => cancelAnimationFrame(frame);
   }, [isInteractive]);
 
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    if (!isHoveringHeader) {
-      timeout = setTimeout(() => {
-        setShowHeaderDesktop(false);
-      }, 2000);
-    } else {
-      setShowHeaderDesktop(true);
+    if (isHoveringHeader) {
+      const frame = requestAnimationFrame(() => setShowHeaderDesktop(true));
+      return () => cancelAnimationFrame(frame);
     }
+    const timeout = setTimeout(() => setShowHeaderDesktop(false), 2000);
     return () => clearTimeout(timeout);
   }, [isHoveringHeader]);
 
   useEffect(() => {
-    setMounted(true);
+    const frame = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {

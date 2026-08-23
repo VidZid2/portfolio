@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useSpring } from "motion/react";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import {
   resolveTooltipBoxMotion,
@@ -380,14 +380,19 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
 
 export function ChartTooltip(props: ChartTooltipProps) {
   const { containerRef } = useChartStable();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+  const [container, setContainer] = useState<HTMLElement | null>(null);
 
   // Only render portals on client side after mount
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    const frame = requestAnimationFrame(() => setContainer(containerRef.current));
+    return () => cancelAnimationFrame(frame);
+  }, [containerRef]);
 
-  const container = containerRef.current;
   if (!(mounted && container)) {
     return null;
   }

@@ -19,12 +19,8 @@ export function BlogList() {
   const { navigate } = useTransition();
   const [isMobile, setIsMobile] = useState(false);
   const { resolvedTheme } = useTheme();
-  const [glyphColor, setGlyphColor] = useState("#6B7280");
-
-  useEffect(() => {
-    if (!resolvedTheme) return;
-    setGlyphColor(resolvedTheme === "dark" ? "#6495ED" : "#000000");
-  }, [resolvedTheme]);
+  const glyphColor =
+    resolvedTheme === "dark" ? "#6495ED" : resolvedTheme === "light" ? "#000000" : "#6B7280";
 
   useEffect(() => {
     const checkMobile = () => {
@@ -67,7 +63,7 @@ export function BlogList() {
         <div className="relative z-10 flex flex-col items-center pointer-events-none drop-shadow-md">
           <h3 className="text-[15px] font-bold text-zinc-900 dark:text-zinc-100 mb-1">More writing coming soon</h3>
           <p className="text-[13px] text-zinc-500 dark:text-zinc-400 text-center max-w-sm px-4">
-            I'm currently working on some new content. Check back later for deep dives into front-end architecture and animation.
+            I&apos;m currently working on some new content. Check back later for deep dives into front-end architecture and animation.
           </p>
         </div>
       </motion.div>
@@ -244,7 +240,7 @@ export function BlogList() {
                   })}
                 </div>
 
-                <AnimatedLink as="div" variant="right" className="absolute bottom-0 right-0 flex shrink-0 items-center text-[11px] font-medium text-zinc-500 transition-colors cursor-pointer hover:text-zinc-900 dark:hover:text-zinc-100 sm:text-[12px] mb-0.5" onClick={(e: any) => { e.stopPropagation(); if (blog.link) window.open(blog.link, "_blank"); }}>
+                <AnimatedLink as="div" variant="right" className="absolute bottom-0 right-0 flex shrink-0 items-center text-[11px] font-medium text-zinc-500 transition-colors cursor-pointer hover:text-zinc-900 dark:hover:text-zinc-100 sm:text-[12px] mb-0.5" onClick={(e: React.MouseEvent) => { e.stopPropagation(); if (blog.link) window.open(blog.link, "_blank"); }}>
                   View blog
                 </AnimatedLink>
               </div>

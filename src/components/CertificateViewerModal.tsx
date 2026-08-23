@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, { useEffect, useState, useMemo, useRef, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { X, Download, FileText, Image as ImageIcon, Sparkles, MoreHorizontal } from "lucide-react";
@@ -135,7 +135,11 @@ export function CertificateViewerModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const [cachedData, setCachedData] = useState<CertificateModalData | null>(data);
   const [viewMode, setViewMode] = useState<"pdf" | "image">("pdf");
   const reduce = useReducedMotion() ?? false;
@@ -145,11 +149,12 @@ export function CertificateViewerModal({
   );
 
   useEffect(() => {
-    if (data) setCachedData(data);
+    if (!data) return;
+    const frame = requestAnimationFrame(() => setCachedData(data));
+    return () => cancelAnimationFrame(frame);
   }, [data]);
 
   useEffect(() => {
-    setMounted(true);
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -169,11 +174,11 @@ export function CertificateViewerModal({
 
   // Set default view mode based on availability
   useEffect(() => {
-    if (data?.pdfUrl && data.pdfUrl !== "#") {
-      setViewMode("pdf");
-    } else if (data?.imageUrl) {
-      setViewMode("image");
-    }
+    const hasPdf = data?.pdfUrl && data.pdfUrl !== "#";
+    const hasImage = data?.imageUrl;
+    if (!hasPdf && !hasImage) return;
+    const frame = requestAnimationFrame(() => setViewMode(hasPdf ? "pdf" : "image"));
+    return () => cancelAnimationFrame(frame);
   }, [data]);
 
   // Lock body scroll when modal is open
