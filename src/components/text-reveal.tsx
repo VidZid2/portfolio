@@ -51,23 +51,29 @@ export function TextReveal({
   const lines = Array.isArray(text) ? text : [text];
   const s = { ...DEFAULT_SPRING, ...spring };
 
-  let unitIndex = 0;
   const lineCounts = new Map<string, number>();
 
   return (
     <Comp ref={ref} className={cn("block", className)}>
-      {lines.map((line) => {
+      {lines.map((line, li) => {
         const units = split === "word" ? line.split(" ") : Array.from(line);
         const lineCount = lineCounts.get(line) ?? 0;
         lineCounts.set(line, lineCount + 1);
         const lineKey = `${line}-${lineCount}`;
         const unitCounts = new Map<string, number>();
+        // Cumulative unit offset of this line (pure expression — no render-phase
+        // mutation), so each unit's delay stays stable across renders.
+        const startIndex = lines
+          .slice(0, li)
+          .reduce(
+            (n, l) => n + (split === "word" ? l.split(" ").length : Array.from(l).length),
+            0
+          );
 
         return (
           <span key={lineKey} className="block">
             {units.map((unit, i) => {
-              const d = delay + unitIndex * stagger;
-              unitIndex += 1;
+              const d = delay + (startIndex + i) * stagger;
               const unitCount = unitCounts.get(unit) ?? 0;
               unitCounts.set(unit, unitCount + 1);
               const unitKey = `${unit}-${unitCount}`;

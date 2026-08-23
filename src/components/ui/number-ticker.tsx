@@ -52,7 +52,9 @@ export function NumberTicker({
   const [armed, setArmed] = useState(!startOnView);
 
   useEffect(() => {
-    if (startOnView && inView) setArmed(true);
+    if (!startOnView || !inView) return;
+    const frameId = requestAnimationFrame(() => setArmed(true));
+    return () => cancelAnimationFrame(frameId);
   }, [startOnView, inView]);
 
   const text = useMemo(() => {

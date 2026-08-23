@@ -2,7 +2,6 @@
 
 import {
   type CSSProperties,
-  createElement,
   forwardRef,
   type HTMLAttributes,
   useLayoutEffect,
@@ -313,58 +312,58 @@ const StatusDot = forwardRef<HTMLElement, StatusDotProps>(function StatusDot(
     ...colorStyle,
   } as CSSProperties;
 
-  return createElement(
-    Root,
-    {
-      className: cn(
+  return (
+    <Root
+      className={cn(
         componentThemeClassName,
         inline ? "inline-flex" : "flex",
         "items-center gap-1.5",
         className
-      ),
-      ref,
-      style: rootStyle,
-      ...props,
-      ...a11yProps,
-    },
-    <span
-      aria-hidden
-      className="relative shrink-0 overflow-visible inline-flex items-center justify-center"
-      style={{
-        width: sizeConfig.container,
-        height: sizeConfig.container,
-        ...colorStyle,
-      }}
+      )}
+      ref={ref as React.Ref<HTMLDivElement>}
+      style={rootStyle}
+      {...props}
+      {...a11yProps}
     >
-      {shouldAnimate
-        ? RIPPLE_DELAYS.map((delay) => (
-            <RippleRing
-              delay={delay}
-              dotSize={sizeConfig.dot}
-              key={delay}
-              rippleSpread={sizeConfig.rippleSpread}
-            />
-          ))
-        : null}
       <span
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+        aria-hidden
+        className="relative shrink-0 overflow-visible inline-flex items-center justify-center"
         style={{
-          width: sizeConfig.dot,
-          height: sizeConfig.dot,
-          backgroundColor: "var(--status-dot-color)",
+          width: sizeConfig.container,
+          height: sizeConfig.container,
+          ...colorStyle,
         }}
-      />
-    </span>,
-    displayLabel ? (
-      <span
-        className={cn(
-          "font-medium text-[color:var(--ic-muted-foreground)] text-xs",
-          labelClassName
-        )}
       >
-        {displayLabel}
+        {shouldAnimate
+          ? RIPPLE_DELAYS.map((delay) => (
+              <RippleRing
+                delay={delay}
+                dotSize={sizeConfig.dot}
+                key={delay}
+                rippleSpread={sizeConfig.rippleSpread}
+              />
+            ))
+          : null}
+        <span
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{
+            width: sizeConfig.dot,
+            height: sizeConfig.dot,
+            backgroundColor: "var(--status-dot-color)",
+          }}
+        />
       </span>
-    ) : null
+      {displayLabel ? (
+        <span
+          className={cn(
+            "font-medium text-[color:var(--ic-muted-foreground)] text-xs",
+            labelClassName
+          )}
+        >
+          {displayLabel}
+        </span>
+      ) : null}
+    </Root>
   );
 });
 

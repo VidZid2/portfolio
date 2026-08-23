@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
@@ -14,7 +14,11 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const hydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const { resolvedTheme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -28,12 +32,11 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
   }, [carouselApi]);
 
   useEffect(() => {
-    setOpenIdx(null);
+    const frameId = requestAnimationFrame(() => {
+      setOpenIdx(null);
+    });
+    return () => cancelAnimationFrame(frameId);
   }, [activeTab]);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (selectedImage) {
@@ -330,7 +333,7 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
         );
       })}
 
-      {mounted && createPortal(
+        {hydrated && createPortal(
         <AnimatePresence>
           {selectedImage && (
             <motion.div

@@ -39,7 +39,7 @@ export function LetsConnect({ hasSeenScrollAnimations = false }: { hasSeenScroll
         }}
         className="text-center sm:text-left"
       >
-        <ScrambleText as="h2" className="text-[18px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">Let's Connect</ScrambleText>
+        <ScrambleText as="h2" className="text-[18px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">Let&apos;s Connect</ScrambleText>
         <p className="text-[13px] text-zinc-500 dark:text-zinc-400 mt-1">Available for new opportunities.</p>
       </motion.div>
       <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 shrink-0 w-full sm:w-auto mt-3 sm:mt-0">

@@ -30,10 +30,15 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
     const { resolvedTheme } = useTheme();
 
     useEffect(() => {
-        setWindowDimensions({ w: window.innerWidth, h: window.innerHeight });
+        const frameId = requestAnimationFrame(() => {
+            setWindowDimensions({ w: window.innerWidth, h: window.innerHeight });
+        });
         const handleResize = () => setWindowDimensions({ w: window.innerWidth, h: window.innerHeight });
         window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
+        return () => {
+            cancelAnimationFrame(frameId);
+            window.removeEventListener("resize", handleResize);
+        };
     }, []);
 
     const navigate = (href: string, dir: TransitionDirection = "right") => {

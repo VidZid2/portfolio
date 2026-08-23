@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRightIcon, Mail, Check, Copy, ExternalLink, Gift } from "lucide-react";
 import { toast } from "sonner";
@@ -10,6 +10,7 @@ import { useTransition } from "@/components/TransitionProvider";
 import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 import ScrambleText from "@/components/ruixen/scramble-text";
 import { usePerformance } from "@/hooks/usePerformance";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { PlusIcon } from "@/components/animated-icons/plus-icon";
 import { ExpandingArrowButton } from "@/components/ui/expanding-arrow-button";
 import { SPONSORS } from "@/data/sponsorsData";
@@ -50,24 +51,10 @@ export function CommunitySupportSection({
   const { navigate } = useTransition();
   const skip = hasSeenScrollAnimations || isLowTier;
   const [modalOpen, setModalOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [isPlusHovered, setIsPlusHovered] = useState(false);
   const [isTrailingPlusHovered, setIsTrailingPlusHovered] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mq = window.matchMedia("(max-width: 768px)");
-    setIsMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    try {
-      mq.addEventListener("change", handler);
-      return () => mq.removeEventListener("change", handler);
-    } catch {
-      mq.addListener(handler);
-      return () => mq.removeListener(handler);
-    }
-  }, []);
 
   const email = "josiahdeasis009@gmail.com";
   const paypalUrl = "https://paypal.me/josiahdeasis";

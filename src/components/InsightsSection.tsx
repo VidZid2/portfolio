@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useSyncExternalStore, useRef } from "react";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
 import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
@@ -43,11 +43,11 @@ export function InsightsSection({
   const scrambleRef = useRef<ScrambleTextRef>(null);
   const { insights } = useVisitorAnalytics();
   const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   const isDark = !mounted || resolvedTheme === "dark";
   const visitorsColor = isDark ? "#ffffff" : "#000000";

@@ -1,7 +1,7 @@
 "use client";
 import { motion, AnimatePresence } from "motion/react";
 import { BellIcon, XIcon } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 import { useMeasure } from "@/hooks/use-measure";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -23,17 +23,17 @@ export default function DynamicIslandNotification({
   const isMobile = useMediaQuery("(max-width: 640px)");
   const WIDTH = isMobile ? 320 : 420;
 
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const hydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   const handleOpenSettings = () => {
     setIsOpen((prev) => !prev);
   };
 
-  if (!mounted) return null;
+  if (!hydrated) return null;
 
   return (
     <AnimatePresence>
@@ -77,7 +77,7 @@ export default function DynamicIslandNotification({
             {isOpen && (
               <motion.div
                 key="content"
-                ref={ref as any}
+                ref={(node: HTMLDivElement | null) => ref(node)}
                 initial={{ opacity: 0, filter: "blur(4px)" }}
                 animate={{ opacity: 1, filter: "blur(0px)" }}
                 exit={{ opacity: 0, filter: "blur(4px)" }}

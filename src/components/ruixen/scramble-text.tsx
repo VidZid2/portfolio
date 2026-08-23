@@ -141,4 +141,6 @@ const ScrambleText = forwardRef<ScrambleTextRef, ScrambleTextProps>(({
   );
 });
 
+ScrambleText.displayName = "ScrambleText";
+
 export default ScrambleText;

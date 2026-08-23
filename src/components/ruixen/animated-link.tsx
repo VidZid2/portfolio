@@ -19,7 +19,8 @@ export interface AnimatedLinkProps extends React.HTMLAttributes<HTMLElement> {
   variant?: AnimatedLinkVariant;
   /** Show the diagonal arrow that lifts in on hover. */
   showArrow?: boolean;
-  as?: React.ElementType;
+  /** Render as a different tag/component (defaults to `"a"`). */
+  as?: "a" | "div";
 }
 
 const AnimatedLink = ({
@@ -27,9 +28,10 @@ const AnimatedLink = ({
   showArrow = true,
   className,
   children,
-  as: Component = "a",
+  as,
   ...props
-}: AnimatedLinkProps & any) => {
+}: AnimatedLinkProps) => {
+  const Component = as ?? "a";
   return (
     <Component
       className={cn(

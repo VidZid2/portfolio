@@ -52,6 +52,12 @@ import { useArcReveal } from "@/components/ruixen/arc-reveal-hero"
 import { JapaneseAsciiText } from "@/components/ui/japanese-ascii-text"
 import { playCommandMenuOpen, playListSelect } from "@/lib/synth-sounds"
 
+declare global {
+  interface WindowEventMap {
+    "open-ai": CustomEvent<{ initialQuery?: string }>;
+  }
+}
+
 export function CommandMenu() {
     const [open, setOpen] = React.useState(false)
 
@@ -76,7 +82,7 @@ export function CommandMenu() {
     };
 
     React.useEffect(() => {
-        const handleOpenAi = (e: CustomEvent) => {
+        const handleOpenAi = (e: CustomEvent<{ initialQuery?: string }>) => {
             if (e.detail?.initialQuery) {
                 setInitialAiQuery(e.detail.initialQuery);
             } else {
@@ -84,8 +90,8 @@ export function CommandMenu() {
             }
             setAiOpen(true);
         };
-        window.addEventListener("open-ai" as any, handleOpenAi);
-        return () => window.removeEventListener("open-ai" as any, handleOpenAi);
+        window.addEventListener("open-ai", handleOpenAi);
+        return () => window.removeEventListener("open-ai", handleOpenAi);
     }, []);
 
     React.useEffect(() => {

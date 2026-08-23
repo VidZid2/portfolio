@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useSyncExternalStore } from "react";
 import {
   GlassForm,
   FormGroup,
@@ -17,9 +17,11 @@ import { DEFAULT_STAGE } from "@/components/swirl/use-swirl-stage";
 
 export default function ContactPage() {
   const { theme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  
-  React.useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   
   const isDark = mounted && (theme === "dark" || resolvedTheme === "dark");
   const isMobile = mounted && window.innerWidth < 768;

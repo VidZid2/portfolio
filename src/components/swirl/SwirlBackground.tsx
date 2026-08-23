@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
 const ExperimentStage = dynamic(
   () => import("./experiment-stage").then((mod) => mod.ExperimentStage),
@@ -12,9 +12,11 @@ import { DEFAULT_STAGE } from "./use-swirl-stage";
 
 export function SwirlBackground() {
   const { theme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   if (!mounted) return null;
 

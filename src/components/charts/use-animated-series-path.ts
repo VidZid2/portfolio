@@ -2,6 +2,7 @@
 
 import { animate, useReducedMotion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { CurveFactory } from "d3-shape";
 import { LINE_LOADING_PULSE_EASE } from "./line-loading-timing";
 import {
   computeSeriesPathPoints,
@@ -10,9 +11,6 @@ import {
   seriesPathFromPoints,
   seriesPathTransitionSignature,
 } from "./series-path-utils";
-
-// biome-ignore lint/suspicious/noExplicitAny: d3 curve factory type
-type CurveFactory = any;
 
 export interface UseAnimatedSeriesPathOptions {
   renderData: Record<string, unknown>[];
@@ -88,10 +86,14 @@ export function useAnimatedSeriesPath({
 
     if (!shouldAnimate) {
       animatingRef.current = false;
-      setAnimatedPoints(null);
       displayedPointsRef.current = targetPoints;
       prevTransitionSignatureRef.current = transitionSignature;
-      return;
+      const frameId = requestAnimationFrame(() => {
+        setAnimatedPoints(null);
+      });
+      return () => {
+        cancelAnimationFrame(frameId);
+      };
     }
 
     if (prevTransitionSignatureRef.current === transitionSignature) {

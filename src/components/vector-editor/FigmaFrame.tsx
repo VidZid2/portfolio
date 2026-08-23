@@ -61,8 +61,10 @@ export function FigmaFrame({
 
   useEffect(() => {
     if (width != null && height != null) {
-      setSize({ w: width, h: height });
-      return;
+      const frameId = requestAnimationFrame(() => {
+        setSize({ w: width, h: height });
+      });
+      return () => cancelAnimationFrame(frameId);
     }
     const el = ref.current;
     if (!el) return;

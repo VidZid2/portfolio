@@ -5,8 +5,7 @@ import {
   type ComponentPropsWithoutRef,
   type CSSProperties,
   forwardRef,
-  useEffect,
-  useState,
+  useSyncExternalStore,
 } from "react";
 
 import { cn } from "@/lib/utils";
@@ -156,12 +155,12 @@ const VerifiedBadge = forwardRef<HTMLSpanElement, VerifiedBadgeProps>(
     },
     ref
   ) {
-    const [mounted, setMounted] = useState(false);
+    const mounted = useSyncExternalStore(
+      () => () => {},
+      () => true,
+      () => false
+    );
     const prefersReducedMotion = useReducedMotion();
-
-    useEffect(() => {
-      setMounted(true);
-    }, []);
 
     const pixelSize = resolveVerifiedBadgePixelSize(size);
     const checkSize = pixelSize * 0.5;

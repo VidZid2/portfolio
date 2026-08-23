@@ -4,7 +4,7 @@
 
 import { AsciiText } from "@/components/ui/ascii-text";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
 const ExperimentStage = dynamic(
   () => import("@/components/swirl/experiment-stage").then((mod) => mod.ExperimentStage),
@@ -21,9 +21,11 @@ export function CardSwirlBackground({
   word?: string 
 } = {}) {
   const { theme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const isDark = mounted && (theme === "dark" || resolvedTheme === "dark");
 
   const config = {

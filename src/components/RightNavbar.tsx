@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 
 export const homeItems = [
@@ -28,14 +28,16 @@ export function RightNavbar() {
   const activeItems = isHome ? homeItems : (isPrimaDoc ? primaItems : []);
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [travelDir, setTravelDir] = useState('down');
-  const [isMounted, setIsMounted] = useState(false);
+  const [travelDir, setTravelDir] = useState<'down' | 'up'>('down');
+  const isMounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const isClickScrolling = useRef(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    setIsMounted(true);
-    
     const handleScroll = () => {
       // Ignore scroll events while we are animating a click-scroll
       if (isClickScrolling.current) return;

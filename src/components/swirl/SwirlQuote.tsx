@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { ExperimentStage } from "./experiment-stage";
 import { DEFAULT_TEXT } from "./default-text";
 import { DEFAULT_STAGE } from "./use-swirl-stage";
@@ -24,11 +24,14 @@ const SWIRL_WORDS = ["SYNC", "WORK", "BUILD", "CREATE"];
 
 export function SwirlQuote() {
   const { theme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const [wordIndex, setWordIndex] = useState(0);
 
   useEffect(() => {
-    setMounted(true);
     const interval = setInterval(() => {
       setWordIndex((prev) => (prev + 1) % SWIRL_WORDS.length);
     }, 4500);

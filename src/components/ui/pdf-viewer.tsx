@@ -58,7 +58,7 @@ import {
   ViewportPluginPackage,
 } from "@embedpdf/plugin-viewport/react"
 import { useZoom, ZoomPluginPackage } from "@embedpdf/plugin-zoom/react"
-import { AnnotationPluginPackage, AnnotationLayer } from "@embedpdf/plugin-annotation/react"
+import { AnnotationPluginPackage, AnnotationLayer, LockModeType } from "@embedpdf/plugin-annotation/react"
 import {
   ArrowLeft01Icon,
   ArrowRight01Icon,
@@ -3045,14 +3045,17 @@ export const PDFViewer = React.forwardRef<PDFViewerHandle, PDFViewerProps>(
     const [showNotification, setShowNotification] = React.useState(false)
 
     React.useEffect(() => {
-      const isLocal = window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")
-      const isMobile = window.innerWidth <= 640
+      const frameId = requestAnimationFrame(() => {
+        const isLocal = window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")
+        const isMobile = window.innerWidth <= 640
 
-      if (!notificationDismissed) {
-        if (isLocal || isMobile) {
-          setShowNotification(true)
+        if (!notificationDismissed) {
+          if (isLocal || isMobile) {
+            setShowNotification(true)
+          }
         }
-      }
+      });
+      return () => cancelAnimationFrame(frameId);
     }, [])
 
     React.useEffect(
@@ -3110,7 +3113,7 @@ export const PDFViewer = React.forwardRef<PDFViewerHandle, PDFViewerProps>(
         maxZoom: ZOOM_OPTIONS[ZOOM_OPTIONS.length - 1],
       }),
       createPluginRegistration(AnnotationPluginPackage, {
-        locked: { type: "all" as any },
+        locked: { type: LockModeType.All },
       }),
       createPluginRegistration(RotatePluginPackage),
     ])

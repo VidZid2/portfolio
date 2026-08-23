@@ -10,27 +10,36 @@ import type { LegoFrameState } from "@/components/profile-reveal/engine";
 
 const GLYPHS = "アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレゲゼデベペオォコソトノホモヨョロゴゾドボポヴッン";
 
+type ScrambleCell = { char: string; flickerDur: number };
+
 export function ProfilePictureScramble() {
   const phase = useArcReveal(); // "intro" | "reveal" | "done"
   const [internalPhase, setInternalPhase] = useState<"scramble" | "image" | "badges">("scramble");
-  const [grid, setGrid] = useState<string[]>([]);
+  const [grid, setGrid] = useState<ScrambleCell[]>([]);
   const [frameState, setFrameState] = useState<LegoFrameState | null>(null);
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const generateGrid = () => {
-    // 10x10 grid = 100 characters to perfectly fill the dense box
-    return Array.from({ length: 100 }, () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)]);
+  const generateGrid = (): ScrambleCell[] => {
+    // 10x10 grid = 100 characters to perfectly fill the dense box.
+    // Runs only inside effects/intervals so Math.random never executes during render.
+    return Array.from({ length: 100 }, () => ({
+      char: GLYPHS[Math.floor(Math.random() * GLYPHS.length)],
+      flickerDur: 0.4 + Math.random() * 0.5,
+    }));
   };
 
   // 1. Always start the scrambling loop on mount
   useEffect(() => {
-    setGrid(generateGrid());
+    const frameId = requestAnimationFrame(() => {
+      setGrid(generateGrid());
+    });
     intervalRef.current = setInterval(() => {
       setGrid(generateGrid());
     }, 120);
 
     return () => {
+      cancelAnimationFrame(frameId);
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
@@ -86,7 +95,7 @@ export function ProfilePictureScramble() {
               className="absolute inset-0 z-20 flex items-center justify-center bg-zinc-950 rounded-full overflow-hidden"
             >
               <div className="grid grid-cols-10 grid-rows-10 w-full h-full gap-0 overflow-hidden">
-                {grid.map((char, i) => (
+                {grid.map((cell, i) => (
                   <motion.span
                     key={i}
                     initial={{ opacity: 0, scale: 0 }}
@@ -94,11 +103,11 @@ export function ProfilePictureScramble() {
                     transition={{
                       duration: 0.2,
                       delay: i * 0.002,
-                      opacity: { repeat: Infinity, repeatType: "reverse", duration: 0.4 + Math.random() * 0.5 },
+                      opacity: { repeat: Infinity, repeatType: "reverse", duration: cell.flickerDur },
                     }}
                     className="flex items-center justify-center text-[7px] sm:text-[9px] font-mono font-black text-[#6495ED] leading-none select-none"
                   >
-                    {char}
+                    {cell.char}
                   </motion.span>
                 ))}
               </div>

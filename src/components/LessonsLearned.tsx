@@ -56,7 +56,10 @@ export function LessonsLearned({ activeTab, carouselApi }: { activeTab?: string;
   }, [carouselApi]);
 
   useEffect(() => {
-    setOpenIdx(null);
+    const frameId = requestAnimationFrame(() => {
+      setOpenIdx(null);
+    });
+    return () => cancelAnimationFrame(frameId);
   }, [activeTab]);
 
   return (

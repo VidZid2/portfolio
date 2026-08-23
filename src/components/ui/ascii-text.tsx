@@ -29,10 +29,9 @@ export function AsciiText({
   useEffect(() => {
     if (!isInView) return;
 
-    let timeout: NodeJS.Timeout;
     let frameId: number;
 
-    timeout = setTimeout(() => {
+    const timeout = setTimeout(() => {
       const startTime = Date.now();
       const length = text.length;
       

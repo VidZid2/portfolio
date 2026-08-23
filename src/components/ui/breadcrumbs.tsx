@@ -303,6 +303,7 @@ const BreadcrumbLink = forwardRef<HTMLAnchorElement, BreadcrumbLinkProps>(
   ({ className, render, truncate = false, title, ...props }, ref) => {
     return useRender({
       defaultTagName: "a",
+      ref,
       props: mergeProps<"a">(
         {
           className: cn(
@@ -310,7 +311,6 @@ const BreadcrumbLink = forwardRef<HTMLAnchorElement, BreadcrumbLinkProps>(
             truncate && breadcrumbTruncateClassName,
             className
           ),
-          ref,
           title,
         },
         props
@@ -565,8 +565,8 @@ function BreadcrumbEllipsisMenu({
       return;
     }
 
-    setActiveIndex(0);
     const frameId = window.requestAnimationFrame(() => {
+      setActiveIndex(0);
       itemRefs.current[0]?.focus();
     });
 

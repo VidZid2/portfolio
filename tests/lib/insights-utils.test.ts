@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
-  MAX_DURATION_SECONDS_PER_DAY,
   MAX_IDS_PER_DAY,
   MAX_SCREEN_VIEWS_PER_DAY,
   RECORD_RETENTION_DAYS,

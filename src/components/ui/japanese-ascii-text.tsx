@@ -29,13 +29,16 @@ export function JapaneseAsciiText({
   useEffect(() => {
     if (!isInView) return;
 
-    // Initial scrambled state
-    setChars(
-      text.split('').map((c) => ({
-        char: c === ' ' ? ' ' : KANA[Math.floor(Math.random() * KANA.length)],
-        resolved: false,
-      }))
-    );
+    // Defer the initial scrambled state to the next frame so we don't
+    // setState synchronously within the effect body.
+    const initialFrameId = requestAnimationFrame(() => {
+      setChars(
+        text.split('').map((c) => ({
+          char: c === ' ' ? ' ' : KANA[Math.floor(Math.random() * KANA.length)],
+          resolved: false,
+        }))
+      );
+    });
 
     // Pre-calculate random reveal thresholds (0 to 1) for each character
     const revealThresholds = text.split('').map(() => Math.random());
@@ -79,7 +82,10 @@ export function JapaneseAsciiText({
       };
     }, delay);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      cancelAnimationFrame(initialFrameId);
+      clearTimeout(timeout);
+    };
   }, [isInView, text, delay, duration]);
 
   // Idle Scramble Effect

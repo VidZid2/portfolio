@@ -25,7 +25,7 @@ function Command({
   )
 }
 
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence, motion, type Transition } from "framer-motion"
 import { createPortal } from "react-dom"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { BottomSheet } from "@/components/ui/bottom-sheet"
@@ -50,14 +50,14 @@ function CommandDialog({
   onValueChange?: (value: string) => void
 }) {
   const isDesktop = useMediaQuery("(min-width: 768px)")
-  const [mounted, setMounted] = React.useState(false)
+  const mounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  )
   const enterY = 20;
   const enterScale = 0.97;
-  const SPRING_PANEL = { type: "spring", stiffness: 350, damping: 25 } as any;
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const SPRING_PANEL: Transition = { type: "spring", stiffness: 350, damping: 25 };
 
   React.useEffect(() => {
     if (!open) return;

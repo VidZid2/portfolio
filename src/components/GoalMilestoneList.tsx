@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { goalMilestones } from "@/data/goalMilestonesData";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 import { AsciiText } from "@/components/ui/ascii-text";
 import { AsciiGlitchBlock } from "@/components/ui/ascii-glitch-block";
@@ -13,16 +14,12 @@ import { JapaneseAsciiText } from "@/components/ui/japanese-ascii-text";
 import { cn } from "@/lib/utils";
 
 function ProjectSyncBackground({ isHovered, isOpen }: { isHovered: boolean; isOpen: boolean }) {
-  const [isMobile, setIsMobile] = useState(false);
-  const [hasMounted, setHasMounted] = useState(false);
-
-  useEffect(() => {
-    setHasMounted(true);
-    const checkMobile = () => setIsMobile(window.matchMedia("(hover: none)").matches);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+  const hasMounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+  const isMobile = useMediaQuery("(hover: none)");
 
   if (!hasMounted) return null;
 
@@ -123,19 +120,21 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const [overrideDisabled, setOverrideDisabled] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    
     const handleKeyDown = (e: KeyboardEvent) => {
       // Prevent running this on mobile natively, though key events without inputs are rare on mobile
       if (e.key === '*') {
         setOverrideDisabled(prev => !prev);
       }
     };
-    
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);

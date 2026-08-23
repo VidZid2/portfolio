@@ -101,20 +101,26 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
   const animationRef = useRef<ReturnType<typeof animate> | null>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  selectedValueRef.current = selectedValue;
 
   useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour >= 5 && hour < 12) {
-      setGreeting("Good morning");
-      setTimeOfDay("morning");
-    } else if (hour >= 12 && hour < 18) {
-      setGreeting("Good afternoon");
-      setTimeOfDay("afternoon");
-    } else {
-      setGreeting("Good evening");
-      setTimeOfDay("evening");
-    }
+    selectedValueRef.current = selectedValue;
+  }, [selectedValue]);
+
+  useEffect(() => {
+    const frameId = requestAnimationFrame(() => {
+      const hour = new Date().getHours();
+      if (hour >= 5 && hour < 12) {
+        setGreeting("Good morning");
+        setTimeOfDay("morning");
+      } else if (hour >= 12 && hour < 18) {
+        setGreeting("Good afternoon");
+        setTimeOfDay("afternoon");
+      } else {
+        setGreeting("Good evening");
+        setTimeOfDay("evening");
+      }
+    });
+    return () => cancelAnimationFrame(frameId);
   }, []);
 
   // 5-Second Auto-Cycling Timer

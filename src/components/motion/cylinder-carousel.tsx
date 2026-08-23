@@ -387,8 +387,10 @@ export function CylinderCarousel({
 
   useEffect(() => {
     if (selectedIndex === null || selectedIndex === undefined || count === 0) {
-      setActiveSelectedIndex(null);
-      return;
+      const frameId = requestAnimationFrame(() => {
+        setActiveSelectedIndex(null);
+      });
+      return () => cancelAnimationFrame(frameId);
     }
 
     stopGlide();
@@ -399,10 +401,15 @@ export function CylinderCarousel({
     if (Math.abs(diff) < 0.15) {
       // Already centered: instantly align and trigger the slide
       scroll.set(current + diff);
-      setActiveSelectedIndex(selectedIndex);
+      const frameId = requestAnimationFrame(() => {
+        setActiveSelectedIndex(selectedIndex);
+      });
+      return () => cancelAnimationFrame(frameId);
     } else {
       // Far away: smoothly roll the carousel so the item lands front-and-center, then trigger the left slide
-      setActiveSelectedIndex(null);
+      const clearFrameId = requestAnimationFrame(() => {
+        setActiveSelectedIndex(null);
+      });
       const anim = animate(scroll, current + diff, {
         type: "spring",
         stiffness: 380,
@@ -415,6 +422,7 @@ export function CylinderCarousel({
         setActiveSelectedIndex(selectedIndex);
       }, 260);
       return () => {
+        cancelAnimationFrame(clearFrameId);
         anim.stop();
         clearTimeout(timer);
       };

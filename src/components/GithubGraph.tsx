@@ -12,16 +12,12 @@ export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScroll
   const { isLowTier } = usePerformance();
   const skip = hasSeenScrollAnimations || isLowTier;
   const { resolvedTheme } = useTheme();
-  const [isDark, setIsDark] = useState(false);
+  const isDark = resolvedTheme === "dark";
   const [cellSize, setCellSize] = useState(14.5);
   const [cellGap, setCellGap] = useState(3.5);
   const [monthsToShow, setMonthsToShow] = useState(7);
   const [deviceType, setDeviceType] = useState<"mobile" | "tablet" | "desktop">("desktop");
   const [dataStatus, setDataStatus] = useState<"live" | "down" | "loading">("loading");
-
-  useEffect(() => {
-    setIsDark(resolvedTheme === "dark");
-  }, [resolvedTheme]);
 
   useEffect(() => {
     const checkSize = () => {

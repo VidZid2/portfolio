@@ -76,7 +76,9 @@ function BouncingEducationBulletList({
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  selectedIndexRef.current = activeIndex;
+  useEffect(() => {
+    selectedIndexRef.current = activeIndex;
+  }, [activeIndex]);
 
   // Auto-cycling when open and not hovered
   useEffect(() => {
@@ -332,7 +334,10 @@ export function EducationList({ activeTab, carouselApi }: { activeTab?: string; 
   }, [carouselApi]);
 
   useEffect(() => {
-    setOpenIdx(null);
+    const frameId = requestAnimationFrame(() => {
+      setOpenIdx(null);
+    });
+    return () => cancelAnimationFrame(frameId);
   }, [activeTab]);
 
   return (

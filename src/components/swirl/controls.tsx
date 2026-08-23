@@ -390,7 +390,10 @@ export function ColorControl({
   const [h, s, l] = hexToHsl(value);
   const [hexDraft, setHexDraft] = useState(value);
 
-  useEffect(() => setHexDraft(value), [value]);
+  useEffect(() => {
+    const frameId = requestAnimationFrame(() => setHexDraft(value));
+    return () => cancelAnimationFrame(frameId);
+  }, [value]);
 
   // close on outside click / Escape
   useEffect(() => {

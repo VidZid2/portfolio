@@ -17,8 +17,10 @@ export function CurvedMenu({ isOpen, onClose, children, className, onAnimationCo
 
   useEffect(() => {
     if (!isOpen) {
-      setIsAnimationComplete(false);
-      return;
+      const frameId = requestAnimationFrame(() => {
+        setIsAnimationComplete(false);
+      });
+      return () => cancelAnimationFrame(frameId);
     }
 
     const onKey = (e: KeyboardEvent) => {

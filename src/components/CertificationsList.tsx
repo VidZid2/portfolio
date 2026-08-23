@@ -115,7 +115,9 @@ function BouncingCertificationBulletList({
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  selectedIndexRef.current = activeIndex;
+  useEffect(() => {
+    selectedIndexRef.current = activeIndex;
+  }, [activeIndex]);
 
   useEffect(() => {
     if (!isOpen || isHovered || flatItems.length === 0) return;
@@ -368,7 +370,10 @@ export function CertificationsList({ activeTab, carouselApi }: { activeTab?: str
   }, [carouselApi]);
 
   useEffect(() => {
-    setOpenIdx(null);
+    const frameId = requestAnimationFrame(() => {
+      setOpenIdx(null);
+    });
+    return () => cancelAnimationFrame(frameId);
   }, [activeTab]);
 
   return (

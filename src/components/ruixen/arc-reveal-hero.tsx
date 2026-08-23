@@ -105,17 +105,21 @@ export function ArcRevealHero({
   // Client-side storage check after hydration to avoid React Error #418 (Hydration mismatch)
   React.useEffect(() => {
     if (!isSkipped) {
-      // 1. Instantly skip for Lighthouse to prevent extreme LCP penalties (5s intro delay)
-      const isLighthouse = typeof navigator !== "undefined" && navigator.userAgent.includes("Lighthouse");
-      
-      // 2. Skip if the user has already seen it (localStorage)
-      const hasSeen = storageKey && localStorage.getItem(storageKey) === "done";
-      
-      if (isLighthouse || hasSeen) {
-        setIsSkipped(true);
-        setPhase("done");
-        progress.set(1);
-      }
+      // Defer to the next frame so state isn't set synchronously within the effect
+      const frameId = requestAnimationFrame(() => {
+        // 1. Instantly skip for Lighthouse to prevent extreme LCP penalties (5s intro delay)
+        const isLighthouse = typeof navigator !== "undefined" && navigator.userAgent.includes("Lighthouse");
+
+        // 2. Skip if the user has already seen it (localStorage)
+        const hasSeen = storageKey && localStorage.getItem(storageKey) === "done";
+
+        if (isLighthouse || hasSeen) {
+          setIsSkipped(true);
+          setPhase("done");
+          progress.set(1);
+        }
+      });
+      return () => cancelAnimationFrame(frameId);
     }
   }, [isSkipped, storageKey, progress]);
   const arcPath = useTransform(progress, (p: number) => {
