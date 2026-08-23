@@ -1106,8 +1106,6 @@ export function ModelSelectorPrompt({
     previewHandle.close();
   }
 
-  const contextWindowStr = selectedModel.contextWindow || "1M";
-
   return (
     <div
       ref={containerRef}

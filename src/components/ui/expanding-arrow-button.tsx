@@ -66,8 +66,6 @@ export const ExpandingArrowButton = forwardRef<
 ) {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [maxDrag, setMaxDrag] = useState(140);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(false);
 
   const initialThumbWidth = 34; // Compact resting thumb width
   const x = useMotionValue(0);
@@ -99,18 +97,15 @@ export const ExpandingArrowButton = forwardRef<
 
   const handleDragStart = () => {
     if (disabled) return;
-    setIsDragging(true);
     playHoverTick(0.04);
   };
 
   const handleDragEnd = () => {
     if (disabled) return;
-    setIsDragging(false);
     const currentX = x.get();
 
     if (currentX >= maxDrag * 0.65) {
       // Completed slide past threshold
-      setIsCompleted(true);
       playPowerUpSound(0.08);
 
       animate(x, maxDrag, {
@@ -126,7 +121,6 @@ export const ExpandingArrowButton = forwardRef<
               stiffness: 320,
               damping: 26,
             });
-            setIsCompleted(false);
           }, 650);
         },
       });

@@ -92,14 +92,7 @@ const COLLAPSE_SPRING: Transition = {
   mass: 1.1,
 };
 
-const PREVIEW_SPRING: Transition = {
-  type: "spring",
-  stiffness: 420,
-  damping: 34,
-};
-
 const CONTENT_EASE = [0.16, 1, 0.3, 1] as const;
-const PREVIEW_EASE = [0.4, 0, 0.2, 1] as const;
 const INSTANT: Transition = { duration: 0.01 };
 
 /**
@@ -308,49 +301,6 @@ function ShimmerLabel({
     >
       {children}
     </motion.span>
-  );
-}
-
-function TriggerPreview({
-  activeStep,
-  reduceMotion,
-}: {
-  activeStep: StepRegistration | undefined;
-  reduceMotion: boolean;
-}) {
-  if (!activeStep) {
-    return null;
-  }
-
-  return (
-    <span className="mt-0.5 block overflow-hidden">
-      <AnimatePresence initial={false} mode="popLayout">
-        <motion.span
-          animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-          className="block truncate text-[12px] text-muted-foreground"
-          exit={
-            reduceMotion
-              ? undefined
-              : { y: -8, opacity: 0, filter: "blur(3px)" }
-          }
-          initial={
-            reduceMotion ? false : { y: 8, opacity: 0, filter: "blur(3px)" }
-          }
-          key={activeStep.id}
-          transition={
-            reduceMotion
-              ? INSTANT
-              : {
-                  y: PREVIEW_SPRING,
-                  opacity: { duration: 0.22, ease: PREVIEW_EASE },
-                  filter: { duration: 0.22, ease: PREVIEW_EASE },
-                }
-          }
-        >
-          {activeStep.label}
-        </motion.span>
-      </AnimatePresence>
-    </span>
   );
 }
 
@@ -986,7 +936,8 @@ function ReasoningStepImage({
       initial={reduceMotion ? false : { opacity: 0, filter: "blur(4px)" }}
       transition={{ duration: 0.3, ease: CONTENT_EASE }}
     >
-      {/* biome-ignore lint/performance/noImgElement: registry components stay framework-agnostic. */}
+      {/* Registry components must stay framework-agnostic (no next/image). */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         alt={alt}
         className="w-full max-w-[220px] rounded-lg border border-foreground/10 object-cover"

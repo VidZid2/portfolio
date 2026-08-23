@@ -62,7 +62,8 @@ function SelectContent({
   children,
   position = "item-aligned",
   align = "center",
-  alignItemWithTrigger,
+  // Accepted for API compatibility; intentionally not forwarded.
+  alignItemWithTrigger: _alignItemWithTrigger,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Content> & {
   alignItemWithTrigger?: boolean

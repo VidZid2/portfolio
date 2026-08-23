@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
 
 export type TransitionDirection = "left" | "right";
 
@@ -27,7 +26,6 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
     const router = useRouter();
     const pathname = usePathname();
     const [windowDimensions, setWindowDimensions] = useState({ w: 0, h: 0 });
-    const { resolvedTheme } = useTheme();
 
     useEffect(() => {
         const frameId = requestAnimationFrame(() => {

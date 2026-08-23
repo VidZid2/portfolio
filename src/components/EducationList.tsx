@@ -290,21 +290,23 @@ function BouncingEducationBulletList({
               {badge.lucideIcon && BADGE_LUCIDE_ICONS[badge.lucideIcon] ? (
                 BADGE_LUCIDE_ICONS[badge.lucideIcon]
               ) : badge.customSrc ? (
-                <img
+                <Image
                   src={badge.customSrc}
                   alt={badge.name}
                   width={14}
                   height={14}
+                  unoptimized
                   loading="lazy"
                   decoding="async"
                   className="h-3.5 w-3.5 object-contain shrink-0 grayscale opacity-80"
                 />
               ) : badge.icon ? (
-                <img
+                <Image
                   src={`https://cdn.simpleicons.org/${badge.icon}/71717a`}
                   alt={badge.name}
                   width={14}
                   height={14}
+                  unoptimized
                   loading="lazy"
                   decoding="async"
                   className="h-3.5 w-3.5 opacity-80 shrink-0"
@@ -321,7 +323,6 @@ function BouncingEducationBulletList({
 
 export function EducationList({ activeTab, carouselApi }: { activeTab?: string; carouselApi?: CarouselApi }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -346,11 +347,9 @@ export function EducationList({ activeTab, carouselApi }: { activeTab?: string; 
         const isOpen = openIdx === idx;
 
         return (
-          <motion.div 
-            key={idx} 
+          <motion.div
+            key={idx}
             className="group relative"
-            onMouseEnter={() => setHoveredIdx(idx)}
-            onMouseLeave={() => setHoveredIdx(null)}
             variants={{
               hidden: { opacity: 0, scale: 0.95, y: 15 },
               visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", bounce: 0.4 } }

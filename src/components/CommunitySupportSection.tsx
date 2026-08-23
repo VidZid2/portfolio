@@ -54,7 +54,6 @@ export function CommunitySupportSection({
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [isPlusHovered, setIsPlusHovered] = useState(false);
-  const [isTrailingPlusHovered, setIsTrailingPlusHovered] = useState(false);
 
   const email = "josiahdeasis009@gmail.com";
   const paypalUrl = "https://paypal.me/josiahdeasis";

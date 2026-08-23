@@ -314,7 +314,7 @@ const vnoise = (x: number, y: number): number => {
 };
 
 export function composeField(args: ComposeArgs): number {
-  const { grid, atlas, buffers, source, target, elapsed, wordElapsed, paint, logo, slotOf, trail, shocks, turbulence } = args;
+  const { grid, atlas, buffers, source, target, elapsed, paint, logo, slotOf, trail, shocks, turbulence } = args;
   const wavePattern = args.wavePattern ?? "wavefront";
   const trailStrength = args.trailStrength ?? 1;
   const flare = args.trailFlare;

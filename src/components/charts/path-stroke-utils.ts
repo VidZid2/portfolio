@@ -58,6 +58,9 @@ export function usePathStrokeMetrics(
         ? prev
         : { pathD: d, pathLength: len }
     );
+    // deps are caller-provided by design (see docstring above); pathRef is a
+    // stable ref object, so omitting it from the list is intentional.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 
   return metrics;

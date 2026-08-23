@@ -43,7 +43,7 @@ export function resolveVerifiedBadgePixelSize(
   return verifiedBadgeSizePixels[size];
 }
 
-export function resolveVerifiedBadgeStrokeWidth(pixelSize: number): number {
+export function resolveVerifiedBadgeStrokeWidth(_pixelSize: number): number {
   return 1.8;
 }
 
@@ -163,8 +163,6 @@ const VerifiedBadge = forwardRef<HTMLSpanElement, VerifiedBadgeProps>(
     const prefersReducedMotion = useReducedMotion();
 
     const pixelSize = resolveVerifiedBadgePixelSize(size);
-    const checkSize = pixelSize * 0.5;
-    const strokeWidth = resolveVerifiedBadgeStrokeWidth(pixelSize);
     const a11yProps = resolveVerifiedBadgeA11yProps({ ariaLabel, decorative });
     const showShimmer = shouldRenderVerifiedBadgeShimmer({
       mounted,

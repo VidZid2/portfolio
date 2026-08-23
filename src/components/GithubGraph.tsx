@@ -17,7 +17,6 @@ export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScroll
   const [cellGap, setCellGap] = useState(3.5);
   const [monthsToShow, setMonthsToShow] = useState(7);
   const [deviceType, setDeviceType] = useState<"mobile" | "tablet" | "desktop">("desktop");
-  const [dataStatus, setDataStatus] = useState<"live" | "down" | "loading">("loading");
 
   useEffect(() => {
     const checkSize = () => {
@@ -105,7 +104,6 @@ export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScroll
           cellGap={cellGap}
           startDate={calculateStartDate()}
           deviceType={deviceType}
-          onStatusChange={setDataStatus}
           className="!border-0 w-full flex-1 max-w-full" 
         />
       </motion.div>

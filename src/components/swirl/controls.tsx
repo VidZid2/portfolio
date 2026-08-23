@@ -8,6 +8,7 @@
 
 import {
   useEffect,
+  useId,
   useLayoutEffect,
   useRef,
   useState,
@@ -141,6 +142,7 @@ export function Select({
 }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const listboxId = useId();
   const active = options.find((o) => o.id === activeId);
 
   // close on outside click / Escape (same pattern as ColorControl)
@@ -164,6 +166,7 @@ export function Select({
         type="button"
         role="combobox"
         aria-expanded={open}
+        aria-controls={listboxId}
         aria-label={ariaLabel}
         onClick={() => {
           hapticTap();
@@ -187,6 +190,8 @@ export function Select({
       {open && (
         <div
           role="listbox"
+          id={listboxId}
+          aria-label={ariaLabel}
           className="absolute right-0 top-full z-50 mt-2 flex max-h-64 w-40 flex-col gap-0.5 overflow-y-auto rounded-xl border border-[var(--border-ring)] bg-[var(--bg-surface)] p-1 shadow-[0_1px_2px_rgba(17,24,39,0.06),0_8px_24px_rgba(17,24,39,0.08)]"
           style={{ animation: "swirl-pop 0.16s var(--ease-expo)" }}
         >

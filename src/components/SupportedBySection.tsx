@@ -15,6 +15,7 @@ import {
   useReducedMotion,
   type Transition,
 } from "framer-motion";
+import Image from "next/image";
 import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 import { usePerformance } from "@/hooks/usePerformance";
 import {
@@ -587,23 +588,32 @@ export function SupportedBySection({
               >
                 {item.darkSvgPath ? (
                   <>
-                    <img
+                    <Image
                       src={item.svgPath}
                       alt={item.name}
+                      width={112}
+                      height={80}
+                      unoptimized
                       className="h-16 sm:h-20 md:h-12 lg:h-14 w-auto max-w-[82%] object-contain dark:hidden pointer-events-none transition-transform duration-200 group-hover:scale-110"
                       loading="lazy"
                     />
-                    <img
+                    <Image
                       src={item.darkSvgPath}
                       alt={item.name}
+                      width={112}
+                      height={80}
+                      unoptimized
                       className="h-16 sm:h-20 md:h-12 lg:h-14 w-auto max-w-[82%] object-contain hidden dark:block pointer-events-none transition-transform duration-200 group-hover:scale-110"
                       loading="lazy"
                     />
                   </>
                 ) : (
-                  <img
+                  <Image
                     src={item.svgPath}
                     alt={item.name}
+                    width={112}
+                    height={80}
+                    unoptimized
                     className={`h-16 sm:h-20 md:h-12 lg:h-14 w-auto max-w-[82%] object-contain pointer-events-none transition-transform duration-200 group-hover:scale-110 ${
                       item.invertInDark ? "dark:invert" : ""
                     }`}

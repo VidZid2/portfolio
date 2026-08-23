@@ -114,7 +114,7 @@ export function TimescaleViewport({
 
     try {
       e.currentTarget.setPointerCapture(e.pointerId);
-    } catch (_) {}
+    } catch {}
 
     setIsDraggingState(true);
   };
@@ -151,7 +151,7 @@ export function TimescaleViewport({
       if (e.currentTarget.hasPointerCapture(e.pointerId)) {
         e.currentTarget.releasePointerCapture(e.pointerId);
       }
-    } catch (_) {}
+    } catch {}
 
     if (Math.abs(velocity.current) > 0.03) {
       let vel = velocity.current * 16.6;

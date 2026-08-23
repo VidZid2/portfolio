@@ -443,9 +443,12 @@ function DatePillTrackerInner({
     animatedX.set(xWithMargin);
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: we need to jump the animatedX when the visible prop changes
   useEffect(() => {
     animatedX.set(xWithMargin);
+    // Intentionally not depending on xWithMargin: the spring tracks it while
+    // visible; this effect only snaps the spring to the cursor when the
+    // tooltip re-appears (visible toggles), so it doesn't restart mid-hover.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animatedX, visible]);
 
   return (

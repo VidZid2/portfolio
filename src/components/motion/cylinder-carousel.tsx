@@ -486,7 +486,7 @@ export function CylinderCarousel({
         d.lastT = performance.now();
       }
     },
-    [scroll, gap, dragSpeed],
+    [scroll, gap, dragSpeed, selectedIndex],
   );
 
   const onPointerUp = useCallback(

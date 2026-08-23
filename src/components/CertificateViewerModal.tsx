@@ -406,6 +406,9 @@ export function CertificateViewerModal({
                       </TooltipProvider>
 
                       <div className="w-full h-full flex items-center justify-center p-2 sm:p-6 overflow-hidden bg-neutral-100/60 dark:bg-neutral-950/60 flex-1 min-h-0">
+                        {/* Lightbox: natural-size display of arbitrary certificate
+                            scans — next/image's intrinsic-size contract doesn't apply. */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={activeData.imageUrl}
                           alt={activeData.title}

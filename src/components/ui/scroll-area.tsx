@@ -9,10 +9,11 @@ function ScrollArea({
   className,
   children,
   viewportRef,
-  scrollbarOverflowOnly,
+  // Accepted for API compatibility; intentionally not forwarded to the root.
+  scrollbarOverflowOnly: _scrollbarOverflowOnly,
   viewportClassName,
   viewportProps,
-  scrollFade,
+  scrollFade: _scrollFade,
   orientation,
   ...props
 }: React.ComponentProps<typeof ScrollAreaPrimitive.Root> & {

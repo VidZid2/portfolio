@@ -14,32 +14,16 @@ import { cn } from "@/lib/utils";
 /**
  * Glyph keyframes. Every path shares the same command structure
  * (M + 4 cubic curves + Z) so Motion can interpolate the `d` attribute
- * as one continuous liquid morph. The two blobs are deliberately
- * asymmetric — passing through them makes the sparkle wobble like a
- * droplet instead of collapsing on a straight line to the circle.
+ * as one continuous liquid morph.
  */
 const sparkle =
   "M 12 3 C 12.9 7.4 16.6 11.1 21 12 C 16.6 12.9 12.9 16.6 12 21 C 11.1 16.6 7.4 12.9 3 12 C 7.4 11.1 11.1 7.4 12 3 Z";
-
-const blobA =
-  "M 12 4.2 C 16.8 3.4 20.6 7.2 19.8 12 C 20.6 16.4 16.4 20.6 12 19.8 C 7.8 20.6 3.4 16.8 4.2 12 C 3.4 7.6 7.2 3.4 12 4.2 Z";
-
-const circle =
-  "M 12 5 C 15.87 5 19 8.13 19 12 C 19 15.87 15.87 19 12 19 C 8.13 19 5 15.87 5 12 C 5 8.13 8.13 5 12 5 Z";
-
-const blobB =
-  "M 12 3.6 C 16.4 4.6 18.6 8 19.2 12 C 18.6 16.2 16.2 19.4 12 20.4 C 8 19.4 5.2 16.4 4.8 12 C 5.4 7.8 7.6 4.4 12 3.6 Z";
 
 /** Small companion star in the top-right gap of the main sparkle. It
  *  blooms at the midpoint of the cycle — exactly when the main glyph has
  *  condensed into the circle — then fades as the sparkle re-forms. */
 const twinkle =
   "M 19 2.5 C 19.18 4.32 19.68 4.82 21.5 5 C 19.68 5.18 19.18 5.68 19 7.5 C 18.82 5.68 18.32 5.18 16.5 5 C 18.32 4.82 18.82 4.32 19 2.5 Z";
-
-/** One shared timeline for the whole glyph, so the morph, the breathing
- *  scale, and the twinkle stay choreographed. */
-const GLYPH_CYCLE = 4;
-const GLYPH_TIMES = [0, 0.3, 0.5, 0.7, 1];
 
 interface ThinkingIndicatorProps extends HTMLAttributes<HTMLDivElement> {
   /** Status words cycled through while the indicator is visible, e.g.

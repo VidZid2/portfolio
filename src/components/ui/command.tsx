@@ -31,21 +31,14 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 import { BottomSheet } from "@/components/ui/bottom-sheet"
 
 function CommandDialog({
-  title = "Command Palette",
-  description = "Search for a command to run...",
   children,
   className,
-  showCloseButton = true,
   value,
   onValueChange,
   open,
   onOpenChange,
-  ...props
 }: React.ComponentProps<typeof Dialog> & {
-  title?: string
-  description?: string
   className?: string
-  showCloseButton?: boolean
   value?: string
   onValueChange?: (value: string) => void
 }) {

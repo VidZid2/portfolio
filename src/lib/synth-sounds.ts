@@ -3,7 +3,6 @@ import { getSoundEnabled } from "@/hooks/use-sound";
 
 // Debounce trackers to prevent audio fatigue and spam
 let lastHoverTime = 0;
-const lastMoveSoundTime = 0;
 
 /**
  * Ultra-smooth, satisfying tactile haptic hover tick.

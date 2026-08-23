@@ -7,8 +7,6 @@ import { DrawUnderlineLink } from "@/components/sora-ui/texts/draw-underline-lin
 import { playHoverTick, playSoftClick } from "@/lib/synth-sounds";
 import { cn } from "@/lib/utils";
 
-const DOT_SIZE = 6;
-
 // A compact, lightly underdamped spring gives the dot a quick landing without
 // turning the sidebar into a playful toy. The sideways arc carries the bounce.
 const BOUNCE_SPRING = {

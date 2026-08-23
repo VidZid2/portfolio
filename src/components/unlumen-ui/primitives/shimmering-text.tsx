@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -19,10 +19,9 @@ export function ShimmeringText({
   duration = 2.4,
   delay = 0.5,
   repeat = 0,
-  spread = 2,
+  // Accepted for API compatibility; the shimmer band width is CSS-fixed.
+  spread: _spread = 2,
 }: ShimmeringTextProps) {
-  const dynamicSpread = useMemo(() => Math.max((text?.length ?? 0) * spread, 60), [text, spread]);
-
   return (
     <motion.span
       initial={{ backgroundPosition: "120% center" }}

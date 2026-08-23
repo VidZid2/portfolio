@@ -66,7 +66,6 @@ export function LessonsLearned({ activeTab, carouselApi }: { activeTab?: string;
     <div ref={containerRef} className="block mt-0">
       {lessons.map((item, idx) => {
         const isOpen = openIdx === idx;
-        const isLast = idx === lessons.length - 1;
 
         return (
           <motion.div 

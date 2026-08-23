@@ -30,11 +30,9 @@ export {
 
 export const ProjectCard = ({
   project,
-  setActiveVideo,
   isPriority = false,
 }: {
   project: Project;
-  setActiveVideo: (v: string) => void;
   isPriority?: boolean;
 }) => {
   const [hoveredTech, setHoveredTech] = useState<string | null>(null);
@@ -59,10 +57,7 @@ export const ProjectCard = ({
 
 
 
-  const isNotStarted = project.title === "Inquiro";
   const isBuilding = project.title === "Blueprint" || project.title === "Scribble3D";
-  const statusColor = isNotStarted ? "bg-zinc-400" : isBuilding ? "bg-red-500" : "bg-emerald-500";
-  const statusLabel = isNotStarted ? "Not Started" : isBuilding ? "Building" : "Live";
 
   return (
     <motion.div
@@ -297,7 +292,7 @@ export function ProjectsGrid() {
         {/* Row 1 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-10 md:gap-y-0 pb-10 md:pb-6">
           {projectsData.slice(0, 2).map((project) => (
-            <ProjectCard key={project.title} project={project} setActiveVideo={setActiveVideo} />
+            <ProjectCard key={project.title} project={project} />
           ))}
         </div>
 
@@ -313,7 +308,7 @@ export function ProjectsGrid() {
         {/* Row 2 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-10 md:gap-y-0 pt-0 md:pt-6">
           {projectsData.slice(2, 4).map((project) => (
-            <ProjectCard key={project.title} project={project} setActiveVideo={setActiveVideo} />
+            <ProjectCard key={project.title} project={project} />
           ))}
         </div>
       </div>

@@ -6,6 +6,7 @@ import { Calendar } from "lucide-react";
 import { blogsData } from "@/data/blogsData";
 import { motion, AnimatePresence } from "framer-motion";
 import AnimatedLink from "@/components/ruixen/animated-link";
+import Image from "next/image";
 import { iconMap, techNames } from "@/data/projectsData";
 import { useTransition } from "@/components/TransitionProvider";
 import { useTheme } from "next-themes";
@@ -168,7 +169,7 @@ export function BlogList() {
                   </div>
 
                   <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-500 font-medium">
-                    <img src="/SVG's/Blog%20SVG's/Star.svg" alt="Stars" className="w-3.5 h-3.5" />
+                    <Image src="/SVG's/Blog%20SVG's/Star.svg" alt="Stars" width={14} height={14} unoptimized className="w-3.5 h-3.5" />
                     <span>{blog.claps}</span>
                   </div>
                 </div>

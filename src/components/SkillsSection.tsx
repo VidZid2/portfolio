@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 import { usePerformance } from "@/hooks/usePerformance";
@@ -189,21 +190,23 @@ export function SkillsSection({ hasSeenScrollAnimations = false }: { hasSeenScro
                   {item.isLobeOpenAI ? (
                     <OpenAIIcon className="h-3.5 w-3.5 opacity-80 shrink-0" />
                   ) : item.customSrc ? (
-                    <img
+                    <Image
                       src={item.customSrc}
                       alt={item.name}
                       width={14}
                       height={14}
+                      unoptimized
                       loading="lazy"
                       decoding="async"
                       className="h-3.5 w-3.5 object-contain shrink-0 grayscale opacity-80"
                     />
                   ) : (
-                    <img
+                    <Image
                       src={`https://cdn.simpleicons.org/${item.icon}/71717a`}
                       alt={item.name}
                       width={14}
                       height={14}
+                      unoptimized
                       loading="lazy"
                       decoding="async"
                       className="h-3.5 w-3.5 opacity-80 shrink-0"

@@ -53,7 +53,6 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
     <div ref={containerRef} className="block">
       {experiences.map((item, idx) => {
         const isOpen = openIdx === idx;
-        const isLast = idx === experiences.length - 1;
 
         return (
           <motion.div 

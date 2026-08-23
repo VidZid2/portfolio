@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useSyncExternalStore } from "react";
+import { useEffect, useState, useRef, useSyncExternalStore, useMemo } from "react";
 import { usePathname } from "next/navigation";
 
 export const homeItems = [
@@ -25,7 +25,10 @@ export function RightNavbar() {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const isPrimaDoc = pathname === "/projects/prima-digital-agency/how-its-made";
-  const activeItems = isHome ? homeItems : (isPrimaDoc ? primaItems : []);
+  const activeItems = useMemo(
+    () => (isHome ? homeItems : isPrimaDoc ? primaItems : []),
+    [isHome, isPrimaDoc]
+  );
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [travelDir, setTravelDir] = useState<'down' | 'up'>('down');

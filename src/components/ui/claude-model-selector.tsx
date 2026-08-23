@@ -1122,7 +1122,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this._helpButton.disabled = isDisabled;
   }
 
-  _onPointerDown(e?: PointerEvent) {
+  _onPointerDown(_e?: PointerEvent) {
     if (this.disabled) return;
     cancelAnimationFrame(this._springFrame);
     this._springFrame = 0;
@@ -1130,7 +1130,7 @@ class ClaudeModelSelectorElement extends HTMLElement {
     this._pointerSamples = [{ time: performance.now(), value: this._value }];
   }
 
-  _onPointerUp(e?: PointerEvent) {
+  _onPointerUp(_e?: PointerEvent) {
     if (!this._dragging) return;
     this._dragging = false;
     this._snapToNearest();

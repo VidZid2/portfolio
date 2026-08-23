@@ -14,7 +14,7 @@ export function TextSelectionMenu() {
   });
 
   React.useEffect(() => {
-    const handlePointerUp = (e: PointerEvent) => {
+    const handlePointerUp = () => {
       // Small delay to allow the browser to update the selection
       setTimeout(() => {
         const sel = window.getSelection();

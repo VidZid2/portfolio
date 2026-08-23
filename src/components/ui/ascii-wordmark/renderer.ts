@@ -273,7 +273,11 @@ export class AsciiWordmarkRenderer {
     this.io = new IntersectionObserver(
       (es) => {
         this.onScreen = es[0]?.isIntersecting ?? true;
-        this.onScreen ? this.maybeStart() : this.stop();
+        if (this.onScreen) {
+          this.maybeStart();
+        } else {
+          this.stop();
+        }
       },
       { threshold: 0.01 },
     );

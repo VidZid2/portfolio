@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft,
@@ -21,7 +21,6 @@ import { playSoftClick } from "@/lib/synth-sounds";
 import { SharedLayoutBg } from "@/components/motion/shared-layout-bg";
 
 export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
   const pathname = usePathname();
   const { transitionBack, transitionForward } = useTransition();
   const [isOpen, setIsOpen] = React.useState(false);
@@ -67,11 +66,6 @@ export function GlobalContextMenu({ children }: { children: React.ReactNode }) {
 
   const handleReload = () => {
     if (typeof window !== "undefined") window.location.reload();
-    setIsOpen(false);
-  };
-
-  const navigateTo = (path: string) => {
-    router.push(path);
     setIsOpen(false);
   };
 

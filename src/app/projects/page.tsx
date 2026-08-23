@@ -95,7 +95,6 @@ export default function AllProjectsPage() {
                         <ProjectCard
                           key={project.title}
                           project={project}
-                          setActiveVideo={setActiveVideo}
                           isPriority={rowIndex === 0}
                         />
                       ))}

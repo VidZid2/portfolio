@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -13,14 +13,9 @@ interface CurvedMenuProps {
 }
 
 export function CurvedMenu({ isOpen, onClose, children, className, onAnimationComplete }: CurvedMenuProps) {
-  const [isAnimationComplete, setIsAnimationComplete] = useState(false);
-
   useEffect(() => {
     if (!isOpen) {
-      const frameId = requestAnimationFrame(() => {
-        setIsAnimationComplete(false);
-      });
-      return () => cancelAnimationFrame(frameId);
+      return;
     }
 
     const onKey = (e: KeyboardEvent) => {
@@ -71,7 +66,6 @@ export function CurvedMenu({ isOpen, onClose, children, className, onAnimationCo
               ease: [0.76, 0, 0.24, 1] // Classic Awwwards elastic curve
             }}
             onAnimationComplete={() => {
-              setIsAnimationComplete(true);
               if (onAnimationComplete) onAnimationComplete();
             }}
             className={cn(

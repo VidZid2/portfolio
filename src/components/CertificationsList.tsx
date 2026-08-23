@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback, useLayoutEffect, useMemo } from "react";
+import Image from "next/image";
 import { animate, motion, useMotionValue, useReducedMotion } from "framer-motion";
 import { Award, Binary, Layers, ShieldCheck, Sparkles, Code, Zap, GraduationCap } from "lucide-react";
 import { certificationsList, type EducationBullet, type EducationBadge, type CertificationData } from "@/data/educationData";
@@ -326,21 +327,23 @@ function BouncingCertificationBulletList({
               {badge.lucideIcon && BADGE_LUCIDE_ICONS[badge.lucideIcon] ? (
                 BADGE_LUCIDE_ICONS[badge.lucideIcon]
               ) : badge.customSrc ? (
-                <img
+                <Image
                   src={badge.customSrc}
                   alt={badge.name}
                   width={14}
                   height={14}
+                  unoptimized
                   loading="lazy"
                   decoding="async"
                   className="h-3.5 w-3.5 object-contain shrink-0 grayscale opacity-80"
                 />
               ) : badge.icon ? (
-                <img
+                <Image
                   src={`https://cdn.simpleicons.org/${badge.icon}/71717a`}
                   alt={badge.name}
                   width={14}
                   height={14}
+                  unoptimized
                   loading="lazy"
                   decoding="async"
                   className="h-3.5 w-3.5 opacity-80 shrink-0"
