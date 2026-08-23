@@ -3,6 +3,12 @@ import { ROUTES, seedReturningVisitor } from "./fixtures";
 
 // Golden-reference screenshots are only meaningful on the machine that
 // captured them (font rasterization differs across OSes). CI runs smoke only.
+//
+// NOTE: the `/` goldens embed live data (GitHub contribution calendar — its
+// canvas aspect ratio shifts when the rolling window crosses a week boundary,
+// time-of-day greeting, live insights counters, rotating sponsor marquee), so
+// they legitimately drift every few days. Re-capture with:
+//   npx playwright test e2e/visual.spec.ts -g "golden (light|dark) /$" --update-snapshots
 test.skip(Boolean(process.env.CI), "visual baselines are captured/compared locally");
 
 // Decorative canvases (WebGL shaders, particle fields, PDF tiles) re-render
