@@ -1,17 +1,14 @@
 "use client";
-import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 
 import React, { useEffect, useState } from "react";
 import { GithubCalendar } from "@/components/ui/github-calendar";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
-import { usePerformance } from "@/hooks/usePerformance";
 import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
+import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
-  const phase = useArcReveal();
-  const { isLowTier } = usePerformance();
-  const skip = hasSeenScrollAnimations || isLowTier;
+const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
   const [cellSize, setCellSize] = useState(14.5);

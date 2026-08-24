@@ -7,9 +7,7 @@ import { toast } from "sonner";
 
 import Image from "next/image";
 import { useTransition } from "@/components/TransitionProvider";
-import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 import ScrambleText from "@/components/ruixen/scramble-text";
-import { usePerformance } from "@/hooks/usePerformance";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { PlusIcon } from "@/components/animated-icons/plus-icon";
 import { ExpandingArrowButton } from "@/components/ui/expanding-arrow-button";
@@ -25,6 +23,7 @@ import {
 } from "@/components/motion/action-swap-cascade";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
+import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 interface CommunitySupportSectionProps {
   hasSeenScrollAnimations?: boolean;
@@ -33,10 +32,8 @@ interface CommunitySupportSectionProps {
 export function CommunitySupportSection({
   hasSeenScrollAnimations = false,
 }: CommunitySupportSectionProps) {
-  const phase = useArcReveal();
-  const { isLowTier } = usePerformance();
+const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
   const { navigate } = useTransition();
-  const skip = hasSeenScrollAnimations || isLowTier;
   const [modalOpen, setModalOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [copiedEmail, setCopiedEmail] = useState(false);

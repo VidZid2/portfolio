@@ -1,5 +1,4 @@
 "use client";
-import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
@@ -38,13 +37,11 @@ type FilterType = "merged" | "open" | "closed";
 
 const CACHE_TTL_MS = 30 * 60 * 1000;
 
-import { usePerformance } from "@/hooks/usePerformance";
 import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
+import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 export function OpenSourceContributions({ isFullPage = false, hasSeenScrollAnimations = false }: { isFullPage?: boolean, hasSeenScrollAnimations?: boolean }) {
-  const phase = useArcReveal();
-  const { isLowTier } = usePerformance();
-  const skip = hasSeenScrollAnimations || isLowTier;
+const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
   const [prsByType, setPrsByType] = useState<Record<FilterType, PR[]>>({
     merged: [],
     open: [],

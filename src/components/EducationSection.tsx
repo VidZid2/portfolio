@@ -3,8 +3,6 @@
 import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { GraduationCap, Award } from "lucide-react";
-import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
-import { usePerformance } from "@/hooks/usePerformance";
 import ScrambleText, { type ScrambleTextRef } from "@/components/ruixen/scramble-text";
 import { EducationList } from "@/components/EducationList";
 import { CertificationsList } from "@/components/CertificationsList";
@@ -18,13 +16,12 @@ import AutoHeight from "embla-carousel-auto-height";
 
 import { playSoftClick, playHoverTick } from "@/lib/synth-sounds";
 import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
+import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 type CarouselApi = UseEmblaCarouselType[1];
 
 export function EducationSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
-  const phase = useArcReveal();
-  const { isLowTier } = usePerformance();
-  const skip = hasSeenScrollAnimations || isLowTier;
+const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
   const [activeTab, setActiveTab] = useState<"education" | "certs">("education");
   const [api, setApi] = useState<CarouselApi>();
   const scrambleRef = useRef<ScrambleTextRef>(null);

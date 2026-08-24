@@ -1,5 +1,4 @@
 "use client";
-import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 
 import React from "react";
 import { motion } from "framer-motion";
@@ -7,12 +6,10 @@ import { useTransition } from "@/components/TransitionProvider";
 import { Calendar, Mail } from "lucide-react";
 import ScrambleText from "@/components/ruixen/scramble-text";
 import SoftPillButton from "@/components/pixel-perfect/soft-pill-button";
-import { usePerformance } from "@/hooks/usePerformance";
+import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 export function LetsConnect({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
-  const phase = useArcReveal();
-  const { isLowTier } = usePerformance();
-  const skip = hasSeenScrollAnimations || isLowTier;
+const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
   const { navigate } = useTransition();
 
   return (

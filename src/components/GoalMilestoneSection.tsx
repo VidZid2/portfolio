@@ -1,18 +1,15 @@
 "use client";
-import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 
 import React, { useRef } from "react";
 import { motion } from "framer-motion";
 import ScrambleText, { type ScrambleTextRef } from "@/components/ruixen/scramble-text";
 import { GoalMilestoneList } from "@/components/GoalMilestoneList";
-import { usePerformance } from "@/hooks/usePerformance";
 import { TransitionLink } from "@/components/TransitionLink";
 import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
+import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 export function GoalMilestoneSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
-  const phase = useArcReveal();
-  const { isLowTier } = usePerformance();
-  const skip = hasSeenScrollAnimations || isLowTier;
+const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
   const scrambleRef = useRef<ScrambleTextRef>(null);
 
   return (

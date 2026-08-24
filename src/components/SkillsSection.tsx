@@ -3,11 +3,10 @@
 import React from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
-import { usePerformance } from "@/hooks/usePerformance";
 import ScrambleText from "@/components/ruixen/scramble-text";
 import { playSoftClick } from "@/lib/synth-sounds";
 import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
+import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 function OpenAIIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
   return (
@@ -89,9 +88,7 @@ const STACK_CATEGORIES: StackCategory[] = [
 ];
 
 export function SkillsSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
-  const phase = useArcReveal();
-  const { isLowTier } = usePerformance();
-  const skip = hasSeenScrollAnimations || isLowTier;
+const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
 
   const dashedMask = {
     maskImage: DOT_MASK_HORIZONTAL.maskImage,

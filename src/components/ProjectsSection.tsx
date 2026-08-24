@@ -1,18 +1,15 @@
 "use client";
-import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 
 import React from "react";
 import { motion } from "framer-motion";
 import ScrambleText from "@/components/ruixen/scramble-text";
 import { ProjectsGrid } from "@/components/ProjectsGrid";
 import { TransitionLink } from "@/components/TransitionLink";
-import { usePerformance } from "@/hooks/usePerformance";
 import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
+import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 export function ProjectsSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
-  const phase = useArcReveal();
-  const { isLowTier } = usePerformance();
-  const skip = hasSeenScrollAnimations || isLowTier;
+const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
   return (
     <motion.div 
       id="projects" 

@@ -16,8 +16,6 @@ import {
   type Transition,
 } from "framer-motion";
 import Image from "next/image";
-import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
-import { usePerformance } from "@/hooks/usePerformance";
 import {
   CenterMorphModal,
   CenterMorphModalContent,
@@ -33,6 +31,7 @@ import { CurvedMenu } from "@/components/ui/curved-menu";
 import { CylinderCarousel } from "@/components/motion/cylinder-carousel";
 import { playSoftClick } from "@/lib/synth-sounds";
 import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
+import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 /** How long each logo stays visible before cycling to the next one (ms). */
 const CYCLE_INTERVAL = 2600;
@@ -363,9 +362,7 @@ export function SupportedBySection({
 }: {
   hasSeenScrollAnimations?: boolean;
 }) {
-  const phase = useArcReveal();
-  const { isLowTier } = usePerformance();
-  const skip = hasSeenScrollAnimations || isLowTier;
+const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
   const reduceMotion = useReducedMotion() ?? false;
 
   const containerRef = useRef<HTMLDivElement>(null);

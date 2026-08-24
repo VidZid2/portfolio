@@ -1,5 +1,4 @@
 "use client";
-import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 
 import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
@@ -15,17 +14,15 @@ import {
 } from "@/components/ui/carousel";
 import { type UseEmblaCarouselType } from "embla-carousel-react";
 import AutoHeight from "embla-carousel-auto-height";
-import { usePerformance } from "@/hooks/usePerformance";
 
 import { playSoftClick, playHoverTick } from "@/lib/synth-sounds";
 import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
+import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 type CarouselApi = UseEmblaCarouselType[1];
 
 export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
-  const phase = useArcReveal();
-  const { isLowTier } = usePerformance();
-  const skip = hasSeenScrollAnimations || isLowTier;
+const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
   const [activeTab, setActiveTab] = useState<'experiences' | 'lessons'>('experiences');
   const [api, setApi] = useState<CarouselApi>();
   const scrambleRef = useRef<ScrambleTextRef>(null);
