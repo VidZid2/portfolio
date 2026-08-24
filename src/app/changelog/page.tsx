@@ -77,8 +77,8 @@ The foundation of the portfolio was established.
   },
   {
     version: "0.2",
-    date: "Now",
-    content: `### 0.2 Start — Blueprint Overhaul (Current)
+    date: "Jul 2026",
+    content: `### 0.2 Start — Blueprint Overhaul
 
 Major architectural redesign and interactive blueprint system.
 
@@ -89,6 +89,19 @@ Major architectural redesign and interactive blueprint system.
 - **Community Support**: Integrated sponsor drawers for PayPal, Ko-fi, and seamless curve transitions.
 - **Creator Inspirations**: 3D convex cylinder carousel honoring open-source UI libraries.`,
   },
+  {
+    version: "0.2.1",
+    date: "Aug 2026",
+    content: `### 0.2.1 — Engineering Overhaul (Security · A11y · Testing)
+
+A hardening pass across the whole codebase — no visual redesign, every change screenshot-verified.
+
+- **Security**: Locked the GitHub API proxy to three hardcoded PR queries (was an open token proxy), model whitelist + payload caps on the chat route, Upstash-backed rate limiting for chat and insights, zod-validated telemetry with retention caps.
+- **Code quality**: 256 lint errors and 62 warnings → zero, enforced in CI. Real types replaced \`any\` stubs (d3-shape curve factories, Radix, embedpdf). 16 orphaned dependencies removed.
+- **Accessibility**: Project cards are real links now (keyboard users can open projects), command palette and video lightbox have proper dialog semantics, OS-level reduced-motion is respected, and axe-core WCAG 2.1 A/AA scans run on every route in CI.
+- **Dedup**: Blueprint divider tokens, palette rows, section reveal gates and PDF toolbar controls each collapsed to a single source of truth (~400 lines of copy-paste removed).
+- **Testing**: 40 golden screenshots (10 routes × light/dark × mobile/desktop) gate every refactor locally; 30 unit tests; smoke + a11y suites run on every push.`,
+  },
 ];
 
 export default function ChangelogPage() {
@@ -98,7 +111,7 @@ export default function ChangelogPage() {
       headerSlot={
         <SubpageHeader
           title="Portfolio Changelog"
-          subtitle="From 0.1 Start to 0.2 Start (Now) — Evolution & Milestones"
+          subtitle="From 0.1 Start to 0.2.1 (Now) — Evolution & Milestones"
           backHref="/"
         />
       }
