@@ -38,6 +38,45 @@ import {
 
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
+/**
+ * Blueprint divider band between sections: full-bleed diagonal hatch with
+ * continuous vertical dotted boundary lines on the page margins. The last
+ * spacer before the footer filler also closes the frame with a bottom
+ * dotted line (`showBottomLine`).
+ */
+function BlueprintSpacer({ showBottomLine = false }: { showBottomLine?: boolean }) {
+  return (
+    <div className="relative h-6 sm:h-8 my-0">
+      {/* Slanted diagonal hatch pattern spanning full width across the margins */}
+      <div
+        className="absolute inset-y-0 left-[-100vw] right-[-100vw] pointer-events-none opacity-40 dark:opacity-20"
+        style={DIAGONAL_HATCH_PATTERN}
+      />
+      {/* Left & Right continuous vertical dotted boundary lines */}
+      <div
+        className="absolute top-0 bottom-0 -left-3 sm:-left-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
+        style={DOT_MASK_VERTICAL}
+      />
+      <div
+        className="absolute top-0 bottom-0 -right-3 sm:-right-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
+        style={DOT_MASK_VERTICAL}
+      />
+      {showBottomLine && (
+        <>
+          {/* Bottom full-width line */}
+          <div
+            className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+            style={DOT_MASK_HORIZONTAL}
+          />
+          {/* Bottom Line Intersections */}
+          <div className="absolute bottom-0 -left-3 sm:-left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+          <div className="absolute bottom-0 -right-3 sm:-right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function Home() {
   const [hasPlayed, setHasPlayed] = useState(false);
 
@@ -179,22 +218,7 @@ export default function Home() {
             <SkillsSection key={`skills-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
             {/* Blueprint Diagonal Slanted Line Spacer 1 (Between Stack and Experiences) */}
-            <div className="relative h-6 sm:h-8 my-0">
-              {/* Slanted diagonal hatch pattern spanning full width across the margins */}
-              <div
-                className="absolute inset-y-0 left-[-100vw] right-[-100vw] pointer-events-none opacity-40 dark:opacity-20"
-                style={DIAGONAL_HATCH_PATTERN}
-              />
-              {/* Left & Right continuous vertical dotted boundary lines */}
-              <div
-                className="absolute top-0 bottom-0 -left-3 sm:-left-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
-                style={DOT_MASK_VERTICAL}
-              />
-              <div
-                className="absolute top-0 bottom-0 -right-3 sm:-right-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
-                style={DOT_MASK_VERTICAL}
-              />
-            </div>
+            <BlueprintSpacer />
 
             {/* 8. Experience Section */}
             <ExperienceSection key={`exp-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
@@ -209,22 +233,7 @@ export default function Home() {
             <ProjectsSection key={`projects-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
             {/* Blueprint Diagonal Slanted Line Spacer (Between Projects and Insights Section) */}
-            <div className="relative h-6 sm:h-8 my-0">
-              {/* Slanted diagonal hatch pattern spanning full width across the margins */}
-              <div
-                className="absolute inset-y-0 left-[-100vw] right-[-100vw] pointer-events-none opacity-40 dark:opacity-20"
-                style={DIAGONAL_HATCH_PATTERN}
-              />
-              {/* Left & Right continuous vertical dotted boundary lines */}
-              <div
-                className="absolute top-0 bottom-0 -left-3 sm:-left-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
-                style={DOT_MASK_VERTICAL}
-              />
-              <div
-                className="absolute top-0 bottom-0 -right-3 sm:-right-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
-                style={DOT_MASK_VERTICAL}
-              />
-            </div>
+            <BlueprintSpacer />
 
             {/* 12. Insights / Viewers Section */}
             <InsightsSection key={`insights-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
@@ -233,42 +242,14 @@ export default function Home() {
             <CommunitySupportSection key={`support-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
             {/* Blueprint Diagonal Slanted Line Spacer (Between Community Support and Motivation Section) */}
-            <div className="relative h-6 sm:h-8 my-0">
-              {/* Slanted diagonal hatch pattern spanning full width across the margins */}
-              <div
-                className="absolute inset-y-0 left-[-100vw] right-[-100vw] pointer-events-none opacity-40 dark:opacity-20"
-                style={DIAGONAL_HATCH_PATTERN}
-              />
-              {/* Left & Right continuous vertical dotted boundary lines */}
-              <div
-                className="absolute top-0 bottom-0 -left-3 sm:-left-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
-                style={DOT_MASK_VERTICAL}
-              />
-              <div
-                className="absolute top-0 bottom-0 -right-3 sm:-right-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
-                style={DOT_MASK_VERTICAL}
-              />
-              {/* Bottom full-width line */}
-              <div
-                className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-                style={DOT_MASK_HORIZONTAL}
-              />
-              {/* Bottom Line Intersections */}
-              <div className="absolute bottom-0 -left-3 sm:-left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-              <div className="absolute bottom-0 -right-3 sm:-right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-            </div>
+            <BlueprintSpacer showBottomLine />
 
             {/* Fading Grid Filler */}
             <div className="flex-grow w-[calc(100%+24px)] -mx-3 sm:w-[calc(100%+32px)] sm:-mx-4 h-[400px] relative mt-0 overflow-hidden">
               {/* Top full-width line */}
               <div
                 className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
-                style={{
-                  maskImage:
-                    DOT_MASK_HORIZONTAL.maskImage,
-                  WebkitMaskImage:
-                    DOT_MASK_HORIZONTAL.WebkitMaskImage,
-                }}
+                style={DOT_MASK_HORIZONTAL}
               />
               {/* Intersections */}
               <div className="absolute top-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
