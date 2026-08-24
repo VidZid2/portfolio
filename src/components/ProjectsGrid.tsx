@@ -5,8 +5,7 @@ import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useTransition } from "@/components/TransitionProvider";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
-import { Dialog, DialogClose, DialogContent } from "@/components/ui/dialog";
+import { VideoModal } from "@/components/VideoModal";
 import AnimatedLink from "@/components/ruixen/animated-link";
 import { StatusDot } from "@/components/ui/status-dot";
 import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
@@ -313,46 +312,8 @@ export function ProjectsGrid() {
         </div>
       </div>
 
-      {/* MODAL — Radix Dialog: focus trap, Escape, aria-modal, scroll lock.
-          Restyled to match the original video lightbox. Currently dormant
-          (nothing sets a video URL yet); wired for future project demos. */}
-      <Dialog
-        open={activeVideo !== null}
-        onOpenChange={(open) => {
-          if (!open) setActiveVideo(null);
-        }}
-      >
-        <DialogContent
-          aria-label="Project video"
-          showCloseButton={false}
-          className="top-[50%] left-[50%] w-[90%] max-w-3xl translate-x-[-50%] translate-y-[-50%] gap-0 rounded-xl border-0 bg-black p-0 shadow-2xl sm:max-w-3xl"
-        >
-          <DialogClose
-            className="absolute top-3 right-3 z-50 rounded-full bg-neutral-800/80 p-2 text-neutral-200 transition-colors cursor-pointer hover:bg-neutral-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-            aria-label="Close video"
-          >
-            <X size={20} />
-          </DialogClose>
-
-          {activeVideo?.includes("youtube") ? (
-            <iframe
-              src={activeVideo}
-              className="w-full aspect-video border-0"
-              allowFullScreen
-              title="Project video"
-            />
-          ) : (
-            activeVideo && (
-              <video
-                src={activeVideo}
-                className="w-full h-auto"
-                controls
-                autoPlay
-              />
-            )
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Video lightbox — dormant until a project sets a video URL. */}
+      <VideoModal videoUrl={activeVideo} onClose={() => setActiveVideo(null)} />
     </>
   );
 }

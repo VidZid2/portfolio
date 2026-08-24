@@ -58,6 +58,38 @@ declare global {
   }
 }
 
+/** One command-palette row: everything that varies between entries. */
+interface PaletteCommandConfig {
+    value: string;
+    icon: React.ComponentType<{ className?: string }>;
+    label: string;
+    shortcut: string;
+    action: () => unknown;
+}
+
+/** Shared row skeleton for every palette entry (hover pill, icon, label, shortcut). */
+function PaletteCommandItem({
+    command,
+    runCommand,
+    selected,
+}: {
+    command: PaletteCommandConfig;
+    runCommand: (command: () => unknown) => void;
+    selected: string;
+}) {
+    const Icon = command.icon;
+    return (
+        <CommandItem value={command.value} onSelect={() => runCommand(command.action)} className="relative rounded-lg py-3 cursor-pointer">
+            {selected === command.value && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
+            <div className="relative z-10 flex items-center w-full">
+                <Icon className="mr-2 h-4 w-4 text-zinc-500" />
+                <span>{command.label}</span>
+                <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">{command.shortcut}</CommandShortcut>
+            </div>
+        </CommandItem>
+    );
+}
+
 export function CommandMenu() {
     const [open, setOpen] = React.useState(false)
 
@@ -134,6 +166,29 @@ export function CommandMenu() {
         setOpen(false)
         command()
     }, [])
+
+    // Palette entries — one config object per row. The render skeleton lives in
+    // <PaletteCommandItem>; only value/icon/label/shortcut/action vary.
+    // To re-enable the Open Source row, uncomment it below (its shift+O
+    // keydown handler is already wired in the shortcut effect).
+    const SECTION_COMMANDS: PaletteCommandConfig[] = [
+        { value: "experience", icon: Briefcase, label: "Experience", shortcut: "shift + E", action: () => navigateToSection("#experience") },
+        { value: "education", icon: GraduationCap, label: "Education", shortcut: "shift + U", action: () => navigateToSection("#education") },
+        { value: "projects", icon: Code, label: "Projects", shortcut: "shift + P", action: () => navigateToSection("#projects") },
+        { value: "blogs", icon: FileText, label: "Blogs", shortcut: "shift + B", action: () => navigateToSection("#blogs") },
+        // { value: "opensource", icon: SiGithub, label: "Open Source", shortcut: "shift + O", action: () => navigateToSection("#opensource") },
+        { value: "skills", icon: BookOpen, label: "Skills", shortcut: "shift + S", action: () => navigateToSection("#skills") },
+    ]
+
+    const GENERAL_COMMANDS: PaletteCommandConfig[] = [
+        { value: "copylink", icon: Copy, label: "Copy Link", shortcut: "shift + C", action: () => navigator.clipboard.writeText(window.location.href) },
+    ]
+
+    const THEME_COMMANDS: PaletteCommandConfig[] = [
+        { value: "lightmode", icon: Sun, label: "Light Mode", shortcut: "shift + T", action: () => setTheme("light") },
+        { value: "darkmode", icon: Moon, label: "Dark Mode", shortcut: "shift + D", action: () => setTheme("dark") },
+        { value: "system", icon: Laptop, label: "System", shortcut: "shift + Y", action: () => setTheme("system") },
+    ]
 
     React.useEffect(() => {
         const down = (e: KeyboardEvent) => {
@@ -308,98 +363,25 @@ export function CommandMenu() {
                     <CommandEmpty>No results found.</CommandEmpty>
 
                     <CommandGroup heading="Sections">
-                        <CommandItem value="experience" onSelect={() => runCommand(() => navigateToSection("#experience"))} className="relative rounded-lg py-3 cursor-pointer">
-                            {value === "experience" && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
-                            <div className="relative z-10 flex items-center w-full">
-                                <Briefcase className="mr-2 h-4 w-4 text-zinc-500" />
-                                <span>Experience</span>
-                                <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">shift + E</CommandShortcut>
-                            </div>
-                        </CommandItem>
-                        <CommandItem value="education" onSelect={() => runCommand(() => navigateToSection("#education"))} className="relative rounded-lg py-3 cursor-pointer">
-                            {value === "education" && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
-                            <div className="relative z-10 flex items-center w-full">
-                                <GraduationCap className="mr-2 h-4 w-4 text-zinc-500" />
-                                <span>Education</span>
-                                <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">shift + U</CommandShortcut>
-                            </div>
-                        </CommandItem>
-                        <CommandItem value="projects" onSelect={() => runCommand(() => navigateToSection("#projects"))} className="relative rounded-lg py-3 cursor-pointer">
-                            {value === "projects" && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
-                            <div className="relative z-10 flex items-center w-full">
-                                <Code className="mr-2 h-4 w-4 text-zinc-500" />
-                                <span>Projects</span>
-                                <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">shift + P</CommandShortcut>
-                            </div>
-                        </CommandItem>
-                        <CommandItem value="blogs" onSelect={() => runCommand(() => navigateToSection("#blogs"))} className="relative rounded-lg py-3 cursor-pointer">
-                            {value === "blogs" && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
-                            <div className="relative z-10 flex items-center w-full">
-                                <FileText className="mr-2 h-4 w-4 text-zinc-500" />
-                                <span>Blogs</span>
-                                <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">shift + B</CommandShortcut>
-                            </div>
-                        </CommandItem>
-                        {/* <CommandItem value="opensource" onSelect={() => runCommand(() => navigateToSection("#opensource"))} className="relative rounded-lg py-3 cursor-pointer">
-                            {value === "opensource" && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
-                            <div className="relative z-10 flex items-center w-full">
-                                <SiGithub className="mr-2 h-4 w-4 text-zinc-500" />
-                                <span>Open Source</span>
-                                <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">shift + O</CommandShortcut>
-                            </div>
-                        </CommandItem> */}
-                        <CommandItem value="skills" onSelect={() => runCommand(() => navigateToSection("#skills"))} className="relative rounded-lg py-3 cursor-pointer">
-                            {value === "skills" && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
-                            <div className="relative z-10 flex items-center w-full">
-                                <BookOpen className="mr-2 h-4 w-4 text-zinc-500" />
-                                <span>Skills</span>
-                                <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">shift + S</CommandShortcut>
-                            </div>
-                        </CommandItem>
+                        {SECTION_COMMANDS.map((command) => (
+                            <PaletteCommandItem key={command.value} command={command} runCommand={runCommand} selected={value} />
+                        ))}
                     </CommandGroup>
 
                     <CommandSeparator className="my-2" />
 
                     <CommandGroup heading="General">
-                        <CommandItem value="copylink" onSelect={() => runCommand(() => {
-                            navigator.clipboard.writeText(window.location.href)
-                        })} className="relative rounded-lg py-3 cursor-pointer">
-                            {value === "copylink" && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
-                            <div className="relative z-10 flex items-center w-full">
-                                <Copy className="mr-2 h-4 w-4 text-zinc-500" />
-                                <span>Copy Link</span>
-                                <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">shift + C</CommandShortcut>
-                            </div>
-                        </CommandItem>
+                        {GENERAL_COMMANDS.map((command) => (
+                            <PaletteCommandItem key={command.value} command={command} runCommand={runCommand} selected={value} />
+                        ))}
                     </CommandGroup>
 
                     <CommandSeparator className="my-2" />
 
                     <CommandGroup heading="Theme">
-                        <CommandItem value="lightmode" onSelect={() => runCommand(() => setTheme("light"))} className="relative rounded-lg py-3 cursor-pointer">
-                            {value === "lightmode" && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
-                            <div className="relative z-10 flex items-center w-full">
-                                <Sun className="mr-2 h-4 w-4 text-zinc-500" />
-                                <span>Light Mode</span>
-                                <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">shift + T</CommandShortcut>
-                            </div>
-                        </CommandItem>
-                        <CommandItem value="darkmode" onSelect={() => runCommand(() => setTheme("dark"))} className="relative rounded-lg py-3 cursor-pointer">
-                            {value === "darkmode" && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
-                            <div className="relative z-10 flex items-center w-full">
-                                <Moon className="mr-2 h-4 w-4 text-zinc-500" />
-                                <span>Dark Mode</span>
-                                <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">shift + D</CommandShortcut>
-                            </div>
-                        </CommandItem>
-                        <CommandItem value="system" onSelect={() => runCommand(() => setTheme("system"))} className="relative rounded-lg py-3 cursor-pointer">
-                            {value === "system" && <motion.div layoutId="cmdk-hover" className="absolute inset-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.3 }} />}
-                            <div className="relative z-10 flex items-center w-full">
-                                <Laptop className="mr-2 h-4 w-4 text-zinc-500" />
-                                <span>System</span>
-                                <CommandShortcut className="font-mono text-[10px] bg-white/50 dark:bg-black/50 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">shift + Y</CommandShortcut>
-                            </div>
-                        </CommandItem>
+                        {THEME_COMMANDS.map((command) => (
+                            <PaletteCommandItem key={command.value} command={command} runCommand={runCommand} selected={value} />
+                        ))}
                     </CommandGroup>
                 </CommandList>
 
