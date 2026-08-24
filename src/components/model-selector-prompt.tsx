@@ -1452,7 +1452,7 @@ export function ModelSelectorPrompt({
                       transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
                       className="flex items-center gap-2 font-medium"
                     >
-                      <MobiusLoopIcon className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
+                      <MobiusLoopIcon className="w-4 h-4 text-neutral-600 dark:text-neutral-400" aria-hidden="true" />
                       <span className="text-neutral-600 dark:text-neutral-300 font-medium text-xs">
                         Wait...
                       </span>

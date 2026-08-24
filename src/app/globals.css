@@ -329,6 +329,21 @@ body {
 
 }
 
+/* Respect users who disable motion at the OS level: freeze raw CSS
+   keyframe animations (shimmer sweeps, pings, ripples, marquees) and
+   smooth scrolling. Framer Motion handles its own reduction via
+   MotionConfig; this covers the plain-CSS animations it can't see. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Force dark mode styles for AI rendered tables */
 .dark [data-streamdown="table-wrapper"] {
   background-color: transparent !important;

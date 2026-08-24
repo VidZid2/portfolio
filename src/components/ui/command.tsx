@@ -75,7 +75,7 @@ function CommandDialog({
 
   if (!isDesktop) {
     return (
-      <BottomSheet open={!!open} onOpenChange={onOpenChange!} snapPoints={["auto"]}>
+      <BottomSheet open={!!open} onOpenChange={onOpenChange!} snapPoints={["auto"]} ariaLabel="Command palette">
         <Command value={value} onValueChange={onValueChange} className="[&_[cmdk-group-heading]]:text-muted-foreground **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
           {children}
         </Command>
@@ -108,6 +108,17 @@ function CommandDialog({
           {open && (
             <motion.div
               layout
+              role="dialog"
+              aria-modal="true"
+              aria-label="Command palette"
+              onKeyDown={(event: React.KeyboardEvent) => {
+                // Minimal focus trap: the palette's only tab stop is the cmdk
+                // input (items are aria-activedescendant), so keep Tab inside
+                // instead of letting it escape to browser chrome.
+                if (event.key === "Tab") {
+                  event.preventDefault();
+                }
+              }}
               initial={{ opacity: 0, y: enterY, scale: enterScale }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{

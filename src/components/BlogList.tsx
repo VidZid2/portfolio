@@ -187,7 +187,7 @@ export function BlogList() {
                         onMouseEnter={() => setHoveredTag(uniqueId)}
                         onMouseLeave={() => setHoveredTag(null)}
                       >
-                        <TechIcon className="w-4 h-4 md:w-3.5 md:h-3.5 text-zinc-400 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors" />
+                        <TechIcon className="w-4 h-4 md:w-3.5 md:h-3.5 text-zinc-400 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors" aria-label={tooltipText} />
                         <AnimatePresence>
                           {hoveredTag === uniqueId && (
                             <motion.div

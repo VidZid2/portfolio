@@ -108,11 +108,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 text-[13px] font-medium text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
             >
-              <SiGithub className="w-4 h-4" /> Github
+              <SiGithub className="w-4 h-4" aria-hidden="true" /> Github
             </a>
           ) : (
             <div className="flex items-center justify-center gap-2 text-[13px] font-medium text-zinc-400 dark:text-zinc-600 cursor-not-allowed">
-              <SiGithub className="w-4 h-4" /> Github
+              <SiGithub className="w-4 h-4" aria-hidden="true" /> Github
             </div>
           )}
 
@@ -255,7 +255,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
 
               return (
                 <div key={i} className="grow flex whitespace-nowrap items-center justify-center gap-2 px-3 py-1.5 bg-zinc-50 hover:bg-zinc-100 dark:bg-[#0a0a0a] dark:hover:bg-[#121214] border border-black/30 dark:border-white/[0.15] rounded-[6px] transition-colors duration-200 cursor-default">
-                  {Icon && <Icon className="w-3.5 h-3.5 shrink-0 opacity-80 text-zinc-500 dark:text-zinc-400" />}
+                  {Icon && <Icon className="w-3.5 h-3.5 shrink-0 opacity-80 text-zinc-500 dark:text-zinc-400" aria-hidden="true" />}
                   <span className="text-[13px] font-medium text-zinc-600 dark:text-zinc-400">{label}</span>
                 </div>
               );

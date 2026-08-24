@@ -61,6 +61,7 @@ export default function DynamicIslandNotification({
             {!isOpen && (
               <motion.button
                 key="icon-button"
+                aria-label="Open notification"
                 className="size-full absolute top-0 right-0 inline-grid place-content-center transform-gpu dark:text-neutral-400 text-neutral-600 transition-colors duration-500 dark:hover:text-neutral-300 hover:text-neutral-700"
                 onClick={handleOpenSettings}
                 type="button"

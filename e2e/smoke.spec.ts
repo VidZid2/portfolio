@@ -21,12 +21,24 @@ test("command palette opens with Ctrl+K and closes with Escape", async ({ page }
   await page.goto("/", { waitUntil: "networkidle" });
 
   await page.keyboard.press("ControlOrMeta+k");
-  // Desktop palette is a custom portal (no role="dialog" yet — a11y fix pending).
   const paletteInput = page.locator("[cmdk-input]");
   await expect(paletteInput).toBeVisible();
+  // The palette is a proper modal dialog now.
+  await expect(page.getByRole("dialog", { name: "Command palette" })).toBeVisible();
 
   await page.keyboard.press("Escape");
   await expect(paletteInput).toBeHidden();
+});
+
+test("project card is keyboard-accessible (Enter opens detail route)", async ({ page }) => {
+  await seedReturningVisitor(page, "dark");
+  await page.goto("/projects", { waitUntil: "networkidle" });
+
+  const card = page.getByRole("link", { name: /View STI eLMS.*project details/i });
+  await card.focus();
+  await page.keyboard.press("Enter");
+  await page.waitForURL("**/projects/sti-elms**");
+  await expect(page.locator("body")).toContainText(/eLMS/i);
 });
 
 test("project card click navigates to project detail", async ({ page }) => {

@@ -1614,6 +1614,9 @@ function PDFViewerScrollAreaViewport({
         orientation="both"
         viewportClassName="relative min-w-full"
         viewportProps={{
+          role: "region",
+          "aria-label": "PDF document — scrollable",
+          tabIndex: 0,
           style: {
             padding: viewportGap,
           },

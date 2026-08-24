@@ -6,22 +6,10 @@ import { TransitionLink } from "@/components/TransitionLink";
 import { BlueprintGrid } from "@/components/BlueprintGrid";
 import { ProjectCard } from "@/components/ProjectsGrid";
 import { projectsData } from "@/data/projectsData";
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, ArrowLeft, Home } from "lucide-react";
+import { ArrowLeft, Home } from "lucide-react";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 export default function AllProjectsPage() {
-  const [activeVideo, setActiveVideo] = useState<string | null>(null);
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setActiveVideo(null);
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, []);
-
   return (
     <>
       <BlueprintGrid
@@ -138,44 +126,6 @@ export default function AllProjectsPage() {
           </div>
         </div>
       </BlueprintGrid>
-
-      {/* MODAL */}
-      <AnimatePresence>
-        {activeVideo && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setActiveVideo(null)}
-            className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[100] cursor-pointer"
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative bg-black rounded-xl overflow-hidden w-[90%] max-w-3xl shadow-2xl"
-            >
-              <button
-                onClick={() => setActiveVideo(null)}
-                className="absolute top-3 right-3 p-2 bg-neutral-800/80 hover:bg-neutral-700 rounded-full cursor-pointer transition-colors z-50"
-              >
-                <X size={20} className="text-neutral-200" />
-              </button>
-
-              {activeVideo.includes("youtube") ? (
-                <iframe
-                  src={activeVideo}
-                  className="w-full aspect-video border-0"
-                  allowFullScreen
-                ></iframe>
-              ) : (
-                <video src={activeVideo} className="w-full h-auto" controls autoPlay />
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   );
 }

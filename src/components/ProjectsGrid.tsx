@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useTransition } from "@/components/TransitionProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
+import { Dialog, DialogClose, DialogContent } from "@/components/ui/dialog";
 import AnimatedLink from "@/components/ruixen/animated-link";
 import { StatusDot } from "@/components/ui/status-dot";
 import {
@@ -60,16 +61,21 @@ export const ProjectCard = ({
   const isBuilding = project.title === "Blueprint" || project.title === "Scribble3D";
 
   return (
-    <motion.div
+    <motion.a
+      href={`/projects/${project.slug}`}
       variants={{
         hidden: { opacity: 0, scale: 0.95, y: 20 },
         visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", bounce: 0.4 } }
       }}
-      className="flex flex-col group cursor-pointer"
-      onClick={() => navigate(`/projects/${project.slug}`)}
+      className="flex flex-col group cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#6495ED] focus-visible:rounded-2xl"
+      onClick={(e) => {
+        e.preventDefault();
+        navigate(`/projects/${project.slug}`);
+      }}
       onMouseEnter={() => setShouldLoadHoverImage(true)}
       onFocus={() => setShouldLoadHoverImage(true)}
       onTouchStart={() => setShouldLoadHoverImage(true)}
+      aria-label={`View ${project.title} project details`}
     >
       {/* Outer Wrapper with clean, minimalist border */}
       <motion.div
@@ -141,6 +147,7 @@ export const ProjectCard = ({
               className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900/90 hover:bg-zinc-900 dark:bg-zinc-100/95 dark:hover:bg-white text-zinc-50 dark:text-zinc-950 text-[12px] font-medium backdrop-blur-md shadow-2xl border border-white/20 dark:border-black/10 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 if (project.live && project.live !== "#") {
                   window.open(project.live, "_blank");
                 }
@@ -240,7 +247,7 @@ export const ProjectCard = ({
                   {isIconItem ? (
                     (() => {
                       const TechIcon = iconMap[item];
-                      return <TechIcon className="w-4 h-4 md:w-3.5 md:h-3.5 text-zinc-400 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors" />;
+                      return <TechIcon className="w-4 h-4 md:w-3.5 md:h-3.5 text-zinc-400 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors" aria-label={tooltipText} />;
                     })()
                   ) : (
                     <span className="flex items-center justify-center px-2 py-0.5 rounded-[4px] border border-black/20 dark:border-white/[0.15] text-[10px] font-medium text-zinc-600 dark:text-zinc-400 leading-none">
@@ -266,25 +273,17 @@ export const ProjectCard = ({
             })}
           </div>
 
-          <AnimatedLink as="div" variant="right" className="absolute bottom-0 right-0 flex shrink-0 items-center text-[11px] font-medium text-zinc-600 dark:text-zinc-400 transition-colors cursor-pointer hover:text-zinc-900 dark:hover:text-zinc-100 sm:text-[12px] mb-0.5" onClick={(e: React.MouseEvent) => { e.stopPropagation(); if (project.live) window.open(project.live, "_blank"); else if (project.github) window.open(project.github, "_blank"); }}>
+          <AnimatedLink as="div" variant="right" className="absolute bottom-0 right-0 flex shrink-0 items-center text-[11px] font-medium text-zinc-600 dark:text-zinc-400 transition-colors cursor-pointer hover:text-zinc-900 dark:hover:text-zinc-100 sm:text-[12px] mb-0.5" onClick={(e: React.MouseEvent) => { e.stopPropagation(); e.preventDefault(); if (project.live) window.open(project.live, "_blank"); else if (project.github) window.open(project.github, "_blank"); }}>
             View Project
           </AnimatedLink>
         </div>
       </div>
-    </motion.div>
+    </motion.a>
   );
 };
 
 export function ProjectsGrid() {
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setActiveVideo(null);
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, []);
 
   return (
     <>
@@ -313,43 +312,46 @@ export function ProjectsGrid() {
         </div>
       </div>
 
-      {/* MODAL */}
-      <AnimatePresence>
-        {activeVideo && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setActiveVideo(null)}
-            className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[100] cursor-pointer"
+      {/* MODAL — Radix Dialog: focus trap, Escape, aria-modal, scroll lock.
+          Restyled to match the original video lightbox. Currently dormant
+          (nothing sets a video URL yet); wired for future project demos. */}
+      <Dialog
+        open={activeVideo !== null}
+        onOpenChange={(open) => {
+          if (!open) setActiveVideo(null);
+        }}
+      >
+        <DialogContent
+          aria-label="Project video"
+          showCloseButton={false}
+          className="top-[50%] left-[50%] w-[90%] max-w-3xl translate-x-[-50%] translate-y-[-50%] gap-0 rounded-xl border-0 bg-black p-0 shadow-2xl sm:max-w-3xl"
+        >
+          <DialogClose
+            className="absolute top-3 right-3 z-50 rounded-full bg-neutral-800/80 p-2 text-neutral-200 transition-colors cursor-pointer hover:bg-neutral-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            aria-label="Close video"
           >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative bg-black rounded-xl overflow-hidden w-[90%] max-w-3xl shadow-2xl"
-            >
-              <button
-                onClick={() => setActiveVideo(null)}
-                className="absolute top-3 right-3 p-2 bg-neutral-800/80 hover:bg-neutral-700 rounded-full cursor-pointer transition-colors z-50"
-              >
-                <X size={20} className="text-neutral-200" />
-              </button>
+            <X size={20} />
+          </DialogClose>
 
-              {activeVideo.includes("youtube") ? (
-                <iframe
-                  src={activeVideo}
-                  className="w-full aspect-video border-0"
-                  allowFullScreen
-                ></iframe>
-              ) : (
-                <video src={activeVideo} className="w-full h-auto" controls autoPlay />
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          {activeVideo?.includes("youtube") ? (
+            <iframe
+              src={activeVideo}
+              className="w-full aspect-video border-0"
+              allowFullScreen
+              title="Project video"
+            />
+          ) : (
+            activeVideo && (
+              <video
+                src={activeVideo}
+                className="w-full h-auto"
+                controls
+                autoPlay
+              />
+            )
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

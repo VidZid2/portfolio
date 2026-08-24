@@ -117,15 +117,49 @@ export function InsightsSection({
         }}
         className="relative"
       >
-        <dl className="grid grid-cols-2 md:grid-cols-4 relative">
-          {/* Mobile middle horizontal divider */}
-          <div
-            className="md:hidden absolute top-1/2 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
-            style={DOT_MASK_HORIZONTAL}
-          />
-          <div className="md:hidden absolute top-1/2 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-          <div className="md:hidden absolute top-1/2 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+        <div className="relative">
+          {/* Decorative divider layer, kept outside the <dl> — dl children
+              must be dt/dd groups only. Same pattern as metrics-01. */}
+          <div className="pointer-events-none absolute inset-0 z-10 grid grid-cols-2 md:grid-cols-4">
+            {/* Mobile middle horizontal divider */}
+            <div
+              className="md:hidden absolute top-1/2 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15]"
+              style={DOT_MASK_HORIZONTAL}
+            />
+            <div className="md:hidden absolute top-1/2 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 z-20" />
+            <div className="md:hidden absolute top-1/2 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 z-20" />
 
+            {/* Metric 1 right divider */}
+            <div className="relative">
+              <div
+                className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15]"
+                style={DOT_MASK_VERTICAL}
+              />
+              <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 z-20" />
+              <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 z-20" />
+            </div>
+            {/* Metric 2 right divider (Desktop only) */}
+            <div className="relative hidden md:block">
+              <div
+                className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15]"
+                style={DOT_MASK_VERTICAL}
+              />
+              <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 z-20" />
+              <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 z-20" />
+            </div>
+            {/* Metric 3 right divider */}
+            <div className="relative">
+              <div
+                className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15]"
+                style={DOT_MASK_VERTICAL}
+              />
+              <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 z-20" />
+              <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 z-20" />
+            </div>
+            <div />
+          </div>
+
+          <dl className="grid grid-cols-2 md:grid-cols-4">
           {/* Metric 1: Visitors */}
           <Metric className="p-3 sm:p-4 relative">
             <MetricLabel>
@@ -135,13 +169,6 @@ export function InsightsSection({
             <MetricValue className="text-xl sm:text-2xl font-bold mt-1">
               {insights.summary.uniqueVisitors.toLocaleString("en-US")}
             </MetricValue>
-            {/* Right vertical dotted divider */}
-            <div
-              className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
-              style={DOT_MASK_VERTICAL}
-            />
-            <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-            <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
           </Metric>
 
           {/* Metric 2: Total Sessions */}
@@ -153,13 +180,6 @@ export function InsightsSection({
             <MetricValue className="text-xl sm:text-2xl font-bold mt-1">
               {insights.summary.totalSessions.toLocaleString("en-US")}
             </MetricValue>
-            {/* Right vertical dotted divider (Desktop only) */}
-            <div
-              className="hidden md:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
-              style={DOT_MASK_VERTICAL}
-            />
-            <div className="hidden md:block absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-            <div className="hidden md:block absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
           </Metric>
 
           {/* Metric 3: Screen Views */}
@@ -171,13 +191,6 @@ export function InsightsSection({
             <MetricValue className="text-xl sm:text-2xl font-bold mt-1">
               {insights.summary.totalScreenViews.toLocaleString("en-US")}
             </MetricValue>
-            {/* Right vertical dotted divider */}
-            <div
-              className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
-              style={DOT_MASK_VERTICAL}
-            />
-            <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-            <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
           </Metric>
 
           {/* Metric 4: Avg Duration */}
@@ -190,7 +203,8 @@ export function InsightsSection({
               {formatDuration(insights.summary.avgSessionDuration)}
             </MetricValue>
           </Metric>
-        </dl>
+          </dl>
+        </div>
       </motion.div>
 
       {/* Divider above chart */}

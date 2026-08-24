@@ -43,7 +43,6 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#000000" },
   ],
-  colorScheme: "light dark",
 };
 
 export const metadata: Metadata = {
@@ -63,10 +62,6 @@ export const metadata: Metadata = {
       "Full-Stack Front-End Engineer & UI Systems Architect.",
     type: "website",
   },
-  other: {
-    "color-scheme": "light dark",
-    "supported-color-schemes": "light dark",
-  },
 };
 
 export default function RootLayout({
@@ -80,10 +75,6 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${doto.variable} ${caveat.variable} h-full antialiased`}
     >
-      <head>
-        <meta name="color-scheme" content="light dark" />
-        <meta name="supported-color-schemes" content="light dark" />
-      </head>
       <body className="min-h-full flex flex-col dark:bg-black dark:text-zinc-50">
         <ThemeProvider
           attribute="class"

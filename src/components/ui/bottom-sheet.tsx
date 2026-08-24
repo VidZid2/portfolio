@@ -21,6 +21,8 @@ export interface BottomSheetProps {
   defaultSnap?: number;
   title?: string;
   description?: string;
+  /** Accessible name for the dialog without rendering a visible heading. */
+  ariaLabel?: string;
   children?: ReactNode;
   className?: string;
   dismissThreshold?: number;
@@ -33,6 +35,7 @@ export function BottomSheet({
   defaultSnap = 0,
   title,
   description,
+  ariaLabel,
   children,
   className,
   dismissThreshold = 120,
@@ -144,7 +147,7 @@ export function BottomSheet({
             )}
             role="dialog"
             aria-modal="true"
-            aria-label={title}
+            aria-label={ariaLabel ?? title}
           >
             <div
               onPointerDown={(e) => dragControls.start(e)}

@@ -211,6 +211,9 @@ export function TimescaleViewport({
     <div
       ref={viewportRef}
       data-slot="timescale-viewport"
+      role="region"
+      aria-label="Timeline — scrollable horizontally"
+      tabIndex={0}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
