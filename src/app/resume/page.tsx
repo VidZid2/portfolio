@@ -4,6 +4,7 @@ import { PDFViewer } from "@/components/ui/pdf-viewer";
 import { BlueprintGrid } from "@/components/BlueprintGrid";
 import { SubpageHeader } from "@/components/SubpageHeader";
 import SoftPillButton from "@/components/pixel-perfect/soft-pill-button";
+import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 
 const resumePath = "/Josiah-De-Asis-Resume.pdf";
 
@@ -70,9 +71,9 @@ export default function ResumePage() {
             className="pointer-events-none absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15]"
             style={{
               maskImage:
-                "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                DOT_MASK_HORIZONTAL.maskImage,
               WebkitMaskImage:
-                "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                DOT_MASK_HORIZONTAL.WebkitMaskImage,
             }}
           />
           <div className="pointer-events-none absolute -left-4 h-[2px] w-[2px] -translate-x-1/2 -translate-y-1/2 bg-black/50 dark:bg-white/[0.25]" />

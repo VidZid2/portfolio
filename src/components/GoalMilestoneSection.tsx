@@ -7,6 +7,7 @@ import ScrambleText, { type ScrambleTextRef } from "@/components/ruixen/scramble
 import { GoalMilestoneList } from "@/components/GoalMilestoneList";
 import { usePerformance } from "@/hooks/usePerformance";
 import { TransitionLink } from "@/components/TransitionLink";
+import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 
 export function GoalMilestoneSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
   const phase = useArcReveal();
@@ -34,8 +35,8 @@ export function GoalMilestoneSection({ hasSeenScrollAnimations = false }: { hasS
       <div
         className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
         style={{
-          maskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)',
-          WebkitMaskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)'
+          maskImage: DOT_MASK_HORIZONTAL.maskImage,
+          WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage
         }}
       />
       {/* Top Line Intersections */}
@@ -57,8 +58,8 @@ export function GoalMilestoneSection({ hasSeenScrollAnimations = false }: { hasS
         <div
           className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
           style={{
-            maskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)',
-            WebkitMaskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)'
+            maskImage: DOT_MASK_HORIZONTAL.maskImage,
+            WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage
           }}
         />
         {/* Bottom Line Intersections */}
@@ -85,7 +86,7 @@ export function GoalMilestoneSection({ hasSeenScrollAnimations = false }: { hasS
       </div>
 
       {/* Bottom full-width line for the entire section */}
-      <div className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)', WebkitMaskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)' }} />
+      <div className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
       {/* Bottom Line Intersections */}
       <div className="absolute bottom-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
       <div className="absolute bottom-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />

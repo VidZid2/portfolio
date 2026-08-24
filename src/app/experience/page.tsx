@@ -6,6 +6,7 @@ import { useState } from "react";
 import Image from "next/image";
 
 import { experiences } from "@/data/experienceData";
+import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 
 export default function AllExperiencePage() {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
@@ -39,9 +40,9 @@ export default function AllExperiencePage() {
                     className={`absolute bottom-0 ${isLast ? 'left-[-100vw] right-[-100vw]' : 'left-[-16px] right-[-16px]'} h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10`}
                     style={{
                       maskImage:
-                        "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                        DOT_MASK_HORIZONTAL.maskImage,
                       WebkitMaskImage:
-                        "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                        DOT_MASK_HORIZONTAL.WebkitMaskImage,
                     }}
                   />
 
@@ -177,27 +178,27 @@ export default function AllExperiencePage() {
                               className="pointer-events-none absolute inset-x-0 top-0 h-0 border-t border-black/30 dark:border-white/[0.15]"
                               style={{
                                 maskImage:
-                                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                                  DOT_MASK_HORIZONTAL.maskImage,
                                 WebkitMaskImage:
-                                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                                  DOT_MASK_HORIZONTAL.WebkitMaskImage,
                               }}
                             />
                             <span
                               className="pointer-events-none absolute inset-x-0 top-1/2 h-0 border-t border-black/30 dark:border-white/[0.15] 2xl:hidden"
                               style={{
                                 maskImage:
-                                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                                  DOT_MASK_HORIZONTAL.maskImage,
                                 WebkitMaskImage:
-                                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                                  DOT_MASK_HORIZONTAL.WebkitMaskImage,
                               }}
                             />
                             <span
                               className="pointer-events-none absolute inset-x-0 bottom-0 h-0 border-b border-black/30 dark:border-white/[0.15]"
                               style={{
                                 maskImage:
-                                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                                  DOT_MASK_HORIZONTAL.maskImage,
                                 WebkitMaskImage:
-                                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                                  DOT_MASK_HORIZONTAL.WebkitMaskImage,
                               }}
                             />
                             <span className="pointer-events-none absolute left-0 top-0 h-[2px] w-[2px] -translate-x-1/2 -translate-y-1/2 bg-black/50 dark:bg-white/[0.25]" />
@@ -289,7 +290,7 @@ export default function AllExperiencePage() {
 
         {/* Bottom Separator */}
         <div className="relative mt-8">
-          <div className="absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)', WebkitMaskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)' }} />
+          <div className="absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
           <div className="absolute -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
           <div className="absolute -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
         </div>

@@ -8,6 +8,7 @@ import { educationList, type EducationBullet, type EducationBadge } from "@/data
 import { type CarouselApi } from "@/components/ui/carousel";
 import { playHoverTick, playSoftClick } from "@/lib/synth-sounds";
 import { cn } from "@/lib/utils";
+import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 
 const BOUNCE_SPRING = {
   type: "spring",
@@ -360,9 +361,9 @@ export function EducationList({ activeTab, carouselApi }: { activeTab?: string; 
               className="absolute bottom-0 left-[-16px] right-[-16px] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
               style={{
                 maskImage:
-                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                  DOT_MASK_HORIZONTAL.maskImage,
                 WebkitMaskImage:
-                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                  DOT_MASK_HORIZONTAL.WebkitMaskImage,
               }}
             />
 

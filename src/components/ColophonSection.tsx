@@ -6,19 +6,20 @@ import { cn } from "@/lib/utils";
 import { DrawUnderlineLink } from "@/components/sora-ui/texts/draw-underline-link";
 import { useTransition } from "@/components/TransitionProvider";
 import { playToastError, playSoftClick } from "@/lib/synth-sounds";
+import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 
 const dashedMaskHorizontal = {
   maskImage:
-    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+    DOT_MASK_HORIZONTAL.maskImage,
   WebkitMaskImage:
-    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+    DOT_MASK_HORIZONTAL.WebkitMaskImage,
 };
 
 const dashedMaskVertical = {
   maskImage:
-    "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
+    DOT_MASK_VERTICAL.maskImage,
   WebkitMaskImage:
-    "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
+    DOT_MASK_VERTICAL.WebkitMaskImage,
 };
 
 const INSPIRED_BY = [

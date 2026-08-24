@@ -7,6 +7,7 @@ import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 import { usePerformance } from "@/hooks/usePerformance";
 import ScrambleText from "@/components/ruixen/scramble-text";
 import { playSoftClick } from "@/lib/synth-sounds";
+import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 
 function OpenAIIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
   return (
@@ -93,13 +94,13 @@ export function SkillsSection({ hasSeenScrollAnimations = false }: { hasSeenScro
   const skip = hasSeenScrollAnimations || isLowTier;
 
   const dashedMask = {
-    maskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-    WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+    maskImage: DOT_MASK_HORIZONTAL.maskImage,
+    WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage,
   };
 
   const dashedVerticalMask = {
-    maskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
-    WebkitMaskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
+    maskImage: DOT_MASK_VERTICAL.maskImage,
+    WebkitMaskImage: DOT_MASK_VERTICAL.WebkitMaskImage,
   };
 
   return (

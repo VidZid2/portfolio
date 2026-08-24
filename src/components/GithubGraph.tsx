@@ -6,6 +6,7 @@ import { GithubCalendar } from "@/components/ui/github-calendar";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
 import { usePerformance } from "@/hooks/usePerformance";
+import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 
 export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
   const phase = useArcReveal();
@@ -42,11 +43,6 @@ export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScroll
     return () => window.removeEventListener('resize', checkSize);
   }, []);
 
-
-  const dashedLineMask = {
-    maskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-    WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-  };
 
   const blueTheme = {
     level0: isDark ? "rgba(39, 39, 42, 0.4)" : "#f4f4f5",
@@ -111,7 +107,7 @@ export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScroll
       {/* Bottom full-width dashed line before AboutSection */}
       <div
         className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 pointer-events-none dark:border-white/[0.15]"
-        style={dashedLineMask}
+          style={DOT_MASK_HORIZONTAL}
       />
       <div className="absolute bottom-0 -left-4 z-20 size-[2px] -translate-x-1/2 translate-y-1/2 bg-black/50 pointer-events-none dark:bg-white/[0.25]" />
       <div className="absolute bottom-0 -right-4 z-20 size-[2px] translate-x-1/2 translate-y-1/2 bg-black/50 pointer-events-none dark:bg-white/[0.25]" />

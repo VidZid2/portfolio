@@ -30,23 +30,13 @@ import { Volume2 } from "lucide-react";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
 import { FogTextReveal } from "@/components/sora-ui/texts/fog-text-reveal";
 import { playSoftClick } from "@/lib/synth-sounds";
+import {
+  DIAGONAL_HATCH_PATTERN,
+  DOT_MASK_HORIZONTAL,
+  DOT_MASK_VERTICAL,
+} from "@/lib/blueprint";
 
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
-
-const DOT_MASK_VERTICAL = {
-  maskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
-  WebkitMaskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
-};
-
-const DOT_MASK_HORIZONTAL = {
-  maskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-  WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-};
-
-const DIAGONAL_HATCH_PATTERN = {
-  backgroundImage:
-    "repeating-linear-gradient(-45deg, transparent, transparent 5px, rgba(120, 120, 120, 0.15) 5px, rgba(120, 120, 120, 0.15) 6px)",
-};
 
 export default function Home() {
   const [hasPlayed, setHasPlayed] = useState(false);
@@ -275,9 +265,9 @@ export default function Home() {
                 className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
                 style={{
                   maskImage:
-                    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                    DOT_MASK_HORIZONTAL.maskImage,
                   WebkitMaskImage:
-                    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                    DOT_MASK_HORIZONTAL.WebkitMaskImage,
                 }}
               />
               {/* Intersections */}

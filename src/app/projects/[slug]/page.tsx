@@ -8,6 +8,7 @@ import { ExternalLink, ArrowLeft, Home } from "lucide-react";
 import { SiGithub } from "react-icons/si";
 import { InteractivePreview } from "@/components/InteractivePreview";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 
 export async function generateStaticParams() {
   return projectsData.map((project) => ({
@@ -90,9 +91,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             className="absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={{
               maskImage:
-                "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                DOT_MASK_HORIZONTAL.maskImage,
               WebkitMaskImage:
-                "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                DOT_MASK_HORIZONTAL.WebkitMaskImage,
             }}
           />
           <div className="absolute -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
@@ -121,9 +122,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             className="hidden md:block absolute left-1/3 top-0 bottom-0 w-0 border-l border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={{
               maskImage:
-                "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
+                DOT_MASK_VERTICAL.maskImage,
               WebkitMaskImage:
-                "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
+                DOT_MASK_VERTICAL.WebkitMaskImage,
             }}
           />
 
@@ -145,9 +146,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             className="hidden md:block absolute left-2/3 top-0 bottom-0 w-0 border-l border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={{
               maskImage:
-                "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
+                DOT_MASK_VERTICAL.maskImage,
               WebkitMaskImage:
-                "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
+                DOT_MASK_VERTICAL.WebkitMaskImage,
             }}
           />
 
@@ -157,9 +158,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               className="absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
               style={{
                 maskImage:
-                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                  DOT_MASK_HORIZONTAL.maskImage,
                 WebkitMaskImage:
-                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                  DOT_MASK_HORIZONTAL.WebkitMaskImage,
               }}
             />
             <div className="absolute -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
@@ -213,9 +214,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             className="absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={{
               maskImage:
-                "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                DOT_MASK_HORIZONTAL.maskImage,
               WebkitMaskImage:
-                "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                DOT_MASK_HORIZONTAL.WebkitMaskImage,
             }}
           />
           <div className="absolute -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />

@@ -12,6 +12,7 @@ import { AsciiGlitchBlock } from "@/components/ui/ascii-glitch-block";
 import { GlyphMatrix } from "@/components/ui/glyph-matrix";
 import { JapaneseAsciiText } from "@/components/ui/japanese-ascii-text";
 import { cn } from "@/lib/utils";
+import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 
 function ProjectSyncBackground({ isHovered, isOpen }: { isHovered: boolean; isOpen: boolean }) {
   const hasMounted = useSyncExternalStore(
@@ -184,9 +185,9 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
                 className="absolute bottom-0 left-[-16px] right-[-16px] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
                 style={{
                   maskImage:
-                    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                    DOT_MASK_HORIZONTAL.maskImage,
                   WebkitMaskImage:
-                    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                    DOT_MASK_HORIZONTAL.WebkitMaskImage,
                 }}
               />
 
@@ -345,7 +346,7 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
                               Comprehensive breakdown of the core technologies and systems powering this portfolio.
                             </p>
                             {/* Bottom Dashed Line */}
-                            <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15]" style={{ maskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)", WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)" }} />
+                            <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15]" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
                             
                             {/* Corner Dots for the bottom line */}
                             <span className="pointer-events-none absolute left-0 bottom-0 h-[2px] w-[2px] -translate-x-1/2 translate-y-1/2 bg-[#808080] dark:bg-[#404040] z-10" />
@@ -361,7 +362,7 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
                               Comprehensive breakdown of the core technologies and systems powering this platform.
                             </p>
                             {/* Bottom Dashed Line */}
-                            <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15]" style={{ maskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)", WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)" }} />
+                            <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15]" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
                             
                             {/* Corner Dots for the bottom line */}
                             <span className="pointer-events-none absolute left-0 bottom-0 h-[2px] w-[2px] -translate-x-1/2 translate-y-1/2 bg-[#808080] dark:bg-[#404040] z-10" />
@@ -369,10 +370,10 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
                           </div>
                         )}
                         {/* Outer Borders */}
-                        <span className="pointer-events-none absolute top-0 left-0 right-0 h-0 border-t border-black/30 dark:border-white/[0.15]" style={{ maskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)", WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)" }} />
-                        <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15]" style={{ maskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)", WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)" }} />
-                        <span className="pointer-events-none absolute top-0 bottom-0 left-0 w-0 border-l border-black/30 dark:border-white/[0.15]" style={{ maskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)", WebkitMaskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)" }} />
-                        <span className="pointer-events-none absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15]" style={{ maskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)", WebkitMaskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)" }} />
+                        <span className="pointer-events-none absolute top-0 left-0 right-0 h-0 border-t border-black/30 dark:border-white/[0.15]" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
+                        <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15]" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
+                        <span className="pointer-events-none absolute top-0 bottom-0 left-0 w-0 border-l border-black/30 dark:border-white/[0.15]" style={{ maskImage: DOT_MASK_VERTICAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_VERTICAL.WebkitMaskImage }} />
+                        <span className="pointer-events-none absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15]" style={{ maskImage: DOT_MASK_VERTICAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_VERTICAL.WebkitMaskImage }} />
 
                         {/* Outer Container Corner Dots */}
                         <span className="pointer-events-none absolute left-0 top-0 h-[2px] w-[2px] -translate-x-1/2 -translate-y-1/2 bg-[#808080] dark:bg-[#404040] z-10" />
@@ -418,12 +419,12 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
                                 {/* Inner Right Border */}
                                 <span 
                                   className={`pointer-events-none absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] ${rightClass}`}
-                                  style={{ maskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)", WebkitMaskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)" }} 
+                                  style={{ maskImage: DOT_MASK_VERTICAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_VERTICAL.WebkitMaskImage }} 
                                 />
                                 {/* Inner Bottom Border */}
                                 <span 
                                   className={`pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] ${bottomClass}`}
-                                  style={{ maskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)", WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)" }} 
+                                  style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} 
                                 />
 
                                 <p className="text-[14px] sm:text-[15px] font-bold leading-tight text-zinc-900 dark:text-zinc-100 break-words">

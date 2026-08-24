@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Database, Zap, ShieldAlert } from "lucide-react";
 import { type CarouselApi } from "@/components/ui/carousel";
+import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 
 type LessonData = {
   title: string;
@@ -81,9 +82,9 @@ export function LessonsLearned({ activeTab, carouselApi }: { activeTab?: string;
               className="absolute bottom-0 left-[-16px] right-[-16px] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
               style={{
                 maskImage:
-                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                  DOT_MASK_HORIZONTAL.maskImage,
                 WebkitMaskImage:
-                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                  DOT_MASK_HORIZONTAL.WebkitMaskImage,
               }}
             />
 

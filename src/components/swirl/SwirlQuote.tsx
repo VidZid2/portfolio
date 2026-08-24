@@ -2,23 +2,10 @@
 
 import { useTheme } from "next-themes";
 import { useEffect, useState, useSyncExternalStore } from "react";
+import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 import { ExperimentStage } from "./experiment-stage";
 import { DEFAULT_TEXT } from "./default-text";
 import { DEFAULT_STAGE } from "./use-swirl-stage";
-
-const dashedMaskVertical = {
-  maskImage:
-    "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
-  WebkitMaskImage:
-    "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
-};
-
-const dashedMaskHorizontal = {
-  maskImage:
-    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-  WebkitMaskImage:
-    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-};
 
 const SWIRL_WORDS = ["SYNC", "WORK", "BUILD", "CREATE"];
 
@@ -70,11 +57,11 @@ export function SwirlQuote() {
       {/* Left and Right continuous vertical dotted boundary lines */}
       <div
         className="absolute top-0 bottom-0 left-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
-        style={dashedMaskVertical}
+        style={DOT_MASK_VERTICAL}
       />
       <div
         className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
-        style={dashedMaskVertical}
+        style={DOT_MASK_VERTICAL}
       />
 
       <ExperimentStage 
@@ -93,7 +80,7 @@ export function SwirlQuote() {
       {/* Bottom full-width divider line */}
       <div
         className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
-        style={dashedMaskHorizontal}
+        style={DOT_MASK_HORIZONTAL}
       />
       <div className="absolute bottom-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-30" />
       <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-30" />

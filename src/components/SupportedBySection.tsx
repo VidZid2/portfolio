@@ -32,6 +32,7 @@ import {
 import { CurvedMenu } from "@/components/ui/curved-menu";
 import { CylinderCarousel } from "@/components/motion/cylinder-carousel";
 import { playSoftClick } from "@/lib/synth-sounds";
+import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 
 /** How long each logo stays visible before cycling to the next one (ms). */
 const CYCLE_INTERVAL = 2600;
@@ -486,16 +487,16 @@ export function SupportedBySection({
 
   const dashedMask = {
     maskImage:
-      "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+      DOT_MASK_HORIZONTAL.maskImage,
     WebkitMaskImage:
-      "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+      DOT_MASK_HORIZONTAL.WebkitMaskImage,
   };
 
   const dashedVerticalMask = {
     maskImage:
-      "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
+      DOT_MASK_VERTICAL.maskImage,
     WebkitMaskImage:
-      "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
+      DOT_MASK_VERTICAL.WebkitMaskImage,
   };
 
   const renderGalleryContent = () => (

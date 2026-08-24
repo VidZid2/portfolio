@@ -3,6 +3,7 @@
 import React from "react";
 import { TopBanner } from "@/components/TopBanner";
 import { RightNavbar } from "@/components/RightNavbar";
+import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 
 interface BlueprintGridProps {
   bannerSlot?: React.ReactNode;
@@ -12,16 +13,6 @@ interface BlueprintGridProps {
   className?: string;
   expandContentMargins?: boolean;
 }
-
-const DOT_MASK_VERTICAL = {
-  maskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
-  WebkitMaskImage: "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
-};
-
-const DOT_MASK_HORIZONTAL = {
-  maskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-  WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-};
 
 export function BlueprintGrid({
   bannerSlot,

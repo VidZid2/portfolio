@@ -6,6 +6,7 @@ import { MotionContainer } from "@/components/motion-container";
 import { DrawUnderlineLink } from "@/components/sora-ui/texts/draw-underline-link";
 import { playHoverTick, playSoftClick } from "@/lib/synth-sounds";
 import { cn } from "@/lib/utils";
+import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 
 // A compact, lightly underdamped spring gives the dot a quick landing without
 // turning the sidebar into a playful toy. The sideways arc carries the bounce.
@@ -208,8 +209,8 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
   );
 
   const dashedMask = {
-    maskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-    WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+    maskImage: DOT_MASK_HORIZONTAL.maskImage,
+    WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage,
   };
 
   return (

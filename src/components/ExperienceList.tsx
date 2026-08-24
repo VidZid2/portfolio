@@ -9,6 +9,7 @@ import { FlickeringGrid } from "@/components/ui/flickering-grid";
 
 import { experiences } from "@/data/experienceData";
 import { type CarouselApi } from "@/components/ui/carousel";
+import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 
 export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string; carouselApi?: CarouselApi }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
@@ -70,9 +71,9 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
               className="absolute bottom-0 left-[-16px] right-[-16px] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
               style={{
                 maskImage:
-                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                  DOT_MASK_HORIZONTAL.maskImage,
                 WebkitMaskImage:
-                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                  DOT_MASK_HORIZONTAL.WebkitMaskImage,
               }}
             />
 
@@ -217,9 +218,9 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
                         className="pointer-events-none absolute inset-x-0 top-0 h-0 border-t border-black/30 dark:border-white/[0.15]"
                         style={{
                           maskImage:
-                            "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                            DOT_MASK_HORIZONTAL.maskImage,
                           WebkitMaskImage:
-                            "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                            DOT_MASK_HORIZONTAL.WebkitMaskImage,
                         }}
                       />
                       {item.metrics.length > 2 && (
@@ -227,9 +228,9 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
                           className="pointer-events-none absolute inset-x-0 top-1/2 h-0 border-t border-black/30 dark:border-white/[0.15] md:hidden"
                           style={{
                             maskImage:
-                              "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                              DOT_MASK_HORIZONTAL.maskImage,
                             WebkitMaskImage:
-                              "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                              DOT_MASK_HORIZONTAL.WebkitMaskImage,
                           }}
                         />
                       )}
@@ -237,9 +238,9 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
                         className="pointer-events-none absolute inset-x-0 bottom-0 h-0 border-b border-black/30 dark:border-white/[0.15]"
                         style={{
                           maskImage:
-                            "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                            DOT_MASK_HORIZONTAL.maskImage,
                           WebkitMaskImage:
-                            "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                            DOT_MASK_HORIZONTAL.WebkitMaskImage,
                         }}
                       />
                       <span className="pointer-events-none absolute left-0 top-0 h-[2px] w-[2px] -translate-x-1/2 -translate-y-1/2 bg-black/50 dark:bg-white/[0.25]" />

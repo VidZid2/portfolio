@@ -14,6 +14,7 @@ import { useTheme } from "next-themes";
 import { ExperimentStage } from "@/components/swirl/experiment-stage";
 import { DEFAULT_TEXT } from "@/components/swirl/default-text";
 import { DEFAULT_STAGE } from "@/components/swirl/use-swirl-stage";
+import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 
 export default function ContactPage() {
   const { theme, resolvedTheme } = useTheme();
@@ -180,7 +181,7 @@ export default function ContactPage() {
 
           {/* Separator */}
           <div className="relative mt-16 mb-0">
-            <div className="absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)', WebkitMaskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)' }} />
+            <div className="absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
             {/* Intersection nodes */}
             <div className="absolute -left-8 md:-left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
             <div className="absolute -right-8 md:-right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />

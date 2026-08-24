@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { playHoverTick, playSoftClick, playToastError } from "@/lib/synth-sounds";
 import { LetsConnect } from "@/components/LetsConnect";
 import { TransitionLink } from "@/components/TransitionLink";
+import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 
 const SOCIAL_LINKS = [
   {
@@ -122,16 +123,16 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
 
   const dashedMask = {
     maskImage:
-      "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+      DOT_MASK_HORIZONTAL.maskImage,
     WebkitMaskImage:
-      "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+      DOT_MASK_HORIZONTAL.WebkitMaskImage,
   };
 
   const dashedVerticalMask = {
     maskImage:
-      "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
+      DOT_MASK_VERTICAL.maskImage,
     WebkitMaskImage:
-      "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
+      DOT_MASK_VERTICAL.WebkitMaskImage,
   };
 
   return (

@@ -4,10 +4,11 @@ import { ROUTES, seedReturningVisitor } from "./fixtures";
 // Golden-reference screenshots are only meaningful on the machine that
 // captured them (font rasterization differs across OSes). CI runs smoke only.
 //
-// NOTE: the `/` goldens embed live data (GitHub contribution calendar — its
-// canvas aspect ratio shifts when the rolling window crosses a week boundary,
-// time-of-day greeting, live insights counters, rotating sponsor marquee), so
-// they legitimately drift every few days. Re-capture with:
+// NOTE: run with reduced parallelism (--workers=3, set in the
+// `test:e2e:visual` script). At full 20-worker parallelism, the SSR fetches
+// for live data (GitHub contributions API, PR search) saturate the upstream
+// services and pages render their fallback states mid-run, producing
+// false-positive diffs. Routes with live data can still drift day-to-day:
 //   npx playwright test e2e/visual.spec.ts -g "golden (light|dark) /$" --update-snapshots
 test.skip(Boolean(process.env.CI), "visual baselines are captured/compared locally");
 

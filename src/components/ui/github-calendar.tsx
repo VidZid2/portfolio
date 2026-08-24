@@ -146,6 +146,7 @@ function formatTooltipDate(dateStr: string): string {
   }
 }
 
+import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 import {
   playLaserSound,
   playExplosionSound,
@@ -2485,8 +2486,8 @@ export const GithubCalendar = memo(function GithubCalendar({
           <div 
             className="absolute left-[-100vw] right-[-100vw] top-0 h-0 border-b border-black/30 dark:border-white/[0.15]" 
             style={{ 
-              maskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)', 
-              WebkitMaskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)' 
+              maskImage: DOT_MASK_HORIZONTAL.maskImage, 
+              WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage 
             }} 
           />
         </motion.div>

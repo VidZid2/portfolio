@@ -8,6 +8,7 @@ import { ProjectCard } from "@/components/ProjectsGrid";
 import { projectsData } from "@/data/projectsData";
 import { ArrowLeft, Home } from "lucide-react";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 
 export default function AllProjectsPage() {
   return (
@@ -57,9 +58,9 @@ export default function AllProjectsPage() {
               className="absolute top-0 bottom-6 left-1/2 w-0 border-r border-black/30 dark:border-white/[0.35] pointer-events-none -translate-x-1/2 hidden md:block"
               style={{
                 maskImage:
-                  "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
+                  DOT_MASK_VERTICAL.maskImage,
                 WebkitMaskImage:
-                  "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
+                  DOT_MASK_VERTICAL.WebkitMaskImage,
               }}
             />
             {/* Top Center Intersection */}
@@ -94,9 +95,9 @@ export default function AllProjectsPage() {
                           className="absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
                           style={{
                             maskImage:
-                              "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                              DOT_MASK_HORIZONTAL.maskImage,
                             WebkitMaskImage:
-                              "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                              DOT_MASK_HORIZONTAL.WebkitMaskImage,
                           }}
                         />
                         <div className="absolute -left-4 w-[2px] h-[2px] bg-black/40 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
@@ -116,9 +117,9 @@ export default function AllProjectsPage() {
               className="absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
               style={{
                 maskImage:
-                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                  DOT_MASK_HORIZONTAL.maskImage,
                 WebkitMaskImage:
-                  "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+                  DOT_MASK_HORIZONTAL.WebkitMaskImage,
               }}
             />
             <div className="absolute -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />

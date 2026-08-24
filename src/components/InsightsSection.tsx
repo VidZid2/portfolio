@@ -17,20 +17,7 @@ import {
   MetricValue,
 } from "@/components/metric";
 import { formatDuration } from "@/components/metrics-01";
-
-const DOT_MASK_HORIZONTAL = {
-  maskImage:
-    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-  WebkitMaskImage:
-    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
-};
-
-const DOT_MASK_VERTICAL = {
-  maskImage:
-    "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
-  WebkitMaskImage:
-    "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
-};
+import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 
 export function InsightsSection({
   hasSeenScrollAnimations = false,
