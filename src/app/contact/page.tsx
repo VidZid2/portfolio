@@ -11,9 +11,15 @@ import { BlueprintGrid } from "@/components/BlueprintGrid";
 import { SubpageHeader } from "@/components/SubpageHeader";
 import { MorphingSocials } from "@/components/pixel-perfect/morphing-socials";
 import { useTheme } from "next-themes";
-import { ExperimentStage } from "@/components/swirl/experiment-stage";
 import { DEFAULT_TEXT } from "@/components/swirl/default-text";
 import { DEFAULT_STAGE } from "@/components/swirl/use-swirl-stage";
+import dynamic from "next/dynamic";
+
+// WebGL stage — keep the swirl engine out of the route's initial bundle.
+const ExperimentStage = dynamic(
+  () => import("@/components/swirl/experiment-stage").then((mod) => mod.ExperimentStage),
+  { ssr: false }
+);
 import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 
 export default function ContactPage() {

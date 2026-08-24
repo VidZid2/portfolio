@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Download, FileText } from "lucide-react";
-import { PDFViewer } from "@/components/ui/pdf-viewer";
+import { ResumePdfViewer } from "@/components/resume-pdf-viewer";
 import { BlueprintGrid } from "@/components/BlueprintGrid";
 import { SubpageHeader } from "@/components/SubpageHeader";
 import SoftPillButton from "@/components/pixel-perfect/soft-pill-button";
@@ -63,18 +63,13 @@ export default function ResumePage() {
         </div>
 
         <div className="relative flex h-[calc(100vh-200px)] min-h-[600px] w-full flex-col overflow-hidden rounded-[6px] border border-black/10 bg-background shadow-sm dark:border-white/10">
-          <PDFViewer src={resumePath} className="flex-1" />
+          <ResumePdfViewer src={resumePath} className="flex-1" />
         </div>
 
         <div className="relative mt-8">
           <div
             className="pointer-events-none absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15]"
-            style={{
-              maskImage:
-                DOT_MASK_HORIZONTAL.maskImage,
-              WebkitMaskImage:
-                DOT_MASK_HORIZONTAL.WebkitMaskImage,
-            }}
+            style={DOT_MASK_HORIZONTAL}
           />
           <div className="pointer-events-none absolute -left-4 h-[2px] w-[2px] -translate-x-1/2 -translate-y-1/2 bg-black/50 dark:bg-white/[0.25]" />
           <div className="pointer-events-none absolute -right-4 h-[2px] w-[2px] translate-x-1/2 -translate-y-1/2 bg-black/50 dark:bg-white/[0.25]" />

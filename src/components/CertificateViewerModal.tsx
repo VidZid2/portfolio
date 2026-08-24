@@ -4,7 +4,17 @@ import React, { useEffect, useState, useMemo, useRef, useSyncExternalStore } fro
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { X, Download, FileText, Image as ImageIcon, Sparkles, MoreHorizontal } from "lucide-react";
-import { PDFViewer } from "@/components/ui/pdf-viewer";
+import dynamic from "next/dynamic";
+
+// embedpdf is heavy (~400 KB) — load it only when a certificate is actually
+// opened, so routes hosting this modal don't pay for it upfront.
+const PDFViewer = dynamic(
+  () => import("@/components/ui/pdf-viewer").then((mod) => mod.PDFViewer),
+  {
+    ssr: false,
+    loading: () => <div className="h-full w-full" aria-busy="true" />,
+  }
+);
 import { PresenceGate } from "@/lib/presence-gate";
 import { EASE_OUT } from "@/lib/ease";
 import { playSoftClick } from "@/lib/synth-sounds";

@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { AsciiWordmarkRenderer, AsciiWordmarkOptions } from "./renderer";
+import type { AsciiWordmarkOptions } from "./renderer";
+
+type AsciiWordmarkRendererType = import("./renderer").AsciiWordmarkRenderer;
 
 interface AsciiWordmarkProps extends AsciiWordmarkOptions {
   className?: string;
@@ -9,22 +11,32 @@ interface AsciiWordmarkProps extends AsciiWordmarkOptions {
 
 export function AsciiWordmark({ word, inkColor, className }: AsciiWordmarkProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const rendererRef = useRef<AsciiWordmarkRenderer | null>(null);
+  const rendererRef = useRef<AsciiWordmarkRendererType | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
-    
-    // Only instantiate once per word change.
-    const renderer = new AsciiWordmarkRenderer(containerRef.current, { word, inkColor });
-    const success = renderer.mount();
-    
-    if (success) {
-      renderer.start();
-      rendererRef.current = renderer;
-    }
-    
+
+    let cancelled = false;
+    let renderer: AsciiWordmarkRendererType | null = null;
+
+    // three.js is ~1.4 MB — load the WebGL renderer only after mount so it
+    // never lands in the route's initial bundle.
+    void import("./renderer").then(({ AsciiWordmarkRenderer }) => {
+      if (cancelled || !containerRef.current) return;
+
+      // Only instantiate once per word change.
+      renderer = new AsciiWordmarkRenderer(containerRef.current, { word, inkColor });
+      const success = renderer.mount();
+
+      if (success) {
+        renderer.start();
+        rendererRef.current = renderer;
+      }
+    });
+
     return () => {
-      renderer.dispose();
+      cancelled = true;
+      renderer?.dispose();
       rendererRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

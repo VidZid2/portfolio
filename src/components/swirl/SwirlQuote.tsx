@@ -1,11 +1,17 @@
 "use client";
 
 import { useTheme } from "next-themes";
+import dynamic from "next/dynamic";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
-import { ExperimentStage } from "./experiment-stage";
 import { DEFAULT_TEXT } from "./default-text";
 import { DEFAULT_STAGE } from "./use-swirl-stage";
+
+// WebGL stage — keep the swirl engine out of the route's initial bundle.
+const ExperimentStage = dynamic(
+  () => import("./experiment-stage").then((mod) => mod.ExperimentStage),
+  { ssr: false }
+);
 
 const SWIRL_WORDS = ["SYNC", "WORK", "BUILD", "CREATE"];
 
