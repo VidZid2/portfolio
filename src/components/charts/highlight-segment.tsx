@@ -35,11 +35,39 @@ export function HighlightSegment({
 }: HighlightSegmentProps) {
   const clipId = useId();
   // Mirror the source path's `d` through state so render never touches refs.
-  // Layout timing keeps the first visible paint identical to a direct read.
+  // The base path's `d` keeps changing after mount (reveal animation, y-domain
+  // settle, resizes) AND the Line swaps between two different <path> elements
+  // when the chart phase flips to "ready" — a mount-time snapshot of either
+  // draws the highlight band at the wrong y, visibly detached from the line.
+  // Observe the path's parent subtree: attribute mutations re-read the current
+  // `d`, and childList swaps re-bind to whatever element `pathRef` holds now.
   const [d, setD] = useState<string | null>(null);
   useLayoutEffect(() => {
-    const next = pathRef.current?.getAttribute("d") ?? null;
-    setD((previous) => (previous === next ? previous : next));
+    const OBSERVE_OPTIONS = {
+      attributeFilter: ["d"],
+      attributes: true,
+      childList: true,
+      subtree: true,
+    };
+    let observed: Element | null = pathRef.current?.parentElement ?? null;
+    const update = () => {
+      const next = pathRef.current?.getAttribute("d") ?? null;
+      setD((previous) => (previous === next ? previous : next));
+    };
+    const observer = new MutationObserver(() => {
+      const current = pathRef.current;
+      if (current && current.parentElement && current.parentElement !== observed) {
+        observer.disconnect();
+        observed = current.parentElement;
+        observer.observe(observed, OBSERVE_OPTIONS);
+      }
+      update();
+    });
+    update();
+    if (observed) {
+      observer.observe(observed, OBSERVE_OPTIONS);
+    }
+    return () => observer.disconnect();
   }, [pathRef]);
   if (!(visible && d)) {
     return null;

@@ -453,14 +453,13 @@ function DatePillTrackerInner({
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: 3 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95, y: 3 }}
+      initial={{ opacity: 0, scale: 0.95, y: 3, x: "-50%" }}
+      animate={{ opacity: 1, scale: 1, y: 0, x: "-50%" }}
+      exit={{ opacity: 0, scale: 0.95, y: 3, x: "-50%" }}
       transition={{ duration: 0.18, ease: "easeOut" }}
       className="pointer-events-none absolute z-50"
       style={{
         left: discreteInteraction ? xWithMargin : animatedX,
-        transform: "translateX(-50%)",
         bottom: 4,
       }}
     >
