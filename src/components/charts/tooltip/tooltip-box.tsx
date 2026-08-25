@@ -122,12 +122,17 @@ function TooltipBoxInner({
     const el = tooltipRef.current;
     const w = el.offsetWidth;
     const h = el.offsetHeight;
-    if (w > 0 || h > 0) {
-      setMeasuredSize((previous) => ({
-        width: w > 0 ? w : previous.width,
-        height: h > 0 ? h : previous.height,
-      }));
-    }
+    // Bail when the measured values are unchanged — this effect depends on
+    // `measuredSize`, so returning a fresh object here would re-trigger the
+    // effect forever (React #185, maximum update depth exceeded).
+    setMeasuredSize((previous) => {
+      const nextWidth = w > 0 ? w : previous.width;
+      const nextHeight = h > 0 ? h : previous.height;
+      if (previous.width === nextWidth && previous.height === nextHeight) {
+        return previous;
+      }
+      return { width: nextWidth, height: nextHeight };
+    });
     const w2 = w > 0 ? w : measuredSize.width;
     const h2 = h > 0 ? h : measuredSize.height;
     const flip = x + w2 + offset > containerWidth;

@@ -2118,7 +2118,6 @@ export const GithubCalendar = memo(function GithubCalendar({
           >
             <svg
               width="100%"
-              height="auto"
               viewBox={`0 0 ${svgWidth} ${svgHeight + (gameActive ? 36 : 0)}`}
               className="col-start-1 row-start-1 overflow-visible block w-full h-auto"
             >

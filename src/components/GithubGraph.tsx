@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useSyncExternalStore } from "react";
 import { GithubCalendar } from "@/components/ui/github-calendar";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
@@ -10,7 +10,16 @@ import { useSectionReveal } from "@/hooks/use-section-reveal";
 export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
 const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
   const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
+  // Guarded so the hydration render agrees with SSR (light fills) —
+  // next-themes resolves the real theme just after hydration, and the
+  // calendar re-renders with dark fills then. Without this the `fill`
+  // attributes mismatch and React logs a hydration error.
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+  const isDark = mounted && resolvedTheme === "dark";
   const [cellSize, setCellSize] = useState(14.5);
   const [cellGap, setCellGap] = useState(3.5);
   const [monthsToShow, setMonthsToShow] = useState(7);
