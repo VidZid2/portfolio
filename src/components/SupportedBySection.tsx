@@ -30,7 +30,6 @@ import {
 import { CurvedMenu } from "@/components/ui/curved-menu";
 import { CylinderCarousel } from "@/components/motion/cylinder-carousel";
 import { playSoftClick } from "@/lib/synth-sounds";
-import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 /** How long each logo stays visible before cycling to the next one (ms). */
@@ -482,20 +481,6 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
     return () => clearInterval(beatId);
   }, [shouldPlay]);
 
-  const dashedMask = {
-    maskImage:
-      DOT_MASK_HORIZONTAL.maskImage,
-    WebkitMaskImage:
-      DOT_MASK_HORIZONTAL.WebkitMaskImage,
-  };
-
-  const dashedVerticalMask = {
-    maskImage:
-      DOT_MASK_VERTICAL.maskImage,
-    WebkitMaskImage:
-      DOT_MASK_VERTICAL.WebkitMaskImage,
-  };
-
   const renderGalleryContent = () => (
     <div className="relative w-full h-full flex flex-col justify-between overflow-y-auto overscroll-contain bg-white dark:bg-black text-zinc-900 dark:text-zinc-100 p-0">
       {/* Floating Close Button */}
@@ -836,13 +821,8 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
           visible: { transition: { staggerChildren: 0.08 } },
         }}
       >
-        {/* Top full-width dashed line */}
-        <div
-          className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
-          style={dashedMask}
-        />
-        <div className="absolute top-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+        {/* Top line — spans between margin guides */}
+        <div className="absolute top-0 bleed-x h-0 border-t border-foreground/10 pointer-events-none" />
 
         {/* Centered Header: SPECIAL THANKS & COMPONENT INSPIRATIONS */}
         <div className="relative h-[32px] sm:h-[36px] flex items-center justify-center px-8 sm:px-10 text-center">
@@ -911,13 +891,8 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
             </svg>
           </button>
 
-          {/* Bottom divider line under header */}
-          <div
-            className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-            style={dashedMask}
-          />
-          <div className="absolute bottom-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-          <div className="absolute bottom-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+          {/* Bottom divider line under header — spans between margin guides */}
+          <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
         </div>
 
         {/* 4-Column Animated Grid */}
@@ -929,26 +904,17 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
                 key={columnIndex}
                 className="relative flex items-center justify-center"
               >
-                {/* Vertical Dotted Divider on the right of each cell (except last on desktop) */}
+                {/* Vertical Divider on the right of each cell (except last on desktop) */}
                 {columnIndex < columns.length - 1 && (
-                  <div
-                    className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
-                    style={dashedVerticalMask}
-                  />
+                  <div className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none" />
                 )}
                 {/* Mobile 2-column vertical divider */}
                 {columnIndex % 2 === 0 && (
-                  <div
-                    className="sm:hidden absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
-                    style={dashedVerticalMask}
-                  />
+                  <div className="sm:hidden absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none" />
                 )}
                 {/* Mobile 2-column horizontal divider for row 1 */}
                 {columnIndex < 2 && (
-                  <div
-                    className="sm:hidden absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-                    style={dashedMask}
-                  />
+                  <div className="sm:hidden absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none" />
                 )}
 
                 <LogoColumn
@@ -963,13 +929,8 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
           </div>
         </div>
 
-        {/* Bottom full-width dashed line */}
-        <div
-          className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-          style={dashedMask}
-        />
-        <div className="absolute bottom-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute bottom-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+        {/* Bottom line — spans between margin guides */}
+        <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
       </motion.div>
 
       {/* Responsive Gallery Presentation: CurvedMenu on Mobile/Tablet, CenterMorphModal on PC/Desktop */}

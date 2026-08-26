@@ -1,31 +1,37 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { motion } from "framer-motion";
 import ScrambleText from "@/components/ruixen/scramble-text";
 import { ProjectsGrid } from "@/components/ProjectsGrid";
 import { TransitionLink } from "@/components/TransitionLink";
-import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
+import { CornerMark } from "@/components/ui/corner-mark";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 export function ProjectsSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
-const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
+  const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
   return (
     <motion.div 
       id="projects" 
-      className="mt-0 flex flex-col relative z-10 scroll-mt-24"
+      className="mt-0 flex flex-col relative z-10 scroll-mt-24 w-full"
       initial={skip ? "visible" : "hidden"}
       whileInView={skip ? undefined : (phase === "done" ? "visible" : "hidden")}
       animate={skip ? "visible" : undefined}
       viewport={{ once: true, amount: 0.1 }}
-      
       transition={isLowTier ? { duration: 0 } : undefined}
-      
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren: 0.15 } }
       }}
     >
+      <CornerMark position="top-left" />
+      <CornerMark position="top-right" />
+      <CornerMark position="bottom-left" />
+      <CornerMark position="bottom-right" />
+
+      {/* Top line — spans between margin guides */}
+      <div className="absolute top-0 bleed-x h-0 border-t border-foreground/10 pointer-events-none" />
+
       <motion.div 
         variants={{
           hidden: { opacity: 0, y: -10, filter: "blur(4px)" },
@@ -35,26 +41,19 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
       >
         <ScrambleText as="h2" className="text-[17px] sm:text-[18px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight leading-none">Projects</ScrambleText>
 
-        {/* Horizontal line below Projects heading */}
-        <div className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
-        {/* Intersections */}
-        <div className="absolute bottom-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute bottom-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute bottom-0 left-1/2 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+        {/* Horizontal line below Projects heading — spans between margin guides */}
+        <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
       </motion.div>
 
       {/* Grid Container */}
       <div className="relative pt-6 pb-8 px-4">
         {/* Center Vertical Line */}
-        <div className="absolute top-0 bottom-0 left-1/2 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none -translate-x-1/2 hidden md:block" style={{ maskImage: DOT_MASK_VERTICAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_VERTICAL.WebkitMaskImage }} />
+        <div className="absolute top-0 bottom-0 left-1/2 w-0 border-r border-foreground/10 pointer-events-none -translate-x-1/2 hidden md:block" />
 
         <ProjectsGrid />
 
         {/* Bottom Horizontal Line */}
-        <div className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
-        {/* Intersections */}
-        <div className="absolute bottom-0 -left-3 sm:-left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute bottom-0 -right-3 sm:-right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+        <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
       </div>
 
       {/* View All Button */}
@@ -65,11 +64,8 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
         }}
         className="py-4 px-4 -mx-3 sm:-mx-4 flex justify-center relative hover:bg-zinc-50 dark:hover:bg-zinc-900/20 transition-colors cursor-pointer rounded-b-lg mt-0 z-20"
       >
-        {/* Bottom Horizontal Line (below View All) */}
-        <div className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
-        {/* Bottom Line Intersections */}
-        <div className="absolute bottom-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+        {/* Bottom Horizontal Line (below View All) — container is already bled via -mx */}
+        <div className="absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none" />
 
         <TransitionLink href="/projects" className="relative group block mt-0">
           <div className="absolute -inset-[5px] border border-black/5 dark:border-white/5 rounded-[11px] pointer-events-none transition-colors duration-300 group-hover:border-black/10 dark:group-hover:border-white/10" />

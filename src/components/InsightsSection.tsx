@@ -15,7 +15,7 @@ import {
   MetricValue,
 } from "@/components/metric";
 import { formatDuration } from "@/components/metrics-01";
-import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
+import { CornerMark } from "@/components/ui/corner-mark";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 export function InsightsSection({
@@ -23,7 +23,7 @@ export function InsightsSection({
 }: {
   hasSeenScrollAnimations?: boolean;
 }) {
-const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
+  const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
   const scrambleRef = useRef<ScrambleTextRef>(null);
   const { insights } = useVisitorAnalytics();
   const { resolvedTheme } = useTheme();
@@ -32,18 +32,19 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
     () => true,
     () => false
   );
+  const isDark = mounted && resolvedTheme === "dark";
 
-  const isDark = !mounted || resolvedTheme === "dark";
-  const visitorsColor = isDark ? "#ffffff" : "#000000";
-  const sessionsColor = isDark ? "#71717a" : "#52525b";
-  const crosshairColor = isDark ? "rgba(255, 255, 255, 0.25)" : "rgba(0, 0, 0, 0.25)";
+  // Single dynamic color theme matching Ruixen / shadcn token system
+  const sessionsColor = isDark ? "#60a5fa" : "#2563eb"; // Blue-400 : Blue-600
+  const visitorsColor = isDark ? "#a78bfa" : "#7c3aed"; // Violet-400 : Violet-600
+  const crosshairColor = isDark ? "#71717a" : "#a1a1aa"; // Zinc-500 : Zinc-400
 
   return (
     <motion.div
       id="insights"
-      className="mt-0 flex flex-col relative z-10 scroll-mt-24"
+      className="mt-0 flex flex-col relative scroll-mt-24 w-full"
       initial={skip ? "visible" : "hidden"}
-      whileInView={skip ? undefined : phase === "done" ? "visible" : "hidden"}
+      whileInView={skip ? undefined : (phase === "done" ? "visible" : "hidden")}
       animate={skip ? "visible" : undefined}
       viewport={{ once: true, amount: 0.1 }}
       transition={isLowTier ? { duration: 0 } : undefined}
@@ -52,14 +53,13 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
         visible: { transition: { staggerChildren: 0.15 } },
       }}
     >
-      {/* Top full-width line */}
-      <div
-        className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
-        style={DOT_MASK_HORIZONTAL}
-      />
-      {/* Top Line Intersections */}
-      <div className="absolute top-0 -left-3 sm:-left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-      <div className="absolute top-0 -right-3 sm:-right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+      <CornerMark position="top-left" />
+      <CornerMark position="top-right" />
+      <CornerMark position="bottom-left" />
+      <CornerMark position="bottom-right" />
+
+      {/* Top line — spans between margin guides */}
+      <div className="absolute top-0 bleed-x h-0 border-t border-foreground/10 pointer-events-none" />
 
       {/* Header */}
       <motion.div
@@ -83,14 +83,8 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
           </ScrambleText>
         </div>
 
-        {/* Header Bottom Line */}
-        <div
-          className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-          style={DOT_MASK_HORIZONTAL}
-        />
-        {/* Bottom Line Intersections */}
-        <div className="absolute bottom-0 -left-3 sm:-left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute bottom-0 -right-3 sm:-right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+        {/* Header Bottom Line — spans between margin guides */}
+        <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
       </motion.div>
 
       {/* Metrics Grid */}
@@ -102,104 +96,81 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
         className="relative"
       >
         <div className="relative">
-          {/* Decorative divider layer, kept outside the <dl> — dl children
-              must be dt/dd groups only. Same pattern as metrics-01. */}
+          {/* Decorative divider layer */}
           <div className="pointer-events-none absolute inset-0 z-10 grid grid-cols-2 md:grid-cols-4">
             {/* Mobile middle horizontal divider */}
-            <div
-              className="md:hidden absolute top-1/2 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15]"
-              style={DOT_MASK_HORIZONTAL}
-            />
-            <div className="md:hidden absolute top-1/2 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 z-20" />
-            <div className="md:hidden absolute top-1/2 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 z-20" />
+            <div className="md:hidden absolute top-1/2 left-0 right-0 h-0 border-b border-foreground/10" />
 
             {/* Metric 1 right divider */}
             <div className="relative">
-              <div
-                className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15]"
-                style={DOT_MASK_VERTICAL}
-              />
-              <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 z-20" />
-              <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 z-20" />
+              <div className="absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10" />
             </div>
+
             {/* Metric 2 right divider (Desktop only) */}
-            <div className="relative hidden md:block">
-              <div
-                className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15]"
-                style={DOT_MASK_VERTICAL}
-              />
-              <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 z-20" />
-              <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 z-20" />
+            <div className="relative">
+              <div className="hidden md:block absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10" />
             </div>
+
             {/* Metric 3 right divider */}
             <div className="relative">
-              <div
-                className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15]"
-                style={DOT_MASK_VERTICAL}
-              />
-              <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 z-20" />
-              <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 z-20" />
+              <div className="absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10" />
             </div>
-            <div />
+
+            {/* Metric 4 (Last column - no right divider) */}
+            <div className="relative" />
           </div>
 
           <dl className="grid grid-cols-2 md:grid-cols-4">
-          {/* Metric 1: Visitors */}
-          <Metric className="p-3 sm:p-4 relative">
-            <MetricLabel>
-              <span>Visitors</span>
-              <MetricChange value={insights.changes.uniqueVisitors} />
-            </MetricLabel>
-            <MetricValue className="text-xl sm:text-2xl font-bold mt-1">
-              {insights.summary.uniqueVisitors.toLocaleString("en-US")}
-            </MetricValue>
-          </Metric>
+            {/* Metric 1: Total Sessions */}
+            <Metric className="p-3 sm:p-4 relative">
+              <MetricLabel>
+                <span>Total Sessions</span>
+                <MetricChange value={insights.changes.totalSessions} />
+              </MetricLabel>
+              <MetricValue className="text-xl sm:text-2xl font-bold mt-1">
+                {insights.summary.totalSessions.toLocaleString()}
+              </MetricValue>
+            </Metric>
 
-          {/* Metric 2: Total Sessions */}
-          <Metric className="p-3 sm:p-4 relative">
-            <MetricLabel>
-              <span>Total Sessions</span>
-              <MetricChange value={insights.changes.totalSessions} />
-            </MetricLabel>
-            <MetricValue className="text-xl sm:text-2xl font-bold mt-1">
-              {insights.summary.totalSessions.toLocaleString("en-US")}
-            </MetricValue>
-          </Metric>
+            {/* Metric 2: Unique Visitors */}
+            <Metric className="p-3 sm:p-4 relative">
+              <MetricLabel>
+                <span>Unique Visitors</span>
+                <MetricChange value={insights.changes.uniqueVisitors} />
+              </MetricLabel>
+              <MetricValue className="text-xl sm:text-2xl font-bold mt-1">
+                {insights.summary.uniqueVisitors.toLocaleString()}
+              </MetricValue>
+            </Metric>
 
-          {/* Metric 3: Screen Views */}
-          <Metric className="p-3 sm:p-4 relative">
-            <MetricLabel>
-              <span>Screen Views</span>
-              <MetricChange value={insights.changes.totalScreenViews} />
-            </MetricLabel>
-            <MetricValue className="text-xl sm:text-2xl font-bold mt-1">
-              {insights.summary.totalScreenViews.toLocaleString("en-US")}
-            </MetricValue>
-          </Metric>
+            {/* Metric 3: Page Views */}
+            <Metric className="p-3 sm:p-4 relative">
+              <MetricLabel>
+                <span>Page Views</span>
+                <MetricChange value={insights.changes.totalScreenViews} />
+              </MetricLabel>
+              <MetricValue className="text-xl sm:text-2xl font-bold mt-1">
+                {insights.summary.totalScreenViews.toLocaleString()}
+              </MetricValue>
+            </Metric>
 
-          {/* Metric 4: Avg Duration */}
-          <Metric className="p-3 sm:p-4 relative">
-            <MetricLabel>
-              <span>Avg Duration</span>
-              <MetricChange value={insights.changes.avgSessionDuration} />
-            </MetricLabel>
-            <MetricValue className="text-xl sm:text-2xl font-bold mt-1">
-              {formatDuration(insights.summary.avgSessionDuration)}
-            </MetricValue>
-          </Metric>
+            {/* Metric 4: Avg Duration */}
+            <Metric className="p-3 sm:p-4 relative">
+              <MetricLabel>
+                <span>Avg Duration</span>
+                <MetricChange value={insights.changes.avgSessionDuration} />
+              </MetricLabel>
+              <MetricValue className="text-xl sm:text-2xl font-bold mt-1">
+                {formatDuration(insights.summary.avgSessionDuration)}
+              </MetricValue>
+            </Metric>
           </dl>
         </div>
       </motion.div>
 
       {/* Divider above chart */}
       <div className="relative h-0">
-        <div
-          className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-          style={DOT_MASK_HORIZONTAL}
-        />
-        {/* Intersections */}
-        <div className="absolute top-0 -left-3 sm:-left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute top-0 -right-3 sm:-right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+        <div className="absolute top-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
       </div>
 
       {/* Line Chart */}
@@ -258,28 +229,16 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
         }}
         className="relative py-2 px-3 flex items-center justify-center text-center select-none"
       >
-        {/* Top Horizontal Line (above caption) */}
-        <div
-          className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
-          style={DOT_MASK_HORIZONTAL}
-        />
-        {/* Top Line Intersections */}
-        <div className="absolute top-0 -left-3 sm:-left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute top-0 -right-3 sm:-right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+        {/* Top Horizontal Line (above caption) — spans between margin guides */}
+        <div className="absolute top-0 bleed-x h-0 border-t border-foreground/10 pointer-events-none" />
 
         <p className="text-[11px] sm:text-[12px] text-zinc-500 dark:text-zinc-400 font-sans tracking-tight">
           <span className="text-zinc-800 dark:text-zinc-200 font-medium">Daily visitor traffic and engagement metrics.</span>
         </p>
       </motion.div>
 
-      {/* Bottom full-width line for the entire section */}
-      <div
-        className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-        style={DOT_MASK_HORIZONTAL}
-      />
-      {/* Bottom Line Intersections */}
-      <div className="absolute bottom-0 -left-3 sm:-left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-      <div className="absolute bottom-0 -right-3 sm:-right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+      {/* Bottom line for the entire section — spans between margin guides */}
+      <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
     </motion.div>
   );
 }

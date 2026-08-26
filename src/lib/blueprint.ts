@@ -10,20 +10,16 @@
  *   <div style={DOT_MASK_VERTICAL} className="border-r ..." />
  */
 
-/** Vertical dotted line (draws a vertical border as crisp micro-dots) — for `border-r`/`border-l` edges. */
+/** @deprecated micro-dot pitch removed — now solid line (Ruixen margin). Kept for compat. */
 export const DOT_MASK_VERTICAL = {
-  maskImage:
-    "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 4px)",
-  WebkitMaskImage:
-    "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 4px)",
+  maskImage: "none" as unknown as string,
+  WebkitMaskImage: "none" as unknown as string,
 } as const;
 
-/** Horizontal dotted line (draws a horizontal border as crisp micro-dots) — for `border-b`/`border-t` edges. */
+/** @deprecated micro-dot pitch removed — now solid line (Ruixen margin). Kept for compat. */
 export const DOT_MASK_HORIZONTAL = {
-  maskImage:
-    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 4px)",
-  WebkitMaskImage:
-    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 4px)",
+  maskImage: "none" as unknown as string,
+  WebkitMaskImage: "none" as unknown as string,
 } as const;
 
 /** 45-degree slanted dashed hatch fill matching portfolio-main (Ruixen). */

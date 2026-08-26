@@ -140,28 +140,13 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
       {/* Upper Grid (6-Box Dashboard) */}
       <div className="grid grid-cols-2 md:grid-cols-3 w-full relative">
         {/* Mobile Middle Horizontal Divider 1 (between row 1 and row 2) */}
-        <div
-          className="md:hidden absolute top-1/3 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
-          style={dashedMask}
-        />
-        <div className="md:hidden absolute top-1/3 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-        <div className="md:hidden absolute top-1/3 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+        <div className="md:hidden absolute top-1/3 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none z-10" />
 
         {/* Mobile Middle Horizontal Divider 2 (between row 2 and row 3) */}
-        <div
-          className="md:hidden absolute top-2/3 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
-          style={dashedMask}
-        />
-        <div className="md:hidden absolute top-2/3 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-        <div className="md:hidden absolute top-2/3 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+        <div className="md:hidden absolute top-2/3 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none z-10" />
 
         {/* Desktop Middle Horizontal Divider (between row 1 and row 2) */}
-        <div
-          className="hidden md:block absolute top-1/2 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
-          style={dashedMask}
-        />
-        <div className="hidden md:block absolute top-1/2 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-        <div className="hidden md:block absolute top-1/2 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+        <div className="hidden md:block absolute top-1/2 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none z-10" />
 
         {/* Cell 1: Status */}
         <div
@@ -386,14 +371,9 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
         </div>
       </div>
 
-      {/* Full-width dashed separator between Dashboard & Let's Connect */}
+      {/* Full-width separator between Dashboard & Let's Connect */}
       <div className="relative w-full h-0">
-        <div
-          className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
-          style={dashedMask}
-        />
-        <div className="absolute top-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+        <div className="absolute top-0 left-0 right-0 h-0 border-t border-foreground/10 pointer-events-none" />
       </div>
 
       {/* Let's Connect Section (Between Info Grid and Socials) */}
@@ -401,14 +381,9 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
         <LetsConnect hasSeenScrollAnimations={hasSeenScrollAnimations} />
       </div>
 
-      {/* Full-width dashed separator between Let's Connect & Socials */}
+      {/* Full-width separator between Let's Connect & Socials */}
       <div className="relative w-full h-0">
-        <div
-          className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
-          style={dashedMask}
-        />
-        <div className="absolute top-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+        <div className="absolute top-0 left-0 right-0 h-0 border-t border-foreground/10 pointer-events-none" />
       </div>
 
       {/* Socials Row (5-Column Mathematical Blueprint Grid) */}
@@ -506,14 +481,9 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
         </div>
       </div>
 
-      {/* Full-width dashed separator between Socials & GitHub Activity */}
+      {/* Full-width separator between Socials & GitHub Activity */}
       <div className="relative w-full h-0">
-        <div
-          className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
-          style={dashedMask}
-        />
-        <div className="absolute top-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+        <div className="absolute top-0 left-0 right-0 h-0 border-t border-foreground/10 pointer-events-none" />
       </div>
     </div>
   );

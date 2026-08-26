@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { VideoModal } from "@/components/VideoModal";
 import AnimatedLink from "@/components/ruixen/animated-link";
 import { StatusDot } from "@/components/ui/status-dot";
-import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 import {
   type TechIcon,
   type TechKey,
@@ -304,13 +303,9 @@ export function ProjectsGrid() {
           ))}
         </div>
 
-        {/* Middle Horizontal Line Container */}
+        {/* Middle Horizontal Line Container — spans between margin guides */}
         <div className="relative w-full h-0 hidden md:block">
-          <div className="absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
-          {/* Intersections */}
-          <div className="absolute top-0 -left-4 w-[2px] h-[2px] bg-black/40 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-          <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/40 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-          <div className="absolute top-0 left-1/2 w-[2px] h-[2px] bg-black/40 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+          <div className="absolute top-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
         </div>
 
         {/* Row 2 */}

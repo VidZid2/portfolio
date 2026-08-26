@@ -4,7 +4,6 @@ import React, { useEffect, useState, useSyncExternalStore } from "react";
 import { GithubCalendar } from "@/components/ui/github-calendar";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
-import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
@@ -110,13 +109,8 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
         />
       </motion.div>
 
-      {/* Bottom full-width dashed line before AboutSection */}
-      <div
-        className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 pointer-events-none dark:border-white/[0.15]"
-          style={DOT_MASK_HORIZONTAL}
-      />
-      <div className="absolute bottom-0 -left-4 z-20 size-[2px] -translate-x-1/2 translate-y-1/2 bg-black/50 pointer-events-none dark:bg-white/[0.25]" />
-      <div className="absolute bottom-0 -right-4 z-20 size-[2px] translate-x-1/2 translate-y-1/2 bg-black/50 pointer-events-none dark:bg-white/[0.25]" />
+      {/* Bottom solid line before AboutSection — spans between margin guides */}
+      <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
     </motion.section>
   );
 }

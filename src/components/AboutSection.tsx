@@ -6,7 +6,7 @@ import { MotionContainer } from "@/components/motion-container";
 import { DrawUnderlineLink } from "@/components/sora-ui/texts/draw-underline-link";
 import { playHoverTick, playSoftClick } from "@/lib/synth-sounds";
 import { cn } from "@/lib/utils";
-import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
+import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 // A compact, lightly underdamped spring gives the dot a quick landing without
 // turning the sidebar into a playful toy. The sideways arc carries the bounce.
@@ -208,26 +208,16 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
     [],
   );
 
-  const dashedMask = {
-    maskImage: DOT_MASK_HORIZONTAL.maskImage,
-    WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage,
-  };
-
   return (
     <motion.div 
       layout
       transition={{ type: "spring", stiffness: 240, damping: 28 }}
       className="relative flex flex-col z-10 w-full"
     >
-      {/* Top dashed boundary line */}
-      <div
-        className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
-        style={dashedMask}
-      />
-      <div className="absolute top-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-      <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+      {/* Top boundary line — spans between margin guides */}
+      <div className="absolute top-0 bleed-x h-0 border-t border-foreground/10 pointer-events-none" />
 
-      {/* Greeting Sub-Row (Framed by top & bottom dotted lines) */}
+      {/* Greeting Sub-Row (Framed by top & bottom lines) */}
       <div className="relative h-[38px] sm:h-[42px] flex items-center px-1 sm:px-1.5">
         <MotionContainer delay={0} skipAnimation={hasSeenAboutMe}>
           <h2
@@ -242,13 +232,8 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
           </h2>
         </MotionContainer>
 
-        {/* Horizontal Dotted Divider under Greeting */}
-        <div
-          className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-          style={dashedMask}
-        />
-        <div className="absolute bottom-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute bottom-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+        {/* Horizontal Divider under Greeting — spans between margin guides */}
+        <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
       </div>
 
       {/* High-Precision Bouncing Highlight Bulleted List */}

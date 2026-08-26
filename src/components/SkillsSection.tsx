@@ -5,7 +5,6 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import ScrambleText from "@/components/ruixen/scramble-text";
 import { playSoftClick } from "@/lib/synth-sounds";
-import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 function OpenAIIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
@@ -90,16 +89,6 @@ const STACK_CATEGORIES: StackCategory[] = [
 export function SkillsSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
 const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
 
-  const dashedMask = {
-    maskImage: DOT_MASK_HORIZONTAL.maskImage,
-    WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage,
-  };
-
-  const dashedVerticalMask = {
-    maskImage: DOT_MASK_VERTICAL.maskImage,
-    WebkitMaskImage: DOT_MASK_VERTICAL.WebkitMaskImage,
-  };
-
   return (
     <motion.div
       id="skills"
@@ -115,15 +104,10 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
         visible: { transition: { staggerChildren: 0.08 } },
       }}
     >
-      {/* Top dashed boundary line */}
-      <div
-        className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
-        style={dashedMask}
-      />
-      <div className="absolute top-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-      <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+      {/* Top boundary line — spans between margin guides */}
+      <div className="absolute top-0 bleed-x h-0 border-t border-foreground/10 pointer-events-none" />
 
-      {/* Header: Stack (Framed by top & bottom dotted lines) */}
+      {/* Header: Stack (Framed by top & bottom lines) */}
       <motion.div
         variants={{
           hidden: { opacity: 0, y: -6, filter: "blur(4px)" },
@@ -138,22 +122,14 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
           Stack
         </ScrambleText>
 
-        {/* Horizontal Dotted Divider under Stack heading */}
-        <div
-          className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-          style={dashedMask}
-        />
-        <div className="absolute bottom-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute bottom-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+        {/* Horizontal Divider under Stack heading — spans between margin guides */}
+        <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
       </motion.div>
 
       {/* Categorized Matrix Rows */}
       <div className="relative flex flex-col w-full">
         {/* Vertical divider line separating Category Label and Pills on desktop */}
-        <div
-          className="hidden sm:block absolute top-0 bottom-0 left-[160px] md:left-[190px] w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
-          style={dashedVerticalMask}
-        />
+        <div className="hidden sm:block absolute top-0 bottom-0 left-[160px] md:left-[190px] w-0 border-r border-foreground/10 pointer-events-none" />
 
         {STACK_CATEGORIES.map((category) => (
           <motion.div
@@ -215,15 +191,8 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
               ))}
             </div>
 
-            {/* Horizontal Dotted Divider under each row */}
-            <div
-              className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-              style={dashedMask}
-            />
-            {/* Intersection nodes */}
-            <div className="absolute bottom-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-            <div className="absolute bottom-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-            <div className="hidden sm:block absolute bottom-0 left-[160px] md:left-[190px] w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+            {/* Horizontal Divider under each row — spans between margin guides */}
+            <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
           </motion.div>
         ))}
       </div>

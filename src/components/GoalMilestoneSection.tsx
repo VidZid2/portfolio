@@ -1,15 +1,15 @@
-"use client";
+﻿"use client";
 
 import React, { useRef } from "react";
 import { motion } from "framer-motion";
 import ScrambleText, { type ScrambleTextRef } from "@/components/ruixen/scramble-text";
 import { GoalMilestoneList } from "@/components/GoalMilestoneList";
 import { TransitionLink } from "@/components/TransitionLink";
-import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
+import { CornerMark } from "@/components/ui/corner-mark";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 export function GoalMilestoneSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
-const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
+  const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
   const scrambleRef = useRef<ScrambleTextRef>(null);
 
   return (
@@ -20,25 +20,19 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
       whileInView={skip ? undefined : (phase === "done" ? "visible" : "hidden")}
       animate={skip ? "visible" : undefined}
       viewport={{ once: true, amount: 0.1 }}
-      
       transition={isLowTier ? { duration: 0 } : undefined}
-      
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren: 0.15 } }
       }}
     >
-      {/* Top full-width line */}
-      <div
-        className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
-        style={{
-          maskImage: DOT_MASK_HORIZONTAL.maskImage,
-          WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage
-        }}
-      />
-      {/* Top Line Intersections */}
-      <div className="absolute top-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-      <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+      <CornerMark position="top-left" />
+      <CornerMark position="top-right" />
+      <CornerMark position="bottom-left" />
+      <CornerMark position="bottom-right" />
+
+      {/* Top line — spans between margin guides */}
+      <div className="absolute top-0 bleed-x h-0 border-t border-foreground/10 pointer-events-none" />
 
       <motion.div 
         variants={{
@@ -51,17 +45,8 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
           Goal Milestones
         </ScrambleText>
         
-        {/* Bottom full-width line */}
-        <div
-          className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-          style={{
-            maskImage: DOT_MASK_HORIZONTAL.maskImage,
-            WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage
-          }}
-        />
-        {/* Bottom Line Intersections */}
-        <div className="absolute bottom-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute bottom-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+        {/* Bottom line — spans between margin guides */}
+        <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
       </motion.div>
 
       <div className="block relative">
@@ -82,11 +67,8 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
         </TransitionLink>
       </div>
 
-      {/* Bottom full-width line for the entire section */}
-      <div className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
-      {/* Bottom Line Intersections */}
-      <div className="absolute bottom-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-      <div className="absolute bottom-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+      {/* Bottom line for the entire section — spans between margin guides */}
+      <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
     </motion.div>
   );
 }

@@ -1,16 +1,16 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { motion } from "framer-motion";
 import ScrambleText from "@/components/ruixen/scramble-text";
 import { BlogList } from "@/components/BlogList";
 import { toastManager } from "@/components/ui/toast";
-
-import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
+import { CornerMark } from "@/components/ui/corner-mark";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 export function BlogsSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
-const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
+  const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
+
   return (
     <motion.div 
       id="blogs" 
@@ -19,25 +19,19 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
       whileInView={skip ? undefined : (phase === "done" ? "visible" : "hidden")}
       animate={skip ? "visible" : undefined}
       viewport={{ once: true, amount: 0.1 }}
-      
       transition={isLowTier ? { duration: 0 } : undefined}
-      
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren: 0.15 } }
       }}
     >
-      {/* Top full-width line */}
-      <div
-        className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
-        style={{
-          maskImage: DOT_MASK_HORIZONTAL.maskImage,
-          WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage
-        }}
-      />
-      {/* Top Line Intersections */}
-      <div className="absolute top-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-      <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+      <CornerMark position="top-left" />
+      <CornerMark position="top-right" />
+      <CornerMark position="bottom-left" />
+      <CornerMark position="bottom-right" />
+
+      {/* Top line — spans between margin guides */}
+      <div className="absolute top-0 bleed-x h-0 border-t border-foreground/10 pointer-events-none" />
 
       <motion.div 
         variants={{
@@ -48,19 +42,15 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
       >
         <ScrambleText as="h2" className="text-[17px] sm:text-[18px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight leading-none">Blogs</ScrambleText>
 
-        {/* Horizontal line below Blogs heading */}
-        <div className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
-        {/* Intersections */}
-        <div className="absolute bottom-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute bottom-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+        {/* Horizontal line below Blogs heading — spans between margin guides */}
+        <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
       </motion.div>
 
       <div className="relative pt-6 pb-12 px-4">
-        {/* Center Vertical Line (like ProjectsGrid) */}
-        <div className="absolute top-0 bottom-0 left-1/2 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none -translate-x-1/2 hidden md:block" style={{ maskImage: DOT_MASK_VERTICAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_VERTICAL.WebkitMaskImage }} />
+        {/* Center Vertical Line */}
+        <div className="absolute top-0 bottom-0 left-1/2 w-0 border-r border-foreground/10 pointer-events-none -translate-x-1/2 hidden md:block" />
 
         <BlogList />
-
       </div>
 
       {/* View All Button */}
@@ -71,17 +61,11 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
         }}
         className="py-4 px-4 -mx-4 flex justify-center relative hover:bg-zinc-50 dark:hover:bg-zinc-900/20 transition-colors cursor-pointer rounded-b-lg mt-0"
       >
-        {/* Top Horizontal Line (above View All) */}
-        <div className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
-        {/* Top Line Intersections */}
-        <div className="absolute top-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+        {/* Top Horizontal Line (above View All) — container is already bled via -mx-4 */}
+        <div className="absolute top-0 left-0 right-0 h-0 border-t border-foreground/10 pointer-events-none" />
         
         {/* Bottom Horizontal Line (below View All) */}
-        <div className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
-        {/* Bottom Line Intersections */}
-        <div className="absolute bottom-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+        <div className="absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none" />
 
         <button
           type="button"
@@ -99,16 +83,16 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
               }),
               {
                 loading: {
-                  title: "Checking blog archive…",
-                  description: "Fetching upcoming writing and technical articles.",
+                  title: "Loading publications…",
+                  description: "Fetching technical articles and writing drafts.",
                 },
                 success: (data: string) => ({
-                  title: "Articles in Development",
+                  title: "Articles in Progress",
                   description: data,
                 }),
                 error: () => ({
                   title: "Something went wrong",
-                  description: "Please check back soon for upcoming blog posts.",
+                  description: "Please check back soon for new publication releases.",
                 }),
               },
             );

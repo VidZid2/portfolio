@@ -1,9 +1,8 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import { motion } from "framer-motion";
 import { Sparkles, ShieldCheck, Timer, Layers } from "lucide-react";
-import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
 import {
   CustomerStoryStack,
@@ -91,11 +90,6 @@ export function TestimonialSection({
   const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
   const isVisible = skip || phase === "done";
 
-  const dashedMask = {
-    maskImage: DOT_MASK_HORIZONTAL.maskImage,
-    WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage,
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 18 }}
@@ -103,13 +97,8 @@ export function TestimonialSection({
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="relative w-full py-6 sm:py-7 my-0"
     >
-      {/* Top Full-Width Dashed Blueprint Line */}
-      <div
-        className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
-        style={dashedMask}
-      />
-      <div className="absolute top-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-      <div className="absolute top-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+      {/* Top line — spans between margin guides */}
+      <div className="absolute top-0 bleed-x h-0 border-t border-foreground/10 pointer-events-none" />
 
       {/* Customer Story Stack */}
       <CustomerStoryStack
@@ -117,13 +106,8 @@ export function TestimonialSection({
         readMoreLink={{ label: "View all featured projects", href: "/projects" }}
       />
 
-      {/* Bottom Full-Width Dashed Blueprint Line */}
-      <div
-        className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-        style={dashedMask}
-      />
-      <div className="absolute bottom-0 -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-      <div className="absolute bottom-0 -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+      {/* Bottom line — spans between margin guides */}
+      <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
     </motion.div>
   );
 }

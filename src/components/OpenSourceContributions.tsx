@@ -226,11 +226,8 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
           </div>
         </div>
 
-        {/* Horizontal line below heading */}
-        <div className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
-        {/* Intersections */}
-        <div className="absolute bottom-0 -left-4 w-[2px] h-[2px] bg-black/40 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute bottom-0 -right-4 w-[2px] h-[2px] bg-black/40 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+        {/* Horizontal line below heading — spans between margin guides */}
+        <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
       </motion.div>
 
       <div className="relative pt-0 pb-0">
@@ -248,13 +245,7 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
               {Array.from({ length: initialCount }).map((_, idx) => (
                 <div key={idx} className="relative flex flex-col gap-1.5 py-4 px-4 -mx-4">
                   {idx < initialCount - 1 && (
-                    <div
-                      className="absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
-                      style={{
-                        maskImage: DOT_MASK_HORIZONTAL.maskImage,
-                        WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage,
-                      }}
-                    />
+                    <div className="absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none z-10" />
                   )}
                   <div className="flex items-center gap-2.5">
                     <div className="w-2 h-2 rounded-full bg-zinc-200 dark:bg-zinc-800 animate-pulse shrink-0" />
@@ -283,13 +274,7 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
                     className="group relative flex flex-col gap-1.5 py-4 px-4 -mx-4 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/20 rounded-lg"
                   >
                     {!isLast && (
-                      <div
-                        className="absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
-                        style={{
-                          maskImage: DOT_MASK_HORIZONTAL.maskImage,
-                          WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage,
-                        }}
-                      />
+                      <div className="absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none z-10" />
                     )}
                     <div className="flex items-center gap-2.5 relative z-20 min-w-0">
                       <div className={`w-2 h-2 rounded-full shrink-0 ${pr.state === "MERGED"

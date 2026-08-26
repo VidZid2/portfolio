@@ -22,7 +22,6 @@ import {
   ActionSwapCascadeText,
 } from "@/components/motion/action-swap-cascade";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
-import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 interface CommunitySupportSectionProps {
@@ -212,14 +211,8 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
           visible: { transition: { staggerChildren: 0.12 } },
         }}
       >
-        {/* Top full-width dotted blueprint line */}
-        <div
-          className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
-          style={DOT_MASK_HORIZONTAL}
-        />
-        {/* Top line intersections */}
-        <div className="absolute top-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+        {/* Top line — spans between margin guides */}
+        <div className="absolute top-0 bleed-x h-0 border-t border-foreground/10 pointer-events-none" />
 
         {/* Section Header */}
         <motion.div
@@ -245,13 +238,8 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
             Send a tip or become a sponsor to help support my open-source projects and creative work.
           </p>
 
-          {/* Dotted horizontal blueprint line underneath the header */}
-          <div
-            className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-            style={DOT_MASK_HORIZONTAL}
-          />
-          <div className="absolute bottom-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-          <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+          {/* Horizontal line underneath the header — spans between margin guides */}
+          <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
         </motion.div>
 
         {/* 2-Column Responsive Blueprint Grid */}
@@ -262,11 +250,8 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
           }}
           className="grid grid-cols-1 sm:grid-cols-2 relative"
         >
-          {/* Vertical Center Blueprint Dotted Line */}
-          <div
-            className="hidden sm:block absolute top-0 bottom-0 left-1/2 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
-            style={DOT_MASK_VERTICAL}
-          />
+          {/* Vertical Center Line */}
+          <div className="hidden sm:block absolute top-0 bottom-0 left-1/2 w-0 border-r border-foreground/10 pointer-events-none z-10" />
 
           {/* Active Sponsors or Empty Slot Showcase */}
           <div className="contents">
@@ -338,21 +323,11 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
                     Become the first community backer
                   </p>
 
-                  {/* Desktop Middle Vertical Dotted Blueprint Divider */}
-                  <div
-                    className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
-                    style={DOT_MASK_VERTICAL}
-                  />
-                  <div className="hidden sm:block absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-                  <div className="hidden sm:block absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+                  {/* Desktop Middle Vertical Divider */}
+                  <div className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none" />
 
-                  {/* Mobile Horizontal Dotted Divider between Card 1 and Card 2 */}
-                  <div
-                    className="sm:hidden absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-                    style={DOT_MASK_HORIZONTAL}
-                  />
-                  <div className="sm:hidden absolute bottom-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-                  <div className="sm:hidden absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+                  {/* Mobile Horizontal Divider between Card 1 and Card 2 */}
+                  <div className="sm:hidden absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none" />
                 </div>
 
                 {/* 2. Interactive Plus (+) Slot (Right) - Pure icon without outline */}
@@ -375,15 +350,8 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
             )}
           </div>
 
-          {/* Grid Bottom Blueprint Dotted Line across full screen */}
-          <div
-            className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-            style={DOT_MASK_HORIZONTAL}
-          />
-          {/* Grid Bottom Intersections */}
-          <div className="absolute bottom-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-          <div className="hidden sm:block absolute bottom-0 left-1/2 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-          <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+          {/* Grid Bottom Line — spans between margin guides */}
+          <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
         </motion.div>
 
         {/* Bottom "Sponsor my work" Action Button */}
@@ -403,11 +371,8 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
             Slide to sponsor
           </ExpandingArrowButton>
 
-          {/* Section Bottom full-width line */}
-          <div
-            className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-            style={DOT_MASK_HORIZONTAL}
-          />
+          {/* Section Bottom line — spans between margin guides */}
+          <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
         </motion.div>
       </motion.div>
 
