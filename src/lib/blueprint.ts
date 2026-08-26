@@ -10,20 +10,20 @@
  *   <div style={DOT_MASK_VERTICAL} className="border-r ..." />
  */
 
-/** Vertical dotted line (draws a horizontal border as dots) — for `border-r`/`border-l` edges. */
+/** Vertical dotted line (draws a vertical border as crisp micro-dots) — for `border-r`/`border-l` edges. */
 export const DOT_MASK_VERTICAL = {
   maskImage:
-    "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
+    "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 4px)",
   WebkitMaskImage:
-    "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)",
+    "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 4px)",
 } as const;
 
-/** Horizontal dotted line (draws a horizontal border as dots) — for `border-b`/`border-t` edges. */
+/** Horizontal dotted line (draws a horizontal border as crisp micro-dots) — for `border-b`/`border-t` edges. */
 export const DOT_MASK_HORIZONTAL = {
   maskImage:
-    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 4px)",
   WebkitMaskImage:
-    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
+    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 4px)",
 } as const;
 
 /** 45-degree slanted dashed hatch fill matching portfolio-main (Ruixen). */
