@@ -37,11 +37,29 @@ export type TechKey =
 
 export type TechItem = TechKey | { label: string; tooltip?: string; };
 
+export interface ProjectTestimonial {
+  quote: string;
+  author: string;
+  role: string;
+  company?: string;
+  link?: string;
+}
+
+export interface TechnicalAuditItem {
+  flaw: string;
+  solution: string;
+}
+
 export interface Project {
   slug: string;
   title: string;
   mobileTitle?: string;
   imageTitle: string;
+  categoryBadge?: string;
+  clientName?: string;
+  clientLink?: string;
+  testimonial?: ProjectTestimonial;
+  auditBreakdown?: TechnicalAuditItem[];
   src: string;
   lightModeSrc?: string;
   video: string;
@@ -81,11 +99,21 @@ export const projectsData: Project[] = [
     title: "PRIMA | Digital Technology Solutions",
     mobileTitle: "PRIMA",
     imageTitle: "Landing Page",
+    categoryBadge: "Pro-Bono Client Deliverable",
+    clientName: "PRIMA",
+    clientLink: "https://www.facebook.com/primaofficial",
+    testimonial: {
+      quote: "We greatly acknowledge and appreciate Josiah's work. He built a standout platform for our agency and proved his technical skills under real-world demands. When expanding our engineering team, he is at the very top of our list.",
+      author: "David Clarence Del Mundo",
+      role: "Lead / Stakeholder",
+      company: "PRIMA",
+      link: "https://www.facebook.com/primaofficial",
+    },
     src: "/PRIMA Landing Page.png",
     lightModeSrc: "/PRIMA Landing Page.png",
     video: "",
-    tldr: "Engineered a high-performance B2B agency platform with custom Framer Motion physics, Lenis smooth scrolling, and modular component architecture.",
-    description: "PRIMA Digital Agency required a high-converting digital platform that showcased their enterprise services while adhering to strict performance budgets. Building with Next.js, TypeScript, and Tailwind CSS, I architected a modular UI system with custom GLSL/Framer Motion visual effects and Lenis inertial scrolling. The challenge was balancing complex micro-interactions and dynamic viewport canvas shaders without degrading mobile frame rates, achieving a 98+ Lighthouse rating with zero layout shift.",
+    tldr: "Delivered a complete, high-performance agency web platform pro-bono in a 4-day sprint to launch a new agency's digital footprint, adopted into their official portfolio.",
+    description: "Volunteered high-velocity frontend engineering to give an emerging digital agency a high-converting, production-ready web presence. Engineered with Next.js 16, TypeScript, Tailwind CSS, custom Framer Motion spring physics, and Lenis inertial scrolling. The platform was officially adopted by PRIMA to showcase their client capabilities, earning an endorsement from agency lead David Clarence Del Mundo for delivering enterprise-grade quality under an intense 4-day turnaround.",
     tech: [
       "html5", 
       "css3", 
@@ -111,11 +139,26 @@ export const projectsData: Project[] = [
     title: "STI eLMS | Next-Gen LMS",
     mobileTitle: "eLMS Overhaul",
     imageTitle: "App Interface",
+    categoryBadge: "UX Audit & Case Study",
+    auditBreakdown: [
+      {
+        flaw: "Legacy multi-step course navigation causing user friction and misplaced submissions during peak hours.",
+        solution: "Streamlined single-view modular dashboard with unified assignment tracking and instant client routing.",
+      },
+      {
+        flaw: "Mobile interface breakdown on budget Android devices with excessive DOM depth and unoptimized layouts.",
+        solution: "Hardware-aware responsive layouts using CSS container queries and sub-100ms first input latency.",
+      },
+      {
+        flaw: "Unpredictable session drops and unencrypted client-side state caching in the legacy portal.",
+        solution: "Supabase Row Level Security (RLS) policies paired with client-side AES-256 payload encryption.",
+      },
+    ],
     src: "/STI Landing Page DARKMODE.png",
     lightModeSrc: "/STI Landing Page.png",
     video: "",
-    tldr: "Architected a responsive learning management interface with React 19, Supabase Row Level Security (RLS), and AES-256 data encryption.",
-    description: "Educational software is frequently hindered by clunky navigation and legacy latency. For this system overhaul, I engineered an instantaneous React 19 frontend paired with a hardened Supabase backend. Key technical milestones included designing optimistic UI state transitions for 0ms visual latency, enforcing granular Row Level Security (RLS) policies at the database layer, and implementing AES-256 encryption on sensitive student records.",
+    tldr: "System & UX overhaul case study resolving legacy navigational friction and mobile latency in higher-ed portals with React 19 and AES-256 security.",
+    description: "A student-initiated UX and systems architecture case study tackling the usability shortcomings of the legacy STI eLMS platform. Analyzed real student workflows to eliminate navigation bottlenecks, unresponsiveness on budget mobile hardware, and unpredictable session drops. Re-engineered as a modern React 19 prototype with 0ms optimistic UI state updates, AES-256 encrypted payload handling, and strict Supabase Row Level Security (RLS).",
     tech: [
       "html5", 
       "css3", 

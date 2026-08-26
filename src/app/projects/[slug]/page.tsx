@@ -224,26 +224,99 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         </div>
 
         {/* Title and Status Header */}
-        <div className="flex items-center justify-between w-full mb-4">
-          <h1 className="text-[24px] sm:text-[28px] font-bold text-zinc-900 dark:text-zinc-50 tracking-tight leading-none">
-            {project.title}
-          </h1>
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span className="text-[13px] font-medium text-emerald-600 dark:text-emerald-400">Live</span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full mb-4 gap-2 sm:gap-0">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-[24px] sm:text-[28px] font-bold text-zinc-900 dark:text-zinc-50 tracking-tight leading-none">
+              {project.title}
+            </h1>
+          </div>
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            {project.categoryBadge && (
+              <span className="px-2.5 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/80 text-[11px] font-medium text-zinc-700 dark:text-zinc-300">
+                {project.categoryBadge}
+              </span>
+            )}
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+              </span>
+              <span>Live</span>
+            </div>
           </div>
         </div>
 
+        {/* Client Testimonial Callout (if available) */}
+        {project.testimonial && (
+          <div className="mb-8 p-5 sm:p-6 rounded-xl bg-zinc-50 dark:bg-[#0c0c0e] border border-black/10 dark:border-white/10 shadow-sm relative overflow-hidden">
+            <div className="flex items-center gap-2 mb-3 text-emerald-600 dark:text-emerald-400 text-[12px] font-semibold tracking-wider uppercase">
+              <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" aria-hidden="true">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+              </svg>
+              Client & Mentor Endorsement
+            </div>
+            <blockquote className="text-[15px] sm:text-[16px] text-zinc-800 dark:text-zinc-200 italic font-medium leading-relaxed mb-4">
+              &ldquo;{project.testimonial.quote}&rdquo;
+            </blockquote>
+            <div className="flex items-center justify-between flex-wrap gap-2 pt-3 border-t border-black/5 dark:border-white/10 text-[13px]">
+              <div>
+                <span className="font-bold text-zinc-900 dark:text-zinc-100">{project.testimonial.author}</span>
+                <span className="text-zinc-500 dark:text-zinc-400"> &mdash; {project.testimonial.role}, {project.testimonial.company}</span>
+              </div>
+              {project.testimonial.link && (
+                <a
+                  href={project.testimonial.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-[12px] font-medium text-[#6495ED] hover:underline"
+                >
+                  View Agency Page <ExternalLink className="w-3 h-3" />
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Description Section */}
-        <div className="mb-10">
+        <div className="mb-8">
           <h2 className="text-[16px] font-bold text-zinc-900 dark:text-zinc-50 tracking-tight mb-3">Overview</h2>
           <p className="text-[14px] text-zinc-600 dark:text-zinc-400 leading-relaxed font-normal">
             {project.description}
           </p>
         </div>
+
+        {/* Technical UX Audit Breakdown (if available) */}
+        {project.auditBreakdown && project.auditBreakdown.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-[16px] font-bold text-zinc-900 dark:text-zinc-50 tracking-tight mb-4">
+              Technical UX Audit: Legacy Flaws vs. Engineered Solutions
+            </h2>
+            <div className="flex flex-col gap-3">
+              {project.auditBreakdown.map((item, idx) => (
+                <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 rounded-lg bg-zinc-50/70 dark:bg-[#0c0c0e]/70 border border-black/10 dark:border-white/10 text-[13px]">
+                  <div className="flex flex-col">
+                    <span className="font-semibold text-rose-600 dark:text-rose-400 mb-1 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                      Legacy Friction
+                    </span>
+                    <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed font-normal">
+                      {item.flaw}
+                    </p>
+                  </div>
+                  <div className="flex flex-col border-t md:border-t-0 md:border-l border-black/10 dark:border-white/10 pt-2 md:pt-0 md:pl-4">
+                    <span className="font-semibold text-emerald-600 dark:text-emerald-400 mb-1 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                      Re-Engineered Solution
+                    </span>
+                    <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed font-normal">
+                      {item.solution}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Tech Stack */}
         <div>

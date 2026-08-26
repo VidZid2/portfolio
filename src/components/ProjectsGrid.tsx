@@ -85,7 +85,16 @@ export const ProjectCard = ({
         whileHover={!isMobile ? "hover" : undefined}
       >
         <div className="flex items-center justify-between z-10 min-h-[24px]">
-          {project.live && project.live !== "#" ? (
+          {project.categoryBadge ? (
+            <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-black/5 dark:border-white/10 text-[10.5px] font-medium text-zinc-800 dark:text-zinc-200 shadow-sm">
+              <StatusDot 
+                tone={project.isDown ? "error" : "success"} 
+                size="sm" 
+                animate={!project.isDown} 
+              />
+              <span>{project.categoryBadge}</span>
+            </div>
+          ) : project.live && project.live !== "#" ? (
             <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md border border-black/5 dark:border-white/10 text-[10.5px] font-medium text-zinc-700 dark:text-zinc-300 shadow-sm">
               <StatusDot 
                 tone={project.isDown ? "error" : "success"} 

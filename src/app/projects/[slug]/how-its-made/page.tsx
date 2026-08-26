@@ -86,16 +86,30 @@ export default async function HowItsMadePage({ params }: { params: Promise<{ slu
                 <section id="part-1" className="scroll-mt-[22vh]">
                   <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-6 flex items-center gap-2">
                     <span className="w-8 h-[1px] bg-zinc-300 dark:bg-zinc-700"></span>
-                    <AsciiText text="Part 1: The Genesis, The Teacher, and The Pivot" delay={0} />
+                    <AsciiText text="Part 1: The Pro-Bono Sprint & Client Launch" delay={0} />
                   </h2>
                   <p className="mb-4">
-                    <strong>PRIMA</strong> started as my very first foundational project, a basic HTML and CSS site designed merely to grasp the fundamentals of how websites work. 
+                    <strong>PRIMA</strong> began as an ambitious engineering challenge. When Sir David Clarence Del Mundo shared his vision for an emerging digital solutions agency, I saw an opportunity to give their launch a high-impact digital presence. I volunteered to architect and ship the entire web platform pro-bono from scratch in a focused 4-day sprint.
                   </p>
                   <p className="mb-4">
-                    But as I entered my second year as an IT student, the project took on a completely new meaning. PRIMA isn&apos;t just a fictional sandbox; it is a real, growing digital agency founded by an industry mentor. I decided to take the initiative and build this premium landing page to help elevate their professional portfolio. This collaboration evolved into my first true B2B (Business-to-Business) project, establishing a professional partnership where I am trusted to develop full-stack applications for the agency&apos;s future clients.
+                    The objective was to deliver a production-grade experience that PRIMA could immediately adopt into their official client portfolio (<a href="https://www.facebook.com/primaofficial" target="_blank" rel="noopener noreferrer" className="text-[#6495ED] hover:underline font-medium">facebook.com/primaofficial</a>). Rather than building a generic static page, I engineered a high-converting web platform complete with real-time AI streaming, dynamic viewport shaders, and sub-100ms interaction response times.
                   </p>
+
+                  {/* Endorsement Callout */}
+                  <div className="my-6 p-5 sm:p-6 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-black/10 dark:border-white/10 relative">
+                    <div className="flex items-center gap-2 mb-2 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold tracking-wider uppercase">
+                      Client & Mentor Endorsement
+                    </div>
+                    <blockquote className="text-[14px] sm:text-[15px] text-zinc-800 dark:text-zinc-200 italic font-medium leading-relaxed mb-3">
+                      &ldquo;We greatly acknowledge and appreciate Josiah&apos;s work. He built a standout platform for our agency and proved his technical skills under real-world demands. When expanding our engineering team, he is at the very top of our list.&rdquo;
+                    </blockquote>
+                    <span className="text-[12px] font-semibold text-zinc-900 dark:text-zinc-100">
+                      &mdash; David Clarence Del Mundo, Lead / Stakeholder at PRIMA
+                    </span>
+                  </div>
+
                   <p className="mb-6">
-                    With only about two years of coding fundamentals and a lot of &quot;vibe coding&quot; (relying on intuition, AI assistance, and rapid prototyping), I dove into a rigorous development sprint. Through a lot of trial, error, and late nights, I managed to re-architect the platform from the ground up, evolving it from a basic static HTML folder into a massive, production-ready web application.
+                    Delivering a full platform in 4 days forced me to master the balance between rich interactive motion and strict mobile performance budgets, creating the foundation for a platform that continues to represent the agency.
                   </p>
                   
                   {/* Metric Cards */}
