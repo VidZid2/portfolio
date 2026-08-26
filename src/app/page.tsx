@@ -48,11 +48,8 @@ const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffec
 function BlueprintSpacer({ showBottomLine = false }: { showBottomLine?: boolean }) {
   return (
     <div className="relative h-6 sm:h-8 my-0">
-      {/* Slanted diagonal hatch pattern spanning full width across the margins */}
-      <div
-        className="absolute inset-y-0 left-[-100vw] right-[-100vw] pointer-events-none opacity-40 dark:opacity-20"
-        style={DIAGONAL_HATCH_PATTERN}
-      />
+      {/* Slanted diagonal hatch pattern spanning full width across the margins (matching portfolio-main) */}
+      <div className="absolute inset-y-0 left-[-100vw] right-[-100vw] pointer-events-none bg-dashed ring-[0.65px] ring-foreground/10" />
       {/* Left & Right continuous vertical dotted boundary lines */}
       <div
         className="absolute top-0 bottom-0 -left-3 sm:-left-4 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
@@ -101,11 +98,8 @@ export default function Home() {
           <div className="absolute left-3 right-3 sm:left-4 sm:right-4 md:left-[24.5%] md:right-[24.5%] top-[22vh] h-[112px] flex z-50 hide-cursor-particles">
             {/* 1. Left Avatar Box (Framed by Dotted Lines with Diagonal Hatch Background) */}
             <div className="w-[84px] min-[360px]:w-[96px] sm:w-[112px] h-[112px] shrink-0 flex items-center justify-center relative overflow-hidden">
-              {/* Diagonal Slanted Blueprint Hatch Pattern */}
-              <div
-                className="absolute inset-0 pointer-events-none opacity-70 dark:opacity-40"
-                style={DIAGONAL_HATCH_PATTERN}
-              />
+              {/* Diagonal Slanted Blueprint Hatch Pattern (matching portfolio-main) */}
+              <div className="absolute inset-0 pointer-events-none bg-dashed" />
 
               <div className="relative z-10">
                 <ProfilePictureScramble />

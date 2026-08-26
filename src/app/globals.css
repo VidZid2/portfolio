@@ -558,3 +558,27 @@ html.dark [data-sonner-toaster] [data-sonner-toast] [data-description],
 @utility screen-line-bottom {
     @apply relative after:absolute after:bottom-0 after:left-[-100vw] after:-z-1 after:h-px after:w-[200vw] after:bg-line;
 }
+
+@utility bg-dashed {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--background) 0px,
+    var(--background) 2px,
+    rgb(225 225 225) 2px,
+    rgb(225 225 225) 3px,
+    var(--background) 3px,
+    var(--background) 4px
+  );
+}
+
+.dark .bg-dashed {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--background) 0px,
+    var(--background) 2px,
+    rgb(60 60 60) 2px,
+    rgb(60 60 60) 3px,
+    var(--background) 3px,
+    var(--background) 4px
+  );
+}

@@ -26,8 +26,8 @@ export const DOT_MASK_HORIZONTAL = {
     "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
 } as const;
 
-/** Faint diagonal hatch fill used by blueprint spacer bands. */
+/** 45-degree slanted dashed hatch fill matching portfolio-main (Ruixen). */
 export const DIAGONAL_HATCH_PATTERN = {
   backgroundImage:
-    "repeating-linear-gradient(-45deg, transparent, transparent 5px, rgba(120, 120, 120, 0.15) 5px, rgba(120, 120, 120, 0.15) 6px)",
+    "repeating-linear-gradient(45deg, var(--background) 0px, var(--background) 2px, rgb(225 225 225) 2px, rgb(225 225 225) 3px, var(--background) 3px, var(--background) 4px)",
 } as const;
