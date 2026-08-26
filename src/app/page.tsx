@@ -18,6 +18,7 @@ import { ComponentsSection } from "@/components/ComponentsSection";
 import { BlogsSection } from "@/components/BlogsSection";
 import { AboutSection } from "@/components/AboutSection";
 import { SupportedBySection } from "@/components/SupportedBySection";
+import { TestimonialSection } from "@/components/TestimonialSection";
 import { CommunitySupportSection } from "@/components/CommunitySupportSection";
 import { GoalMilestoneSection } from "@/components/GoalMilestoneSection";
 import { ColophonSection } from "@/components/ColophonSection";
@@ -207,6 +208,9 @@ export default function Home() {
 
             {/* 4. Supported By Section (Special Thanks & Component Inspirations) */}
             <SupportedBySection key={`supported-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
+
+            {/* 4.5 Client Endorsement / Testimonial for PRIMA */}
+            <TestimonialSection key={`testimonial-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
             {/* 5. Components Section */}
             <ComponentsSection key={`components-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
