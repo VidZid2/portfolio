@@ -2483,11 +2483,7 @@ export const GithubCalendar = memo(function GithubCalendar({
           className="relative w-full h-0 mt-4 mb-7"
         >
           <div 
-            className="absolute left-[-100vw] right-[-100vw] top-0 h-0 border-b border-black/30 dark:border-white/[0.15]" 
-            style={{ 
-              maskImage: DOT_MASK_HORIZONTAL.maskImage, 
-              WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage 
-            }} 
+            className="absolute bleed-x top-0 h-0 border-b border-foreground/10" 
           />
         </motion.div>
 

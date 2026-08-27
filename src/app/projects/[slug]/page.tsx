@@ -88,13 +88,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         {/* Top Dashed Divider before Action Links */}
         <div className="relative mt-8">
           <div
-            className="absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-            style={{
-              maskImage:
-                DOT_MASK_HORIZONTAL.maskImage,
-              WebkitMaskImage:
-                DOT_MASK_HORIZONTAL.WebkitMaskImage,
-            }}
+            className="absolute bleed-x h-0 border-b border-foreground/10 pointer-events-none"
           />
         </div>
 
@@ -117,13 +111,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
 
           {/* Vertical Divider 1 */}
           <div
-            className="hidden md:block absolute left-1/3 top-0 bottom-0 w-0 border-l border-black/30 dark:border-white/[0.15] pointer-events-none"
-            style={{
-              maskImage:
-                DOT_MASK_VERTICAL.maskImage,
-              WebkitMaskImage:
-                DOT_MASK_VERTICAL.WebkitMaskImage,
-            }}
+            className="hidden md:block absolute left-1/3 top-0 bottom-0 w-0 border-l border-foreground/10 pointer-events-none"
           />
 
           {project.live && project.live !== "#" ? (
@@ -141,25 +129,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
 
           {/* Vertical Divider 2 */}
           <div
-            className="hidden md:block absolute left-2/3 top-0 bottom-0 w-0 border-l border-black/30 dark:border-white/[0.15] pointer-events-none"
-            style={{
-              maskImage:
-                DOT_MASK_VERTICAL.maskImage,
-              WebkitMaskImage:
-                DOT_MASK_VERTICAL.WebkitMaskImage,
-            }}
+            className="hidden md:block absolute left-2/3 top-0 bottom-0 w-0 border-l border-foreground/10 pointer-events-none"
           />
 
           {/* Horizontal Divider for Mobile Only */}
           <div className="col-span-2 md:hidden relative my-2">
             <div
-              className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none md:hidden"
-              style={{
-                maskImage:
-                  DOT_MASK_HORIZONTAL.maskImage,
-                WebkitMaskImage:
-                  DOT_MASK_HORIZONTAL.WebkitMaskImage,
-              }}
+              className="absolute top-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none md:hidden"
             />
           </div>
 
@@ -207,13 +183,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         {/* Bottom Dashed Divider */}
         <div className="relative mb-8">
           <div
-            className="absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-            style={{
-              maskImage:
-                DOT_MASK_HORIZONTAL.maskImage,
-              WebkitMaskImage:
-                DOT_MASK_HORIZONTAL.WebkitMaskImage,
-            }}
+            className="absolute bleed-x h-0 border-b border-foreground/10 pointer-events-none"
           />
         </div>
 
@@ -322,7 +292,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               const Icon = isKey ? iconMap[t as TechKey] : null;
 
               return (
-                <div key={i} className="grow flex whitespace-nowrap items-center justify-center gap-2 px-3 py-1.5 bg-zinc-50 hover:bg-zinc-100 dark:bg-[#0a0a0a] dark:hover:bg-[#121214] border border-black/30 dark:border-white/[0.15] rounded-[6px] transition-colors duration-200 cursor-default">
+                <div key={i} className="grow flex whitespace-nowrap items-center justify-center gap-2 px-3 py-1.5 bg-zinc-50 hover:bg-zinc-100 dark:bg-[#0a0a0a] dark:hover:bg-[#121214] border border-foreground/10 rounded-[6px] transition-colors duration-200 cursor-default">
                   {Icon && <Icon className="w-3.5 h-3.5 shrink-0 opacity-80 text-zinc-500 dark:text-zinc-400" aria-hidden="true" />}
                   <span className="text-[13px] font-medium text-zinc-600 dark:text-zinc-400">{label}</span>
                 </div>

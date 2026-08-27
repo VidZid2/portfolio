@@ -75,8 +75,7 @@ export function ColophonSection() {
 
       {/* Top full-width line */}
       <div
-        className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
-        style={dashedMaskHorizontal}
+        className="absolute top-0 left-0 right-0 h-0 border-t border-foreground/10 pointer-events-none"
       />
 
       {/* Row 1: Header (Domain + Subtitle) */}
@@ -90,8 +89,7 @@ export function ColophonSection() {
 
         {/* Bottom divider line */}
         <div
-          className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-          style={dashedMaskHorizontal}
+          className="absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none"
         />
       </div>
 
@@ -112,8 +110,7 @@ export function ColophonSection() {
           </DrawUnderlineLink>
           {/* Vertical right line on mobile & desktop */}
           <div
-            className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
-            style={dashedMaskVertical}
+            className="absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none"
           />
         </div>
 
@@ -129,8 +126,7 @@ export function ColophonSection() {
           </DrawUnderlineLink>
           {/* Vertical right line on desktop */}
           <div
-            className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
-            style={dashedMaskVertical}
+            className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none"
           />
         </div>
 
@@ -144,8 +140,7 @@ export function ColophonSection() {
           </span>
           {/* Vertical right line on mobile & desktop */}
           <div
-            className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
-            style={dashedMaskVertical}
+            className="absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none"
           />
         </div>
 
@@ -218,7 +213,7 @@ export function ColophonSection() {
 
         {/* Horizontal Divider between Top & Bottom Grid */}
         <div
-          className="col-span-2 sm:col-span-4 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+          className="col-span-2 sm:col-span-4 h-0 border-b border-foreground/10 pointer-events-none"
           style={dashedMaskHorizontal}
         />
       </div>
@@ -234,7 +229,7 @@ export function ColophonSection() {
             Vercel
           </span>
           <div
-            className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
+            className="absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none"
             style={dashedMaskVertical}
           />
         </div>
@@ -253,7 +248,7 @@ export function ColophonSection() {
             GitHub
           </DrawUnderlineLink>
           <div
-            className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
+            className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none"
             style={dashedMaskVertical}
           />
         </div>
@@ -269,7 +264,7 @@ export function ColophonSection() {
             MIT License
           </DrawUnderlineLink>
           <div
-            className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
+            className="absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none"
             style={dashedMaskVertical}
           />
         </div>
@@ -286,7 +281,7 @@ export function ColophonSection() {
 
         {/* Bottom divider line */}
         <div
-          className="col-span-2 sm:col-span-4 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+          className="col-span-2 sm:col-span-4 h-0 border-b border-foreground/10 pointer-events-none"
           style={dashedMaskHorizontal}
         />
       </div>
@@ -303,7 +298,7 @@ export function ColophonSection() {
             <span>Speed Insights</span>
           </div>
           <div
-            className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
+            className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none"
             style={dashedMaskVertical}
           />
         </div>
@@ -324,7 +319,7 @@ export function ColophonSection() {
 
         {/* Bottom divider line */}
         <div
-          className="col-span-1 sm:col-span-2 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+          className="col-span-1 sm:col-span-2 h-0 border-b border-foreground/10 pointer-events-none"
           style={dashedMaskHorizontal}
         />
       </div>
@@ -354,7 +349,7 @@ export function ColophonSection() {
 
         {/* Bottom divider line */}
         <div
-          className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+          className="absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none"
           style={dashedMaskHorizontal}
         />
       </div>
@@ -394,7 +389,7 @@ export function ColophonSection() {
 
           {/* Separator 1 */}
           <svg
-            className="w-[1px] h-[15px] sm:h-[16px] shrink-0 text-black/20 dark:text-white/20 overflow-visible pointer-events-none"
+            className="w-[1px] h-[15px] sm:h-[16px] shrink-0 text-foreground/10 overflow-visible pointer-events-none"
             viewBox="0 0 1 16"
             fill="none"
             aria-hidden="true"
@@ -417,7 +412,7 @@ export function ColophonSection() {
 
           {/* Separator 2 */}
           <svg
-            className="w-[1px] h-[15px] sm:h-[16px] shrink-0 text-black/20 dark:text-white/20 overflow-visible pointer-events-none"
+            className="w-[1px] h-[15px] sm:h-[16px] shrink-0 text-foreground/10 overflow-visible pointer-events-none"
             viewBox="0 0 1 16"
             fill="none"
             aria-hidden="true"
@@ -440,7 +435,7 @@ export function ColophonSection() {
 
           {/* Separator 3 */}
           <svg
-            className="w-[1px] h-[15px] sm:h-[16px] shrink-0 text-black/20 dark:text-white/20 overflow-visible pointer-events-none"
+            className="w-[1px] h-[15px] sm:h-[16px] shrink-0 text-foreground/10 overflow-visible pointer-events-none"
             viewBox="0 0 1 16"
             fill="none"
             aria-hidden="true"
@@ -469,8 +464,7 @@ export function ColophonSection() {
 
         {/* Bottom divider line */}
         <div
-          className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-          style={dashedMaskHorizontal}
+          className="absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none"
         />
       </div>
     </motion.section>

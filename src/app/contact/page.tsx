@@ -187,7 +187,7 @@ export default function ContactPage() {
 
           {/* Separator */}
           <div className="relative mt-16 mb-0">
-            <div className="absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
+            <div className="absolute bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
           </div>
 
           {/* Footer - Socials + Displacement Text */}

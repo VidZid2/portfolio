@@ -160,13 +160,7 @@ export default function ChangelogPage() {
         {/* Bottom Blueprint Separator */}
         <div className="relative mt-8">
           <div
-            className="absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
-            style={{
-              maskImage:
-                DOT_MASK_HORIZONTAL.maskImage,
-              WebkitMaskImage:
-                DOT_MASK_HORIZONTAL.WebkitMaskImage,
-            }}
+            className="absolute bleed-x h-0 border-b border-foreground/10 pointer-events-none"
           />
         </div>
       </motion.div>

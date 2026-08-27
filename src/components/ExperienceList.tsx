@@ -68,7 +68,7 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
           >
             {/* Dashed bottom border for all items */}
             <div
-              className="absolute bottom-0 left-[-16px] right-[-16px] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
+              className="absolute bottom-0 left-[-16px] right-[-16px] h-0 border-b border-foreground/10 pointer-events-none z-10"
               style={{
                 maskImage:
                   DOT_MASK_HORIZONTAL.maskImage,
@@ -201,7 +201,7 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
                         {item.metrics.map((metric) => (
                           <div
                             key={metric.label}
-                            className="relative min-w-0 px-3 py-2 after:absolute after:bottom-0 after:right-0 after:top-0 after:w-0 after:border-r after:border-black/30 after:[mask-image:repeating-linear-gradient(to_bottom,black_0,black_1px,transparent_1px,transparent_6px)] dark:after:border-white/[0.15] [&:nth-child(2n)]:after:hidden md:[&:not(:last-child)]:after:block md:[&:last-child]:after:hidden"
+                            className="relative min-w-0 px-3 py-2 after:absolute after:bottom-0 after:right-0 after:top-0 after:w-0 after:border-r after:border-foreground/10 [&:nth-child(2n)]:after:hidden md:[&:not(:last-child)]:after:block md:[&:last-child]:after:hidden"
                           >
                             <p
                               className={`${metric.value.includes(" - ") ? "text-[13px]" : "text-[16px]"} whitespace-nowrap font-bold leading-none text-zinc-900 dark:text-zinc-100`}
@@ -215,7 +215,7 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
                         ))}
                       </div>
                       <span
-                        className="pointer-events-none absolute inset-x-0 top-0 h-0 border-t border-black/30 dark:border-white/[0.15]"
+                        className="pointer-events-none absolute inset-x-0 top-0 h-0 border-t border-foreground/10"
                         style={{
                           maskImage:
                             DOT_MASK_HORIZONTAL.maskImage,
@@ -225,7 +225,7 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
                       />
                       {item.metrics.length > 2 && (
                         <span
-                          className="pointer-events-none absolute inset-x-0 top-1/2 h-0 border-t border-black/30 dark:border-white/[0.15] md:hidden"
+                          className="pointer-events-none absolute inset-x-0 top-1/2 h-0 border-t border-foreground/10 md:hidden"
                           style={{
                             maskImage:
                               DOT_MASK_HORIZONTAL.maskImage,
@@ -235,7 +235,7 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
                         />
                       )}
                       <span
-                        className="pointer-events-none absolute inset-x-0 bottom-0 h-0 border-b border-black/30 dark:border-white/[0.15]"
+                        className="pointer-events-none absolute inset-x-0 bottom-0 h-0 border-b border-foreground/10"
                         style={{
                           maskImage:
                             DOT_MASK_HORIZONTAL.maskImage,

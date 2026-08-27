@@ -79,7 +79,7 @@ export function LessonsLearned({ activeTab, carouselApi }: { activeTab?: string;
           >
             {/* Dashed bottom border for all items */}
             <div
-              className="absolute bottom-0 left-[-16px] right-[-16px] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
+              className="absolute bottom-0 left-[-16px] right-[-16px] h-0 border-b border-foreground/10 pointer-events-none z-10"
               style={{
                 maskImage:
                   DOT_MASK_HORIZONTAL.maskImage,

@@ -68,11 +68,8 @@ export default function ResumePage() {
 
         <div className="relative mt-8">
           <div
-            className="pointer-events-none absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15]"
-            style={DOT_MASK_HORIZONTAL}
+            className="pointer-events-none absolute bleed-x h-0 border-b border-foreground/10"
           />
-          <div className="pointer-events-none absolute -left-4 h-[2px] w-[2px] -translate-x-1/2 -translate-y-1/2 bg-black/50 dark:bg-white/[0.25]" />
-          <div className="pointer-events-none absolute -right-4 h-[2px] w-[2px] translate-x-1/2 -translate-y-1/2 bg-black/50 dark:bg-white/[0.25]" />
         </div>
       </section>
     </BlueprintGrid>

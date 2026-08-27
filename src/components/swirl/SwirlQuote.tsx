@@ -60,14 +60,12 @@ export function SwirlQuote() {
 
   return (
     <div className="w-[calc(100%+24px)] -mx-3 sm:w-[calc(100%+32px)] sm:-mx-4 h-[50vh] min-h-[400px] relative overflow-hidden">
-      {/* Left and Right continuous vertical dotted boundary lines */}
+      {/* Left and Right continuous vertical boundary lines */}
       <div
-        className="absolute top-0 bottom-0 left-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
-        style={DOT_MASK_VERTICAL}
+        className="absolute top-0 bottom-0 left-0 w-0 border-r border-foreground/10 pointer-events-none z-20"
       />
       <div
-        className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
-        style={DOT_MASK_VERTICAL}
+        className="absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none z-20"
       />
 
       <ExperimentStage 
@@ -85,8 +83,7 @@ export function SwirlQuote() {
 
       {/* Bottom full-width divider line */}
       <div
-        className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-20"
-        style={DOT_MASK_HORIZONTAL}
+        className="absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none z-20"
       />
     </div>
   );
