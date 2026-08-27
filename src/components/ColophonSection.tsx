@@ -7,6 +7,7 @@ import { DrawUnderlineLink } from "@/components/sora-ui/texts/draw-underline-lin
 import { useTransition } from "@/components/TransitionProvider";
 import { playToastError, playSoftClick } from "@/lib/synth-sounds";
 import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
+import { CornerMark } from "@/components/ui/corner-mark";
 
 const dashedMaskHorizontal = {
   maskImage:
@@ -66,13 +67,17 @@ export function ColophonSection() {
       className="relative z-10 w-[calc(100%+24px)] -mx-3 sm:w-[calc(100%+32px)] sm:-mx-4 flex flex-col font-mono mt-0 select-none"
       aria-label="Colophon and Portfolio Metadata"
     >
+      {/* Corner marks matching the rest of the site */}
+      <CornerMark position="top-left" flush />
+      <CornerMark position="top-right" flush />
+      <CornerMark position="bottom-left" flush />
+      <CornerMark position="bottom-right" flush />
+
       {/* Top full-width line */}
       <div
         className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
         style={dashedMaskHorizontal}
       />
-      <div className="absolute top-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-      <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
 
       {/* Row 1: Header (Domain + Subtitle) */}
       <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between py-1.5 sm:py-2 px-3 sm:px-4 gap-1 sm:gap-4 min-h-[34px]">
@@ -88,8 +93,6 @@ export function ColophonSection() {
           className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
           style={dashedMaskHorizontal}
         />
-        <div className="absolute bottom-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
       </div>
 
       {/* Row 2: 4-Column Metadata Grid (Top Half) */}
@@ -354,8 +357,6 @@ export function ColophonSection() {
           className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
           style={dashedMaskHorizontal}
         />
-        <div className="absolute bottom-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
       </div>
 
       {/* Row 6: Bottom Copyright & Socials */}
@@ -471,8 +472,6 @@ export function ColophonSection() {
           className="absolute bottom-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
           style={dashedMaskHorizontal}
         />
-        <div className="absolute bottom-0 left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-        <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
       </div>
     </motion.section>
   );

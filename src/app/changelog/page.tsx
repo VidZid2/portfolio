@@ -168,8 +168,6 @@ export default function ChangelogPage() {
                 DOT_MASK_HORIZONTAL.WebkitMaskImage,
             }}
           />
-          <div className="absolute left-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
-          <div className="absolute right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
         </div>
       </motion.div>
     </BlueprintGrid>

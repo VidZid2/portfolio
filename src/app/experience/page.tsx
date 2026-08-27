@@ -46,14 +46,6 @@ export default function AllExperiencePage() {
                     }}
                   />
 
-                  {/* Intersection dots for last item */}
-                  {isLast && (
-                    <>
-                      <div className="absolute bottom-0 -left-4 w-[2px] h-[2px] bg-black/40 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-                      <div className="absolute bottom-0 -right-4 w-[2px] h-[2px] bg-black/40 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-                    </>
-                  )}
-
                   <div
                     className="group/item flex flex-row items-center justify-between gap-2 sm:gap-4 py-3.5 px-4 -mx-4 hover:bg-zinc-50 dark:hover:bg-zinc-900/20 transition-colors cursor-pointer relative z-20 rounded-lg sm:py-4 overflow-hidden"
                     onClick={() => setOpenIdx(isOpen ? null : idx)}
@@ -291,8 +283,6 @@ export default function AllExperiencePage() {
         {/* Bottom Separator */}
         <div className="relative mt-8">
           <div className="absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
-          <div className="absolute -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
-          <div className="absolute -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
         </div>
       </div>
     </BlueprintGrid>

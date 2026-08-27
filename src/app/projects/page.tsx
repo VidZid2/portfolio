@@ -63,8 +63,6 @@ export default function AllProjectsPage() {
                   DOT_MASK_VERTICAL.WebkitMaskImage,
               }}
             />
-            {/* Top Center Intersection */}
-            <div className="absolute top-0 left-1/2 w-[2px] h-[2px] bg-black/40 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20 hidden md:block" />
 
             <div className="flex flex-col relative z-10 w-full">
               {Array.from({ length: Math.ceil(projectsData.length / 2) }).map((_, rowIndex) => {
@@ -100,9 +98,6 @@ export default function AllProjectsPage() {
                               DOT_MASK_HORIZONTAL.WebkitMaskImage,
                           }}
                         />
-                        <div className="absolute -left-4 w-[2px] h-[2px] bg-black/40 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-                        <div className="absolute -right-4 w-[2px] h-[2px] bg-black/40 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-                        <div className="absolute left-1/2 w-[2px] h-[2px] bg-black/40 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
                       </div>
                     )}
                   </div>
@@ -122,8 +117,6 @@ export default function AllProjectsPage() {
                   DOT_MASK_HORIZONTAL.WebkitMaskImage,
               }}
             />
-            <div className="absolute -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
-            <div className="absolute -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
           </div>
         </div>
       </BlueprintGrid>

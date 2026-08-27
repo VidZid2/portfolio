@@ -39,8 +39,6 @@ export default function PullRequestsPage() {
                 DOT_MASK_HORIZONTAL.WebkitMaskImage,
             }}
           />
-          <div className="absolute -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
-          <div className="absolute -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
         </div>
       </motion.div>
     </BlueprintGrid>

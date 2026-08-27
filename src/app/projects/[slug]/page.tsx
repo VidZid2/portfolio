@@ -96,8 +96,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                 DOT_MASK_HORIZONTAL.WebkitMaskImage,
             }}
           />
-          <div className="absolute -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
-          <div className="absolute -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
         </div>
 
         {/* Action Links Grid */}
@@ -155,7 +153,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           {/* Horizontal Divider for Mobile Only */}
           <div className="col-span-2 md:hidden relative my-2">
             <div
-              className="absolute left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+              className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none md:hidden"
               style={{
                 maskImage:
                   DOT_MASK_HORIZONTAL.maskImage,
@@ -163,8 +161,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                   DOT_MASK_HORIZONTAL.WebkitMaskImage,
               }}
             />
-            <div className="absolute -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
-            <div className="absolute -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
           </div>
 
           {project.slug === "sti-elms" ? (
@@ -219,8 +215,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                 DOT_MASK_HORIZONTAL.WebkitMaskImage,
             }}
           />
-          <div className="absolute -left-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] -translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
-          <div className="absolute -right-4 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-[-1px] pointer-events-none z-20" />
         </div>
 
         {/* Title and Status Header */}

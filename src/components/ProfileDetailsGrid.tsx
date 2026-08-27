@@ -185,8 +185,6 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
             className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={dashedVerticalMask}
           />
-          <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-          <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
         </div>
 
         {/* Cell 2: Experience */}
@@ -226,8 +224,6 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
             className="hidden md:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={dashedVerticalMask}
           />
-          <div className="hidden md:block absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-          <div className="hidden md:block absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
         </div>
 
         {/* Cell 3: Location */}
@@ -263,8 +259,6 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
             className="md:hidden absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={dashedVerticalMask}
           />
-          <div className="md:hidden absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-          <div className="md:hidden absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
         </div>
 
         {/* Cell 4: Local Time */}
@@ -298,8 +292,6 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
             className="hidden md:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={dashedVerticalMask}
           />
-          <div className="hidden md:block absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-          <div className="hidden md:block absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
         </div>
 
         {/* Cell 5: Focus */}
@@ -338,8 +330,6 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
             className="hidden md:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={dashedVerticalMask}
           />
-          <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-          <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
         </div>
 
         {/* Cell 6: Education */}
@@ -467,14 +457,10 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
 
               {/* Vertical Dotted Divider Line on right of each cell except the last */}
               {idx < SOCIAL_LINKS.length - 1 && (
-                <>
-                  <div
-                    className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
-                    style={dashedVerticalMask}
-                  />
-                  <div className="absolute top-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
-                  <div className="absolute bottom-0 right-0 w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
-                </>
+                <div
+                  className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
+                  style={dashedVerticalMask}
+                />
               )}
             </div>
           ))}
