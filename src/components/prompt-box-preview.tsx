@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
@@ -1046,17 +1046,17 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
                       setEffort(configuration.reasoning);
                       playChatSend(0.04);
                       consumeReasoningQuota(configuration.reasoning);
-                    try {
-                      if (triggerSend) {
-                        triggerSend(
-                          { role: 'user', content: prompt },
-                          { body: { model, effort: configuration.reasoning } }
-                        );
+                      try {
+                        if (triggerSend) {
+                          triggerSend(
+                            { role: 'user', content: prompt },
+                            { body: { model, effort: configuration.reasoning } }
+                          );
+                        }
+                      } catch (e) {
+                        console.error("Send error:", e);
                       }
-                    } catch (e) {
-                      console.error("Send error:", e);
-                    }
-                  }}
+                    }}
                   disabled={isLoading}
                 />
               </div>
@@ -1083,7 +1083,7 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[100] bg-zinc-950/60 backdrop-blur-md"
+            className="fixed inset-0 z-[9999] bg-zinc-950/60 backdrop-blur-md"
             onClick={handleClose}
           />
         )}
@@ -1093,7 +1093,7 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
           <motion.div 
             key="modal-wrapper"
             exit={{ opacity: 0, transition: { duration: 0.2 } }}
-            className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none p-4"
+            className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none p-4"
           >
             <motion.div 
               layout

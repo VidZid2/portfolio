@@ -6,6 +6,7 @@ import { ArrowUpRightIcon, Mail, Check, Copy, ExternalLink, Gift } from "lucide-
 import { toast } from "sonner";
 
 import Image from "next/image";
+import { PaypalIcon, KofiIcon } from "@/components/icons/support-icons";
 import { useTransition } from "@/components/TransitionProvider";
 import ScrambleText from "@/components/ruixen/scramble-text";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -23,6 +24,8 @@ import {
 } from "@/components/motion/action-swap-cascade";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
+import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
+import { CornerMark } from "@/components/ui/corner-mark";
 
 interface CommunitySupportSectionProps {
   hasSeenScrollAnimations?: boolean;
@@ -31,7 +34,7 @@ interface CommunitySupportSectionProps {
 export function CommunitySupportSection({
   hasSeenScrollAnimations = false,
 }: CommunitySupportSectionProps) {
-const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
+  const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
   const { navigate } = useTransition();
   const [modalOpen, setModalOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -72,18 +75,11 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => playSoftClick()}
-        className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group cursor-pointer active:scale-[0.99] select-none"
+        className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group cursor-pointer active:scale-[0.99] select-none outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6495ED]/50"
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-8 h-8 rounded-lg bg-[#003087]/10 dark:bg-[#0079C1]/20 flex items-center justify-center shrink-0 shadow-xs">
-            <Image
-              src="/SVG's/Support SVG'S/Paypal.svg"
-              alt="PayPal"
-              width={20}
-              height={20}
-              className="w-4.5 h-4.5 object-contain"
-              unoptimized
-            />
+            <PaypalIcon className="w-4.5 h-4.5" />
           </div>
           <div className="text-left min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -108,18 +104,11 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => playSoftClick()}
-        className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group cursor-pointer active:scale-[0.99]"
+        className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group cursor-pointer active:scale-[0.99] select-none outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6495ED]/50"
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-8 h-8 rounded-lg bg-[#FF5E5B]/10 dark:bg-[#FF5E5B]/20 flex items-center justify-center shrink-0 shadow-xs">
-            <Image
-              src="/SVG's/Support SVG'S/Kofi_Symbol.svg"
-              alt="Ko-fi"
-              width={20}
-              height={20}
-              className="w-4.5 h-4.5 object-contain"
-              unoptimized
-            />
+            <KofiIcon className="w-4.5 h-4.5" />
           </div>
           <div className="text-left min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -153,7 +142,7 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
           <button
             type="button"
             onClick={handleCopyEmail}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-800 dark:text-zinc-200 text-[11px] font-medium transition-colors cursor-pointer border-0 shrink-0 select-none overflow-hidden active:scale-95"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-800 dark:text-zinc-200 text-[11px] font-medium transition-colors cursor-pointer border-0 shrink-0 select-none overflow-hidden active:scale-95 outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6495ED]/50"
             title="Copy Email"
           >
             <ActionSwapCascadeIcon value={copiedEmail ? "copied" : "copy"} className="w-3.5 h-3.5">
@@ -177,7 +166,7 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
           <button
             type="button"
             onClick={handleContactClick}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 text-[11px] font-medium transition-all duration-200 cursor-pointer shadow-xs active:scale-[0.98] border-0"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 text-[11px] font-medium transition-all duration-200 cursor-pointer shadow-xs active:scale-[0.98] border-0 outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6495ED]/50"
           >
             <ArrowUpRightIcon className="w-3.5 h-3.5" />
             <span>Open Contact Form</span>
@@ -185,7 +174,7 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
           <a
             href={`mailto:${email}?subject=[Open Source Support] Tip & Sponsorship`}
             onClick={() => playSoftClick()}
-            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-zinc-200/80 dark:bg-zinc-800 hover:bg-zinc-300/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-[11px] font-medium transition-colors"
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-zinc-200/80 dark:bg-zinc-800 hover:bg-zinc-300/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-[11px] font-medium transition-colors outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6495ED]/50"
             title="Send Email directly"
           >
             <Mail className="w-3.5 h-3.5" />
@@ -200,7 +189,7 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
     <>
       <motion.div
         id="community-support"
-        className="mt-0 flex flex-col w-[calc(100%+1.5rem)] sm:w-[calc(100%+2rem)] -mx-3 sm:-mx-4 relative z-10 scroll-mt-24 select-none"
+        className="mt-0 flex flex-col w-full relative z-10 scroll-mt-24 select-none"
         initial={skip ? "visible" : "hidden"}
         whileInView={skip ? undefined : phase === "done" ? "visible" : "hidden"}
         animate={skip ? "visible" : undefined}
@@ -212,7 +201,12 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
         }}
       >
         {/* Top line — spans between margin guides */}
-        <div className="absolute top-0 bleed-x h-0 border-t border-foreground/10 pointer-events-none" />
+        <div
+          className="absolute top-0 bleed-x h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={DOT_MASK_HORIZONTAL}
+        />
+        <CornerMark position="top-left" />
+        <CornerMark position="top-right" />
 
         {/* Section Header */}
         <motion.div
@@ -224,7 +218,7 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
               transition: { type: "spring", bounce: 0.3 },
             },
           }}
-          className="pt-2.5 pb-3 px-3 sm:px-4 relative flex flex-col justify-start"
+          className="pt-2.5 pb-3 px-1 sm:px-1.5 relative flex flex-col justify-start"
         >
           <div className="flex items-center gap-2">
             <ScrambleText
@@ -239,7 +233,12 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
           </p>
 
           {/* Horizontal line underneath the header — spans between margin guides */}
-          <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
+          <div
+            className="absolute bottom-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+            style={DOT_MASK_HORIZONTAL}
+          />
+          <CornerMark position="bottom-left" />
+          <CornerMark position="bottom-right" />
         </motion.div>
 
         {/* 2-Column Responsive Blueprint Grid */}
@@ -251,7 +250,10 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
           className="grid grid-cols-1 sm:grid-cols-2 relative"
         >
           {/* Vertical Center Line */}
-          <div className="hidden sm:block absolute top-0 bottom-0 left-1/2 w-0 border-r border-foreground/10 pointer-events-none z-10" />
+          <div
+            className="hidden sm:block absolute top-0 bottom-0 left-1/2 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
+            style={DOT_MASK_VERTICAL}
+          />
 
           {/* Active Sponsors or Empty Slot Showcase */}
           <div className="contents">
@@ -324,10 +326,16 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
                   </p>
 
                   {/* Desktop Middle Vertical Divider */}
-                  <div className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none" />
+                  <div
+                    className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
+                    style={DOT_MASK_VERTICAL}
+                  />
 
                   {/* Mobile Horizontal Divider between Card 1 and Card 2 */}
-                  <div className="sm:hidden absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none" />
+                  <div
+                    className="sm:hidden absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+                    style={DOT_MASK_HORIZONTAL}
+                  />
                 </div>
 
                 {/* 2. Interactive Plus (+) Slot (Right) - Pure icon without outline */}
@@ -351,7 +359,12 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
           </div>
 
           {/* Grid Bottom Line — spans between margin guides */}
-          <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
+          <div
+            className="absolute bottom-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+            style={DOT_MASK_HORIZONTAL}
+          />
+          <CornerMark position="bottom-left" />
+          <CornerMark position="bottom-right" />
         </motion.div>
 
         {/* Bottom "Sponsor my work" Action Button */}
@@ -364,15 +377,10 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
         >
           <ExpandingArrowButton
             onSlideComplete={handleOpenModal}
-            className="h-9 sm:h-10 w-48 sm:w-52 rounded-[15px]"
-            accentClassName="bg-[#6495ED] text-white"
-            labelClassName="text-[11px] sm:text-xs font-semibold tracking-tight text-zinc-800 dark:text-zinc-200"
+            className="h-9 sm:h-10 w-48 sm:w-52"
           >
             Slide to sponsor
           </ExpandingArrowButton>
-
-          {/* Section Bottom line — spans between margin guides */}
-          <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
         </motion.div>
       </motion.div>
 
@@ -383,7 +391,7 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
           onOpenChange={setModalOpen}
           snapPoints={["auto"]}
           title="Support & Send a Tip"
-          description="Support Josiah's open-source projects, tools, and creations. Every contribution directly powers new builds and maintenance."
+          description="Thank you for believing in my work. Your kindness and support directly empower me to keep building, experimenting, and sharing open-source tools with the community."
           className="max-w-lg border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0a0a0a]"
         >
           <div className="px-4 pb-6">
@@ -406,7 +414,7 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
                 </h3>
               </div>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed font-sans">
-                Support Josiah&apos;s open-source projects, tools, and creations. Every contribution directly powers new builds and maintenance.
+                Thank you for believing in my work. Your kindness and support directly empower me to keep building, experimenting, and sharing open-source tools with the community.
               </p>
             </div>
             {renderSupportContent()}

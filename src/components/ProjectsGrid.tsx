@@ -17,6 +17,7 @@ import {
   techNames,
   projectsData,
 } from "@/data/projectsData";
+import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 
 export {
   type TechIcon,
@@ -305,7 +306,10 @@ export function ProjectsGrid() {
 
         {/* Middle Horizontal Line Container — spans between margin guides */}
         <div className="relative w-full h-0 hidden md:block">
-          <div className="absolute top-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
+          <div
+            className="absolute top-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+            style={DOT_MASK_HORIZONTAL}
+          />
         </div>
 
         {/* Row 2 */}

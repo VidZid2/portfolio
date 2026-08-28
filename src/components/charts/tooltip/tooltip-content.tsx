@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { intFmt } from "../chart-formatters";
+import NumberFlow from "@number-flow/react";
 
 export interface TooltipRow {
   color: string;
@@ -41,7 +41,11 @@ export function TooltipContent({ title, rows, children }: TooltipContentProps) {
                 </span>
               </div>
               <span className="font-semibold text-zinc-900 dark:text-zinc-100 text-xs tabular-nums">
-                {typeof row.value === "number" ? intFmt(row.value) : row.value}
+                {typeof row.value === "number" ? (
+                  <NumberFlow value={row.value} />
+                ) : (
+                  row.value
+                )}
               </span>
             </div>
           ))}

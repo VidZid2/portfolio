@@ -1,0 +1,84 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "extends": ["ultracite"],
+  "linter": {
+    "rules": {
+      "complexity": {
+        "noUselessTernary": "error",
+        "noForEach": "off",
+        "noExcessiveCognitiveComplexity": "off",
+        "useLiteralKeys": "off",
+        "noUselessFragments": "off"
+      },
+      "performance": {
+        "useTopLevelRegex": "off"
+      },
+      "suspicious": {
+        "noExplicitAny": "off",
+        "noConsole": "off",
+        "noConsoleLog": "off",
+        "noShorthandPropertyOverrides": "off",
+        "noDoubleEquals": "off",
+        "useAwait": "off",
+        "noAssignInExpressions": "off",
+        "noConfusingVoidType": "off",
+        "noDuplicateFontNames": "off"
+      },
+      "correctness": {
+        "noUnknownProperty": "off",
+        "noUndeclaredVariables": "off",
+        "noUnusedImports": "off",
+        "noUnusedVariables": "off",
+        "useExhaustiveDependencies": "off",
+        "noUnusedFunctionParameters": "off",
+        "noInvalidPositionAtImportRule": "off"
+      },
+      "a11y": {
+        "useFocusableInteractive": "off",
+        "useKeyWithClickEvents": "off",
+        "noSvgWithoutTitle": "off",
+        "useKeyWithMouseEvents": "off",
+        "useGenericFontNames": "off"
+      },
+      "nursery": {
+        "noStaticElementInteractions": "off",
+        "noUselessStringRaw": "off",
+        "noImgElement": "off",
+        "noDescendingSpecificity": "off",
+        "noNestedTernary": "off",
+        "noDuplicateProperties": "off",
+        "noUnknownPseudoClass": "off",
+        "useAriaPropsSupportedByRole": "off",
+        "useSortedClasses": "off",
+        "noUnknownTypeSelector": "off",
+        "noUnknownPseudoElement": "off"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
+      },
+      "style": {
+        "useImportType": "off",
+        "useForOf": "off",
+        "useBlockStatements": "off",
+        "noUnusedTemplateLiteral": "off",
+        "useTemplate": "off",
+        "noNonNullAssertion": "off",
+        "useCollapsedElseIf": "off",
+        "noParameterAssign": "off",
+        "useShorthandAssign": "off",
+        "noUselessElse": "off",
+        "useFilenamingConvention": "off"
+      }
+    }
+  },
+  "files": {
+    "ignore": [
+      "packages/design-system/components/ui/**",
+      "packages/design-system/lib/**",
+      "packages/design-system/hooks/**",
+      "apps/email/.react-email/**",
+      "apps/website/archive/**",
+      "apps/website/components/**"
+    ]
+  }
+}

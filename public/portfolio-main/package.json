@@ -1,0 +1,38 @@
+{
+  "name": "srisomanaath",
+  "version": "0.0.1",
+  "files": ["dist/index.js"],
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "ultracite lint",
+    "format": "ultracite format",
+    "test": "turbo test",
+    "analyze": "turbo analyze",
+    "translate": "turbo translate",
+    "boundaries": "turbo boundaries",
+    "bump-deps": "npx npm-check-updates --deep -u -x react-day-picker",
+    "clean": "git clean -xdf node_modules",
+    "publish:release": "pnpm publish:release"
+  },
+  "devDependencies": {
+    "@auto-it/first-time-contributor": "^11.3.0",
+    "@biomejs/biome": "1.9.4",
+    "@repo/typescript-config": "workspace:*",
+    "@turbo/gen": "^2.5.3",
+    "@types/node": "^22.15.21",
+    "turbo": "^2.5.3",
+    "typescript": "^5.8.3",
+    "ultracite": "^4.2.5",
+    "vitest": "^3.1.4"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "pnpm@10.11.0",
+  "dependencies": {
+    "@clack/prompts": "^0.11.0",
+    "commander": "^14.0.0"
+  },
+  "type": "module"
+}

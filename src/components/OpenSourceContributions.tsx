@@ -5,6 +5,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import ScrambleText from "@/components/ruixen/scramble-text";
 import { playSoftClick, playToastError, playHoverTick } from "@/lib/synth-sounds";
+import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
+import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 interface PR {
   id: number;
@@ -37,11 +39,8 @@ type FilterType = "merged" | "open" | "closed";
 
 const CACHE_TTL_MS = 30 * 60 * 1000;
 
-import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
-import { useSectionReveal } from "@/hooks/use-section-reveal";
-
 export function OpenSourceContributions({ isFullPage = false, hasSeenScrollAnimations = false }: { isFullPage?: boolean, hasSeenScrollAnimations?: boolean }) {
-const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
+  const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
   const [prsByType, setPrsByType] = useState<Record<FilterType, PR[]>>({
     merged: [],
     open: [],
@@ -68,7 +67,6 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
     const cacheKey = `github_prs_${type}`;
     const cachedData = typeof window !== 'undefined' ? localStorage.getItem(cacheKey) : null;
 
-    // Immediately populate from cache if available and fresh enough
     if (cachedData) {
       try {
         const parsed = JSON.parse(cachedData) as { ts?: number; prs?: PR[] };
@@ -77,11 +75,10 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
           setLoadedTypes(prev => new Set(prev).add(type));
         }
       } catch {
-        // invalid cache, will fetch fresh
+        // invalid cache
       }
     }
 
-    // Fetch fresh data in background
     try {
       const response = await fetch("/api/github", {
         method: "POST",
@@ -109,7 +106,6 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
         } else {
           console.error("GraphQL response missing expected data structure", data);
         }
-        // Even on error, mark as loaded so we don't show spinner forever
         setLoadedTypes(prev => new Set(prev).add(type));
       }
     } catch (error) {
@@ -118,27 +114,22 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
     }
   }, []);
 
-  // Prefetch ALL filter types on mount
   useEffect(() => {
     if (fetchedRef.current) return;
     fetchedRef.current = true;
 
-    // Fetch merged first (visible by default), then others in parallel
     fetchPRsForType("merged");
     fetchPRsForType("open");
     fetchPRsForType("closed");
   }, [fetchPRsForType]);
 
-  // Smooth tab switching with a brief crossfade
   const handleFilterChange = useCallback((type: FilterType) => {
     if (type === filterType) return;
     playSoftClick(0.1);
     setIsTransitioning(true);
-    // Brief fade-out, then swap, then fade-in
     requestAnimationFrame(() => {
       setTimeout(() => {
         setFilterType(type);
-        // Allow the new content to render, then fade in
         requestAnimationFrame(() => {
           setTimeout(() => {
             setIsTransitioning(false);
@@ -158,9 +149,7 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
       whileInView={skip ? undefined : (phase === "done" ? "visible" : "hidden")}
       animate={skip ? "visible" : undefined}
       viewport={{ once: true, amount: 0.1 }}
-      
       transition={isLowTier ? { duration: 0 } : undefined}
-      
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren: 0.15 } }
@@ -179,7 +168,7 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
         <div className="flex items-center gap-2 relative z-20 group mr-0 sm:mr-[8px] w-full sm:w-auto">
           <div className="absolute -inset-[5px] border border-black/5 dark:border-white/5 rounded-[11px] pointer-events-none transition-colors duration-300 group-hover:border-black/10 dark:group-hover:border-white/10" />
           <div className="relative grid grid-cols-3 p-1 bg-zinc-50 dark:bg-[#09090b] rounded-[6px] border border-black/5 dark:border-white/5 shadow-sm shadow-black/20 dark:shadow-lg dark:shadow-black/80 w-full sm:w-fit select-none">
-            {/* Sliding Pill Background (stays on Merged) */}
+            {/* Sliding Pill Background */}
             <div
               className={`absolute top-1 bottom-1 left-1 w-[calc((100%-8px)/3)] rounded-[4px] bg-white dark:bg-[#1e1e20] border border-zinc-200/50 dark:border-zinc-800/50 shadow-sm transition-transform duration-300 ease-[cubic-bezier(0.33,1,0.68,1)] transform will-change-transform ${
                 filterType === "merged" ? "translate-x-0" : filterType === "open" ? "translate-x-[100%]" : "translate-x-[200%]"
@@ -227,11 +216,13 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
         </div>
 
         {/* Horizontal line below heading — spans between margin guides */}
-        <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
+        <div
+          className="absolute bottom-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={DOT_MASK_HORIZONTAL}
+        />
       </motion.div>
 
       <div className="relative pt-0 pb-0">
-        {/* Smooth crossfade container */}
         <div
           className="transition-all duration-150 ease-out"
           style={{
@@ -240,12 +231,14 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
           }}
         >
           {!isLoaded && currentPrs.length === 0 ? (
-            /* Skeleton loading — only shows on truly first load with no cache */
             <div className="flex flex-col">
               {Array.from({ length: initialCount }).map((_, idx) => (
                 <div key={idx} className="relative flex flex-col gap-1.5 py-4 px-4 -mx-4">
                   {idx < initialCount - 1 && (
-                    <div className="absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none z-10" />
+                    <div
+                      className="absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
+                      style={DOT_MASK_HORIZONTAL}
+                    />
                   )}
                   <div className="flex items-center gap-2.5">
                     <div className="w-2 h-2 rounded-full bg-zinc-200 dark:bg-zinc-800 animate-pulse shrink-0" />
@@ -274,7 +267,10 @@ const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
                     className="group relative flex flex-col gap-1.5 py-4 px-4 -mx-4 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/20 rounded-lg"
                   >
                     {!isLast && (
-                      <div className="absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none z-10" />
+                      <div
+                        className="absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
+                        style={DOT_MASK_HORIZONTAL}
+                      />
                     )}
                     <div className="flex items-center gap-2.5 relative z-20 min-w-0">
                       <div className={`w-2 h-2 rounded-full shrink-0 ${pr.state === "MERGED"

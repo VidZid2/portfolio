@@ -23,7 +23,7 @@ export default function AllExperiencePage() {
     >
       {/* Content Section */}
       <div
-        className="ml-3 mr-3 sm:ml-4 sm:mr-4 md:ml-[24.5%] md:mr-[24.5%] md:mx-0 pt-[calc(22vh+112px)] pb-16 px-3 sm:px-4 flex flex-col z-10 relative"
+        className="ml-3 mr-3 sm:ml-4 sm:mr-4 md:ml-[24.5%] md:mr-[24.5%] pt-[calc(22vh+112px)] pb-16 px-3 sm:px-4 flex flex-col z-10 relative"
       >
         <div className="relative pt-0 pb-6">
 
@@ -37,7 +37,7 @@ export default function AllExperiencePage() {
                 <div key={idx} className="group relative">
                   {/* Dashed bottom border for all items */}
                   <div
-                    className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none z-10"
+                    className="absolute bottom-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
                     style={{
                       maskImage:
                         DOT_MASK_HORIZONTAL.maskImage,
@@ -47,7 +47,7 @@ export default function AllExperiencePage() {
                   />
 
                   <div
-                    className="group/item flex flex-row items-center justify-between gap-2 sm:gap-4 py-3.5 px-4 -mx-4 hover:bg-zinc-50 dark:hover:bg-zinc-900/20 transition-colors cursor-pointer relative z-20 rounded-lg sm:py-4 overflow-hidden"
+                    className="group/item flex flex-row items-center justify-between gap-2 sm:gap-4 py-3.5 px-4 -mx-4 hover:bg-zinc-50 dark:hover:bg-zinc-900/20 transition-colors cursor-pointer active:cursor-grabbing select-none relative z-20 rounded-lg sm:py-4 overflow-hidden"
                     onClick={() => setOpenIdx(isOpen ? null : idx)}
                   >
                     <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 relative z-10">
@@ -153,7 +153,7 @@ export default function AllExperiencePage() {
                               {item.metrics.map((metric) => (
                                 <div
                                   key={metric.label}
-                                  className="relative min-w-0 px-3 py-2 after:absolute after:bottom-0 after:right-0 after:top-0 after:w-0 after:border-r after:border-foreground/10 after:[mask-image:repeating-linear-gradient(to_bottom,black_0,black_1px,transparent_1px,transparent_6px)] dark:after:border-white/[0.15] [&:nth-child(2n)]:after:hidden 2xl:[&:not(:last-child)]:after:block 2xl:[&:last-child]:after:hidden"
+                                  className="relative min-w-0 px-3 py-2 after:absolute after:bottom-0 after:right-0 after:top-0 after:w-0 after:border-r after:border-black/30 dark:after:border-white/[0.15] after:[mask-image:repeating-linear-gradient(to_bottom,black_0,black_1px,transparent_1px,transparent_4px)] [&:nth-child(2n)]:after:hidden 2xl:[&:not(:last-child)]:after:block 2xl:[&:last-child]:after:hidden"
                                 >
                                   <p
                                     className={`${metric.value.includes(" - ") ? "text-[13px]" : "text-[16px]"} whitespace-nowrap font-bold leading-none text-zinc-900 dark:text-zinc-100`}
@@ -167,7 +167,7 @@ export default function AllExperiencePage() {
                               ))}
                             </div>
                             <span
-                              className="pointer-events-none absolute inset-x-0 top-0 h-0 border-t border-foreground/10"
+                              className="pointer-events-none absolute inset-x-0 top-0 h-0 border-t border-black/30 dark:border-white/[0.15]"
                               style={{
                                 maskImage:
                                   DOT_MASK_HORIZONTAL.maskImage,
@@ -176,7 +176,7 @@ export default function AllExperiencePage() {
                               }}
                             />
                             <span
-                              className="pointer-events-none absolute inset-x-0 top-1/2 h-0 border-t border-foreground/10 2xl:hidden"
+                              className="pointer-events-none absolute inset-x-0 top-1/2 h-0 border-t border-black/30 dark:border-white/[0.15] 2xl:hidden"
                               style={{
                                 maskImage:
                                   DOT_MASK_HORIZONTAL.maskImage,
@@ -185,7 +185,7 @@ export default function AllExperiencePage() {
                               }}
                             />
                             <span
-                              className="pointer-events-none absolute inset-x-0 bottom-0 h-0 border-b border-foreground/10"
+                              className="pointer-events-none absolute inset-x-0 bottom-0 h-0 border-b border-black/30 dark:border-white/[0.15]"
                               style={{
                                 maskImage:
                                   DOT_MASK_HORIZONTAL.maskImage,
@@ -193,14 +193,14 @@ export default function AllExperiencePage() {
                                   DOT_MASK_HORIZONTAL.WebkitMaskImage,
                               }}
                             />
-                            <span className="pointer-events-none absolute left-0 top-0 h-[2px] w-[2px] -translate-x-1/2 -translate-y-1/2 bg-black/50 dark:bg-white/[0.25]" />
-                            <span className="pointer-events-none absolute right-0 top-0 h-[2px] w-[2px] translate-x-1/2 -translate-y-1/2 bg-black/50 dark:bg-white/[0.25]" />
-                            <span className="pointer-events-none absolute bottom-0 left-0 h-[2px] w-[2px] -translate-x-1/2 translate-y-1/2 bg-black/50 dark:bg-white/[0.25]" />
-                            <span className="pointer-events-none absolute bottom-0 right-0 h-[2px] w-[2px] translate-x-1/2 translate-y-1/2 bg-black/50 dark:bg-white/[0.25]" />
+                            <span className="pointer-events-none absolute left-0 top-0 h-[2px] w-[2px] -translate-x-1/2 -translate-y-1/2 bg-black/50 dark:bg-white/[0.3]" />
+                            <span className="pointer-events-none absolute right-0 top-0 h-[2px] w-[2px] translate-x-1/2 -translate-y-1/2 bg-black/50 dark:bg-white/[0.3]" />
+                            <span className="pointer-events-none absolute bottom-0 left-0 h-[2px] w-[2px] -translate-x-1/2 translate-y-1/2 bg-black/50 dark:bg-white/[0.3]" />
+                            <span className="pointer-events-none absolute bottom-0 right-0 h-[2px] w-[2px] translate-x-1/2 translate-y-1/2 bg-black/50 dark:bg-white/[0.3]" />
                           </div>
                         )}
 
-                        {isOpen && item.screenshot && (
+                        {item.screenshot && (
                           <div className="relative mb-4 overflow-hidden bg-black">
                             <Image
                               src={item.screenshot}
@@ -282,7 +282,10 @@ export default function AllExperiencePage() {
 
         {/* Bottom Separator */}
         <div className="relative mt-8">
-          <div className="absolute bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
+          <div
+            className="absolute bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+            style={DOT_MASK_HORIZONTAL}
+          />
         </div>
       </div>
     </BlueprintGrid>

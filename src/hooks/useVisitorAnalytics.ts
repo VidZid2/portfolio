@@ -25,6 +25,28 @@ export interface InsightsData {
   endDate: string;
 }
 
+const CACHE_KEY = "portfolio_cached_insights";
+
+function getCachedInsights(): InsightsData | null {
+  try {
+    if (typeof window === "undefined") return null;
+    const item = localStorage.getItem(CACHE_KEY);
+    if (!item) return null;
+    const parsed = JSON.parse(item) as InsightsData;
+    if (
+      parsed &&
+      parsed.summary &&
+      typeof parsed.summary.totalSessions === "number" &&
+      parsed.summary.totalSessions > 0
+    ) {
+      return parsed;
+    }
+  } catch {
+    // Ignore cache parse error
+  }
+  return null;
+}
+
 function getOrCreateId(storage: Storage, key: string, prefix: string): string {
   try {
     let id = storage.getItem(key);
@@ -39,11 +61,19 @@ function getOrCreateId(storage: Storage, key: string, prefix: string): string {
 }
 
 export function useVisitorAnalytics() {
-  const [insights, setInsights] = useState<InsightsData>(() => fallbackData);
+  // Always initialize with fallbackData so server SSR and initial client hydration match 100%
+  const [insights, setInsights] = useState<InsightsData>(fallbackData);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    // Read cache immediately upon client mount (post-hydration) for instant zero-delay render
+    const cached = getCachedInsights();
+    if (cached) {
+      setInsights(cached);
+      setIsLoading(false);
+    }
 
     const visitorId = getOrCreateId(localStorage, "portfolio_visitor_id", "v");
     const sessionId = getOrCreateId(sessionStorage, "portfolio_session_id", "s");
@@ -64,6 +94,9 @@ export function useVisitorAnalytics() {
           if (json.data && isMounted) {
             setInsights(json.data);
             setIsLoading(false);
+            try {
+              localStorage.setItem(CACHE_KEY, JSON.stringify(json.data));
+            } catch {}
             return;
           }
         }
@@ -76,6 +109,9 @@ export function useVisitorAnalytics() {
         if (getRes.ok && isMounted) {
           const data = await getRes.json();
           setInsights(data);
+          try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+          } catch {}
         }
       } catch {
         // Silent fallback to default state
@@ -87,8 +123,6 @@ export function useVisitorAnalytics() {
     recordAndFetch();
 
     // Heartbeat duration tracking every 30 seconds.
-    // Sends only the DELTA since the last beat — the server accumulates,
-    // so sending cumulative elapsed would inflate quadratically.
     const startTime = Date.now();
     let lastSentSeconds = 0;
     const interval = setInterval(() => {

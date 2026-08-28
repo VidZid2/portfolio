@@ -31,17 +31,31 @@ import {
     CommandSeparator,
     CommandShortcut,
 } from "@/components/ui/command"
+import { createPortal } from "react-dom"
 import dynamic from "next/dynamic"
 import { Swirling } from "@/components/loading-ui/swirling"
+
+function AiLoadingFallback() {
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || typeof document === "undefined") return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-zinc-950/40 dark:bg-zinc-950/60 backdrop-blur-md pointer-events-auto">
+      <Swirling className="size-8 text-zinc-900 dark:text-zinc-100" />
+    </div>,
+    document.body
+  );
+}
+
 const PromptBoxPreview = dynamic(
   () => import("@/components/prompt-box-preview").then((mod) => mod.PromptBoxPreview),
   { 
     ssr: false,
-    loading: () => (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/20 dark:bg-zinc-950/40 backdrop-blur-sm">
-        <Swirling className="size-8 text-zinc-900 dark:text-zinc-100" />
-      </div>
-    )
+    loading: () => <AiLoadingFallback />
   }
 )
 
@@ -112,6 +126,25 @@ export function CommandMenu() {
             router.push(`/${hash}`);
         }
     };
+
+    // Aggressively prefetch Ask AI bundle when network is idle so opening is 0ms instant
+    React.useEffect(() => {
+        if (typeof window === "undefined") return;
+        const prefetch = () => {
+            import("@/components/prompt-box-preview");
+        };
+        if ("requestIdleCallback" in window) {
+            const idleId = (window as unknown as { requestIdleCallback: (cb: () => void, opts: { timeout: number }) => number }).requestIdleCallback(prefetch, { timeout: 1500 });
+            return () => {
+                if ("cancelIdleCallback" in window) {
+                    (window as unknown as { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(idleId);
+                }
+            };
+        } else {
+            const timer = setTimeout(prefetch, 800);
+            return () => clearTimeout(timer);
+        }
+    }, []);
 
     React.useEffect(() => {
         const handleOpenAi = (e: CustomEvent<{ initialQuery?: string }>) => {

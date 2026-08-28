@@ -140,13 +140,22 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
       {/* Upper Grid (6-Box Dashboard) */}
       <div className="grid grid-cols-2 md:grid-cols-3 w-full relative">
         {/* Mobile Middle Horizontal Divider 1 (between row 1 and row 2) */}
-        <div className="md:hidden absolute top-1/3 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none z-10" />
+        <div
+          className="md:hidden absolute top-1/3 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
+          style={DOT_MASK_HORIZONTAL}
+        />
 
         {/* Mobile Middle Horizontal Divider 2 (between row 2 and row 3) */}
-        <div className="md:hidden absolute top-2/3 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none z-10" />
+        <div
+          className="md:hidden absolute top-2/3 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
+          style={DOT_MASK_HORIZONTAL}
+        />
 
         {/* Desktop Middle Horizontal Divider (between row 1 and row 2) */}
-        <div className="hidden md:block absolute top-1/2 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none z-10" />
+        <div
+          className="hidden md:block absolute top-1/2 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
+          style={DOT_MASK_HORIZONTAL}
+        />
 
         {/* Cell 1: Status */}
         <div
@@ -182,7 +191,7 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
           </div>
           {/* Right vertical dashed border for mobile (col 1) and desktop (col 1) */}
           <div
-            className="absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none"
+            className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={dashedVerticalMask}
           />
         </div>
@@ -221,7 +230,7 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
           </div>
           {/* Right vertical dashed line (Desktop col 2 only) */}
           <div
-            className="hidden md:block absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none"
+            className="hidden md:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={dashedVerticalMask}
           />
         </div>
@@ -256,7 +265,7 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
           </div>
           {/* Mobile Right Border (for Cell 3 in 2-col layout) */}
           <div
-            className="md:hidden absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none"
+            className="md:hidden absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={dashedVerticalMask}
           />
         </div>
@@ -289,7 +298,7 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
           </div>
           {/* Desktop Right Border (Col 1) */}
           <div
-            className="hidden md:block absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none"
+            className="hidden md:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={dashedVerticalMask}
           />
         </div>
@@ -322,12 +331,12 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
           </div>
           {/* Mobile Right Border */}
           <div
-            className="md:hidden absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none"
+            className="md:hidden absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={dashedVerticalMask}
           />
           {/* Desktop Right Border (Col 2) */}
           <div
-            className="hidden md:block absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none"
+            className="hidden md:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={dashedVerticalMask}
           />
         </div>
@@ -363,7 +372,10 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
 
       {/* Full-width separator between Dashboard & Let's Connect */}
       <div className="relative w-full h-0">
-        <div className="absolute top-0 left-0 right-0 h-0 border-t border-foreground/10 pointer-events-none" />
+        <div
+          className="absolute top-0 left-0 right-0 h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={DOT_MASK_HORIZONTAL}
+        />
       </div>
 
       {/* Let's Connect Section (Between Info Grid and Socials) */}
@@ -373,7 +385,10 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
 
       {/* Full-width separator between Let's Connect & Socials */}
       <div className="relative w-full h-0">
-        <div className="absolute top-0 left-0 right-0 h-0 border-t border-foreground/10 pointer-events-none" />
+        <div
+          className="absolute top-0 left-0 right-0 h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={DOT_MASK_HORIZONTAL}
+        />
       </div>
 
       {/* Socials Row (5-Column Mathematical Blueprint Grid) */}
@@ -458,7 +473,7 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
               {/* Vertical Dotted Divider Line on right of each cell except the last */}
               {idx < SOCIAL_LINKS.length - 1 && (
                 <div
-                  className="absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none"
+                  className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
                   style={dashedVerticalMask}
                 />
               )}
@@ -469,7 +484,10 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
 
       {/* Full-width separator between Socials & GitHub Activity */}
       <div className="relative w-full h-0">
-        <div className="absolute top-0 left-0 right-0 h-0 border-t border-foreground/10 pointer-events-none" />
+        <div
+          className="absolute top-0 left-0 right-0 h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={DOT_MASK_HORIZONTAL}
+        />
       </div>
     </div>
   );

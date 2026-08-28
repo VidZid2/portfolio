@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const token = process.env.GITHUB_TOKEN;
+  const token = process.env.GITHUB_TOKEN || process.env.GITHUB_KEY;
   if (!token) {
     return NextResponse.json({ error: "Server missing GITHUB_TOKEN credential" }, { status: 500 });
   }

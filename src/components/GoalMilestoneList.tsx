@@ -182,14 +182,12 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
             >
               {/* Dashed bottom border for all items */}
               <div
-                className="absolute bottom-0 left-[-16px] right-[-16px] h-0 border-b border-foreground/10 pointer-events-none z-10"
-                style={{
-                  maskImage:
-                    DOT_MASK_HORIZONTAL.maskImage,
-                  WebkitMaskImage:
-                    DOT_MASK_HORIZONTAL.WebkitMaskImage,
-                }}
+                className="absolute bottom-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
+                style={DOT_MASK_HORIZONTAL}
               />
+              {/* Corner Intersection Node Dots on vertical guides */}
+              <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-20 left-[-16px] bottom-0 -translate-x-1/2 translate-y-1/2" />
+              <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-20 right-[-16px] bottom-0 translate-x-1/2 translate-y-1/2" />
 
               <div
                 className={cn(
@@ -346,7 +344,7 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
                               Comprehensive breakdown of the core technologies and systems powering this portfolio.
                             </p>
                             {/* Bottom Dashed Line */}
-                            <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
+                            <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15]" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
                           </div>
                         )}
                         {(item.title === "PRIMA" || item.title === "eLMS 2.0 Overhaul") && (
@@ -358,14 +356,14 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
                               Comprehensive breakdown of the core technologies and systems powering this platform.
                             </p>
                             {/* Bottom Dashed Line */}
-                            <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
+                            <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15]" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
                           </div>
                         )}
                         {/* Outer Borders */}
-                        <span className="pointer-events-none absolute top-0 left-0 right-0 h-0 border-t border-foreground/10" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
-                        <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
-                        <span className="pointer-events-none absolute top-0 bottom-0 left-0 w-0 border-l border-foreground/10" style={{ maskImage: DOT_MASK_VERTICAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_VERTICAL.WebkitMaskImage }} />
-                        <span className="pointer-events-none absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10" style={{ maskImage: DOT_MASK_VERTICAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_VERTICAL.WebkitMaskImage }} />
+                        <span className="pointer-events-none absolute top-0 left-0 right-0 h-0 border-t border-black/30 dark:border-white/[0.15]" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
+                        <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15]" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
+                        <span className="pointer-events-none absolute top-0 bottom-0 left-0 w-0 border-l border-black/30 dark:border-white/[0.15]" style={{ maskImage: DOT_MASK_VERTICAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_VERTICAL.WebkitMaskImage }} />
+                        <span className="pointer-events-none absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15]" style={{ maskImage: DOT_MASK_VERTICAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_VERTICAL.WebkitMaskImage }} />
 
                         <div className="grid max-w-full grid-cols-2 md:grid-cols-3">
                           {item.metrics.map((metric, i, arr) => {
@@ -398,12 +396,12 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
                               >
                                 {/* Inner Right Border */}
                                 <span 
-                                  className={`pointer-events-none absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 ${rightClass}`}
+                                  className={`pointer-events-none absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] ${rightClass}`}
                                   style={{ maskImage: DOT_MASK_VERTICAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_VERTICAL.WebkitMaskImage }} 
                                 />
                                 {/* Inner Bottom Border */}
                                 <span 
-                                  className={`pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10 ${bottomClass}`}
+                                  className={`pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] ${bottomClass}`}
                                   style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} 
                                 />
 
@@ -420,7 +418,7 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
                       </div>
                     )}
 
-                    {isOpen && !item.hidePlaceholder && (
+                    {!item.hidePlaceholder && (
                       <div className="relative mb-4 overflow-hidden rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 bg-black/5 dark:bg-white/5 w-full aspect-video">
                         {item.placeholderVideo ? (
                           <video

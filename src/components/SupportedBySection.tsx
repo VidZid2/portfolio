@@ -31,6 +31,8 @@ import { CurvedMenu } from "@/components/ui/curved-menu";
 import { CylinderCarousel } from "@/components/motion/cylinder-carousel";
 import { playSoftClick } from "@/lib/synth-sounds";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
+import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
+import { CornerMark } from "@/components/ui/corner-mark";
 
 /** How long each logo stays visible before cycling to the next one (ms). */
 const CYCLE_INTERVAL = 2600;
@@ -65,7 +67,7 @@ export const CATEGORIES = [
 ] as const;
 
 /**
- * ALL 20 COMPONENT & WEBSITE INSPIRATIONS WITH FULL DARK MODE COMPATIBILITY
+ * ALL 20 COMPONENT & WEBSITE INSPIRATIONS WITH FULL DARK MODE COMPATIBILITY & CASE-SENSITIVE PATHS
  */
 export const INSPIRATIONS: InspirationItem[] = [
   {
@@ -174,7 +176,7 @@ export const INSPIRATIONS: InspirationItem[] = [
     category: "components",
     description: "Component extensions, layout primitives, and design patterns for web experiences.",
     url: "https://extend-ui.com",
-    svgPath: "/component-inspirations/extendui.svg",
+    svgPath: "/component-inspirations/ExtendUI.svg",
     imageFallback: "/component-inspirations/extendui.png",
     invertInDark: true,
   },
@@ -184,7 +186,7 @@ export const INSPIRATIONS: InspirationItem[] = [
     category: "systems",
     description: "Design engineering inspiration, curated frontend components, and modern icon systems.",
     url: "https://iconiq.design",
-    svgPath: "/component-inspirations/iconiq.svg",
+    svgPath: "/component-inspirations/Iconiq.svg",
     imageFallback: "/component-inspirations/iconiq.png",
     invertInDark: true,
   },
@@ -194,7 +196,7 @@ export const INSPIRATIONS: InspirationItem[] = [
     category: "motion",
     description: "Modern motion tokens, drawers, spring physics components, and fluid interactions.",
     url: "https://beui.design",
-    svgPath: "/component-inspirations/beui.svg",
+    svgPath: "/component-inspirations/BEUI.svg",
     imageFallback: "/component-inspirations/beui.png",
     invertInDark: true,
   },
@@ -361,7 +363,7 @@ export function SupportedBySection({
 }: {
   hasSeenScrollAnimations?: boolean;
 }) {
-const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
+  const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
   const reduceMotion = useReducedMotion() ?? false;
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -384,6 +386,12 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
             <img
               src={item.svgPath}
               alt={item.name}
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (item.imageFallback && target.src !== item.imageFallback) {
+                  target.src = item.imageFallback;
+                }
+              }}
               className="h-7 sm:h-8 w-auto max-w-[130px] sm:max-w-[155px] max-h-[34px] sm:max-h-[38px] object-contain shrink-0 transition-transform duration-200 group-hover:scale-105 dark:hidden"
               loading="eager"
               decoding="async"
@@ -393,6 +401,12 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
             <img
               src={item.darkSvgPath}
               alt={item.name}
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (item.imageFallback && target.src !== item.imageFallback) {
+                  target.src = item.imageFallback;
+                }
+              }}
               className="h-7 sm:h-8 w-auto max-w-[130px] sm:max-w-[155px] max-h-[34px] sm:max-h-[38px] object-contain shrink-0 transition-transform duration-200 group-hover:scale-105 hidden dark:block"
               loading="eager"
               decoding="async"
@@ -403,6 +417,12 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
           <img
             src={item.svgPath}
             alt={item.name}
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (item.imageFallback && target.src !== item.imageFallback) {
+                target.src = item.imageFallback;
+              }
+            }}
             className={`h-7 sm:h-8 w-auto max-w-[130px] sm:max-w-[155px] max-h-[34px] sm:max-h-[38px] object-contain shrink-0 transition-transform duration-200 group-hover:scale-105 ${
               item.invertInDark ? "dark:invert" : ""
             }`}
@@ -746,57 +766,33 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
         transition={
           hasSeenTip
             ? { duration: 0.2 }
-            : {
-                duration: 0.7,
-                delay: 4,
-                ease: [0.16, 1, 0.3, 1],
-              }
+            : { duration: 0.5, delay: 0.4, ease: [0.16, 1, 0.3, 1] }
         }
-        onAnimationComplete={() => {
-          if (!hasSeenTip) setHasSeenTip(true);
-        }}
-        className="pb-6 pt-2 px-6 flex items-center justify-center gap-2 text-center flex-wrap font-sans select-none z-30 relative"
+        className="pb-8 pt-3 px-6 flex items-center justify-center gap-3 text-xs text-zinc-500 dark:text-zinc-400 font-sans"
       >
-        <style>{`
-          @keyframes shimmer-text {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-          }
-          .animate-shimmer-text {
-            background: linear-gradient(90deg, #6495ED 0%, #C4D7FF 50%, #6495ED 100%);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: shimmer-text 3s infinite linear;
-          }
-        `}</style>
-        <span className="text-xs sm:text-[13px] text-zinc-500 dark:text-zinc-400 font-normal">
-          Want me to help you find what you need?
-        </span>
         <button
           type="button"
           onClick={() => {
+            playSoftClick(0.04);
             setIsDrawerOpen(false);
             window.dispatchEvent(new CustomEvent("open-ai"));
           }}
           onMouseEnter={() => {
             import("@/components/prompt-box-preview");
           }}
-          className="relative group cursor-pointer transition-all duration-200 active:scale-95 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-zinc-100/90 dark:bg-zinc-800/70 hover:bg-zinc-200/90 dark:hover:bg-zinc-700/90 text-[12px] font-medium border-0 outline-none ring-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
-          aria-label="Ask AI Assistant"
+          onTouchStart={() => {
+            import("@/components/prompt-box-preview");
+          }}
+          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white transition-colors cursor-pointer text-xs"
         >
           <svg
-            className="size-3.5 shrink-0"
-            viewBox="0 0 18 18"
+            className="w-3.5 h-3.5 text-[#6495ED]"
+            viewBox="0 0 16 16"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
-              d="M3.025,5.623c.068,.204,.26,.342,.475,.342s.406-.138,.475-.342l.421-1.263,1.263-.421c.204-.068,.342-.259,.342-.474s-.138-.406-.342-.474l-1.263-.421-.421-1.263c-.137-.408-.812-.408-.949,0l-.421,1.263-1.263,.421c-.204,.068-.342,.259-.342,.474s.138,.406,.342,.474l1.263,.421,.421,1.263Z"
-              className="fill-[#6495ED]"
-            />
-            <path
-              d="M16.525,8.803l-4.535-1.793-1.793-4.535c-.227-.572-1.168-.572-1.395,0l-1.793,4.535-4.535,1.793c-.286,.113-.475,.39-.475,.697s.188,.584,.475,.697l4.535,1.793,1.793,4.535c.113,.286,.39,.474,.697,.474s.584-.188,.697-.474l1.793-4.535,4.535-1.793c.286-.113,.475-.39,.475-.697s-.188-.584-.475-.697Z"
+              d="M8 1.5L9.5 5.5L13.5 7L9.5 8.5L8 12.5L6.5 8.5L2.5 7L6.5 5.5L8 1.5Z"
               className="fill-[#6495ED]"
             />
           </svg>
@@ -822,7 +818,10 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
         }}
       >
         {/* Top line — spans between margin guides */}
-        <div className="absolute top-0 bleed-x h-0 border-t border-foreground/10 pointer-events-none" />
+        <div
+          className="absolute top-0 bleed-x h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={DOT_MASK_HORIZONTAL}
+        />
 
         {/* Centered Header: SPECIAL THANKS & COMPONENT INSPIRATIONS */}
         <div className="relative h-[32px] sm:h-[36px] flex items-center justify-center px-8 sm:px-10 text-center">
@@ -892,7 +891,12 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
           </button>
 
           {/* Bottom divider line under header — spans between margin guides */}
-          <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
+          <div
+            className="absolute bottom-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+            style={DOT_MASK_HORIZONTAL}
+          />
+          <CornerMark position="bottom-left" />
+          <CornerMark position="bottom-right" />
         </div>
 
         {/* 4-Column Animated Grid */}
@@ -906,15 +910,24 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
               >
                 {/* Vertical Divider on the right of each cell (except last on desktop) */}
                 {columnIndex < columns.length - 1 && (
-                  <div className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none" />
+                  <div
+                    className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
+                    style={DOT_MASK_VERTICAL}
+                  />
                 )}
                 {/* Mobile 2-column vertical divider */}
                 {columnIndex % 2 === 0 && (
-                  <div className="sm:hidden absolute top-0 bottom-0 right-0 w-0 border-r border-foreground/10 pointer-events-none" />
+                  <div
+                    className="sm:hidden absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
+                    style={DOT_MASK_VERTICAL}
+                  />
                 )}
                 {/* Mobile 2-column horizontal divider for row 1 */}
                 {columnIndex < 2 && (
-                  <div className="sm:hidden absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none" />
+                  <div
+                    className="sm:hidden absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+                    style={DOT_MASK_HORIZONTAL}
+                  />
                 )}
 
                 <LogoColumn
@@ -930,7 +943,12 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
         </div>
 
         {/* Bottom line — spans between margin guides */}
-        <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
+        <div
+          className="absolute bottom-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={DOT_MASK_HORIZONTAL}
+        />
+        <CornerMark position="bottom-left" />
+        <CornerMark position="bottom-right" />
       </motion.div>
 
       {/* Responsive Gallery Presentation: CurvedMenu on Mobile/Tablet, CenterMorphModal on PC/Desktop */}

@@ -88,7 +88,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         {/* Top Dashed Divider before Action Links */}
         <div className="relative mt-8">
           <div
-            className="absolute bleed-x h-0 border-b border-foreground/10 pointer-events-none"
+            className="absolute bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+            style={DOT_MASK_HORIZONTAL}
           />
         </div>
 
@@ -111,7 +112,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
 
           {/* Vertical Divider 1 */}
           <div
-            className="hidden md:block absolute left-1/3 top-0 bottom-0 w-0 border-l border-foreground/10 pointer-events-none"
+            className="hidden md:block absolute left-1/3 top-0 bottom-0 w-0 border-l border-black/30 dark:border-white/[0.15] pointer-events-none"
+            style={DOT_MASK_VERTICAL}
           />
 
           {project.live && project.live !== "#" ? (
@@ -129,13 +131,15 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
 
           {/* Vertical Divider 2 */}
           <div
-            className="hidden md:block absolute left-2/3 top-0 bottom-0 w-0 border-l border-foreground/10 pointer-events-none"
+            className="hidden md:block absolute left-2/3 top-0 bottom-0 w-0 border-l border-black/30 dark:border-white/[0.15] pointer-events-none"
+            style={DOT_MASK_VERTICAL}
           />
 
           {/* Horizontal Divider for Mobile Only */}
           <div className="col-span-2 md:hidden relative my-2">
             <div
-              className="absolute top-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none md:hidden"
+              className="absolute top-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none md:hidden"
+              style={DOT_MASK_HORIZONTAL}
             />
           </div>
 
@@ -183,7 +187,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         {/* Bottom Dashed Divider */}
         <div className="relative mb-8">
           <div
-            className="absolute bleed-x h-0 border-b border-foreground/10 pointer-events-none"
+            className="absolute bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+            style={DOT_MASK_HORIZONTAL}
           />
         </div>
 

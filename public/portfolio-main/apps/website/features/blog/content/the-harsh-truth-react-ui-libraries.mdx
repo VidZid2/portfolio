@@ -1,0 +1,116 @@
+---
+title: "The Harsh Truth: 90% of React UI Libraries Slow You Down"
+description: "Why most React UI libraries create friction and how to build a sharper, faster UI stack with headless primitives and Tailwind."
+date: "2026-01-25"
+author: "Ruixen"
+published: true
+category: "Architecture"
+readTime: "13 min read"
+image: "https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/gradients/shade_shiters/shade-shifters-01.png"
+---
+
+Most teams believe they have a React problem. In reality, they have a React UI library problem. For most React / Next.js apps, the UI library represents the biggest drag on developer productivity and performance.
+
+## The Real Metric: Time to Ship a Boring Screen
+
+The only meaningful measurement is how quickly a team can deliver a real-world screen. Consider a standard example: table with server-side pagination, inline edit modal, toast notifications, user menu in the header.
+
+If implementation takes days rather than hours, the UI stack works against the team.
+
+**Common symptoms:**
+
+- Fighting the abstraction with variants mismatched to the design system
+- Simple changes requiring deep library source diving
+- Performance "tuning" meaning feature removal
+
+## How React UI Libraries Quietly Slow You Down
+
+### 1. Cognitive Overhead
+
+Libraries introduce proprietary prop naming, custom layout primitives, unique "design languages", and state abstractions. Instead of simple HTML:
+
+```tsx
+<button className="px-3 py-1.5 rounded border text-sm">Save</button>
+```
+
+You end up with:
+
+```tsx
+<Button variant="primary" size="sm" intent="solid" tone="brand"
+  leftIcon={<SaveIcon />} isLoading={isSaving}>
+  Save
+</Button>
+```
+
+That's another DSL to memorize before productivity increases.
+
+### 2. Styling Friction
+
+For Next.js + Tailwind stacks, most UI libraries are fundamentally misaligned. Theme objects in JS/TS, CSS class override "escape hatches", runtime theming conflicting with RSC. You end up with a third unmaintainable styling layer.
+
+### 3. Runtime + Bundle Bloat
+
+Most libraries were designed for client-side rendering only. Oversized bundles, deep component trees for trivial UI, CSS-in-JS with runtime generation, context providers for every interaction.
+
+## The Breaking Point
+
+A fairly standard screen - filters, paginated table, batch actions, slide-over panel - required three complete rewrites. Each iteration removed more library code until only headless primitives remained.
+
+This sparked the question: why pull an entire React UI library to use 5-10 headless patterns?
+
+## The Approach That Finally Worked
+
+The solution: treat UI as a small, sharp standard library, not a kitchen sink.
+
+**Core constraints:**
+- Perfect integration with Next.js app router and server components
+- Tailwind as the styling layer
+- Fast UI components as defaults
+- Delete-friendly: any piece replaceable
+
+### Headless + Data Attributes + Tailwind
+
+The winning pattern combines headless components for behavior, data attributes for state, and Tailwind as the styling DSL:
+
+```tsx
+function Toggle(props: { label: string; defaultOn?: boolean }) {
+  return (
+    <ToggleRoot defaultOn={props.defaultOn}>
+      {(state) => (
+        <button
+          type="button"
+          data-state={state.on ? "on" : "off"}
+          className={cn(
+            "inline-flex items-center rounded-full px-3 py-1 text-xs",
+            "data-[state=on]:bg-emerald-500 data-[state=on]:text-white",
+            "data-[state=off]:bg-slate-800 data-[state=off]:text-slate-300",
+          )}
+        >
+          {props.label}
+        </button>
+      )}
+    </ToggleRoot>
+  );
+}
+```
+
+No theming APIs, no magic.
+
+## Evaluating Any React UI Library
+
+Before adopting any library, ask five questions:
+
+1. **Can I use it with Next.js server components?** Does it avoid forcing `use client` down the entire tree?
+2. **Can I style everything with Tailwind?** Or does "styling" mean learning custom theming engines?
+3. **Is performance first-class?** Minimal wrappers, no runtime CSS-in-JS, clear tree shaking?
+4. **Is the API boring?** Props mapping 1:1 to DOM/ARIA concepts?
+5. **Can I eject individual components?** Replace just the Table while keeping Modal?
+
+## What Changed in the Stack
+
+- UI Library as "Std Lib", not "Framework" - expose 10-20 primitives, not 300
+- Components are either server-safe or clearly client-only
+- No global theme dependency - tokens live in Tailwind and CSS
+- Everything must be copy-pastable
+
+If the library isn't saving time anymore, move toward smaller, sharper primitives that respect how React, Next.js, and Tailwind apps are actually built today.

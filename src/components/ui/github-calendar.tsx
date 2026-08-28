@@ -4,6 +4,7 @@ import { memo, useMemo, useState, useEffect, useId, useRef, useCallback } from "
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { DrawUnderlineLink } from "@/components/sora-ui/texts/draw-underline-link";
+import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -146,7 +147,6 @@ function formatTooltipDate(dateStr: string): string {
   }
 }
 
-import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 import {
   playLaserSound,
   playExplosionSound,
@@ -181,10 +181,23 @@ type APIResponse = {
 };
 
 async function fetchContributions(username: string): Promise<ContributionData> {
-  // 1. Primary Reliable Endpoint
+  // 1. Primary: Internal robust API route with caching & official GitHub scraping
+  try {
+    const res = await fetch(`/api/github/contributions?username=${username}`);
+    if (res.ok) {
+      const json = await res.json();
+      if (json && json.contributions && Object.keys(json.contributions).length > 0) {
+        return json.contributions as ContributionData;
+      }
+    }
+  } catch (err) {
+    console.warn("Internal GitHub contributions API failed, falling back to external sources:", err);
+  }
+
+  // 2. Secondary: jogruber API
   try {
     const res = await fetch(
-      `https://github-contributions-api.jogruber.de/v4/${username}`,
+      `https://github-contributions-api.jogruber.de/v4/${username}?y=all`,
       { cache: "no-store" }
     );
     if (res.ok) {
@@ -201,10 +214,10 @@ async function fetchContributions(username: string): Promise<ContributionData> {
       }
     }
   } catch (err) {
-    console.warn("Primary GitHub API fetch failed, trying secondary fallback:", err);
+    console.warn("Secondary GitHub API fetch failed, trying tertiary fallback:", err);
   }
 
-  // 2. Secondary Fallback Endpoint
+  // 3. Tertiary Fallback Endpoint
   try {
     const res2 = await fetch(
       `https://github-contributions.vercel.app/api/v1/${username}`,
@@ -225,7 +238,7 @@ async function fetchContributions(username: string): Promise<ContributionData> {
       }
     }
   } catch (err) {
-    console.warn("Secondary GitHub API fetch failed:", err);
+    console.warn("Tertiary GitHub API fetch failed:", err);
   }
 
   throw new Error(`Could not fetch live contributions for "${username}"`);
@@ -653,8 +666,9 @@ export const GithubCalendar = memo(function GithubCalendar({
 
   // ── Animation Grid ────────────────────────────────────────────────────────
   const { highlightedCells, cellAnimations } = useMemo(() => {
-    const text = deviceType === "mobile" ? "JD" : (weeks.length < 35 ? "JOSH" : "JOSIAH");
-    const textWidth = deviceType === "mobile" ? 11 : (weeks.length < 35 ? 22 : 35);
+    const isSmallScreen = deviceType === "mobile" || deviceType === "tablet" || weeks.length <= 32;
+    const text = isSmallScreen ? "JD" : "JOSIAH";
+    const textWidth = isSmallScreen ? 11 : 35;
     const startCol = Math.max(Math.floor((weeks.length - textWidth) / 2), 0);
     const highlighted = generateTextPattern(text, startCol);
     
@@ -2483,7 +2497,8 @@ export const GithubCalendar = memo(function GithubCalendar({
           className="relative w-full h-0 mt-4 mb-7"
         >
           <div 
-            className="absolute bleed-x top-0 h-0 border-b border-foreground/10" 
+            className="absolute bleed-x top-0 h-0 border-b border-black/30 dark:border-white/[0.15]" 
+            style={DOT_MASK_HORIZONTAL}
           />
         </motion.div>
 

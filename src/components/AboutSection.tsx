@@ -7,6 +7,8 @@ import { DrawUnderlineLink } from "@/components/sora-ui/texts/draw-underline-lin
 import { playHoverTick, playSoftClick } from "@/lib/synth-sounds";
 import { cn } from "@/lib/utils";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
+import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
+import { CornerMark } from "@/components/ui/corner-mark";
 
 // A compact, lightly underdamped spring gives the dot a quick landing without
 // turning the sidebar into a playful toy. The sideways arc carries the bounce.
@@ -215,7 +217,12 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
       className="relative flex flex-col z-10 w-full"
     >
       {/* Top boundary line — spans between margin guides */}
-      <div className="absolute top-0 bleed-x h-0 border-t border-foreground/10 pointer-events-none" />
+      <div
+        className="absolute top-0 bleed-x h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
+        style={DOT_MASK_HORIZONTAL}
+      />
+      <CornerMark position="top-left" />
+      <CornerMark position="top-right" />
 
       {/* Greeting Sub-Row (Framed by top & bottom lines) */}
       <div className="relative h-[38px] sm:h-[42px] flex items-center px-1 sm:px-1.5">
@@ -233,7 +240,12 @@ export function AboutSection({ hasSeenAboutMe = false }: { hasSeenAboutMe?: bool
         </MotionContainer>
 
         {/* Horizontal Divider under Greeting — spans between margin guides */}
-        <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
+        <div
+          className="absolute bottom-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={DOT_MASK_HORIZONTAL}
+        />
+        <CornerMark position="bottom-left" />
+        <CornerMark position="bottom-right" />
       </div>
 
       {/* High-Precision Bouncing Highlight Bulleted List */}

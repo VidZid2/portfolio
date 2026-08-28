@@ -1,0 +1,142 @@
+---
+title: "System Design Fundamentals: Patterns Every Engineer Should Know"
+description: "A practical guide to load balancing, caching, database sharding, message queues, and the architectural building blocks behind scalable systems."
+date: "2026-01-25"
+author: "Ruixen"
+published: true
+category: "System Design"
+readTime: "11 min read"
+image: "https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/gradients/shade_shiters/shade-shifters-03.png"
+---
+
+System design is not about memorizing diagrams. It is about understanding trade-offs: consistency vs availability, latency vs throughput, simplicity vs flexibility. This post covers the foundational patterns that recur in every large-scale system.
+
+## Horizontal vs Vertical Scaling
+
+**Vertical scaling** adds resources to a single machine (bigger CPU, more RAM). It is simple but hits hardware ceilings fast.
+
+**Horizontal scaling** distributes load across many machines. It introduces coordination complexity but offers near-linear capacity growth.
+
+Most production systems combine both: vertically scale individual nodes to a sweet spot, then horizontally scale the fleet.
+
+## Load Balancing
+
+A load balancer distributes incoming requests across backend servers. Strategies include:
+
+- **Round-robin** — cycles through servers sequentially. Simple but ignores server health.
+- **Least connections** — routes to the server with the fewest active connections. Better for variable workloads.
+- **Weighted** — assigns capacity ratios to servers. Useful when hardware differs.
+- **Consistent hashing** — maps requests to servers based on a hash ring. Minimizes redistribution when servers are added or removed.
+
+### Layer 4 vs Layer 7
+
+Layer 4 (transport) balancers route TCP/UDP without inspecting payloads. Layer 7 (application) balancers can route by URL path, headers, or cookies, enabling smarter decisions at the cost of more processing.
+
+## Caching
+
+Caching stores frequently accessed data closer to the consumer to reduce latency and backend load.
+
+### Cache Strategies
+
+| Strategy | How it works | Best for |
+|----------|-------------|----------|
+| **Cache-aside** | App checks cache first, fetches from DB on miss, writes to cache | Read-heavy, tolerance for stale data |
+| **Write-through** | App writes to cache and DB simultaneously | Strong consistency requirements |
+| **Write-behind** | App writes to cache, cache asynchronously writes to DB | Write-heavy with eventual consistency |
+| **Read-through** | Cache itself fetches from DB on miss | Simplified application logic |
+
+### Eviction Policies
+
+- **LRU (Least Recently Used)** — evicts the least recently accessed entry. Best general-purpose choice.
+- **LFU (Least Frequently Used)** — evicts based on access frequency. Good for stable hot sets.
+- **TTL (Time To Live)** — entries expire after a fixed duration. Ensures bounded staleness.
+
+### Cache Invalidation
+
+This is the hard part. Options include event-driven invalidation (publish a message when data changes), TTL-based expiry, and versioned keys. The right choice depends on how stale your users can tolerate data being.
+
+## Database Patterns
+
+### Replication
+
+- **Leader-follower**: One writer, many readers. Read replicas reduce load on the leader. Risk: replication lag causes stale reads.
+- **Multi-leader**: Multiple writers across regions. Reduces write latency for global users but introduces conflict resolution complexity.
+- **Leaderless**: All nodes accept reads and writes. Uses quorum reads/writes (W + R > N) for consistency. DynamoDB and Cassandra use this model.
+
+### Sharding (Partitioning)
+
+Sharding splits data across multiple databases. Common strategies:
+
+- **Range-based** — partition by ranges of a key (e.g., user IDs 1–1M, 1M–2M). Simple but can create hot partitions.
+- **Hash-based** — hash the key and mod by partition count. Distributes evenly but makes range queries expensive.
+- **Directory-based** — a lookup table maps keys to partitions. Flexible but the directory becomes a single point of failure.
+
+### SQL vs NoSQL
+
+SQL databases provide ACID transactions, relational integrity, and a mature query language. Choose SQL when data relationships are complex and consistency matters.
+
+NoSQL databases trade some guarantees for flexibility and horizontal scalability. Choose NoSQL for high write throughput, schema-flexible documents, or wide-column time-series data.
+
+Most real systems use both. A user profile might live in PostgreSQL while session data lives in Redis and event logs in Kafka + ClickHouse.
+
+## Message Queues and Event Streaming
+
+Asynchronous communication decouples producers from consumers, improving resilience and scalability.
+
+### Message Queues (RabbitMQ, SQS)
+
+A queue holds messages until a consumer processes them. If the consumer is slow or down, messages wait. This absorbs traffic spikes and enables retry logic.
+
+Use queues for task processing: email sending, image resizing, payment processing.
+
+### Event Streaming (Kafka, Kinesis)
+
+An event log retains ordered events for a configurable period. Multiple consumers can independently read from the same log at different positions.
+
+Use streaming for real-time analytics, event sourcing, change data capture, and inter-service communication where order matters.
+
+### Key Differences
+
+| | Message Queue | Event Stream |
+|---|---|---|
+| Delivery | Once (consumed and removed) | Replayable (retained by time/offset) |
+| Consumers | Competing (one gets message) | Independent (each reads the full log) |
+| Ordering | Per-queue FIFO | Per-partition ordering |
+| Use case | Task dispatch | Event sourcing, analytics |
+
+## Rate Limiting and Back-Pressure
+
+Rate limiting protects services from being overwhelmed:
+
+- **Token bucket** — a bucket fills at a fixed rate. Each request consumes a token. Allows bursts up to bucket size.
+- **Sliding window** — counts requests in a rolling time window. More precise than fixed windows.
+- **Circuit breaker** — when failures exceed a threshold, stop sending requests and return fallback responses. Prevents cascading failures.
+
+## CAP Theorem in Practice
+
+You can optimize for at most two of three: Consistency, Availability, Partition tolerance. Since network partitions are unavoidable, the real choice is:
+
+- **CP systems** (e.g., ZooKeeper, HBase): Refuse requests during partitions to maintain consistency.
+- **AP systems** (e.g., Cassandra, DynamoDB): Serve requests during partitions, resolve conflicts later.
+
+Most systems are not purely CP or AP. They make different choices per operation. A banking ledger needs CP semantics. A social media feed can tolerate AP with eventual consistency.
+
+## Putting It Together: URL Shortener
+
+A classic design exercise combining these patterns:
+
+1. **Write path**: Client submits a URL. An API server generates a short code (base62 of a distributed ID), stores the mapping in a sharded key-value store, and returns the short URL.
+2. **Read path**: Client hits the short URL. A load balancer routes to an API server, which checks a Redis cache first. On cache miss, it reads from the database, populates the cache, and returns a 301 redirect.
+3. **Scaling**: Hash-based sharding on the short code. Read replicas for the database. CDN for popular redirects. Rate limiting on the write API.
+
+## Mental Framework for Design Interviews
+
+1. **Clarify requirements** — functional (what it does) and non-functional (scale, latency, availability).
+2. **Estimate scale** — requests per second, storage, bandwidth.
+3. **Define the API** — endpoints, inputs, outputs.
+4. **Design the data model** — schema, access patterns, which database.
+5. **Draw the high-level architecture** — clients, load balancers, services, databases, caches, queues.
+6. **Deep dive** — pick the most complex component and discuss trade-offs.
+7. **Address bottlenecks** — single points of failure, hot partitions, slow paths.
+
+The goal is not a perfect design. It is demonstrating structured thinking and awareness of trade-offs.

@@ -1,0 +1,140 @@
+---
+title: "Building a Modern Design System with React and Tailwind CSS"
+description: "From Figma to code: a complete guide to tokens, theming, accessible components, and scalable design system workflows."
+date: "2026-01-15"
+author: "Ruixen"
+published: true
+category: "Design Systems"
+readTime: "9 min read"
+image: "https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/gradients/shade_shiters/shade-shifters-03.png"
+---
+
+Design systems help teams ship consistent, accessible, and fast interfaces. This guide walks through moving from Figma to code by establishing tokens, exporting them to CSS variables, integrating with Tailwind CSS, and building reusable React components.
+
+## Design Tokens
+
+Use semantic tokens that describe intent rather than hard-coded values:
+
+- `color.bg/default`, `color.fg/muted`, `color.brand/primary`
+- `space/0` through `space/5` (0px to 20px)
+- `radius/sm`, `radius/md`, `radius/lg`
+- `motion/duration/fast`, `motion/duration/base`
+
+**Theme aliases:**
+```
+color.fg/default  -> {light: #0b0c0f, dark: #f5f6f7}
+color.bg/default  -> {light: #ffffff, dark: #0b0c0f}
+color.brand/primary -> {light: #2563eb, dark: #60a5fa}
+```
+
+## Token Pipeline: Figma to CSS to Tailwind
+
+Export tokens as JSON, transform to CSS variables at build time, then map to Tailwind:
+
+```typescript
+export default {
+  darkMode: ["class", '[data-theme="dark"]'],
+  theme: {
+    extend: {
+      colors: {
+        bg: { DEFAULT: "var(--color-bg-default)", raised: "var(--color-bg-raised)" },
+        fg: { DEFAULT: "var(--color-fg-default)", muted: "var(--color-fg-muted)" },
+        brand: { DEFAULT: "var(--color-brand-primary)" },
+      },
+      borderRadius: {
+        sm: "var(--radius-sm)",
+        md: "var(--radius-md)",
+        lg: "var(--radius-lg)",
+      },
+    },
+  },
+} satisfies Config;
+```
+
+## Building Accessible Components
+
+Use headless primitives for behavior with Tailwind composition and `class-variance-authority` for variant management:
+
+```typescript
+import { cva, type VariantProps } from "class-variance-authority";
+
+const buttonStyles = cva(
+  "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:ring-2 disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        solid: "bg-brand text-white hover:bg-brand/90",
+        outline: "border border-fg/20 text-fg hover:bg-bg/80",
+        ghost: "text-fg hover:bg-fg/5",
+      },
+      size: {
+        sm: "h-8 px-3 text-sm",
+        md: "h-10 px-4 text-sm",
+        lg: "h-12 px-6 text-base",
+      },
+    },
+    defaultVariants: { variant: "solid", size: "md" },
+  },
+);
+
+type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<typeof buttonStyles>;
+
+export function Button({ className, variant, size, ...props }: Props) {
+  return <button className={buttonStyles({ variant, size, className })} {...props} />;
+}
+```
+
+## Theming and Dark Mode
+
+Use CSS variables as the single source of truth. Toggle `data-theme="dark"` on the root element. Since Tailwind references CSS variables, all components update instantly when the theme changes.
+
+## Dialog with Radix
+
+```tsx
+import * as Dialog from "@radix-ui/react-dialog";
+
+export function Modal({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <Dialog.Root>
+      <Dialog.Trigger asChild>
+        <button className="rounded-md bg-brand text-white px-4 py-2">Open</button>
+      </Dialog.Trigger>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 bg-black/50" />
+        <Dialog.Content className="fixed left-1/2 top-1/2 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-bg p-6 shadow-xl">
+          <Dialog.Title className="text-lg font-semibold">{title}</Dialog.Title>
+          <div className="mt-4">{children}</div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
+```
+
+## Documentation and Testing
+
+- **Storybook** for documenting variants and interactive props
+- **Jest + RTL** for unit tests and role-based queries
+- **jest-axe / axe-core** for accessibility violations
+- **Playwright** for keyboard navigation and forms
+- **Visual regression** in CI for unintended style diffs
+
+## Packaging and CI/CD
+
+Build with tsup or Vite for ESM + types. Use Semantic Versioning with Changesets. Automate releases via GitHub Actions. Keep primitives small and composable. Add patterns (forms, page shells) in a separate folder.
+
+## Reference Structure
+
+```
+design-system/
+├── tokens.json
+├── scripts/build-tokens.ts
+├── src/
+│   ├── styles/tokens.css
+│   ├── components/Button.tsx, Input.tsx, Dialog.tsx
+│   ├── hooks/
+│   └── index.ts
+├── .storybook/
+├── package.json
+└── tailwind.config.ts
+```

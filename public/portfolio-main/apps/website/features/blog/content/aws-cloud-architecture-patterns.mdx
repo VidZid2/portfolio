@@ -1,0 +1,184 @@
+---
+title: "AWS Cloud Architecture: Patterns for Production-Grade Infrastructure"
+description: "Battle-tested AWS patterns covering compute, storage, networking, and serverless architectures for building resilient, cost-effective systems."
+date: "2026-01-26"
+author: "Ruixen"
+published: true
+category: "Cloud & AWS"
+readTime: "10 min read"
+image: "https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/gradients/shade_shiters/shade-shifters-02.png"
+---
+
+AWS offers over 200 services. The challenge is not knowing what exists but knowing which services to combine and when. This post distills production patterns across compute, storage, networking, and serverless that form the backbone of modern cloud infrastructure.
+
+## The Well-Architected Framework
+
+AWS organizes architectural best practices into six pillars:
+
+1. **Operational Excellence** — automate deployments, monitor everything, iterate.
+2. **Security** — least privilege, encryption at rest and in transit, audit trails.
+3. **Reliability** — fault tolerance, auto-recovery, multi-AZ and multi-region.
+4. **Performance Efficiency** — right-size resources, use managed services, benchmark.
+5. **Cost Optimization** — reserved instances, spot fleets, auto-scaling, waste elimination.
+6. **Sustainability** — maximize utilization, minimize waste.
+
+Every architecture decision should be evaluated against these pillars.
+
+## Compute Patterns
+
+### ECS Fargate vs EKS vs Lambda
+
+| | ECS Fargate | EKS | Lambda |
+|---|---|---|---|
+| Abstraction | Container tasks, no servers | Full Kubernetes | Function-level |
+| Scaling | Task-level auto-scaling | Pod auto-scaling + Karpenter | Per-invocation |
+| Cold start | ~10s (task launch) | None (pods stay warm) | ~100ms–2s |
+| Best for | Microservices, APIs | Complex orchestration, multi-cloud | Event handlers, glue logic |
+| Cost model | Per vCPU/memory/second | Per node (EC2) or Fargate pods | Per invocation + duration |
+
+**Pattern: Hybrid compute.** Use Lambda for event-driven glue (S3 triggers, SQS consumers, API Gateway handlers). Use ECS Fargate for long-running services with predictable traffic. Use EKS when you need Kubernetes-native tooling or multi-cloud portability.
+
+### Auto Scaling Strategies
+
+- **Target tracking** — maintain a metric (CPU at 60%). Simple and effective for most workloads.
+- **Step scaling** — add/remove capacity in steps based on alarm thresholds. More control than target tracking.
+- **Scheduled scaling** — pre-scale for known traffic patterns (Black Friday, morning ramp-up).
+- **Predictive scaling** — ML-based forecasting. Works well for cyclical patterns after a learning period.
+
+## Storage and Database Patterns
+
+### S3 as the Foundation
+
+S3 is not just object storage. It is the backbone for:
+
+- **Data lake** — store raw events, logs, and datasets. Query with Athena (SQL over S3) without loading into a database.
+- **Static hosting** — serve frontends via CloudFront + S3.
+- **Backup and archive** — lifecycle rules move objects from Standard → Infrequent Access → Glacier automatically.
+
+**Cost tip:** S3 Intelligent-Tiering automatically moves objects between access tiers based on usage patterns, eliminating manual lifecycle management.
+
+### Database Selection
+
+| Use case | Service | Why |
+|----------|---------|-----|
+| Relational, complex queries | RDS (PostgreSQL/MySQL) or Aurora | ACID, joins, mature tooling |
+| Key-value, single-digit ms | DynamoDB | Serverless, auto-scaling, predictable perf |
+| Full-text search | OpenSearch | Inverted index, aggregations |
+| Graph relationships | Neptune | Traversals, social graphs |
+| Time-series | Timestream | Optimized ingestion and retention |
+| In-memory cache | ElastiCache (Redis/Memcached) | Sub-ms reads, session store |
+
+**Pattern: Polyglot persistence.** Use the right database for each access pattern. A single application might use Aurora for transactional data, DynamoDB for session state, ElastiCache for hot data, and OpenSearch for search.
+
+### DynamoDB Design
+
+DynamoDB requires thinking about access patterns upfront:
+
+- **Single-table design** — model multiple entity types in one table using composite keys. Reduces the number of tables and enables transactional operations across entities.
+- **GSI overloading** — use generic attribute names (GSI1PK, GSI1SK) and overload them with different entity types.
+- **On-demand vs provisioned** — start with on-demand for unpredictable traffic. Switch to provisioned with auto-scaling once patterns stabilize for cost savings.
+
+## Networking and Security
+
+### VPC Architecture
+
+A production VPC typically uses:
+
+```
+VPC (10.0.0.0/16)
+├── Public subnets (10.0.1.0/24, 10.0.2.0/24)
+│   ├── ALB (Application Load Balancer)
+│   └── NAT Gateway
+├── Private subnets (10.0.10.0/24, 10.0.20.0/24)
+│   ├── ECS tasks / EC2 instances
+│   └── Lambda (VPC-attached)
+└── Isolated subnets (10.0.100.0/24, 10.0.200.0/24)
+    └── RDS, ElastiCache (no internet access)
+```
+
+**Key rules:**
+- Load balancers in public subnets.
+- Application servers in private subnets with NAT Gateway for outbound.
+- Databases in isolated subnets with no route to the internet.
+- Security groups as the primary network firewall (stateful, allow-only).
+
+### Zero Trust with IAM
+
+- **Roles over keys** — EC2 instance profiles, ECS task roles, Lambda execution roles. Never embed access keys.
+- **Least privilege** — start with zero permissions, add only what is needed. Use IAM Access Analyzer to find unused permissions.
+- **Service control policies (SCPs)** — guardrails at the organization level. Prevent anyone from disabling CloudTrail, for instance.
+- **Secrets Manager** — rotate database credentials automatically. Applications fetch secrets at runtime instead of reading env vars.
+
+## Serverless Event-Driven Architecture
+
+### The Event Bus Pattern
+
+EventBridge acts as a central event bus. Services publish events; rules route them to targets:
+
+```
+Producer → EventBridge → Rule → Target
+                              ├── Lambda (process)
+                              ├── SQS (buffer)
+                              ├── Step Functions (orchestrate)
+                              └── SNS (fan-out)
+```
+
+**Benefits:** Loose coupling. Producers don't know about consumers. Adding a new consumer means adding a rule, not modifying the producer.
+
+### Step Functions for Orchestration
+
+For multi-step workflows (order processing, ETL pipelines), Step Functions provide:
+
+- Visual workflow definition
+- Built-in retries and error handling
+- Parallel execution branches
+- Wait states for human approval
+- Express workflows for high-volume, short-duration tasks
+
+### SQS + Lambda for Reliable Processing
+
+The most common serverless pattern:
+
+1. Producer sends message to SQS.
+2. Lambda polls SQS (event source mapping).
+3. Lambda processes the message.
+4. On failure, message goes to a Dead Letter Queue (DLQ).
+5. A separate Lambda or alarm monitors the DLQ.
+
+**Tuning:** Set `batchSize`, `maxBatchingWindow`, and `reservedConcurrency` to control throughput and cost.
+
+## Observability
+
+You cannot operate what you cannot observe.
+
+- **CloudWatch Metrics** — default service metrics plus custom application metrics.
+- **CloudWatch Logs + Insights** — centralized logging with query language.
+- **X-Ray** — distributed tracing across services. Essential for debugging latency in microservices.
+- **CloudWatch Alarms → SNS → PagerDuty/Slack** — alerting pipeline.
+
+**Pattern: Structured logging.** Emit JSON logs with correlation IDs. Use CloudWatch Insights to query across services:
+
+```
+fields @timestamp, @message
+| filter requestId = "abc-123"
+| sort @timestamp asc
+```
+
+## Cost Optimization Tactics
+
+1. **Right-size instances** — use AWS Compute Optimizer recommendations.
+2. **Reserved Instances / Savings Plans** — commit to 1–3 year usage for 30–60% savings on predictable workloads.
+3. **Spot Instances** — up to 90% savings for fault-tolerant batch jobs. Use Spot Fleet with diversified instance types.
+4. **Auto-scaling to zero** — Fargate and Lambda scale to zero when idle. Aurora Serverless v2 scales down to 0.5 ACU.
+5. **S3 lifecycle rules** — automatically transition cold data to cheaper tiers.
+6. **Tag everything** — use cost allocation tags to track spending by team, project, and environment.
+
+## Infrastructure as Code
+
+Define infrastructure in code for repeatability and auditability:
+
+- **AWS CDK** — write infrastructure in TypeScript/Python. Higher abstraction than CloudFormation.
+- **Terraform** — cloud-agnostic, declarative HCL. Large ecosystem of providers.
+- **CloudFormation** — native AWS, JSON/YAML. Lower-level but fully integrated.
+
+**Pattern: Environment parity.** Use the same IaC templates for dev, staging, and production with parameter overrides. Differences between environments should be explicit and minimal.

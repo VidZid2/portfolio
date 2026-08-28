@@ -1,0 +1,270 @@
+---
+title: "API Design Best Practices: REST, GraphQL, and gRPC in Production"
+description: "A comprehensive guide to designing, versioning, securing, and scaling APIs — covering REST conventions, GraphQL trade-offs, and gRPC for internal services."
+date: "2026-01-28"
+author: "Ruixen"
+published: true
+category: "Backend Engineering"
+readTime: "10 min read"
+image: "https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/gradients/shade_shiters/shade-shifters-02.png"
+---
+
+APIs are contracts. A well-designed API reduces integration friction, prevents breaking changes, and scales with your product. This post covers practical patterns for REST, GraphQL, and gRPC — when to use each and how to avoid common pitfalls.
+
+## Choosing the Right Paradigm
+
+| | REST | GraphQL | gRPC |
+|---|---|---|---|
+| Transport | HTTP/1.1 or 2 | HTTP (usually POST) | HTTP/2 |
+| Data format | JSON | JSON | Protocol Buffers (binary) |
+| Schema | OpenAPI (optional) | SDL (required) | .proto (required) |
+| Strengths | Caching, simplicity, tooling | Flexible queries, single endpoint | Performance, streaming, codegen |
+| Weaknesses | Over/under-fetching | Complexity, caching difficulty | Browser support, learning curve |
+| Best for | Public APIs, CRUD | Mobile clients, complex UIs | Internal services, real-time |
+
+**Practical guidance:**
+- Public-facing APIs: REST. Broad ecosystem, cacheable, well-understood.
+- Mobile/complex frontends: GraphQL. Clients fetch exactly what they need.
+- Internal service-to-service: gRPC. Binary protocol, streaming, strong typing.
+- Many systems use all three. REST at the edge, GraphQL for the frontend gateway, gRPC between backend services.
+
+## REST API Design
+
+### Resource Naming
+
+Resources are nouns, not verbs. Use plural forms consistently:
+
+```
+GET    /users          → List users
+POST   /users          → Create user
+GET    /users/:id      → Get user
+PATCH  /users/:id      → Update user
+DELETE /users/:id      → Delete user
+GET    /users/:id/orders → List user's orders
+```
+
+Avoid action-oriented endpoints like `/getUser` or `/createOrder`. Let HTTP methods express the action.
+
+### HTTP Status Codes
+
+Use status codes correctly — they are part of the contract:
+
+| Code | Meaning | When |
+|------|---------|------|
+| 200 | OK | Successful GET, PATCH |
+| 201 | Created | Successful POST |
+| 204 | No Content | Successful DELETE |
+| 400 | Bad Request | Validation failure |
+| 401 | Unauthorized | Missing or invalid auth |
+| 403 | Forbidden | Valid auth, insufficient permissions |
+| 404 | Not Found | Resource doesn't exist |
+| 409 | Conflict | Duplicate or state conflict |
+| 422 | Unprocessable Entity | Semantic validation failure |
+| 429 | Too Many Requests | Rate limit exceeded |
+| 500 | Internal Server Error | Unhandled server failure |
+
+### Error Responses
+
+Return structured error bodies consistently:
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Request validation failed",
+    "details": [
+      { "field": "email", "message": "Must be a valid email address" },
+      { "field": "age", "message": "Must be at least 18" }
+    ]
+  }
+}
+```
+
+Clients should be able to programmatically handle errors using the `code` field. The `message` is for humans. The `details` array provides field-level specifics.
+
+### Pagination
+
+For list endpoints, use cursor-based pagination for performance and consistency:
+
+```json
+{
+  "data": [...],
+  "pagination": {
+    "next_cursor": "eyJpZCI6MTAwfQ==",
+    "has_more": true
+  }
+}
+```
+
+Offset-based pagination (`?page=3&limit=20`) is simpler but breaks when records are inserted or deleted between pages. Cursor-based pagination is stable and more efficient for large datasets.
+
+### Filtering, Sorting, and Fields
+
+```
+GET /users?status=active&sort=-created_at&fields=id,name,email
+```
+
+- Filters as query params with the field name as key.
+- Sort with `-` prefix for descending.
+- Field selection to reduce payload (poor man's GraphQL).
+
+### Versioning
+
+Three approaches:
+
+1. **URL path** — `/v1/users`. Simple, explicit. Most common for public APIs.
+2. **Header** — `Accept: application/vnd.api.v2+json`. Cleaner URLs but harder to discover.
+3. **Query param** — `?version=2`. Easy but ugly.
+
+**Recommendation:** URL path versioning for public APIs. It is the most discoverable and cacheable. Internally, prefer backward-compatible evolution over versioning.
+
+## GraphQL Patterns
+
+### Schema Design
+
+Think in graphs, not endpoints. Define types that reflect your domain:
+
+```graphql
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  orders(first: Int, after: String): OrderConnection!
+}
+
+type Order {
+  id: ID!
+  total: Float!
+  status: OrderStatus!
+  items: [OrderItem!]!
+}
+
+type Query {
+  user(id: ID!): User
+  users(filter: UserFilter, first: Int, after: String): UserConnection!
+}
+
+type Mutation {
+  createOrder(input: CreateOrderInput!): CreateOrderPayload!
+}
+```
+
+### The N+1 Problem
+
+GraphQL's flexibility enables N+1 queries. If a query fetches 50 users and each user's orders, that is 1 + 50 queries without optimization.
+
+**Solution: DataLoader.** Batch and deduplicate requests within a single GraphQL execution:
+
+```typescript
+const orderLoader = new DataLoader(async (userIds: string[]) => {
+  const orders = await db.orders.findMany({ where: { userId: { in: userIds } } });
+  return userIds.map(id => orders.filter(o => o.userId === id));
+});
+```
+
+### Security
+
+GraphQL's flexibility is also its attack surface:
+
+- **Query depth limiting** — reject deeply nested queries that could explode into millions of database rows.
+- **Query complexity analysis** — assign costs to fields and reject queries exceeding a budget.
+- **Persisted queries** — in production, only allow pre-registered query hashes. Prevents arbitrary queries from untrusted clients.
+- **Rate limiting** — by complexity score, not just request count.
+
+## gRPC for Internal Services
+
+### Protocol Buffers
+
+Define your API contract in `.proto` files:
+
+```protobuf
+syntax = "proto3";
+
+service UserService {
+  rpc GetUser(GetUserRequest) returns (User);
+  rpc ListUsers(ListUsersRequest) returns (stream User);
+  rpc CreateUser(CreateUserRequest) returns (User);
+}
+
+message User {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+}
+```
+
+Protobuf compiles to typed clients and servers in any language. Schema evolution uses field numbers — adding fields is backward-compatible.
+
+### Streaming Patterns
+
+gRPC supports four communication patterns:
+
+1. **Unary** — request/response. Like REST.
+2. **Server streaming** — client sends one request, server streams responses. Real-time feeds, large result sets.
+3. **Client streaming** — client streams requests, server responds once. File uploads, batch inserts.
+4. **Bidirectional streaming** — both sides stream. Chat, collaborative editing.
+
+### gRPC-Web and Connect
+
+Browser clients cannot use native gRPC (requires HTTP/2 trailers). Solutions:
+- **gRPC-Web** — a proxy (Envoy) translates between browsers and gRPC servers.
+- **Connect** (by Buf) — generates both gRPC and HTTP/JSON handlers from the same proto definition. Clients choose the protocol.
+
+## Authentication and Authorization
+
+### Token-Based Auth
+
+```
+Client → POST /auth/token (credentials) → JWT access token + refresh token
+Client → GET /users (Authorization: Bearer <token>) → Response
+```
+
+- **Access tokens** — short-lived (15 min), stateless (JWT). Contain user ID and roles.
+- **Refresh tokens** — long-lived (30 days), stored securely (httpOnly cookie). Used to get new access tokens.
+- **Token rotation** — each refresh token is single-use. Detect reuse as a breach signal.
+
+### API Keys vs OAuth
+
+- **API keys** — identify the calling application. Use for server-to-server and rate limiting.
+- **OAuth 2.0** — delegate user authorization. Use when third parties access user data.
+- **Combine both** — API key identifies the app, OAuth token identifies the user.
+
+### Authorization Patterns
+
+- **RBAC (Role-Based)** — users have roles (admin, editor, viewer). Roles have permissions.
+- **ABAC (Attribute-Based)** — policies evaluate attributes (user.department === resource.department).
+- **ReBAC (Relationship-Based)** — permissions based on relationships (user is owner of document). Google Zanzibar model (used in SpiceDB, Ory Keto).
+
+## Rate Limiting and Throttling
+
+Protect APIs from abuse and ensure fair usage:
+
+```
+Response headers:
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 73
+X-RateLimit-Reset: 1706572800
+Retry-After: 30
+```
+
+Implement rate limiting at the API gateway level. Use different limits per tier (free: 100/min, pro: 1000/min, enterprise: custom).
+
+## Documentation
+
+An undocumented API is an unusable API.
+
+- **OpenAPI/Swagger** for REST — generates interactive docs, client SDKs, and mock servers.
+- **GraphQL introspection** — self-documenting schema. Add descriptions to types and fields.
+- **Protobuf comments** — generate documentation from `.proto` files.
+
+Include examples for every endpoint. Show error cases, not just happy paths. Keep docs in sync with code by generating them from source.
+
+## Observability
+
+Every API request should produce:
+
+1. **Structured log** — timestamp, method, path, status, duration, user ID, request ID.
+2. **Metric** — request count, latency histogram, error rate by endpoint.
+3. **Trace** — distributed trace linking the request across backend services.
+
+Set SLOs (Service Level Objectives) for your API: p50 latency under 100ms, p99 under 500ms, error rate under 0.1%. Alert when SLOs are at risk, not when individual requests fail.

@@ -231,8 +231,7 @@ export function CenterMorphModalContent({
     document.body.style.overflow = "hidden";
 
     const focusFrame = requestAnimationFrame(() => {
-      const [firstFocusable] = getFocusableElements(overlayRef.current);
-      (firstFocusable ?? panelRef.current)?.focus();
+      panelRef.current?.focus();
     });
 
     const onKeyDown = (event: KeyboardEvent) => {
@@ -338,7 +337,7 @@ export function CenterMorphModalContent({
                     : CENTER_UNFOLD_TRANSITION
                 }
                 className={cn(
-                  "pointer-events-auto relative w-full max-w-[26rem] origin-center overflow-hidden rounded-[30px] border border-border bg-background shadow-2xl will-change-[clip-path]",
+                  "pointer-events-auto relative w-full max-w-[26rem] origin-center overflow-hidden rounded-[30px] border border-border bg-background shadow-2xl will-change-[clip-path] outline-none focus:outline-none",
                   className,
                 )}
               >

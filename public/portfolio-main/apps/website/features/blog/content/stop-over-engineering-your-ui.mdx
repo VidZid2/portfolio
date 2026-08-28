@@ -1,0 +1,116 @@
+---
+title: "Stop Over-Engineering Your UI. Build It in 1/10th the Time"
+description: "A practical guide to building React UI faster without compromising quality, accessibility, or performance."
+date: "2026-01-28"
+author: "Ruixen"
+published: true
+category: "Architecture"
+readTime: "9 min read"
+image: "https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/gradients/shade_shiters/shade-shifters-01.png"
+---
+
+You probably don't have a hard UI problem. You have an **over-engineering problem**.
+
+If a simple settings page, table, or form takes **days** instead of **hours**, the issue isn't React, Next.js, or Tailwind. It's how you're approaching UI engineering.
+
+## How Developers Over-Engineer UI (Without Noticing)
+
+Most teams don't ship slowly because the UI is complex. They ship slowly because they:
+
+- Design a **component framework** before designing a single screen
+- Build "reusable" abstractions for UI that's used **once**
+- Wrap basic HTML in **five layers** of generic wrappers
+- Treat every button like it needs Fortune 500 design system approval
+
+Common anti-patterns include:
+
+- `BaseButton` → `AppButton` → `PrimaryButton` → `SubmitButton`
+- `Layout` → `PageLayout` → `DashboardLayout` → `DashboardSettingsLayout`
+
+All to render a `<button>` and a div with some padding.
+
+## The Hidden Costs
+
+### 1. Cognitive Overhead
+
+Every extra abstraction requires new engineers to learn what it does. Developer productivity tanks because behavior isn't predictable without diving into source code.
+
+### 2. Refactor Friction
+
+Changing a single screen becomes scary. You're afraid to touch `BaseButton` because it's used 400+ times. A visual change becomes a **breaking change**.
+
+### 3. Runtime + Performance Tax
+
+Deep component trees for trivial UI, multiple context providers wrapping everything, client-only Next.js components doing server-renderable work. Result: slow, fragile React UI that took longer to build.
+
+## The 1/10th-Time Principles
+
+### Start From the Screen, Not the Abstraction
+
+Build **one screen** first. Hard-code what you need. Use raw HTML + Tailwind + tiny helpers. Don't extract "reusable" components yet.
+
+### The Three-Use-Case Rule
+
+Don't build reusable abstractions until you have **three real use cases**. One use case is duplication. Two is coincidence. Three is a pattern.
+
+```tsx
+function NotificationsPage() {
+  return (
+    <section className="space-y-6">
+      <header>
+        <h1 className="text-lg font-semibold">Notifications</h1>
+        <p className="text-sm text-slate-500">Control how we notify you.</p>
+      </header>
+      <form className="space-y-4">{/* ... */}</form>
+    </section>
+  );
+}
+```
+
+### Composition Over Configuration
+
+If a component needs a 15-prop API, it's the wrong abstraction. Prefer composable children over config-heavy props.
+
+```tsx
+<Card>
+  <CardHeader>
+    <CardTitle>Usage</CardTitle>
+    <CardActions><ExportButton /></CardActions>
+  </CardHeader>
+  <CardBody><UsageChart /></CardBody>
+</Card>
+```
+
+### Tailwind as the Primary API
+
+Stop building theme engines unless you actually need them. Use className as your "variant" API, data-* attributes for state, and design tokens in Tailwind config.
+
+### Server-First, Client Only When Needed
+
+With Next.js, make server components your default. Only use client components when you actually need interactivity. Keep client islands small and focused.
+
+### Delete-Friendly Design
+
+If you can't delete it in under 5 minutes, it's over-abstracted. Healthy UI architecture feels easy to delete, not untouchable.
+
+## Actionable Frameworks
+
+### The "One-Day Screen" Constraint
+
+A non-trivial screen should fit into about 1 day of UI engineering. Morning: align on UX, implement the layout and states. Afternoon: refine styles, wiring, QA, and edge cases.
+
+### The Extraction Checklist
+
+Before extracting a component, ask:
+
+1. Do we have 3+ real call sites that need it?
+2. Do they share the same semantics, not just similar visuals?
+3. Will this abstraction reduce future complexity?
+4. Can I explain its API in under 30 seconds?
+5. Can it be deleted without massive fallout?
+
+If any answer is "no", keep the code local.
+
+### The "No Hero Components" Rule
+
+Ban "hero" components that try to do everything: `SmartForm`, `DataGrid`, `LayoutManager`. Instead, build narrow, boring components that do one thing well.

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import { motion } from "framer-motion";
@@ -6,6 +6,7 @@ import ScrambleText from "@/components/ruixen/scramble-text";
 import { BlogList } from "@/components/BlogList";
 import { toastManager } from "@/components/ui/toast";
 import { CornerMark } from "@/components/ui/corner-mark";
+import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 export function BlogsSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
@@ -25,13 +26,13 @@ export function BlogsSection({ hasSeenScrollAnimations = false }: { hasSeenScrol
         visible: { transition: { staggerChildren: 0.15 } }
       }}
     >
+      {/* Top line — spans between margin guides */}
+      <div
+        className="absolute top-0 bleed-x h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
+        style={DOT_MASK_HORIZONTAL}
+      />
       <CornerMark position="top-left" />
       <CornerMark position="top-right" />
-      <CornerMark position="bottom-left" />
-      <CornerMark position="bottom-right" />
-
-      {/* Top line — spans between margin guides */}
-      <div className="absolute top-0 bleed-x h-0 border-t border-foreground/10 pointer-events-none" />
 
       <motion.div 
         variants={{
@@ -43,12 +44,20 @@ export function BlogsSection({ hasSeenScrollAnimations = false }: { hasSeenScrol
         <ScrambleText as="h2" className="text-[17px] sm:text-[18px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight leading-none">Blogs</ScrambleText>
 
         {/* Horizontal line below Blogs heading — spans between margin guides */}
-        <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
+        <div
+          className="absolute bottom-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={DOT_MASK_HORIZONTAL}
+        />
+        <CornerMark position="bottom-left" />
+        <CornerMark position="bottom-right" />
       </motion.div>
 
       <div className="relative pt-6 pb-12 px-4">
         {/* Center Vertical Line */}
-        <div className="absolute top-0 bottom-0 left-1/2 w-0 border-r border-foreground/10 pointer-events-none -translate-x-1/2 hidden md:block" />
+        <div
+          className="absolute top-0 bottom-0 left-1/2 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none -translate-x-1/2 hidden md:block"
+          style={DOT_MASK_VERTICAL}
+        />
 
         <BlogList />
       </div>
@@ -61,11 +70,21 @@ export function BlogsSection({ hasSeenScrollAnimations = false }: { hasSeenScrol
         }}
         className="py-4 px-4 -mx-4 flex justify-center relative hover:bg-zinc-50 dark:hover:bg-zinc-900/20 transition-colors cursor-pointer rounded-b-lg mt-0"
       >
-        {/* Top Horizontal Line (above View All) — container is already bled via -mx-4 */}
-        <div className="absolute top-0 left-0 right-0 h-0 border-t border-foreground/10 pointer-events-none" />
+        {/* Top Horizontal Line (above View All) */}
+        <div
+          className="absolute top-0 left-0 right-0 h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={DOT_MASK_HORIZONTAL}
+        />
+        <CornerMark position="top-left" flush />
+        <CornerMark position="top-right" flush />
         
         {/* Bottom Horizontal Line (below View All) */}
-        <div className="absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none" />
+        <div
+          className="absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={DOT_MASK_HORIZONTAL}
+        />
+        <CornerMark position="bottom-left" flush />
+        <CornerMark position="bottom-right" flush />
 
         <button
           type="button"

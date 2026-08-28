@@ -1,6 +1,6 @@
-import { TrendingDownIcon, TrendingUpIcon } from "lucide-react"
-
-import { cn } from "@/lib/utils"
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import NumberFlow from "@number-flow/react";
+import { cn } from "@/lib/utils";
 
 export function Metric({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -14,7 +14,7 @@ export function Metric({ className, ...props }: React.ComponentProps<"div">) {
       )}
       {...props}
     />
-  )
+  );
 }
 
 export function MetricLabel({
@@ -25,12 +25,12 @@ export function MetricLabel({
     <dt
       data-slot="metric-label"
       className={cn(
-        "flex items-start justify-between gap-2 text-sm/4 text-muted-foreground",
+        "flex items-center justify-between gap-2 text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 font-normal leading-none",
         className
       )}
       {...props}
     />
-  )
+  );
 }
 
 export type MetricChangeProps = {
@@ -38,41 +38,49 @@ export type MetricChangeProps = {
    * Percentage change against the previous period, e.g. `12.4` for `+12.4%`.
    * `null` when there is no previous period to compare against.
    */
-  value: number | null
-}
+  value: number | null | undefined;
+  fallbackValue?: number;
+};
 
 /**
- * Assumes every metric is one where higher is better, so up maps to green.
- * The icon carries the direction too, so the meaning survives without color.
+ * Renders increase (green ↗) or decrease (red ↘) percentage badge matching analytics standard with NumberFlow ticker animation.
  */
-export function MetricChange({ value }: MetricChangeProps) {
-  if (value === null) {
-    return null
+export function MetricChange({ value, fallbackValue }: MetricChangeProps) {
+  const targetVal = value ?? fallbackValue;
+  if (targetVal === null || targetVal === undefined) {
+    return null;
   }
 
-  const percent = Math.round(value * 10) / 10
-  const Icon = percent > 0 ? TrendingUpIcon : TrendingDownIcon
+  const percent = Math.round(targetVal * 10) / 10;
+  const isPositive = percent > 0;
+  const isNegative = percent < 0;
 
   return (
     <span
       data-slot="metric-change"
       className={cn(
-        "flex shrink-0 items-center gap-0.5 text-xs/4 tabular-nums",
-        // Shades differ per color scheme so each clears 4.5:1 on its background.
-        percent > 0 && "text-green-700 dark:text-green-500",
-        percent < 0 && "text-red-700 dark:text-red-400"
+        "inline-flex shrink-0 items-center gap-0.5 text-[11px] sm:text-xs font-semibold tabular-nums leading-none tracking-tight transition-colors duration-300",
+        isPositive && "text-emerald-600 dark:text-emerald-400",
+        isNegative && "text-rose-600 dark:text-rose-400",
+        !isPositive && !isNegative && "text-zinc-500 dark:text-zinc-400"
       )}
     >
-      {percent !== 0 && (
-        <>
-          <Icon className="size-3.5" aria-hidden />
-          <span className="sr-only">{percent > 0 ? "Up by " : "Down by "}</span>
-        </>
-      )}
-      {Math.abs(percent).toLocaleString("en-US")}%
-      <span className="sr-only"> compared to the previous period</span>
+      {isPositive && <ArrowUpRight className="size-3.5 stroke-[2.2]" aria-hidden="true" />}
+      {isNegative && <ArrowDownRight className="size-3.5 stroke-[2.2]" aria-hidden="true" />}
+      <NumberFlow
+        value={Math.abs(percent) / 100}
+        format={{
+          style: "percent",
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1,
+        }}
+      />
+      <span className="sr-only">
+        {isPositive ? "Up by " : isNegative ? "Down by " : "No change "}
+        {Math.abs(percent)}% compared to the previous period
+      </span>
     </span>
-  )
+  );
 }
 
 export function MetricValue({
@@ -88,5 +96,5 @@ export function MetricValue({
       )}
       {...props}
     />
-  )
+  );
 }

@@ -1,197 +1,206 @@
-﻿"use client";
+"use client";
 
-import React, { useState, useId } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import * as React from "react";
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { playSoftClick, playHoverTick } from "@/lib/synth-sounds";
 
-export interface CustomerStoryMetric {
-  icon: React.ReactNode;
-  label: string;
-}
+/* ── types ───────────────────────────────────────────────────── */
 
 export interface CustomerStoryAuthor {
   name: string;
   role: string;
+  /** Image URL for the avatar. */
   avatarUrl?: string;
+  /** Initials/letter fallback when `avatarUrl` is omitted. */
+  avatarFallback?: string;
+}
+
+export interface CustomerStoryMetric {
+  /** Single icon rendered above the metric label. */
+  icon: React.ReactNode;
+  /** Label rendered below the icon. */
+  label: React.ReactNode;
 }
 
 export interface CustomerStoryCase {
+  /** Unique id used as the React key when cycling cards. */
   id: string;
-  logo?: React.ReactNode;
-  quote: string;
+  /** Brand logo — typically an inline SVG or typography lockup. */
+  logo: React.ReactNode;
+  /** Pull-quote rendered with serif curly-quote pseudo-elements. */
+  quote: React.ReactNode;
   author: CustomerStoryAuthor;
-  metrics?: CustomerStoryMetric[];
-  link?: {
-    label: string;
-    href: string;
-  };
+  /** Two metrics shown inside the same frame, below the testimonial. Omit to hide. */
+  metrics?: [CustomerStoryMetric, CustomerStoryMetric];
 }
 
 export interface CustomerStoryStackProps {
   cases: CustomerStoryCase[];
-  readMoreLink?: {
-    label: string;
-    href: string;
-  };
+  /** Optional "Read more customer stories" link rendered below the frame. */
+  readMoreLink?: { label: string; href: string };
+  /** Horizontal swipe threshold in pixels for touch-based prev/next. */
+  swipeThreshold?: number;
   className?: string;
 }
+
+/* ── primitives ──────────────────────────────────────────────── */
+
+function AuthorAvatar({ author }: { author: CustomerStoryAuthor }) {
+  const frame =
+    "aspect-square size-10 sm:size-11 overflow-hidden rounded-xl border border-black/10 dark:border-white/15 ring-1 ring-black/5 dark:ring-white/10 shadow-sm shrink-0";
+
+  if (author.avatarUrl) {
+    return (
+      <div className={frame}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={author.avatarUrl}
+          alt={`Avatar of ${author.name}`}
+          loading="lazy"
+          width={96}
+          height={96}
+          className="size-full object-cover"
+        />
+      </div>
+    );
+  }
+
+  const initials =
+    author.avatarFallback ?? author.name.trim().charAt(0).toUpperCase();
+
+  return (
+    <div
+      className={cn(
+        frame,
+        "flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 text-xs sm:text-sm font-bold text-zinc-700 dark:text-zinc-300 font-mono select-none",
+      )}
+    >
+      {initials}
+    </div>
+  );
+}
+
+/* ── component ───────────────────────────────────────────────── */
 
 export function CustomerStoryStack({
   cases,
   readMoreLink,
+  swipeThreshold = 50,
   className,
 }: CustomerStoryStackProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const currentCase = cases[activeIndex] || cases[0];
-  const componentId = useId();
+  const [activeIndex, setActiveIndex] = React.useState(0);
+  const total = cases.length;
+  const surfaceRef = React.useRef<HTMLDivElement>(null);
+  const touchStartX = React.useRef<number | null>(null);
 
-  if (!cases || cases.length === 0) return null;
+  const goNext = React.useCallback(() => {
+    setActiveIndex((i) => (i + 1) % total);
+  }, [total]);
 
-  const handleNext = () => {
-    playSoftClick(0.1);
-    setActiveIndex((prev) => (prev + 1) % cases.length);
-  };
+  const goPrev = React.useCallback(() => {
+    setActiveIndex((i) => (i - 1 + total) % total);
+  }, [total]);
 
-  const handlePrev = () => {
-    playSoftClick(0.1);
-    setActiveIndex((prev) => (prev - 1 + cases.length) % cases.length);
-  };
+  React.useEffect(() => {
+    const surface = surfaceRef.current;
+    if (!surface) return;
+
+    const onStart = (e: TouchEvent) => {
+      touchStartX.current = e.touches[0]?.clientX ?? null;
+    };
+    const onEnd = (e: TouchEvent) => {
+      const start = touchStartX.current;
+      touchStartX.current = null;
+      if (start == null) return;
+      const end = e.changedTouches[0]?.clientX ?? start;
+      const dx = end - start;
+      if (Math.abs(dx) <= swipeThreshold) return;
+      if (dx > 0) goPrev();
+      else goNext();
+    };
+
+    surface.addEventListener("touchstart", onStart, { passive: true });
+    surface.addEventListener("touchend", onEnd, { passive: true });
+    return () => {
+      surface.removeEventListener("touchstart", onStart);
+      surface.removeEventListener("touchend", onEnd);
+    };
+  }, [goNext, goPrev, swipeThreshold]);
+
+  if (total === 0) return null;
+  const activeCase = cases[activeIndex];
+  if (!activeCase) return null;
 
   return (
-    <div className={cn("w-full flex flex-col gap-4", className)}>
-      {/* Main Story Card */}
-      <div className="relative w-full rounded-2xl bg-zinc-50/90 dark:bg-[#0c0c0e]/90 border border-black/10 dark:border-white/10 p-6 sm:p-8 backdrop-blur-md shadow-xs overflow-hidden">
-        {/* Subtle Background Glow */}
+    <section
+      className={cn("w-full relative select-none", className)}
+      aria-label="Customer stories"
+    >
+      <div
+        ref={surfaceRef}
+        className="relative w-full"
+        style={{ touchAction: "pan-y" }}
+      >
         <div
-          className="absolute -top-24 -right-24 w-72 h-72 bg-[#6495ED]/10 dark:bg-[#6495ED]/15 rounded-full blur-3xl pointer-events-none"
-          aria-hidden="true"
-        />
-
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentCase.id || activeIndex}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.28, ease: "easeOut" }}
-            className="flex flex-col gap-6 relative z-10"
-          >
-            {/* Top Bar: Logo / Brand + Carousel Controls */}
-            <div className="flex items-center justify-between gap-4 border-b border-black/5 dark:border-white/10 pb-4">
-              <div className="flex items-center gap-3">
-                {currentCase.logo ? (
-                  <div className="flex items-center">{currentCase.logo}</div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <Quote className="w-5 h-5 text-[#6495ED]" />
-                    <span className="text-[12px] font-bold tracking-wider uppercase text-zinc-700 dark:text-zinc-300 font-mono">
-                      Client Story
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {cases.length > 1 && (
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] font-mono text-zinc-400 dark:text-zinc-500 mr-1.5">
-                    {activeIndex + 1} / {cases.length}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handlePrev}
-                    onMouseEnter={() => playHoverTick(0.04)}
-                    aria-label="Previous story"
-                    className="p-1.5 rounded-md bg-zinc-200/70 dark:bg-zinc-800/70 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 transition-colors"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    onMouseEnter={() => playHoverTick(0.04)}
-                    aria-label="Next story"
-                    className="p-1.5 rounded-md bg-zinc-200/70 dark:bg-zinc-800/70 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 transition-colors"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
+          key={activeCase.id}
+          className="relative bg-white dark:bg-black w-full overflow-hidden animate-in fade-in duration-300 px-6 sm:px-10 py-7 sm:py-9"
+        >
+          {/* Top Header Row: Brand Logo on Left, Author on Right */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 pb-6 border-b border-black/5 dark:border-white/10">
+            <div aria-hidden className="text-zinc-900 dark:text-zinc-100 flex items-center shrink-0">
+              {activeCase.logo}
             </div>
 
-            {/* Quote */}
-            <blockquote className="text-[16px] sm:text-[18px] text-zinc-850 dark:text-zinc-150 font-medium italic leading-relaxed sm:leading-relaxed select-text text-zinc-900 dark:text-zinc-100">
-              &ldquo;{currentCase.quote}&rdquo;
+            <div className="flex items-center gap-3">
+              <AuthorAvatar author={activeCase.author} />
+              <div className="space-y-0.5 text-left">
+                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
+                  {activeCase.author.name}
+                </p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  {activeCase.author.role}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Center Quote Section */}
+          <div className="py-6 sm:py-7">
+            <blockquote className="text-[15px] sm:text-[17px] font-normal leading-relaxed text-zinc-800 dark:text-zinc-200 before:mr-1 before:font-serif before:content-['“'] after:ml-1 after:font-serif after:content-['”']">
+              {activeCase.quote}
             </blockquote>
+          </div>
 
-            {/* Metrics Row */}
-            {currentCase.metrics && currentCase.metrics.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-1">
-                {currentCase.metrics.map((metric, idx) => (
-                  <div
-                    key={`${componentId}-metric-${idx}`}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-white/80 dark:bg-zinc-900/60 border border-black/5 dark:border-white/10"
-                  >
-                    <div className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-[#6495ED] shrink-0">
-                      {React.cloneElement(
-                        metric.icon as React.ReactElement<{ className?: string }>,
-                        { className: "w-4 h-4" }
-                      )}
-                    </div>
-                    <span className="text-[13px] font-medium text-zinc-700 dark:text-zinc-300 leading-snug">
-                      {metric.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Bottom Row: Author info & Read More Link */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-black/5 dark:border-white/10">
-              <div className="flex items-center gap-3">
-                {currentCase.author.avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={currentCase.author.avatarUrl}
-                    alt={currentCase.author.name}
-                    className="w-10 h-10 rounded-full object-cover border border-black/10 dark:border-white/20"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-[#6495ED]/15 text-[#6495ED] font-bold text-xs flex items-center justify-center border border-[#6495ED]/30">
-                    {currentCase.author.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .slice(0, 2)
-                      .toUpperCase()}
-                  </div>
-                )}
-                <div className="flex flex-col">
-                  <span className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100 leading-tight">
-                    {currentCase.author.name}
+          {/* Bottom Metrics Highlights */}
+          {activeCase.metrics && (
+            <div className="flex flex-wrap items-center gap-y-2.5 gap-x-6 pt-5 border-t border-black/5 dark:border-white/10">
+              {activeCase.metrics.map((metric, i) => (
+                <div key={i} className="flex items-center gap-2 text-xs sm:text-[13px]">
+                  <span className="text-[#6495ED] [&_svg]:size-4 flex items-center shrink-0">
+                    {metric.icon}
                   </span>
-                  <span className="text-[12.5px] text-zinc-500 dark:text-zinc-400">
-                    {currentCase.author.role}
+                  <span className="text-zinc-700 dark:text-zinc-300 font-medium tracking-tight">
+                    {metric.label}
                   </span>
                 </div>
-              </div>
-
-              {(currentCase.link || readMoreLink) && (
-                <a
-                  href={currentCase.link?.href || readMoreLink?.href}
-                  target={currentCase.link?.href?.startsWith("http") ? "_blank" : undefined}
-                  rel={currentCase.link?.href?.startsWith("http") ? "noopener noreferrer" : undefined}
-                  className="inline-flex items-center gap-1 text-[13px] font-medium text-[#6495ED] hover:underline self-start sm:self-auto"
-                >
-                  <span>{currentCase.link?.label || readMoreLink?.label}</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </a>
-              )}
+              ))}
             </div>
-          </motion.div>
-        </AnimatePresence>
+          )}
+        </div>
       </div>
-    </div>
+
+      {readMoreLink && (
+        <Link
+          href={readMoreLink.href}
+          className="mx-auto mt-4 flex h-8 w-fit items-center justify-center gap-1.5 rounded-md px-3 text-xs sm:text-[13px] font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+        >
+          {readMoreLink.label}
+          <ChevronRight className="size-3.5 opacity-70" />
+        </Link>
+      )}
+    </section>
   );
 }
+
+export default CustomerStoryStack;

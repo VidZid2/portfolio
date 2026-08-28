@@ -31,24 +31,33 @@ import { Volume2 } from "lucide-react";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
 import { FogTextReveal } from "@/components/sora-ui/texts/fog-text-reveal";
 import { playSoftClick } from "@/lib/synth-sounds";
+import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 /**
- * Ruixen-style divider band: diagonal hatch spanning exactly between the
- * page's vertical margin guides (`-mx` cancels the content column padding).
- * Matches portfolio-main Separator: `h-8 bg-dashed ring-[0.65px]` — the
- * continuous page guides form the intersections, so no extra corner marks.
+ * Blueprint spacer band: diagonal hatch spanning exactly between the
+ * page's vertical margin guides enclosed in a clean straight solid frame
+ * (top, bottom, left, right straight lines) with corner intersection dots.
+ * The diagonal hatch is cleanly inset by 1px so lines never overlap the border strokes.
  */
-function BlueprintSpacer({ showBottomLine = false }: { showBottomLine?: boolean }) {
+function BlueprintSpacer() {
   return (
-    <div className="relative -mx-3 sm:-mx-4 h-8 my-0">
-      {/* Contained diagonal hatch — fills only between the margin guides */}
-      <div className="absolute inset-0 pointer-events-none bg-dashed ring-[0.65px] ring-foreground/10" />
-      {showBottomLine && (
-        /* Solid bottom edge closing the frame before the footer filler */
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-foreground/10 pointer-events-none" />
-      )}
+    <div className="relative -mx-3 sm:-mx-4 h-8 my-0 z-20">
+      {/* Background fill to cover continuous vertical dotted guides behind the spacer */}
+      <div className="absolute inset-0 bg-white dark:bg-black pointer-events-none" />
+
+      {/* Contained diagonal hatch — strictly inset by 1px to prevent any overlap with top/bottom/left/right border lines */}
+      <div className="absolute inset-[1px] pointer-events-none bg-dashed" />
+
+      {/* 4-sided straight solid frame around the slanted lines (top, bottom, left, right) */}
+      <div className="absolute inset-0 border border-black/15 dark:border-white/10 pointer-events-none z-10" />
+
+      {/* Corner dots at all 4 corners */}
+      <div className="absolute top-0 left-0 h-[2px] w-[2px] bg-black/40 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20 hidden sm:block" />
+      <div className="absolute top-0 right-0 h-[2px] w-[2px] bg-black/40 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20 hidden sm:block" />
+      <div className="absolute bottom-0 left-0 h-[2px] w-[2px] bg-black/40 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20 hidden sm:block" />
+      <div className="absolute bottom-0 right-0 h-[2px] w-[2px] bg-black/40 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20 hidden sm:block" />
     </div>
   );
 }
@@ -74,7 +83,7 @@ export default function Home() {
         headerSlot={
           /* Cell 2: Profile Section - 112px height with mathematical dotted grid sub-cells */
           <div className="absolute left-3 right-3 sm:left-4 sm:right-4 md:left-[24.5%] md:right-[24.5%] top-[22vh] h-[112px] flex z-50 hide-cursor-particles">
-            {/* 1. Left Avatar Box (Framed by Dotted Lines with Diagonal Hatch Background) */}
+            {/* 1. Left Avatar Box (Framed by Straight Lines with Diagonal Hatch Background) */}
             <div className="w-[84px] min-[360px]:w-[96px] sm:w-[112px] h-[112px] shrink-0 flex items-center justify-center relative overflow-hidden">
               {/* Diagonal Slanted Blueprint Hatch Pattern (matching portfolio-main) */}
               <div className="absolute inset-0 pointer-events-none bg-dashed" />
@@ -83,8 +92,11 @@ export default function Home() {
                 <ProfilePictureScramble />
               </div>
 
-              {/* Vertical solid divider — Ruixen style */}
-              <div className="absolute top-0 bottom-0 right-0 w-px bg-foreground/10 pointer-events-none hidden sm:block" />
+              {/* Vertical dotted divider */}
+              <div
+                className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none hidden sm:block"
+                style={DOT_MASK_VERTICAL}
+              />
             </div>
 
             {/* 2. Right Content Column (With Dotted Sub-Row Dividers & WebGL Swirl) */}
@@ -97,8 +109,11 @@ export default function Home() {
                   <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300 shrink-0" />
                   <CommandMenu />
                 </div>
-                {/* Horizontal solid divider — Ruixen style */}
-                <div className="absolute bottom-0 left-0 right-0 h-px bg-foreground/10 pointer-events-none hidden sm:block" />
+                {/* Horizontal dotted divider */}
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none hidden sm:block"
+                  style={DOT_MASK_HORIZONTAL}
+                />
               </div>
 
               {/* Sub-row 2: Name & Badge (42px) */}
@@ -124,8 +139,11 @@ export default function Home() {
                     <Volume2 className="w-[17px] h-[17px] sm:w-[18px] sm:h-[18px]" />
                   </button>
                 </div>
-                {/* Horizontal solid divider — Ruixen style */}
-                <div className="absolute bottom-0 left-0 right-0 h-px bg-foreground/10 pointer-events-none hidden sm:block" />
+                {/* Horizontal dotted divider */}
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none hidden sm:block"
+                  style={DOT_MASK_HORIZONTAL}
+                />
               </div>
 
               {/* Sub-row 3: Tagline with FogTextReveal (34px, 2s lifespan) */}
@@ -202,15 +220,13 @@ export default function Home() {
             <CommunitySupportSection key={`support-${hasPlayed}`} hasSeenScrollAnimations={hasPlayed} />
 
             {/* Blueprint Diagonal Slanted Line Spacer (Between Community Support and Motivation Section) */}
-            <BlueprintSpacer showBottomLine />
+            <BlueprintSpacer />
 
             {/* Fading Grid Filler */}
             <div className="flex-grow w-[calc(100%+24px)] -mx-3 sm:w-[calc(100%+32px)] sm:-mx-4 h-[400px] relative mt-0 overflow-hidden">
-              {/* Top solid line — contained within side margins */}
-              <div className="absolute top-0 left-0 right-0 h-px bg-foreground/10 pointer-events-none z-10 hidden sm:block" />
-              {/* Corner brackets */}
-              <div className="absolute hidden sm:block h-1.5 w-1.5 border-l border-t border-foreground/30 pointer-events-none z-20 left-0 top-0" />
-              <div className="absolute hidden sm:block h-1.5 w-1.5 border-r border-t border-foreground/30 pointer-events-none z-20 right-0 top-0" />
+              {/* Corner dots */}
+              <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-20 left-0 top-0 -translate-x-1/2 -translate-y-1/2" />
+              <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-20 right-0 top-0 translate-x-1/2 -translate-y-1/2" />
 
               {/* Quote Footer */}
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0 select-none px-6 text-center">

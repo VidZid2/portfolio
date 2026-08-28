@@ -44,7 +44,7 @@ export default function ContactPage() {
     gradientFlow: 0.2,
     bg: isDark ? "#000000" : "#ffffff",
     text: DEFAULT_TEXT,
-    zoom: isMobile ? 1.2 : 0.85,
+    zoom: isMobile ? 1.0 : 0.75,
     trail: true,
     trailStrength: 1.5,
     shock: true,
@@ -119,13 +119,13 @@ export default function ContactPage() {
           --autofill-text: #fafafa;
         }
         .swirl-mask-responsive {
-          mask-image: linear-gradient(to bottom, transparent 0%, transparent 15%, black 40%, black 100%);
-          -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 15%, black 40%, black 100%);
+          mask-image: linear-gradient(to bottom, transparent 0%, transparent 10%, black 45%, black 100%);
+          -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 10%, black 45%, black 100%);
         }
         @media (min-width: 768px) {
           .swirl-mask-responsive {
-            mask-image: linear-gradient(to right, transparent 0%, transparent 15%, black 40%, black 100%);
-            -webkit-mask-image: linear-gradient(to right, transparent 0%, transparent 15%, black 40%, black 100%);
+            mask-image: linear-gradient(to right, transparent 0%, transparent 12%, rgba(0,0,0,0.25) 32%, rgba(0,0,0,0.7) 52%, black 70%, black 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, transparent 12%, rgba(0,0,0,0.25) 32%, rgba(0,0,0,0.7) 52%, black 70%, black 100%);
           }
         }
       `}} />
@@ -139,9 +139,9 @@ export default function ContactPage() {
         }
       >
         {/* Content Section */}
-        <div className="ml-3 mr-3 sm:ml-4 sm:mr-4 md:ml-[24.5%] md:mr-[24.5%] md:mx-0 pt-[calc(22vh+112px)] pb-16 md:pb-24 px-3 sm:px-4 flex flex-col z-10 relative">
+        <div className="ml-3 mr-3 sm:ml-4 sm:mr-4 md:ml-[24.5%] md:mr-[24.5%] pt-[calc(22vh+112px)] pb-0 px-3 sm:px-4 min-h-screen flex flex-col justify-between z-10 relative">
           {/* Form */}
-          <div className="mt-12 flex justify-center w-full px-0">
+          <div className="mt-8 sm:mt-10 flex justify-center w-full px-0">
             <GlassForm onSubmit={handleSubmit} style={{ margin: "0 auto", width: "100%", maxWidth: "480px" }}>
               <FormGroup title="Contact Details">
                 <FormField
@@ -186,13 +186,19 @@ export default function ContactPage() {
           </div>
 
           {/* Separator */}
-          <div className="relative mt-16 mb-0">
-            <div className="absolute bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
+          <div className="relative mt-8 sm:mt-10 mb-0 -mx-3 sm:-mx-4 h-0">
+            <div 
+              className="absolute inset-x-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
+              style={DOT_MASK_HORIZONTAL}
+            />
+            {/* Left & Right Corner Intersection Node Dots */}
+            <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 left-0 top-0 -translate-x-1/2 -translate-y-1/2" />
+            <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 right-0 top-0 translate-x-1/2 -translate-y-1/2" />
           </div>
 
           {/* Footer - Socials + Displacement Text */}
-          <div className="pt-6 md:pt-0 pb-0 md:pb-24 px-0 md:px-4 flex flex-col md:flex-row md:items-start justify-between gap-8 overflow-visible">
-            <div className="flex-shrink-0 flex flex-col items-center md:items-start text-center md:text-left md:mt-[80px]">
+          <div className="relative -mx-3 sm:-mx-4 mt-auto min-h-[220px] md:min-h-[240px] flex-1 flex flex-col md:flex-row md:items-center justify-between overflow-visible">
+            <div className="flex-shrink-0 flex flex-col items-center md:items-start text-center md:text-left z-20 py-8 md:py-10 pl-6 sm:pl-8">
               <p className="text-[14px] text-zinc-500 mb-2">Find me on my <span className="font-medium text-zinc-800 dark:text-zinc-200">socials</span></p>
               <MorphingSocials 
                 className="flex flex-wrap justify-center md:justify-start gap-1.5 relative z-50 w-full md:w-auto"
@@ -204,15 +210,14 @@ export default function ContactPage() {
               />
             </div>
 
-            <div className="flex-grow h-[280px] md:h-[68px] relative flex items-center justify-center md:justify-end mt-4 md:mt-0 -mx-4 md:mx-0 -mb-0 md:mb-0">
-              <div className="absolute pointer-events-none inset-x-0 md:inset-x-auto md:-right-8 inset-y-0 md:inset-y-auto md:top-0 w-full md:w-[500px] md:h-[240px] overflow-hidden swirl-mask-responsive">
-                <ExperimentStage 
-                  config={swirlConfig} 
-                  trackPointer={true} 
-                  burstOnClick={true}
-                  seamless={true}
-                />
-              </div>
+            {/* Spiral background expanding on top, bottom, and right to fill completely with no gaps */}
+            <div className="absolute inset-0 md:left-[30%] pointer-events-none overflow-hidden swirl-mask-responsive">
+              <ExperimentStage 
+                config={swirlConfig} 
+                trackPointer={true} 
+                burstOnClick={true}
+                seamless={true}
+              />
             </div>
           </div>
         </div>

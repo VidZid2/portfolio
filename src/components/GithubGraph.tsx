@@ -5,9 +5,10 @@ import { GithubCalendar } from "@/components/ui/github-calendar";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
+import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 
 export function GithubGraph({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
-const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
+  const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
   const { resolvedTheme } = useTheme();
   // Guarded so the hydration render agrees with SSR (light fills) —
   // next-themes resolves the real theme just after hydration, and the
@@ -21,7 +22,7 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
   const isDark = mounted && resolvedTheme === "dark";
   const [cellSize, setCellSize] = useState(14.5);
   const [cellGap, setCellGap] = useState(3.5);
-  const [monthsToShow, setMonthsToShow] = useState(7);
+  const [monthsToShow, setMonthsToShow] = useState(12);
   const [deviceType, setDeviceType] = useState<"mobile" | "tablet" | "desktop">("desktop");
 
   useEffect(() => {
@@ -29,17 +30,17 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
       if (window.matchMedia('(max-width: 768px)').matches) {
         setCellSize(12.5);
         setCellGap(3);
-        setMonthsToShow(4); 
+        setMonthsToShow(5); // 5 months on mobile for compact fit
         setDeviceType("mobile");
       } else if (window.matchMedia('(max-width: 1024px)').matches) {
         setCellSize(13.5);
         setCellGap(3.5);
-        setMonthsToShow(6);
+        setMonthsToShow(6); // 6 months on tablet
         setDeviceType("tablet");
       } else {
         setCellSize(14.5);
         setCellGap(3.5);
-        setMonthsToShow(7); // 7 full months for PC/Desktop
+        setMonthsToShow(12); // Full 12-month year on desktop
         setDeviceType("desktop");
       }
     };
@@ -47,7 +48,6 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
     window.addEventListener('resize', checkSize);
     return () => window.removeEventListener('resize', checkSize);
   }, []);
-
 
   const blueTheme = {
     level0: isDark ? "rgba(39, 39, 42, 0.4)" : "#f4f4f5",
@@ -110,7 +110,10 @@ const { phase, skip } = useSectionReveal(hasSeenScrollAnimations);
       </motion.div>
 
       {/* Bottom solid line before AboutSection — spans between margin guides */}
-      <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
+      <div
+        className="absolute bottom-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+        style={DOT_MASK_HORIZONTAL}
+      />
     </motion.section>
   );
 }

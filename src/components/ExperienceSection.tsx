@@ -17,13 +17,17 @@ import { playHoverTick, playSoftClick } from "@/lib/synth-sounds";
 import { TransitionLink } from "@/components/TransitionLink";
 
 import { CornerMark } from "@/components/ui/corner-mark";
+import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
+import { useCarouselMorphHeight } from "@/hooks/use-carousel-morph-height";
 
 export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
   const { phase, isLowTier, skip } = useSectionReveal(hasSeenScrollAnimations);
   const [activeTab, setActiveTab] = useState<'experiences' | 'lessons'>('experiences');
   const [api, setApi] = useState<CarouselApi>();
   const scrambleRef = useRef<ScrambleTextRef>(null);
+
+  useCarouselMorphHeight(api);
 
   const handleTabSwitch = (tab: 'experiences' | 'lessons') => {
     if (tab === activeTab) return;
@@ -49,14 +53,6 @@ export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeen
         visible: { transition: { staggerChildren: 0.15 } }
       }}
     >
-      <CornerMark position="top-left" />
-      <CornerMark position="top-right" />
-      <CornerMark position="bottom-left" />
-      <CornerMark position="bottom-right" />
-
-      {/* Top line — spans between margin guides */}
-      <div className="absolute top-0 bleed-x h-0 border-t border-foreground/10 pointer-events-none" />
-
       <motion.div 
         variants={{
           hidden: { opacity: 0, y: -10 },
@@ -108,12 +104,17 @@ export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeen
             </button>
           </div>
         </div>
-        {/* Bottom line — spans between margin guides */}
-        <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
+        {/* Bottom line under header — spans between margin guides */}
+        <div
+          className="absolute bottom-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={DOT_MASK_HORIZONTAL}
+        />
+        <CornerMark position="bottom-left" />
+        <CornerMark position="bottom-right" />
       </motion.div>
 
       <div className="block mt-0 relative -mx-4">
-        <Carousel setApi={setApi} opts={{ loop: false, watchDrag: true }} plugins={[AutoHeight()]} className="w-full [&>div:first-child]:transition-[height] [&>div:first-child]:duration-300">
+        <Carousel setApi={setApi} opts={{ loop: false, watchDrag: true }} plugins={[AutoHeight()]} className="w-full select-none cursor-grab active:cursor-grabbing [&>div:first-child]:transition-[height] [&>div:first-child]:duration-300">
           <CarouselContent className="ml-0 items-start">
             <CarouselItem className="pl-0 px-4">
               <ExperienceList activeTab={activeTab} carouselApi={api} />
@@ -139,7 +140,12 @@ export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeen
       </div>
 
       {/* Bottom line for the entire section — spans between margin guides */}
-      <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
+      <div
+        className="absolute bottom-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+        style={DOT_MASK_HORIZONTAL}
+      />
+      <CornerMark position="bottom-left" />
+      <CornerMark position="bottom-right" />
     </motion.div>
   );
 }

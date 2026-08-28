@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useRef } from "react";
 import { motion } from "framer-motion";
@@ -6,6 +6,7 @@ import ScrambleText, { type ScrambleTextRef } from "@/components/ruixen/scramble
 import { GoalMilestoneList } from "@/components/GoalMilestoneList";
 import { TransitionLink } from "@/components/TransitionLink";
 import { CornerMark } from "@/components/ui/corner-mark";
+import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 export function GoalMilestoneSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
@@ -26,13 +27,13 @@ export function GoalMilestoneSection({ hasSeenScrollAnimations = false }: { hasS
         visible: { transition: { staggerChildren: 0.15 } }
       }}
     >
+      {/* Top line — spans between margin guides */}
+      <div
+        className="absolute top-0 bleed-x h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
+        style={DOT_MASK_HORIZONTAL}
+      />
       <CornerMark position="top-left" />
       <CornerMark position="top-right" />
-      <CornerMark position="bottom-left" />
-      <CornerMark position="bottom-right" />
-
-      {/* Top line — spans between margin guides */}
-      <div className="absolute top-0 bleed-x h-0 border-t border-foreground/10 pointer-events-none" />
 
       <motion.div 
         variants={{
@@ -45,8 +46,13 @@ export function GoalMilestoneSection({ hasSeenScrollAnimations = false }: { hasS
           Goal Milestones
         </ScrambleText>
         
-        {/* Bottom line — spans between margin guides */}
-        <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
+        {/* Bottom line under header — spans between margin guides */}
+        <div
+          className="absolute bottom-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={DOT_MASK_HORIZONTAL}
+        />
+        <CornerMark position="bottom-left" />
+        <CornerMark position="bottom-right" />
       </motion.div>
 
       <div className="block relative">
@@ -66,9 +72,6 @@ export function GoalMilestoneSection({ hasSeenScrollAnimations = false }: { hasS
           </div>
         </TransitionLink>
       </div>
-
-      {/* Bottom line for the entire section — spans between margin guides */}
-      <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
     </motion.div>
   );
 }

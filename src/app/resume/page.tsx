@@ -68,7 +68,8 @@ export default function ResumePage() {
 
         <div className="relative mt-8">
           <div
-            className="pointer-events-none absolute bleed-x h-0 border-b border-foreground/10"
+            className="pointer-events-none absolute bleed-x h-0 border-b border-black/30 dark:border-white/[0.15]"
+            style={DOT_MASK_HORIZONTAL}
           />
         </div>
       </section>

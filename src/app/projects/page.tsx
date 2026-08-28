@@ -55,7 +55,8 @@ export default function AllProjectsPage() {
           <div className="relative pt-6 pb-6">
             {/* Center Vertical Line */}
             <div
-              className="absolute top-0 bottom-6 left-1/2 w-0 border-r border-foreground/10 pointer-events-none -translate-x-1/2 hidden md:block"
+              className="absolute top-0 bottom-6 left-1/2 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none -translate-x-1/2 hidden md:block"
+              style={DOT_MASK_VERTICAL}
             />
 
             <div className="flex flex-col relative z-10 w-full">
@@ -84,7 +85,8 @@ export default function AllProjectsPage() {
                     {rowIndex < Math.ceil(projectsData.length / 2) - 1 && (
                       <div className="relative w-full h-0 hidden md:block">
                         <div
-                          className="absolute bleed-x h-0 border-b border-foreground/10 pointer-events-none"
+                          className="absolute bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+                          style={DOT_MASK_HORIZONTAL}
                         />
                       </div>
                     )}
@@ -97,7 +99,8 @@ export default function AllProjectsPage() {
           {/* Bottom Separator */}
           <div className="relative mt-8">
             <div
-              className="absolute bleed-x h-0 border-b border-foreground/10 pointer-events-none"
+              className="absolute bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+              style={DOT_MASK_HORIZONTAL}
             />
           </div>
         </div>

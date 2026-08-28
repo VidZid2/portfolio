@@ -1,0 +1,132 @@
+---
+title: "Managing State in Large-Scale React Apps: From Context to Zustand"
+description: "A taxonomy of state types and selection heuristics for Context, Zustand, and React Server State in scalable applications."
+date: "2026-01-18"
+author: "Ruixen"
+published: true
+category: "Architecture"
+readTime: "6 min read"
+image: "https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/gradients/shade_shiters/shade-shifters-01.png"
+---
+
+In large applications, "state" isn't monolithic. It encompasses a portfolio of concerns: component-local values, URL parameters, server-derived data, in-memory caches, persistent preferences, and domain state shared across features.
+
+## State Taxonomy
+
+- **Local UI state** - input values, toggles, disclosure. Keep inside components.
+- **URL state** - filters, sort, pagination. Must be shareable and bookmarkable.
+- **Server cache** - data from APIs/DB. Fetch on the server or use a client cache like TanStack Query.
+- **Global client state** - user preferences, ephemeral feature flags. Use a lightweight store like Zustand.
+- **Persistent state** - settings saved to localStorage/IndexedDB.
+- **Derived/computed** - values computed from other state. Avoid duplication.
+
+**Principle:** Own state at the smallest reasonable boundary. Lift only when multiple consumers coordinate.
+
+## Which Tool When
+
+| Need | Use | Why |
+|------|-----|-----|
+| One component's UI | useState | Zero indirection |
+| Cross-cutting UI (theme, toasts) | Context (split providers) | Rare updates, many readers |
+| Domain selection across routes | Zustand + selectors | Fine-grained subscriptions |
+| Server data list/detail | Server Components | Smaller bundles, streaming |
+| Client mutations/caching | TanStack Query | Stale-while-revalidate, retries |
+| Shareable filters | URL/search params | Deep links and Back/Forward |
+| Persisted preferences | Zustand persist middleware | Durable, selective serialization |
+
+## Context for Cross-Cutting UI
+
+Context excels for rarely changing values read by many nodes. Avoid putting rapidly updating state in Context since every consumer re-renders.
+
+```tsx
+"use client";
+import * as React from "react";
+
+type Theme = "light" | "dark";
+export const ThemeContext = React.createContext<{
+  theme: Theme;
+  setTheme(t: Theme): void;
+} | null>(null);
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = React.useState<Theme>("light");
+  const value = React.useMemo(() => ({ theme, setTheme }), [theme]);
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+}
+```
+
+## Zustand for Global Client State
+
+Zustand provides fine-grained subscriptions. Components re-render only on selected slices:
+
+```ts
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+
+type SelState = {
+  selectedIds: Set<string>;
+  toggle(id: string): void;
+  clear(): void;
+};
+
+export const useSelection = create<SelState>()(
+  persist(
+    (set) => ({
+      selectedIds: new Set<string>(),
+      toggle: (id) => set((s) => {
+        const next = new Set(s.selectedIds);
+        next.has(id) ? next.delete(id) : next.add(id);
+        return { selectedIds: next };
+      }),
+      clear: () => set({ selectedIds: new Set() }),
+    }),
+    { name: "app-selection", storage: createJSONStorage(() => localStorage) },
+  ),
+);
+```
+
+**Selectors** avoid over-rendering:
+
+```ts
+const count = useSelection((s) => s.selectedIds.size);
+```
+
+## React Server State (App Router)
+
+Data fetching in Server Components keeps bundles smaller and allows streaming. Use revalidate/tags for caching. Use Server Actions for mutations, then revalidatePath/tag to refresh.
+
+```tsx
+export const revalidate = 300;
+async function getItems() {
+  return fetch("https://api.example.com/items", {
+    next: { revalidate: 300, tags: ["items"] },
+  }).then((r) => r.json());
+}
+
+export default async function Page() {
+  const items = await getItems();
+  return <ItemsList initialItems={items} />;
+}
+```
+
+## URL/Search Params as State
+
+Use search params for list view state (q, sort, page). The App Router passes them to your page. Keep source of truth in the URL:
+
+```tsx
+export default function ItemsPage({
+  searchParams,
+}: {
+  searchParams: { q?: string; page?: string };
+}) {
+  const q = searchParams.q ?? "";
+  const page = Number(searchParams.page ?? 1);
+}
+```
+
+## Performance Tips
+
+- Split contexts: ThemeProvider, ToastProvider, not one giant root
+- In Zustand, select minimal state and pass stable callbacks
+- Virtualize long lists
+- Memoize expensive selectors and derived state

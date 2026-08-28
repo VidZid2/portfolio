@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
-import { ProfileBadges } from "@/components/ProfileBadges";
 import { useArcReveal } from "@/components/ruixen/arc-reveal-hero";
 import { ProfileRevealCanvas } from "@/components/profile-reveal/ProfileRevealCanvas";
 import type { LegoFrameState } from "@/components/profile-reveal/engine";
@@ -14,7 +13,7 @@ type ScrambleCell = { char: string; flickerDur: number };
 
 export function ProfilePictureScramble() {
   const phase = useArcReveal(); // "intro" | "reveal" | "done"
-  const [internalPhase, setInternalPhase] = useState<"scramble" | "image" | "badges">("scramble");
+  const [internalPhase, setInternalPhase] = useState<"scramble" | "image">("scramble");
   const [grid, setGrid] = useState<ScrambleCell[]>([]);
   const [frameState, setFrameState] = useState<LegoFrameState | null>(null);
   const [isHovered, setIsHovered] = useState<boolean>(false);
@@ -51,7 +50,7 @@ export function ProfilePictureScramble() {
   useEffect(() => {
     if (phase !== "done") return;
 
-    const timer1 = setTimeout(() => {
+    const timer = setTimeout(() => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
@@ -59,13 +58,8 @@ export function ProfilePictureScramble() {
       setInternalPhase("image");
     }, 1500);
 
-    const timer2 = setTimeout(() => {
-      setInternalPhase("badges");
-    }, 2200);
-
     return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
+      clearTimeout(timer);
     };
   }, [phase]);
 
@@ -80,10 +74,10 @@ export function ProfilePictureScramble() {
             : undefined,
         transition: "transform 0.1s ease-out",
       }}
-      className="relative p-[2.5px] sm:p-[3px] rounded-full border-[1.5px] border-black/30 dark:border-white/[0.2] shrink-0 group select-none"
+      className="relative p-[2.5px] sm:p-[3px] rounded-full border-[1.5px] border-black/30 dark:border-white/[0.2] shrink-0 group select-none cursor-default"
     >
       {/* The inner image container */}
-      <div className="relative w-16 h-16 min-[360px]:w-20 min-[360px]:h-20 sm:w-[92px] sm:h-[92px] rounded-full overflow-hidden bg-zinc-950 flex items-center justify-center">
+      <div className="relative w-16 h-16 min-[360px]:w-20 min-[360px]:h-20 sm:w-[92px] sm:h-[92px] rounded-full overflow-hidden bg-zinc-950 flex items-center justify-center cursor-default">
         
         {/* Scramble Overlay */}
         <AnimatePresence>
@@ -142,23 +136,6 @@ export function ProfilePictureScramble() {
           />
         )}
       </div>
-
-      {/* Badges overlapping the image */}
-      <AnimatePresence>
-        {internalPhase === "badges" && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ type: "spring", stiffness: 500, damping: 20 }}
-            className="absolute inset-0 z-30 pointer-events-none"
-          >
-            {/* The actual badges are positioned absolute bottom-right inside ProfileBadges, so we just render them */}
-            <div className="pointer-events-auto">
-              <ProfileBadges />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

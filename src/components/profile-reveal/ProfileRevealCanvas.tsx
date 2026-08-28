@@ -90,7 +90,7 @@ export function ProfileRevealCanvas({ className, onFrameUpdate }: ProfileRevealC
       onPointerMove={(e) => {
         engineRef.current?.onMove(e.nativeEvent);
       }}
-      className={`absolute inset-0 z-20 rounded-full overflow-hidden cursor-crosshair ${className ?? ""}`}
+      className={`absolute inset-0 z-20 rounded-full overflow-hidden cursor-default ${className ?? ""}`}
     />
   );
 }

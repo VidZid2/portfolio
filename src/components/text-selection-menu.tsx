@@ -140,6 +140,12 @@ export function TextSelectionMenu() {
                   window.dispatchEvent(new CustomEvent("open-ai", { detail: { initialQuery: enhancedPrompt } }));
                   setSelection(prev => ({ ...prev, show: false }));
                 }}
+                onMouseEnter={() => {
+                  import("@/components/prompt-box-preview");
+                }}
+                onTouchStart={() => {
+                  import("@/components/prompt-box-preview");
+                }}
                 className="flex items-center gap-2 rounded-md hover:bg-[#6495ED]/10 dark:hover:bg-[#6495ED]/20 py-1.5 px-3 text-sm outline-none transition-colors font-medium group"
               >
                 <span className="animate-shimmer-text whitespace-nowrap">Ask this to AI?</span>

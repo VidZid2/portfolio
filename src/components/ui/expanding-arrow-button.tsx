@@ -75,7 +75,8 @@ export const ExpandingArrowButton = forwardRef<
     const updateMaxDrag = () => {
       if (trackRef.current) {
         const trackWidth = trackRef.current.clientWidth;
-        setMaxDrag(Math.max(50, trackWidth - initialThumbWidth - 6));
+        const insetPadding = typeof window !== "undefined" && window.innerWidth < 640 ? 3 : 4;
+        setMaxDrag(Math.max(40, trackWidth - initialThumbWidth - insetPadding * 2));
       }
     };
 
@@ -84,8 +85,11 @@ export const ExpandingArrowButton = forwardRef<
     return () => window.removeEventListener("resize", updateMaxDrag);
   }, []);
 
-  // Dynamically calculate the enveloping accent pill width from drag x
-  const envelopeWidth = useTransform(x, (val) => `${initialThumbWidth + val}px`);
+  // Dynamically calculate the enveloping accent pill width from drag x, strictly clamped within track padding
+  const envelopeWidth = useTransform(x, (val) => {
+    const clampedVal = Math.max(0, Math.min(val, maxDrag));
+    return `${initialThumbWidth + clampedVal}px`;
+  });
 
   // Single center chevron fades out as multiple chevrons fade in
   const singleChevronOpacity = useTransform(x, [0, 20], [1, 0]);
@@ -157,7 +161,7 @@ export const ExpandingArrowButton = forwardRef<
           width: envelopeWidth,
         }}
         className={cn(
-          "absolute left-0.5 sm:left-1 top-0.5 sm:top-1 bottom-0.5 sm:bottom-1 z-20 flex items-center overflow-hidden rounded-[12px] bg-[#6495ED] text-white select-none pointer-events-none",
+          "absolute left-0.5 sm:left-1 top-0.5 sm:top-1 bottom-0.5 sm:bottom-1 z-20 flex items-center overflow-hidden rounded-[12px] bg-[#6495ED] text-white select-none pointer-events-none max-w-[calc(100%-6px)] sm:max-w-[calc(100%-8px)] shadow-xs",
           accentClassName,
         )}
       >
@@ -190,7 +194,7 @@ export const ExpandingArrowButton = forwardRef<
       <motion.div
         drag={disabled ? false : "x"}
         dragConstraints={{ left: 0, right: maxDrag }}
-        dragElastic={0.05}
+        dragElastic={0}
         dragMomentum={false}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}

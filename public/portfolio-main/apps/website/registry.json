@@ -1,0 +1,372 @@
+{
+  "name": "srisomanaath",
+  "homepage": "https://srisomanaath.in",
+  "items": [
+    {
+      "name": "index",
+      "type": "registry:style",
+      "dependencies": [
+        "class-variance-authority",
+        "lucide-react"
+      ],
+      "devDependencies": [
+        "tw-animate-css"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [],
+      "cssVars": {}
+    },
+    {
+      "name": "book",
+      "type": "registry:ui",
+      "title": "Book",
+      "description": "A book component for Next.js apps with next-themes and Tailwind CSS, supporting system, light, and dark modes.",
+      "dependencies": [
+        "@radix-ui/react-icons"
+      ],
+      "files": [
+        {
+          "path": "registry/srisomanaath/book.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/styles/book.css",
+          "type": "registry:style"
+        }
+      ]
+    },
+    {
+      "name": "modern-progress",
+      "type": "registry:ui",
+      "title": "Modern Progress",
+      "description": "A modern progress component for Next.js apps with next-themes and Tailwind CSS, supporting system, light, and dark modes.",
+      "dependencies": [
+        "class-variance-authority"
+      ],
+      "files": [
+        {
+          "path": "registry/srisomanaath/modern-progress.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "css": {
+        "body[data-pattern=\"stripes\"],body [data-pattern=\"stripes\"]": {
+          "--rgb": "255 255 255",
+          "--opacity": "0.1",
+          "--size": "6px 6px",
+          "background-image": "linear-gradient(-45deg,rgb(var(--rgb) / var(--opacity)) 25%,transparent 25%,transparent 50%,rgb(var(--rgb) / var(--opacity)) 50%,rgb(var(--rgb) / var(--opacity)) 75%,transparent 75%,transparent 100%)",
+          "background-size": "var(--size)"
+        }
+      }
+    },
+    {
+      "name": "pixel-icon",
+      "type": "registry:ui",
+      "title": "Pixel Icon",
+      "description": "A pixel icon component for Next.js apps with next-themes and Tailwind CSS, supporting system, light, and dark modes.",
+      "files": [
+        {
+          "path": "registry/srisomanaath/pixel-icon.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "split-text-effect",
+      "type": "registry:ui",
+      "title": "Split Text Effect",
+      "description": "A split text effect component for Next.js apps with next-themes and Tailwind CSS, supporting system, light, and dark modes.",
+      "dependencies": [
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "registry/srisomanaath/split-text-effect.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "view-magnifier",
+      "type": "registry:ui",
+      "title": "View Magnifier",
+      "description": "A view magnifier component for Next.js apps with next-themes and Tailwind CSS, supporting system, light, and dark modes.",
+      "dependencies": [
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "registry/srisomanaath/view-magnifier.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "game-of-life",
+      "type": "registry:ui",
+      "title": "Game of Life",
+      "description": "A game of life component for Next.js apps with next-themes and Tailwind CSS, supporting system, light, and dark modes.",
+      "files": [
+        {
+          "path": "registry/srisomanaath/game-of-life.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "magical-mouse",
+      "type": "registry:ui",
+      "title": "Magical Mouse",
+      "description": "A magical mouse component for Next.js apps with next-themes and Tailwind CSS, supporting system, light, and dark modes.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "files": [
+        {
+          "path": "registry/srisomanaath/magical-mouse.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "css": {
+        "@keyframes fall-1": {
+          "0%": {
+            "transform": "translate(0px, 0px) rotateX(45deg) rotateY(30deg) rotateZ(0deg) scale(0.25)",
+            "opacity": "0"
+          },
+          "25%": {
+            "transform": "translate(10px, -10px) rotateX(45deg) rotateY(30deg) rotateZ(0deg) scale(1)",
+            "opacity": "1"
+          }
+        },
+        "@keyframes fall-2": {
+          "0%": {
+            "transform": "translate(0px, 0px) rotateX(-20deg) rotateY(10deg) scale(0.25)",
+            "opacity": "0"
+          },
+          "10%": {
+            "transform": "translate(-10px, -5px) rotateX(-20deg) rotateY(10deg) scale(1)",
+            "opacity": "1"
+          }
+        },
+        "@keyframes fall-3": {
+          "0%": {
+            "transform": "translate(0px, 0px) rotateX(0deg) rotateY(45deg) scale(0.5)",
+            "opacity": "0"
+          },
+          "15%": {
+            "transform": "translate(7px, 5px) rotateX(0deg) rotateY(45deg) scale(1)",
+            "opacity": "1"
+          }
+        }
+      }
+    },
+    {
+      "name": "book-demo",
+      "type": "registry:example",
+      "title": "Book Demo",
+      "description": "A demo of the Book component",
+      "registryDependencies": [
+        "@srisomanaath/book"
+      ],
+      "files": [
+        {
+          "path": "registry/example/book-demo.tsx",
+          "type": "registry:example"
+        }
+      ]
+    },
+    {
+      "name": "book-variant-demo",
+      "type": "registry:example",
+      "title": "Book Variant Demo",
+      "description": "A demo of the Book component with variants",
+      "registryDependencies": [
+        "@srisomanaath/book"
+      ],
+      "files": [
+        {
+          "path": "registry/example/book-variant-demo.tsx",
+          "type": "registry:example"
+        }
+      ]
+    },
+    {
+      "name": "game-of-life-demo",
+      "type": "registry:example",
+      "title": "Game of Life Demo",
+      "description": "A demo of the Game of Life component",
+      "registryDependencies": [
+        "@srisomanaath/game-of-life"
+      ],
+      "files": [
+        {
+          "path": "registry/example/game-of-life-demo.tsx",
+          "type": "registry:example"
+        }
+      ]
+    },
+    {
+      "name": "game-of-life-demo-2",
+      "type": "registry:example",
+      "title": "Game of Life Demo 2",
+      "description": "A demo of the Game of Life component with variants",
+      "registryDependencies": [
+        "@srisomanaath/game-of-life"
+      ],
+      "files": [
+        {
+          "path": "registry/example/game-of-life-demo-2.tsx",
+          "type": "registry:example"
+        }
+      ]
+    },
+    {
+      "name": "magical-mouse-demo",
+      "type": "registry:example",
+      "title": "Magical Mouse Demo",
+      "description": "A demo of the Magical Mouse component",
+      "registryDependencies": [
+        "@srisomanaath/magical-mouse"
+      ],
+      "files": [
+        {
+          "path": "registry/example/magical-mouse-demo.tsx",
+          "type": "registry:example"
+        }
+      ]
+    },
+    {
+      "name": "modern-progress-demo",
+      "type": "registry:example",
+      "title": "Modern Progress Demo",
+      "description": "A demo of the Modern Progress component",
+      "registryDependencies": [
+        "@srisomanaath/modern-progress"
+      ],
+      "files": [
+        {
+          "path": "registry/example/modern-progress-demo.tsx",
+          "type": "registry:example"
+        }
+      ]
+    },
+    {
+      "name": "pixel-icon-demo",
+      "type": "registry:example",
+      "title": "Pixel Icon Demo",
+      "description": "A demo of the Pixel Icon component",
+      "registryDependencies": [
+        "@srisomanaath/pixel-icon"
+      ],
+      "files": [
+        {
+          "path": "registry/example/pixel-icon-demo.tsx",
+          "type": "registry:example"
+        }
+      ]
+    },
+    {
+      "name": "split-text-effect-demo",
+      "type": "registry:example",
+      "title": "Split Text Effect Demo",
+      "description": "A demo of the Split Text Effect component",
+      "registryDependencies": [
+        "@srisomanaath/split-text-effect"
+      ],
+      "files": [
+        {
+          "path": "registry/example/split-text-effect-demo.tsx",
+          "type": "registry:example"
+        }
+      ]
+    },
+    {
+      "name": "split-text-effect-demo-2",
+      "type": "registry:example",
+      "title": "Split Text Effect Demo 2",
+      "description": "A demo of the Split Text Effect component with variants",
+      "registryDependencies": [
+        "@srisomanaath/split-text-effect"
+      ],
+      "files": [
+        {
+          "path": "registry/example/split-text-effect-demo-2.tsx",
+          "type": "registry:example"
+        }
+      ]
+    },
+    {
+      "name": "split-text-effect-demo-3",
+      "type": "registry:example",
+      "title": "Split Text Effect Demo 3",
+      "description": "A demo of the Split Text Effect component with variants",
+      "registryDependencies": [
+        "@srisomanaath/split-text-effect"
+      ],
+      "files": [
+        {
+          "path": "registry/example/split-text-effect-demo-3.tsx",
+          "type": "registry:example"
+        }
+      ]
+    },
+    {
+      "name": "view-magnifier-demo",
+      "type": "registry:example",
+      "title": "View Magnifier Demo",
+      "description": "A demo of the View Magnifier component",
+      "registryDependencies": [
+        "@srisomanaath/view-magnifier"
+      ],
+      "files": [
+        {
+          "path": "registry/example/view-magnifier-demo.tsx",
+          "type": "registry:example"
+        }
+      ]
+    },
+    {
+      "name": "view-magnifier-demo-2",
+      "type": "registry:example",
+      "title": "View Magnifier Demo 2",
+      "description": "A demo of the View Magnifier component with variants",
+      "registryDependencies": [
+        "@srisomanaath/view-magnifier"
+      ],
+      "files": [
+        {
+          "path": "registry/example/view-magnifier-demo-2.tsx",
+          "type": "registry:example"
+        }
+      ]
+    },
+    {
+      "name": "utils",
+      "type": "registry:lib",
+      "title": "Utility Functions",
+      "author": "SriSomanaath <govindalapudisrinath@gmail.com>",
+      "dependencies": [
+        "clsx",
+        "tailwind-merge"
+      ],
+      "files": [
+        {
+          "path": "registry/lib/utils.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "book-styles",
+      "type": "registry:style",
+      "files": [
+        {
+          "path": "registry/styles/book.css",
+          "type": "registry:style"
+        }
+      ]
+    }
+  ]
+}

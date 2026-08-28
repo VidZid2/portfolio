@@ -1,0 +1,110 @@
+---
+title: "Headless UI Components: Why shadcn/ui and Radix UI Make a Difference"
+description: "A deep dive into headless UI libraries, comparing Radix UI and shadcn/ui for building accessible, scalable React components."
+date: "2026-01-20"
+author: "Ruixen"
+published: true
+category: "Component Architecture"
+readTime: "8 min read"
+image: "https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/gradients/shade_shiters/shade-shifters-01.png"
+---
+
+Headless UI delivers behavior without opinions about style. Rather than pre-styled components, these libraries provide accessibility-correct primitives with focus traps, ARIA roles, and keyboard interactions, letting teams control visuals through CSS, Tailwind, or design tokens.
+
+## Headless vs Styled Component Libraries
+
+**Styled kits** (MUI, Ant Design, Chakra) ship pre-built visuals - fast to start but expensive to retheme deeply.
+
+**Headless** (Radix UI, React Aria, Headless UI, Ark UI) provide only behaviors. Teams supply styles and tokens, which keeps branding consistent, eliminates wrestling with opinionated CSS, and prevents vendor lock-in.
+
+## Radix UI vs shadcn/ui
+
+**Radix UI:** Low-level, unstyled primitives (Dialog, Popover, Dropdown Menu, Tabs, Tooltip). Teams compose and style them with their system.
+
+**shadcn/ui:** A generator that copies ownable components into your codebase. Under the hood, components use Radix primitives plus Tailwind with clean variants and tokens.
+
+Choose Radix for maximum control. Choose shadcn/ui for a solid foundation you can own and modify.
+
+## Composing Accessible Primitives
+
+### Dialog
+
+```tsx
+"use client";
+import * as Dialog from "@radix-ui/react-dialog";
+
+export function Modal({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <Dialog.Root>
+      <Dialog.Trigger asChild>
+        <button className="rounded-md bg-brand px-4 py-2 text-white">Open</button>
+      </Dialog.Trigger>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 bg-black/50" />
+        <Dialog.Content className="fixed left-1/2 top-1/2 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-bg p-6 shadow-xl">
+          <Dialog.Title className="text-lg font-semibold">{title}</Dialog.Title>
+          <div className="mt-4">{children}</div>
+          <Dialog.Close asChild>
+            <button className="mt-6 rounded-md border px-4 py-2">Close</button>
+          </Dialog.Close>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
+```
+
+### Dropdown Menu
+
+```tsx
+"use client";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+
+export function UserMenu() {
+  return (
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger className="rounded-md border px-3 py-2">Menu</DropdownMenu.Trigger>
+      <DropdownMenu.Content className="z-50 min-w-[180px] rounded-md border bg-bg p-1 shadow-md">
+        <DropdownMenu.Item className="rounded px-2 py-1.5 focus:bg-fg/10">Profile</DropdownMenu.Item>
+        <DropdownMenu.Item className="rounded px-2 py-1.5 focus:bg-fg/10">Settings</DropdownMenu.Item>
+        <DropdownMenu.Separator className="my-1 h-px bg-fg/10" />
+        <DropdownMenu.Item className="rounded px-2 py-1.5 text-red-600">Sign out</DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
+  );
+}
+```
+
+## Tokens and Theming
+
+Headless UI excels when paired with tokens. Define CSS variables for color, spacing, radius, and motion, then map Tailwind to those variables:
+
+```typescript
+export default {
+  darkMode: ["class", '[data-theme="dark"]'],
+  theme: {
+    extend: {
+      colors: {
+        bg: { DEFAULT: "var(--color-bg-default)" },
+        fg: { DEFAULT: "var(--color-fg-default)", muted: "var(--color-fg-muted)" },
+        brand: { DEFAULT: "var(--color-brand-primary)" },
+      },
+    },
+  },
+};
+```
+
+## SSR and App Router Considerations
+
+Keep interactive components as Client Components. Render data on the server. For route-bound modals, use parallel routes and intercepting routes so dialogs have URLs. Leverage `loading.tsx` for skeletons and Suspense for deferred sections.
+
+## Decision Matrix
+
+| Library | Styling | Best for |
+|---------|---------|----------|
+| **Radix UI** | Your CSS/Tailwind | Custom design systems, full control |
+| **shadcn/ui** | Tailwind classes | Fast bootstrap with source ownership |
+| **Headless UI** | Your CSS/Tailwind | Tailwind-first projects |
+| **React Aria** | Your styling | Fine-grained control, ARIA hooks |
+
+The choice depends on how much control you need vs how fast you want to ship.

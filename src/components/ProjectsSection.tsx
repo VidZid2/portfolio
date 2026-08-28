@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import { motion } from "framer-motion";
@@ -6,6 +6,7 @@ import ScrambleText from "@/components/ruixen/scramble-text";
 import { ProjectsGrid } from "@/components/ProjectsGrid";
 import { TransitionLink } from "@/components/TransitionLink";
 import { CornerMark } from "@/components/ui/corner-mark";
+import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 export function ProjectsSection({ hasSeenScrollAnimations = false }: { hasSeenScrollAnimations?: boolean }) {
@@ -24,13 +25,13 @@ export function ProjectsSection({ hasSeenScrollAnimations = false }: { hasSeenSc
         visible: { transition: { staggerChildren: 0.15 } }
       }}
     >
+      {/* Top line — spans between margin guides */}
+      <div
+        className="absolute top-0 bleed-x h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
+        style={DOT_MASK_HORIZONTAL}
+      />
       <CornerMark position="top-left" />
       <CornerMark position="top-right" />
-      <CornerMark position="bottom-left" />
-      <CornerMark position="bottom-right" />
-
-      {/* Top line — spans between margin guides */}
-      <div className="absolute top-0 bleed-x h-0 border-t border-foreground/10 pointer-events-none" />
 
       <motion.div 
         variants={{
@@ -42,18 +43,31 @@ export function ProjectsSection({ hasSeenScrollAnimations = false }: { hasSeenSc
         <ScrambleText as="h2" className="text-[17px] sm:text-[18px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight leading-none">Projects</ScrambleText>
 
         {/* Horizontal line below Projects heading — spans between margin guides */}
-        <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
+        <div
+          className="absolute bottom-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={DOT_MASK_HORIZONTAL}
+        />
+        <CornerMark position="bottom-left" />
+        <CornerMark position="bottom-right" />
       </motion.div>
 
       {/* Grid Container */}
       <div className="relative pt-6 pb-8 px-4">
         {/* Center Vertical Line */}
-        <div className="absolute top-0 bottom-0 left-1/2 w-0 border-r border-foreground/10 pointer-events-none -translate-x-1/2 hidden md:block" />
+        <div
+          className="absolute top-0 bottom-0 left-1/2 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none -translate-x-1/2 hidden md:block"
+          style={DOT_MASK_VERTICAL}
+        />
 
         <ProjectsGrid />
 
         {/* Bottom Horizontal Line */}
-        <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
+        <div
+          className="absolute bottom-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={DOT_MASK_HORIZONTAL}
+        />
+        <CornerMark position="bottom-left" />
+        <CornerMark position="bottom-right" />
       </div>
 
       {/* View All Button */}
@@ -64,9 +78,6 @@ export function ProjectsSection({ hasSeenScrollAnimations = false }: { hasSeenSc
         }}
         className="py-4 px-4 -mx-3 sm:-mx-4 flex justify-center relative hover:bg-zinc-50 dark:hover:bg-zinc-900/20 transition-colors cursor-pointer rounded-b-lg mt-0 z-20"
       >
-        {/* Bottom Horizontal Line (below View All) — container is already bled via -mx */}
-        <div className="absolute bottom-0 left-0 right-0 h-0 border-b border-foreground/10 pointer-events-none" />
-
         <TransitionLink href="/projects" className="relative group block mt-0">
           <div className="absolute -inset-[5px] border border-black/5 dark:border-white/5 rounded-[11px] pointer-events-none transition-colors duration-300 group-hover:border-black/10 dark:group-hover:border-white/10" />
           <div className="relative flex items-center gap-1.5 px-4 py-2 bg-zinc-50 hover:bg-zinc-100 dark:bg-[#09090b] dark:hover:bg-[#121214] text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 rounded-[6px] text-[13px] font-medium transition-all duration-300 border border-black/5 dark:border-white/5 shadow-sm shadow-black/20 dark:shadow-lg dark:shadow-black/80">

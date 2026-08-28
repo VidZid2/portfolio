@@ -25,8 +25,11 @@ export function MorphingSocials({ socials, children, className }: { socials: Soc
   const handleMouseEnter = (name: string, index: number) => {
     const el = itemRefs.current[name];
     if (el) {
+      const cardHalfWidth = 125;
+      const centerX = el.offsetLeft + el.offsetWidth / 2;
+      const clampedX = Math.max(cardHalfWidth + 2, centerX);
       setHoverPos({
-        x: el.offsetLeft + el.offsetWidth / 2,
+        x: clampedX,
         y: el.offsetTop - 12,
       });
     }

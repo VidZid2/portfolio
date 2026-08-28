@@ -10,20 +10,34 @@
  *   <div style={DOT_MASK_VERTICAL} className="border-r ..." />
  */
 
-/** @deprecated micro-dot pitch removed — now solid line (Ruixen margin). Kept for compat. */
+/** Vertical dotted line (draws a vertical border as crisp micro-dots) — for `border-r`/`border-l` edges. */
 export const DOT_MASK_VERTICAL = {
-  maskImage: "none" as unknown as string,
-  WebkitMaskImage: "none" as unknown as string,
+  maskImage:
+    "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 4px)",
+  WebkitMaskImage:
+    "repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 4px)",
 } as const;
 
-/** @deprecated micro-dot pitch removed — now solid line (Ruixen margin). Kept for compat. */
+/** Horizontal dotted line (draws a horizontal border as crisp micro-dots) — for `border-b`/`border-t` edges. */
 export const DOT_MASK_HORIZONTAL = {
-  maskImage: "none" as unknown as string,
-  WebkitMaskImage: "none" as unknown as string,
+  maskImage:
+    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 4px)",
+  WebkitMaskImage:
+    "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 4px)",
 } as const;
 
-/** 45-degree slanted dashed hatch fill matching portfolio-main (Ruixen). */
+/** 45-degree slanted dashed hatch fill matching blueprint technical drafting style. */
 export const DIAGONAL_HATCH_PATTERN = {
   backgroundImage:
-    "repeating-linear-gradient(45deg, var(--background) 0px, var(--background) 2px, rgb(225 225 225) 2px, rgb(225 225 225) 3px, var(--background) 3px, var(--background) 4px)",
+    "repeating-linear-gradient(45deg, transparent 0px, transparent 7px, rgba(0, 0, 0, 0.075) 7px, rgba(0, 0, 0, 0.075) 8px)",
+} as const;
+
+/** 4-way smooth edge fade mask (tight smooth fade on top, bottom, left, and right edges). */
+export const SMOOTH_EDGE_FADE_MASK = {
+  maskImage:
+    "linear-gradient(to right, transparent 0%, black 12px, black calc(100% - 12px), transparent 100%), linear-gradient(to bottom, transparent 0%, black 12px, black calc(100% - 12px), transparent 100%)",
+  WebkitMaskImage:
+    "linear-gradient(to right, transparent 0%, black 12px, black calc(100% - 12px), transparent 100%), linear-gradient(to bottom, transparent 0%, black 12px, black calc(100% - 12px), transparent 100%)",
+  maskComposite: "intersect",
+  WebkitMaskComposite: "source-in",
 } as const;

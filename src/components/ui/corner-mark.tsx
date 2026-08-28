@@ -15,19 +15,15 @@ export const CornerMark = ({
   return (
     <div
       className={cn(
-        "absolute hidden h-1.5 w-1.5 bg-transparent sm:block pointer-events-none z-20",
-        isTop ? "top-0" : "bottom-0",
+        "absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-20",
+        isTop ? "top-0 -translate-y-1/2" : "bottom-0 translate-y-1/2",
         flush
           ? isLeft
-            ? "left-0"
-            : "right-0"
+            ? "left-0 -translate-x-1/2"
+            : "right-0 translate-x-1/2"
           : isLeft
-          ? "-left-3 sm:-left-4"
-          : "-right-3 sm:-right-4",
-        isTop && isLeft && "border-l border-t border-foreground/30",
-        isTop && !isLeft && "border-r border-t border-foreground/30",
-        !isTop && isLeft && "border-l border-b border-foreground/30",
-        !isTop && !isLeft && "border-r border-b border-foreground/30",
+          ? "-left-3 sm:-left-4 -translate-x-1/2"
+          : "-right-3 sm:-right-4 translate-x-1/2",
         className
       )}
     />

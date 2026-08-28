@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "book-demo",
+  "type": "registry:example",
+  "title": "Book Demo",
+  "description": "A demo of the Book component",
+  "registryDependencies": [
+    "@srisomanaath/book"
+  ],
+  "files": [
+    {
+      "path": "registry/example/book-demo.tsx",
+      "content": "import Book from '../srisomanaath/book';\n\nconst BookDemo = () => {\n  return (\n    <div className=\"grid w-full grid-cols-3 gap-10 rounded-xl bg-white p-6\">\n      <Book title=\"The user experience of the Frontend Cloud\" />\n    </div>\n  );\n};\n\nexport default BookDemo;\n",
+      "type": "registry:example"
+    }
+  ]
+}

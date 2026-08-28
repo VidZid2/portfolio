@@ -79,7 +79,7 @@ export function LessonsLearned({ activeTab, carouselApi }: { activeTab?: string;
           >
             {/* Dashed bottom border for all items */}
             <div
-              className="absolute bottom-0 left-[-16px] right-[-16px] h-0 border-b border-foreground/10 pointer-events-none z-10"
+              className="absolute bottom-0 left-[-16px] right-[-16px] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
               style={{
                 maskImage:
                   DOT_MASK_HORIZONTAL.maskImage,
@@ -91,7 +91,7 @@ export function LessonsLearned({ activeTab, carouselApi }: { activeTab?: string;
 
 
             <div
-              className="group/item flex flex-row items-center justify-between gap-2 sm:gap-4 py-3.5 px-4 -mx-4 hover:bg-zinc-50 dark:hover:bg-zinc-900/20 transition-colors cursor-pointer relative z-20 rounded-lg sm:py-4 overflow-hidden"
+              className="group/item flex flex-row items-center justify-between gap-2 sm:gap-4 py-3.5 px-4 -mx-4 hover:bg-zinc-50 dark:hover:bg-zinc-900/20 transition-colors cursor-pointer active:cursor-grabbing select-none relative z-20 rounded-lg sm:py-4 overflow-hidden"
               onClick={() => setOpenIdx(isOpen ? null : idx)}
             >
               <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 relative z-10">

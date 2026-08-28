@@ -562,24 +562,20 @@ html.dark [data-sonner-toaster] [data-sonner-toast] [data-description],
 @utility bg-dashed {
   background-image: repeating-linear-gradient(
     45deg,
-    var(--background) 0px,
-    var(--background) 2px,
-    rgb(225 225 225) 2px,
-    rgb(225 225 225) 3px,
-    var(--background) 3px,
-    var(--background) 4px
+    transparent 0px,
+    transparent 7px,
+    rgba(0, 0, 0, 0.075) 7px,
+    rgba(0, 0, 0, 0.075) 8px
   );
 }
 
 .dark .bg-dashed {
   background-image: repeating-linear-gradient(
     45deg,
-    var(--background) 0px,
-    var(--background) 2px,
-    rgb(60 60 60) 2px,
-    rgb(60 60 60) 3px,
-    var(--background) 3px,
-    var(--background) 4px
+    transparent 0px,
+    transparent 7px,
+    rgba(255, 255, 255, 0.075) 7px,
+    rgba(255, 255, 255, 0.075) 8px
   );
 }
 
@@ -596,5 +592,31 @@ html.dark [data-sonner-toaster] [data-sonner-toast] [data-description],
   .bleed-x {
     left: -16px;
     right: -16px;
+  }
+}
+
+/* 4-way smooth edge fade: top, bottom, left, right feathering
+   Tight, smooth edge fade close to the boundary to keep dotted blueprint margin lines visible */
+.mask-edge-fade {
+  mask-image:
+    linear-gradient(to right, transparent 0%, black 8px, black calc(100% - 8px), transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 8px, black calc(100% - 8px), transparent 100%);
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0%, black 8px, black calc(100% - 8px), transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 8px, black calc(100% - 8px), transparent 100%);
+  mask-composite: intersect;
+  -webkit-mask-composite: source-in;
+}
+
+@media (min-width: 640px) {
+  .mask-edge-fade {
+    mask-image:
+      linear-gradient(to right, transparent 0%, black 12px, black calc(100% - 12px), transparent 100%),
+      linear-gradient(to bottom, transparent 0%, black 12px, black calc(100% - 12px), transparent 100%);
+    -webkit-mask-image:
+      linear-gradient(to right, transparent 0%, black 12px, black calc(100% - 12px), transparent 100%),
+      linear-gradient(to bottom, transparent 0%, black 12px, black calc(100% - 12px), transparent 100%);
+    mask-composite: intersect;
+    -webkit-mask-composite: source-in;
   }
 }

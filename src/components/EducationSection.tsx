@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
@@ -16,7 +16,9 @@ import AutoHeight from "embla-carousel-auto-height";
 
 import { playSoftClick, playHoverTick } from "@/lib/synth-sounds";
 import { CornerMark } from "@/components/ui/corner-mark";
+import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
+import { useCarouselMorphHeight } from "@/hooks/use-carousel-morph-height";
 
 type CarouselApi = UseEmblaCarouselType[1];
 
@@ -25,6 +27,8 @@ export function EducationSection({ hasSeenScrollAnimations = false }: { hasSeenS
   const [activeTab, setActiveTab] = useState<"education" | "certs">("education");
   const [api, setApi] = useState<CarouselApi>();
   const scrambleRef = useRef<ScrambleTextRef>(null);
+
+  useCarouselMorphHeight(api);
 
   React.useEffect(() => {
     if (!api) return;
@@ -63,14 +67,6 @@ export function EducationSection({ hasSeenScrollAnimations = false }: { hasSeenS
         visible: { transition: { staggerChildren: 0.15 } }
       }}
     >
-      <CornerMark position="top-left" />
-      <CornerMark position="top-right" />
-      <CornerMark position="bottom-left" />
-      <CornerMark position="bottom-right" />
-
-      {/* Top line — spans between margin guides */}
-      <div className="absolute top-0 bleed-x h-0 border-t border-foreground/10 pointer-events-none" />
-
       {/* Header Row */}
       <motion.div 
         variants={{
@@ -124,8 +120,13 @@ export function EducationSection({ hasSeenScrollAnimations = false }: { hasSeenS
           </div>
         </div>
 
-        {/* Bottom line — spans between margin guides */}
-        <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
+        {/* Bottom line under header — spans between margin guides */}
+        <div
+          className="absolute bottom-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+          style={DOT_MASK_HORIZONTAL}
+        />
+        <CornerMark position="bottom-left" />
+        <CornerMark position="bottom-right" />
       </motion.div>
 
       {/* Embla Carousel View */}
@@ -137,7 +138,7 @@ export function EducationSection({ hasSeenScrollAnimations = false }: { hasSeenS
             loop: false,
             watchDrag: true,
           }}
-          className="w-full [&>div:first-child]:transition-[height] [&>div:first-child]:duration-300"
+          className="w-full select-none cursor-grab active:cursor-grabbing [&>div:first-child]:transition-[height] [&>div:first-child]:duration-300"
         >
           <CarouselContent className="ml-0 items-start">
             <CarouselItem className="pl-0 px-4">
@@ -149,9 +150,6 @@ export function EducationSection({ hasSeenScrollAnimations = false }: { hasSeenS
           </CarouselContent>
         </Carousel>
       </div>
-
-      {/* Bottom line for the entire section — spans between margin guides */}
-      <div className="absolute bottom-0 bleed-x h-0 border-b border-foreground/10 pointer-events-none" />
     </motion.div>
   );
 }

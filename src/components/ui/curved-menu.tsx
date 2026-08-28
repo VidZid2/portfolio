@@ -41,7 +41,7 @@ export function CurvedMenu({ isOpen, onClose, children, className, onAnimationCo
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
             onClick={onClose}
-            className="fixed inset-0 z-[100] bg-zinc-950/60 backdrop-blur-md"
+            className="fixed inset-0 z-[9999] bg-zinc-950/60 backdrop-blur-md"
           />
 
           {/* Curved Sheet */}
@@ -69,7 +69,7 @@ export function CurvedMenu({ isOpen, onClose, children, className, onAnimationCo
               if (onAnimationComplete) onAnimationComplete();
             }}
             className={cn(
-              "fixed inset-x-0 bottom-0 z-[101] h-[100dvh] w-full bg-white dark:bg-zinc-950 shadow-2xl flex flex-col overflow-hidden",
+              "fixed inset-x-0 bottom-0 z-[10000] h-[100dvh] w-full bg-white dark:bg-zinc-950 shadow-2xl flex flex-col overflow-hidden",
               className
             )}
           >

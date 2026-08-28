@@ -31,7 +31,8 @@ export default function PullRequestsPage() {
         {/* Bottom Separator */}
         <div className="relative mt-8">
           <div
-            className="absolute bleed-x h-0 border-b border-foreground/10 pointer-events-none"
+            className="absolute bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+            style={DOT_MASK_HORIZONTAL}
           />
         </div>
       </motion.div>

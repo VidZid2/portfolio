@@ -1,0 +1,225 @@
+---
+title: "Backend Engineering at Scale: From Monolith to Microservices and Beyond"
+description: "Practical strategies for evolving backend architectures — monoliths, microservices, event-driven systems, and the emerging patterns shaping 2026."
+date: "2026-01-27"
+author: "Ruixen"
+published: true
+category: "Backend Engineering"
+readTime: "12 min read"
+image: "https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/gradients/shade_shiters/shade-shifters-01.png"
+---
+
+Backend engineering is not about picking the trendiest framework. It is about designing systems that handle real traffic, recover from failures, and evolve without rewrites. This post walks through architectural evolution, data patterns, and the backend landscape heading into 2026.
+
+## The Monolith Is Not the Enemy
+
+A well-structured monolith is the fastest path to production for most teams. It offers:
+
+- **Simple deployment** — one artifact, one process.
+- **Easy debugging** — stack traces span the full request path.
+- **Refactoring** — move code between modules without network boundaries.
+- **Transactions** — ACID guarantees across the entire domain.
+
+The monolith becomes a problem when:
+- Teams block each other on deployments.
+- A single module's resource needs force scaling the entire app.
+- A failure in one area crashes everything.
+
+**The modular monolith** is the middle ground: enforce module boundaries with clear interfaces and separate data ownership, but deploy as one unit. When a module needs independence, extract it into a service.
+
+## Microservices: When and How
+
+Microservices solve organizational scaling (independent teams, independent deploys) at the cost of operational complexity. Before splitting, consider:
+
+### Prerequisites
+
+- **CI/CD maturity** — automated testing, canary deploys, rollback.
+- **Observability** — distributed tracing (OpenTelemetry), structured logging, centralized metrics.
+- **Service mesh or API gateway** — routing, retries, circuit breaking.
+- **Data ownership** — each service owns its database. No shared databases.
+
+### Decomposition Strategies
+
+1. **By business domain** — align services with bounded contexts (orders, inventory, payments). This is the Domain-Driven Design approach.
+2. **By change frequency** — isolate parts that change independently (auth rarely changes; product catalog changes weekly).
+3. **Strangler fig** — incrementally extract modules from a monolith, routing traffic through a proxy.
+
+### Inter-Service Communication
+
+| Pattern | When | Trade-off |
+|---------|------|-----------|
+| Synchronous HTTP/gRPC | Request-response needed | Coupling, cascading failures |
+| Async messaging (SQS, RabbitMQ) | Fire-and-forget tasks | Eventual consistency |
+| Event streaming (Kafka) | Multiple consumers, replay | Operational overhead |
+| Choreography (events) | Loose coupling | Hard to trace full flow |
+| Orchestration (workflow engine) | Complex multi-step | Central coordinator |
+
+**Rule of thumb:** Default to async. Use sync only when the caller genuinely needs the response before proceeding.
+
+## Database Patterns for Scale
+
+### CQRS (Command Query Responsibility Segregation)
+
+Separate the write model from the read model. Writes go to a normalized database optimized for consistency. Reads go to a denormalized store (Elasticsearch, materialized views, Redis) optimized for query speed.
+
+**When to use:** Read and write patterns differ significantly. A product catalog might have complex writes (inventory updates, price changes) but simple reads (list products by category).
+
+### Event Sourcing
+
+Instead of storing current state, store the sequence of events that produced it. The current state is derived by replaying events.
+
+**Benefits:**
+- Complete audit trail.
+- Temporal queries (what was the state at time T?).
+- Easy to add new projections (read models) from existing events.
+
+**Costs:**
+- Event schema evolution is tricky.
+- Replay can be slow without snapshots.
+- Not every domain benefits from event history.
+
+**Where it shines:** Financial systems, collaborative editing, shopping carts, and any domain where "how we got here" matters as much as "where we are."
+
+### Saga Pattern
+
+Distributed transactions across services use sagas — a sequence of local transactions with compensating actions for rollback:
+
+```
+1. Order Service: Create order (pending)
+2. Payment Service: Charge card
+   ↳ On failure: Cancel order
+3. Inventory Service: Reserve items
+   ↳ On failure: Refund card, cancel order
+4. Order Service: Confirm order
+```
+
+Choreography sagas use events between services. Orchestration sagas use a central coordinator. Orchestration is easier to reason about; choreography is more decoupled.
+
+## API Gateway and Service Mesh
+
+### API Gateway (Kong, AWS API Gateway, Traefik)
+
+Sits at the edge. Handles:
+- Authentication and rate limiting
+- Request routing and transformation
+- SSL termination
+- Response caching
+
+### Service Mesh (Istio, Linkerd, AWS App Mesh)
+
+Sits between services. Handles:
+- Mutual TLS (zero-trust networking)
+- Retries and circuit breaking
+- Canary deployments and traffic splitting
+- Observability (automatic tracing and metrics)
+
+**Pattern:** Use an API gateway at the edge for external clients. Use a service mesh internally for service-to-service communication.
+
+## Concurrency and Async Processing
+
+### Worker Pools
+
+For CPU-bound or I/O-bound background tasks, use worker pools with a job queue:
+
+```
+Producer → Job Queue (Redis/SQS) → Worker Pool → Results
+                                  → Dead Letter Queue → Alerts
+```
+
+Workers should be idempotent (safe to retry) and report progress. Use exponential backoff for retries.
+
+### Batch Processing
+
+For large data jobs (daily reports, data migrations), batch processing with checkpointing:
+
+1. Read a chunk of data.
+2. Process it.
+3. Write results and checkpoint progress.
+4. On failure, resume from the last checkpoint.
+
+AWS Step Functions, Apache Spark, and simple scripts with database cursors all implement this pattern.
+
+## Emerging Backend Patterns in 2026
+
+### Edge Computing
+
+Run backend logic closer to users. Cloudflare Workers, Deno Deploy, and Vercel Edge Functions execute at CDN edge nodes with sub-10ms cold starts. Use for:
+- Geolocation-based routing
+- A/B testing at the edge
+- Auth token validation
+- Response transformation
+
+### AI-Native Backends
+
+LLM integration is becoming a standard backend concern:
+- **Retrieval-Augmented Generation (RAG)** — vector databases (Pinecone, pgvector) store embeddings, backend orchestrates retrieval + generation.
+- **Streaming responses** — Server-Sent Events for token-by-token LLM output.
+- **Prompt management** — version and A/B test prompts like feature flags.
+- **Cost controls** — rate limiting, token budgets, caching identical queries.
+
+### WebAssembly on the Server
+
+Wasm runtimes (Wasmtime, WasmEdge) enable running sandboxed, polyglot code on the server. Use cases:
+- Plugin systems (users upload Wasm modules)
+- Edge functions with near-native performance
+- Embedding untrusted user logic safely
+
+### Multi-Runtime Architecture
+
+Instead of one runtime per service, compose multiple runtimes:
+- **Dapr** provides building blocks (state, pub/sub, bindings) as sidecars, decoupling application logic from infrastructure.
+- **Service Weaver** (by Google) lets you write monolithic code that deploys as microservices.
+
+## Performance Engineering
+
+### Connection Pooling
+
+Database connections are expensive. Use connection pools (PgBouncer for PostgreSQL, ProxySQL for MySQL) to multiplex application connections over a smaller set of database connections.
+
+### N+1 Query Prevention
+
+The most common backend performance bug. Instead of fetching a list then querying each item:
+
+```
+-- N+1: 1 query for list + N queries for details
+SELECT * FROM orders WHERE user_id = 1;
+SELECT * FROM items WHERE order_id = 1;
+SELECT * FROM items WHERE order_id = 2;
+-- ... N times
+
+-- Fixed: JOIN or IN clause
+SELECT o.*, i.* FROM orders o
+JOIN items i ON i.order_id = o.id
+WHERE o.user_id = 1;
+```
+
+Use DataLoader (GraphQL), eager loading (ORMs), or explicit JOINs.
+
+### Profiling Before Optimizing
+
+Never optimize without profiling first. Tools:
+- **APM** (Datadog, New Relic, Sentry) for request-level tracing
+- **Database EXPLAIN** for query plans
+- **Flame graphs** for CPU profiling
+- **Heap dumps** for memory analysis
+
+Measure, identify the bottleneck, fix it, measure again. Intuition about performance is usually wrong.
+
+## Operational Maturity
+
+### Deployment Strategies
+
+- **Rolling** — replace instances one at a time. Simple, some mixed-version traffic.
+- **Blue/green** — run two full environments, switch traffic. Instant rollback.
+- **Canary** — route a small percentage to the new version. Validate before full rollout.
+- **Feature flags** — deploy code without enabling it. Decouple deploy from release.
+
+### Incident Response
+
+1. **Detect** — alerts fire from monitoring.
+2. **Triage** — determine severity and blast radius.
+3. **Mitigate** — rollback, feature flag off, scale up, or failover.
+4. **Root cause** — investigate after stability is restored.
+5. **Post-mortem** — blameless review. Document timeline, impact, root cause, and action items.
+
+The goal is reducing Mean Time to Recovery (MTTR), not preventing all failures. Systems will fail. The question is how fast you recover.
