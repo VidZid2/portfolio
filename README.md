@@ -1,53 +1,117 @@
-# Josiah De Asis — Developer Portfolio
+<div align="center">
 
-A fast, interactive developer portfolio built with **Next.js 16**, **React 19**, **Tailwind CSS v4**, and **TypeScript**.
+# Project SYNC (Portfolio v2.0)
+**An interactive developer portfolio, technical blueprint UI system, and creative web platform.**
 
-It showcases my front-end engineering work, experience, projects, and skills — with an **Ask AI** helper (⌘K command palette), live GitHub stats, a real-time visitor analytics dashboard, a blueprint-style design system, and a fully keyboard-accessible interface.
+<br />
 
-## Tech Stack
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/views/user/VidZid2/portfolio.svg?base=1680&variant=outline&font=geist" />
+  <img alt="repo views" src="https://shieldcn.dev/views/user/VidZid2/portfolio.svg?base=1680&variant=outline&mode=light&font=geist" />
+</picture>
+&nbsp;
+[![License](https://img.shields.io/badge/license-MIT-18181b?style=flat-square)](LICENSE)
+&nbsp;
+[![Live Site](https://img.shields.io/badge/live_site-sync--portfolio--jd.vercel.app-6495ED?style=flat-square&logo=vercel&logoColor=white)](https://sync-portfolio-jd.vercel.app)
 
-- **Framework:** Next.js 16 (App Router) · React 19
-- **Styling:** Tailwind CSS v4 + CSS-variable design tokens
-- **Motion:** Motion (Framer Motion) · OGL for WebGL scenes
-- **UI primitives:** Radix UI, cmdk (command palette), embla-carousel
-- **AI chat:** Vercel AI SDK (`useChat`) on the client; the API route streams from an OpenAI-compatible endpoint via `fetch`
-- **PDF viewing:** @embedpdf (tiled rendering, zoom, search)
-- **No database.** Content lives in typed TypeScript data files (`src/data/`). "Live" data comes from the GitHub API and a self-hosted insights collector backed by Upstash Redis.
+</div>
 
-## Environment Variables
+<br />
 
-| Variable | Required | Used by | Purpose |
-|---|---|---|---|
-| `GITHUB_TOKEN` | for `/pull-requests` | `POST /api/github` | Server-only GitHub GraphQL token for the locked PR-search proxy. The route accepts one of three hardcoded queries — it is not an open proxy. |
-| `OPENZEN_API_KEY` | for Ask AI | `POST /api/chat` | Bearer key for the OpenAI-compatible chat completions endpoint. Without it the route serves a local fallback response. |
-| `OPENZEN_BASE_URL` | no | `POST /api/chat` | Override the chat endpoint (default: `https://opencode.ai/zen/v1`). |
-| `UPSTASH_REDIS_REST_URL` | production | rate limiting | Persistent, cross-instance rate limits for `/api/chat` (40/day per IP) and `/api/insights` (120/hour). Falls back to per-instance in-memory buckets when unset (local dev only). |
-| `UPSTASH_REDIS_REST_TOKEN` | production | rate limiting | Auth token for the Upstash REST API. |
+A high-performance technical blueprint developer portfolio built from scratch to showcase my work as a Frontend Engineer & 2nd-Year BSIT Student.
 
-Server-only secrets are read exclusively inside API route handlers and are never shipped to the browser.
+→ **Live site:** [sync-portfolio-jd.vercel.app](https://sync-portfolio-jd.vercel.app)
 
-## Scripts
+---
 
-```bash
-npm run dev             # Next dev server
-npm run build           # production build
-npm run start           # serve the production build
-npm run lint            # eslint (0 errors / 0 warnings baseline)
-npm run test            # vitest unit tests
-npm run test:e2e        # Playwright: smoke + axe-core a11y scans (runs in CI)
-npm run test:e2e:visual # Playwright: local-only golden screenshots (reduced parallelism — see e2e/visual.spec.ts)
-```
+## Overview
 
-CI (GitHub Actions) runs lint → typecheck → unit → build → smoke + a11y on every push.
+### Stack
 
-## Architecture Notes
+* **Framework:** Next.js 16 (App Router & Turbopack)
+* **Library:** React 19
+* **Language:** TypeScript
+* **Styling:** Tailwind CSS v4
+* **Motion & Physics:** Framer Motion
+* **Audio Feedback:** Native Web Audio API Synthesis
+* **AI Integration:** Google Gemini AI API & Vercel AI SDK
+* **Deployment:** Vercel
 
-- **Blueprint design system** — dotted divider masks, hatch fills and intersection crosshairs are shared tokens in `src/lib/blueprint.ts`; page framing lives in `components/BlueprintGrid.tsx`.
-- **Section reveal gate** — home sections share `hooks/use-section-reveal.ts` (first-visit entrance animations; skipped for returning visitors and low-tier devices).
-- **Command palette** — `components/command-menu.tsx` renders rows from a config array; the dialog shell (`ui/command.tsx`) is a custom portal with `role="dialog"`, focus trapping and Escape handling.
-- **API surface** is three routes: `/api/chat` (model-whitelisted, payload-capped, rate-limited), `/api/github` (three hardcoded PR queries), `/api/insights` (zod-validated telemetry with retention caps).
-- **Testing gates** — 40 golden screenshots (10 routes × light/dark × mobile/desktop) verified locally before any refactor; axe-core WCAG 2.1 A/AA scans on every route in CI.
+### Featured Capabilities
 
-## Changelog
+* **Blueprint Layout Architecture:** Custom dynamic dot-grid masks and structural technical borders.
+* **WebGL Profile Reveal:** Custom GLSL vertex & fragment shaders revealing photo textures under the cursor.
+* **Procedural Sound Engine:** Web Audio API synth generator providing zero-latency acoustic UI feedback.
+* **Real-time AI Assistant:** Server-sent token streaming powered by Google Gemini AI with interactive suggestions.
+* **2D Spring Curved Physics:** Bezier curve trajectory flight indicators on carousels and milestone bullets.
+* **Pure CSS Theme System:** Zero-flicker light and dark mode switching with strict SSR hydration safety.
+* **Mobile Budgeting:** Strict sub-50ms latency targets and responsive touch gesture controls.
+* **SEO & OpenGraph:** Fully optimized metadata, robots, sitemap, and dynamic link previews.
 
-See `/changelog` on the site (source: `src/app/changelog/page.tsx`).
+---
+
+## Key Systems
+
+### 1. Blueprint Matrix Grid
+The layout utilizes responsive SVG and CSS linear gradient masks (`DOT_MASK_HORIZONTAL`, `DOT_MASK_VERTICAL`) ensuring crisp alignment on any viewport width.
+
+### 2. Audio Synthesis (`synth-sounds.ts`)
+Rather than loading heavy `.mp3` audio assets, all user interaction sound effects (hover ticks, soft clicks, modal pops) are procedurally synthesized in real time via the browser's native `AudioContext`.
+
+### 3. Profile Cursor Shaders (`profile-reveal/`)
+Desktop cursor hover drives dynamic particle dispersion and texture blending between avatar states via WebGL framebuffers.
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+* Node.js 18.17+ or later
+* npm / pnpm / yarn / bun
+
+### Local Development
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/VidZid2/portfolio.git
+   cd portfolio
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Configure environment variables:
+   Create a `.env.local` file in the root directory:
+   ```env
+   GEMINI_API_KEY=your_gemini_api_key_here
+   OPENZEN_API_KEY=your_openzen_api_key
+   UPSTASH_REDIS_REST_URL=your_upstash_url
+   UPSTASH_REDIS_REST_TOKEN=your_upstash_token
+   ```
+
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## License
+
+This repository is licensed under the [MIT License](LICENSE).
+
+Feel free to fork this project, learn from the architecture, or use it as inspiration for your own builds. If you do, kindly swap out my personal details, branding, and assets before publishing!
+
+---
+
+## Connect
+
+* **Website:** [sync-portfolio-jd.vercel.app](https://sync-portfolio-jd.vercel.app)
+* **Contact Form:** [sync-portfolio-jd.vercel.app/contact](https://sync-portfolio-jd.vercel.app/contact)
+* **Email:** [josiahdeasis009@gmail.com](mailto:josiahdeasis009@gmail.com)
+* **LinkedIn:** [linkedin.com/in/josh-deasis](https://www.linkedin.com/in/josh-deasis)
