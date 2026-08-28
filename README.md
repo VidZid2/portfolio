@@ -10,9 +10,9 @@
   <img alt="repo views" src="https://shieldcn.dev/views/user/VidZid2/portfolio.svg?base=1680&variant=outline&mode=light&font=geist" />
 </picture>
 &nbsp;
-[![License](https://img.shields.io/badge/license-MIT-18181b?style=flat-square)](LICENSE)
+<a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-18181b?style=flat-square" alt="License" /></a>
 &nbsp;
-[![Live Site](https://img.shields.io/badge/live_site-sync--portfolio--jd.vercel.app-6495ED?style=flat-square&logo=vercel&logoColor=white)](https://sync-portfolio-jd.vercel.app)
+<a href="https://sync-portfolio-jd.vercel.app"><img src="https://img.shields.io/badge/live_site-sync--portfolio--jd.vercel.app-6495ED?style=flat-square&logo=vercel&logoColor=white" alt="Live Site" /></a>
 
 </div>
 
@@ -76,4 +76,3 @@ Feel free to fork this project, learn from the architecture, or use it as inspir
 * **Website:** [sync-portfolio-jd.vercel.app](https://sync-portfolio-jd.vercel.app)
 * **Contact Form:** [sync-portfolio-jd.vercel.app/contact](https://sync-portfolio-jd.vercel.app/contact)
 * **Email:** [josiahdeasis009@gmail.com](mailto:josiahdeasis009@gmail.com)
-* **LinkedIn:** [linkedin.com/in/josh-deasis](https://www.linkedin.com/in/josh-deasis)
