@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useSyncExternalStore } from "react";
+import React, { useState, useEffect, useRef, useCallback, useLayoutEffect, useMemo, useSyncExternalStore } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { animate, motion, useMotionValue, useReducedMotion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { goalMilestones } from "@/data/goalMilestonesData";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { playHoverTick, playSoftClick } from "@/lib/synth-sounds";
 
 import { AsciiText } from "@/components/ui/ascii-text";
 import { AsciiGlitchBlock } from "@/components/ui/ascii-glitch-block";
@@ -13,6 +14,256 @@ import { GlyphMatrix } from "@/components/ui/glyph-matrix";
 import { JapaneseAsciiText } from "@/components/ui/japanese-ascii-text";
 import { cn } from "@/lib/utils";
 import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
+
+const BOUNCE_SPRING = {
+  type: "spring",
+  stiffness: 280,
+  damping: 18,
+  mass: 0.3,
+} as const;
+
+function quadraticBezier(start: number, control: number, end: number, progress: number) {
+  const remaining = 1 - progress;
+  return (
+    remaining * remaining * start +
+    2 * remaining * progress * control +
+    progress * progress * end
+  );
+}
+
+function BouncingGoalMilestoneBulletList({
+  description,
+  isOpen,
+}: {
+  description: string;
+  isOpen: boolean;
+}) {
+  const reduce = useReducedMotion();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const items = useMemo(() => {
+    return description
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((text, id) => ({ id, text }));
+  }, [description]);
+
+  const listRef = useRef<HTMLUListElement>(null);
+  const itemRefs = useRef<Map<number, HTMLLIElement>>(new Map());
+  const selectedIndexRef = useRef(activeIndex);
+  const previousIndexRef = useRef(activeIndex);
+  const hasPositionRef = useRef(false);
+  const animationRef = useRef<ReturnType<typeof animate> | null>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  useEffect(() => {
+    selectedIndexRef.current = activeIndex;
+  }, [activeIndex]);
+
+  // Auto-cycling when open and not hovered
+  useEffect(() => {
+    if (!isOpen || isHovered || items.length === 0) return;
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % items.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [isOpen, isHovered, items.length]);
+
+  const snapIndicator = useCallback(() => {
+    const selectedItem = itemRefs.current.get(selectedIndexRef.current);
+    if (!selectedItem) return;
+
+    animationRef.current?.stop();
+    const destX = 0;
+    const destY = selectedItem.offsetTop + 8;
+    x.set(destX);
+    y.set(destY);
+    hasPositionRef.current = true;
+  }, [x, y]);
+
+  const positionIndicator = useCallback(
+    (shouldAnimate: boolean) => {
+      const selectedItem = itemRefs.current.get(activeIndex);
+      if (!selectedItem) return;
+
+      const destinationX = 0;
+      const destinationY = selectedItem.offsetTop + 8;
+      animationRef.current?.stop();
+
+      if (!hasPositionRef.current || reduce || !shouldAnimate) {
+        x.set(destinationX);
+        y.set(destinationY);
+        hasPositionRef.current = true;
+        previousIndexRef.current = activeIndex;
+        return;
+      }
+
+      const startX = x.get();
+      const startY = y.get();
+      const distanceY = destinationY - startY;
+      const travel = Math.abs(distanceY);
+
+      if (travel === 0 && Math.abs(destinationX - startX) < 1) return;
+
+      const longJumpProgress = Math.min(1, Math.max(0, (travel - 48) / 120));
+      const minX = Math.min(startX, destinationX);
+      const controlX = minX - Math.min(36, Math.max(10, travel * 0.3));
+      const midpointY = (startY + destinationY) / 2;
+      const controlY = destinationY + (midpointY - destinationY) * longJumpProgress;
+
+      animationRef.current = animate(0, 1, {
+        ...BOUNCE_SPRING,
+        stiffness: BOUNCE_SPRING.stiffness - 60 * longJumpProgress,
+        damping: BOUNCE_SPRING.damping + longJumpProgress,
+        mass: BOUNCE_SPRING.mass + 0.15 * longJumpProgress,
+        onUpdate: (progress) => {
+          x.set(quadraticBezier(startX, controlX, destinationX, progress));
+          y.set(quadraticBezier(startY, controlY, destinationY, progress));
+        },
+        onComplete: () => {
+          x.set(destinationX);
+          y.set(destinationY);
+        },
+      });
+
+      previousIndexRef.current = activeIndex;
+    },
+    [activeIndex, reduce, x, y],
+  );
+
+  // Trigger bounce animation when activeIndex changes
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    const shouldAnimate =
+      hasPositionRef.current && previousIndexRef.current !== activeIndex;
+    positionIndicator(shouldAnimate);
+  }, [positionIndicator, activeIndex, isOpen]);
+
+  // Snap indicator when accordion opens
+  useEffect(() => {
+    if (!isOpen) {
+      hasPositionRef.current = false;
+      return;
+    }
+    const t0 = setTimeout(snapIndicator, 50);
+    const t1 = setTimeout(snapIndicator, 150);
+    const t2 = setTimeout(snapIndicator, 300);
+    const t3 = setTimeout(snapIndicator, 520);
+    return () => {
+      clearTimeout(t0);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [isOpen, snapIndicator]);
+
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    if (!list || !isOpen || typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver(snapIndicator);
+    observer.observe(list);
+    return () => observer.disconnect();
+  }, [snapIndicator, isOpen]);
+
+  useLayoutEffect(
+    () => () => {
+      animationRef.current?.stop();
+    },
+    [],
+  );
+
+  return (
+    <div
+      className="relative overflow-visible mb-4"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <ul
+        ref={listRef}
+        className="relative flex flex-col gap-3 list-none pl-6 overflow-visible leading-relaxed select-text"
+      >
+        {/* Bouncing Solid Dot Indicator (2D Spring Curved Flight Physics) */}
+        <li
+          aria-hidden="true"
+          role="presentation"
+          className="pointer-events-none absolute inset-0 list-none overflow-visible"
+        >
+          <motion.span
+            style={{ x, y }}
+            className="absolute top-0 left-2 h-1.5 w-1.5 rounded-full bg-zinc-900 dark:bg-zinc-100 z-20 shadow-none"
+          />
+        </li>
+
+        {items.map((item) => {
+          const isActive = item.id === activeIndex;
+
+          return (
+            <li
+              key={item.id}
+              ref={(node) => {
+                if (node) itemRefs.current.set(item.id, node);
+                else itemRefs.current.delete(item.id);
+              }}
+              onClick={() => {
+                playSoftClick(0.1);
+                setActiveIndex(item.id);
+              }}
+              onMouseEnter={() => {
+                if (item.id !== activeIndex) {
+                  playHoverTick(0.055);
+                  setActiveIndex(item.id);
+                }
+              }}
+              className={cn(
+                "relative flex flex-col cursor-pointer transition-colors duration-300 group outline-none text-[13px] sm:text-[14px]",
+                isActive
+                  ? "text-zinc-900 dark:text-zinc-100 font-medium"
+                  : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300"
+              )}
+            >
+              {/* Static Background Track Dot */}
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "absolute -left-4 top-[8px] h-1.5 w-1.5 rounded-full transition-colors duration-300 shrink-0 pointer-events-none",
+                  isActive
+                    ? "bg-zinc-400/40 dark:bg-zinc-600/40"
+                    : "bg-zinc-300 dark:bg-zinc-700"
+                )}
+              />
+
+              {/* Text content with bold parsing */}
+              <span>
+                {item.text.split(/(\*\*.*?\*\*)/).map((part, partIndex) => {
+                  if (part.startsWith("**") && part.endsWith("**")) {
+                    return (
+                      <strong
+                        key={partIndex}
+                        className={cn(
+                          "transition-colors duration-300",
+                          isActive
+                            ? "font-semibold text-zinc-900 dark:text-zinc-100"
+                            : "font-semibold text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-800 dark:group-hover:text-zinc-200"
+                        )}
+                      >
+                        {part.slice(2, -2)}
+                      </strong>
+                    );
+                  }
+                  return part;
+                })}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
 
 function ProjectSyncBackground({ isHovered, isOpen }: { isHovered: boolean; isOpen: boolean }) {
   const hasMounted = useSyncExternalStore(
@@ -451,36 +702,10 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
                       </div>
                     )}
 
-                    <ul className="mb-4 space-y-2 text-[14px] leading-relaxed">
-                      {item.description
-                        .split("\n")
-                        .filter((line) => line.trim() !== "")
-                        .map((point, i) => {
-                          return (
-                            <li key={i} className="flex items-start gap-2">
-                              <span className="text-zinc-400 dark:text-zinc-500 mt-[2px] text-[15px] leading-none">•</span>
-                              <span className="text-zinc-600 dark:text-zinc-400">
-                                {point
-                                  .trim()
-                                  .split(/(\*\*.*?\*\*)/)
-                                  .map((part, partIndex) => {
-                                    if (part.startsWith("**") && part.endsWith("**")) {
-                                      return (
-                                        <strong
-                                          key={partIndex}
-                                          className="font-semibold text-zinc-800 dark:text-zinc-200"
-                                        >
-                                          {part.slice(2, -2)}
-                                        </strong>
-                                      );
-                                    }
-                                    return part;
-                                  })}
-                              </span>
-                            </li>
-                          );
-                        })}
-                    </ul>
+                    <BouncingGoalMilestoneBulletList
+                      description={item.description}
+                      isOpen={isOpen}
+                    />
                   </div>
                 </div>
               </div>

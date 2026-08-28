@@ -7,6 +7,7 @@ import Image from "next/image";
 
 import { experiences } from "@/data/experienceData";
 import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
+import { TechBadge } from "@/components/TechBadge";
 
 export default function AllExperiencePage() {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
@@ -201,16 +202,39 @@ export default function AllExperiencePage() {
                         )}
 
                         {item.screenshot && (
-                          <div className="relative mb-4 overflow-hidden bg-black">
-                            <Image
-                              src={item.screenshot}
-                              alt={`${item.title} analytics screenshot`}
-                              width={1400}
-                              height={1050}
-                              sizes="(min-width: 768px) 40vw, calc(100vw - 3rem)"
-                              quality={70}
-                              className="h-auto w-full object-cover"
-                            />
+                          <div className="relative mb-4 overflow-hidden rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 bg-black/5 dark:bg-white/5 w-full">
+                            {item.darkScreenshot ? (
+                              <>
+                                <Image
+                                  src={item.screenshot}
+                                  alt={`${item.title} analytics screenshot`}
+                                  width={1400}
+                                  height={1050}
+                                  sizes="(min-width: 768px) 40vw, calc(100vw - 3rem)"
+                                  quality={70}
+                                  className="h-auto w-full object-cover dark:hidden block"
+                                />
+                                <Image
+                                  src={item.darkScreenshot}
+                                  alt={`${item.title} analytics screenshot`}
+                                  width={1400}
+                                  height={1050}
+                                  sizes="(min-width: 768px) 40vw, calc(100vw - 3rem)"
+                                  quality={70}
+                                  className="h-auto w-full object-cover hidden dark:block"
+                                />
+                              </>
+                            ) : (
+                              <Image
+                                src={item.screenshot}
+                                alt={`${item.title} analytics screenshot`}
+                                width={1400}
+                                height={1050}
+                                sizes="(min-width: 768px) 40vw, calc(100vw - 3rem)"
+                                quality={70}
+                                className="h-auto w-full object-cover"
+                              />
+                            )}
                           </div>
                         )}
 
@@ -260,14 +284,9 @@ export default function AllExperiencePage() {
                         </ul>
 
                         {item.tech && (
-                          <div className="flex flex-wrap gap-2 mt-4">
+                          <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-4">
                             {item.tech.map((tech) => (
-                              <span
-                                key={tech}
-                                className="px-2 py-0.5 rounded-[4px] border border-zinc-200/50 dark:border-zinc-800/50 bg-zinc-50 dark:bg-[#111111] text-[11px] font-medium text-zinc-500 dark:text-zinc-400"
-                              >
-                                {tech}
-                              </span>
+                              <TechBadge key={tech} name={tech} />
                             ))}
                           </div>
                         )}

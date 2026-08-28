@@ -1,7 +1,7 @@
 import { FULL_VERT, TRAIL_FRAG, LEGO_FRAG } from "./shaders";
 
 export const ANIME_URL = "/anime-profile.png";
-export const REAL_URL = "/REAL FACE.jpg";
+export const REAL_URL = "/REAL FACE.png";
 
 export type LegoFrameState = {
   tiltX: number;

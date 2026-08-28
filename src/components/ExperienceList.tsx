@@ -10,6 +10,7 @@ import { FlickeringGrid } from "@/components/ui/flickering-grid";
 import { experiences } from "@/data/experienceData";
 import { type CarouselApi } from "@/components/ui/carousel";
 import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
+import { TechBadge } from "@/components/TechBadge";
 
 export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string; carouselApi?: CarouselApi }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
@@ -252,18 +253,45 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
 
                   {item.screenshot && (
                     <button 
-                      onClick={(e) => { e.stopPropagation(); setSelectedImage((resolvedTheme === "dark" && item.darkScreenshot) ? item.darkScreenshot : item.screenshot!); }}
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        const isDarkNow = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+                        setSelectedImage((isDarkNow && item.darkScreenshot) ? item.darkScreenshot : item.screenshot!); 
+                      }}
                       className="group/img relative mb-4 overflow-hidden rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 bg-black/5 dark:bg-white/5 w-full cursor-zoom-in"
                     >
-                      <Image
-                        src={(resolvedTheme === "dark" && item.darkScreenshot) ? item.darkScreenshot : item.screenshot}
-                        alt={`${item.title} screenshot`}
-                        width={1400}
-                        height={1050}
-                        sizes="(min-width: 768px) 40vw, calc(100vw - 3rem)"
-                        quality={70}
-                        className="h-auto w-full object-cover transition-transform duration-500 group-hover/img:scale-[1.02]"
-                      />
+                      {item.darkScreenshot ? (
+                        <>
+                          <Image
+                            src={item.screenshot}
+                            alt={`${item.title} screenshot`}
+                            width={1400}
+                            height={1050}
+                            sizes="(min-width: 768px) 40vw, calc(100vw - 3rem)"
+                            quality={70}
+                            className="h-auto w-full object-cover transition-transform duration-500 group-hover/img:scale-[1.02] dark:hidden block"
+                          />
+                          <Image
+                            src={item.darkScreenshot}
+                            alt={`${item.title} screenshot`}
+                            width={1400}
+                            height={1050}
+                            sizes="(min-width: 768px) 40vw, calc(100vw - 3rem)"
+                            quality={70}
+                            className="h-auto w-full object-cover transition-transform duration-500 group-hover/img:scale-[1.02] hidden dark:block"
+                          />
+                        </>
+                      ) : (
+                        <Image
+                          src={item.screenshot}
+                          alt={`${item.title} screenshot`}
+                          width={1400}
+                          height={1050}
+                          sizes="(min-width: 768px) 40vw, calc(100vw - 3rem)"
+                          quality={70}
+                          className="h-auto w-full object-cover transition-transform duration-500 group-hover/img:scale-[1.02]"
+                        />
+                      )}
                       <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover/img:bg-black/10 flex items-center justify-center opacity-0 group-hover/img:opacity-100">
                         <svg className="w-8 h-8 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
@@ -315,14 +343,9 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
                   )}
 
                   {item.tech && (
-                    <div className="flex flex-wrap gap-2 mt-4">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-4">
                       {item.tech.map((tech) => (
-                        <span
-                          key={tech}
-                          className="px-2 py-0.5 rounded-[4px] border border-zinc-200/50 dark:border-zinc-800/50 bg-zinc-50 dark:bg-[#111111] text-[11px] font-medium text-zinc-500 dark:text-zinc-400"
-                        >
-                          {tech}
-                        </span>
+                        <TechBadge key={tech} name={tech} />
                       ))}
                     </div>
                   )}

@@ -131,14 +131,35 @@ export const ProjectCard = ({
           transition={{ duration: 0.3, ease: "easeOut" }}
         >
           {shouldLoadHoverImage && project.backgroundImage && (
-            <Image
-              src={(resolvedTheme === "dark" && project.darkBackgroundImage) ? project.darkBackgroundImage : project.backgroundImage}
-              alt={`${project.title} background`}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 70vw, 33vw"
-              quality={60}
-            />
+            project.darkBackgroundImage ? (
+              <>
+                <Image
+                  src={project.backgroundImage}
+                  alt={`${project.title} background`}
+                  fill
+                  className="object-cover dark:hidden block"
+                  sizes="(max-width: 768px) 70vw, 33vw"
+                  quality={60}
+                />
+                <Image
+                  src={project.darkBackgroundImage}
+                  alt={`${project.title} background`}
+                  fill
+                  className="object-cover hidden dark:block"
+                  sizes="(max-width: 768px) 70vw, 33vw"
+                  quality={60}
+                />
+              </>
+            ) : (
+              <Image
+                src={project.backgroundImage}
+                alt={`${project.title} background`}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 70vw, 33vw"
+                quality={60}
+              />
+            )
           )}
         </motion.div>
 
