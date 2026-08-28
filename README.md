@@ -63,44 +63,6 @@ Desktop cursor hover drives dynamic particle dispersion and texture blending bet
 
 ---
 
-## Getting Started
-
-### Prerequisites
-
-* Node.js 18.17+ or later
-* npm / pnpm / yarn / bun
-
-### Local Development
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/VidZid2/portfolio.git
-   cd portfolio
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Configure environment variables:
-   Create a `.env.local` file in the root directory:
-   ```env
-   GEMINI_API_KEY=your_gemini_api_key_here
-   OPENZEN_API_KEY=your_openzen_api_key
-   UPSTASH_REDIS_REST_URL=your_upstash_url
-   UPSTASH_REDIS_REST_TOKEN=your_upstash_token
-   ```
-
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
----
-
 ## License
 
 This repository is licensed under the [MIT License](LICENSE).
