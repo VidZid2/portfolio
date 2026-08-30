@@ -5,11 +5,6 @@
 
 <br />
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/views/user/VidZid2/portfolio.svg?base=1680&variant=outline&font=geist" />
-  <img alt="repo views" src="https://shieldcn.dev/views/user/VidZid2/portfolio.svg?base=1680&variant=outline&mode=light&font=geist" />
-</picture>
-&nbsp;
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-18181b?style=flat-square" alt="License" /></a>
 &nbsp;
 <a href="https://sync-portfolio-jd.vercel.app"><img src="https://img.shields.io/badge/live_site-sync--portfolio--jd.vercel.app-6495ED?style=flat-square&logo=vercel&logoColor=white" alt="Live Site" /></a>
