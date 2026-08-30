@@ -1,8 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Pixelify+Sans:wght@400..700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @source "../node_modules/streamdown/dist/*.js";
 @custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --font-silkscreen: 'Silkscreen', 'Pixelify Sans', var(--font-geist-mono), monospace;
+}
 
 @theme inline {
   --color-background: var(--background);
