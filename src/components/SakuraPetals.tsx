@@ -29,19 +29,19 @@ interface Petal {
 }
 
 const LIGHT_SAKURA_COLORS = [
-  "rgba(255, 183, 197, 0.9)", // Soft sakura pink
-  "rgba(251, 207, 232, 0.95)", // Pale rose
-  "rgba(244, 114, 182, 0.85)", // Vibrant petal
-  "rgba(249, 168, 212, 0.9)", // Blossom pink
-  "rgba(254, 226, 226, 0.9)", // White-pink tip
+  "rgba(100, 149, 237, 0.92)", // Signature Cornflower Blue (#6495ED)
+  "rgba(147, 197, 253, 0.9)",  // Soft Sky Cornflower Blue (#93c5fd)
+  "rgba(191, 219, 254, 0.95)", // Pale Ice Blue Petal (#bfdbfe)
+  "rgba(96, 165, 250, 0.88)",  // Vibrant Cosmos Blue (#60a5fa)
+  "rgba(219, 234, 254, 0.92)", // Pure Whisper Blue Tip (#dbeafe)
 ];
 
 const DARK_SAKURA_COLORS = [
-  "rgba(244, 114, 182, 0.95)", // Luminous neon pink
-  "rgba(232, 121, 249, 0.9)", // Ethereal magenta
-  "rgba(192, 132, 252, 0.85)", // Mystic violet
-  "rgba(251, 207, 232, 0.95)", // Glowing sakura
-  "rgba(129, 140, 248, 0.85)", // Night blue-tinted petal
+  "rgba(100, 149, 237, 0.95)", // Luminous Cornflower Blue (#6495ED)
+  "rgba(129, 140, 248, 0.92)", // Mystic Indigo Blossom (#818cf8)
+  "rgba(165, 180, 252, 0.9)",  // Moonlight Starlight Blue (#a5b4fc)
+  "rgba(96, 165, 250, 0.92)",  // Azure Glow (#60a5fa)
+  "rgba(199, 210, 254, 0.88)", // Celestial Blue Petal (#c7d2fe)
 ];
 
 export function SakuraPetals({ className = "", burst = false }: SakuraPetalsProps) {
