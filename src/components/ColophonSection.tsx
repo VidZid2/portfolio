@@ -466,7 +466,7 @@ export function ColophonSection() {
             className="text-zinc-600 dark:text-zinc-400 hover:text-[#6495ED] dark:hover:text-[#6495ED] transition-colors flex items-center justify-center shrink-0 p-0.5"
           >
             <svg
-              className="w-[21px] h-[21px] sm:w-[22px] sm:h-[22px]"
+              className="w-[24px] h-[24px] sm:w-[26px] sm:h-[26px]"
               viewBox="450 250 1500 1250"
               fill="currentColor"
             >
@@ -475,12 +475,6 @@ export function ColophonSection() {
               </g>
             </svg>
           </a>
-
-          {/* Separator 4 */}
-          <div
-            className="w-0 h-[15px] sm:h-[16px] border-r border-black/30 dark:border-white/[0.15] shrink-0 pointer-events-none"
-            style={dashedMaskVertical}
-          />
 
           {/* MIT License */}
           <a
@@ -492,7 +486,7 @@ export function ColophonSection() {
             className="text-zinc-600 dark:text-zinc-400 hover:text-[#6495ED] dark:hover:text-[#6495ED] transition-colors flex items-center justify-center shrink-0 p-0.5"
           >
             <svg
-              className="w-[23px] h-[23px] sm:w-[25px] sm:h-[25px]"
+              className="w-[27px] h-[27px] sm:w-[30px] sm:h-[30px]"
               viewBox="0 0 14 14"
               fill="currentColor"
             >
