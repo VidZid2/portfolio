@@ -3,7 +3,6 @@
 import React from "react";
 import { TopBanner } from "@/components/TopBanner";
 import { RightNavbar } from "@/components/RightNavbar";
-import { CurrentTime } from "@/components/CurrentTime";
 
 import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 
@@ -29,11 +28,6 @@ export function BlueprintGrid({
       className={`min-h-screen w-full bg-white dark:bg-black relative overflow-x-hidden transition-colors duration-300 ${className}`}
     >
       {showRightNavbar && <RightNavbar />}
-
-      {/* Top-Left Outer Margin Live Clock */}
-      <div className="absolute top-3 sm:top-4 left-3 sm:left-4 md:left-6 lg:left-8 z-40 pointer-events-auto">
-        <CurrentTime />
-      </div>
 
       {expandContentMargins ? (
         <>
