@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { BondTypeCard } from "@/components/bond-type/BondTypeCard";
 import { SakuraPetals } from "@/components/SakuraPetals";
-import { CurrentTime } from "@/components/CurrentTime";
 import { DOT_MASK_VERTICAL } from "@/lib/blueprint";
 
 export function TopBanner() {
@@ -107,11 +106,6 @@ export function TopBanner() {
         className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-30"
         style={DOT_MASK_VERTICAL}
       />
-
-      {/* 6. Live Digital Clock Widget */}
-      <div className="absolute top-3 left-3 sm:top-3.5 sm:left-4 z-30 pointer-events-auto">
-        <CurrentTime />
-      </div>
     </div>
   );
 }
