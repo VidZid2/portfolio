@@ -22,6 +22,14 @@ A high-performance technical blueprint developer portfolio built from scratch to
 
 → **Live site:** [sync-portfolio-jd.vercel.app](https://sync-portfolio-jd.vercel.app)
 
+<br />
+
+<div align="center">
+  <a href="https://sync-portfolio-jd.vercel.app">
+    <img src="./public/preview.png" width="100%" alt="Project SYNC Preview" style="border-radius: 8px; border: 1px solid #27272a;" />
+  </a>
+</div>
+
 ---
 
 ## Overview
