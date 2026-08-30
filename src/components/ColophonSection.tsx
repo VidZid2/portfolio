@@ -463,10 +463,10 @@ export function ColophonSection() {
             rel="noopener noreferrer"
             title="Code of Conduct"
             aria-label="Code of Conduct"
-            className="text-zinc-600 dark:text-zinc-400 hover:text-[#6495ED] dark:hover:text-[#6495ED] transition-colors flex items-center justify-center shrink-0 p-0.5"
+            className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors flex items-center justify-center shrink-0 p-0.5"
           >
             <svg
-              className="w-[24px] h-[24px] sm:w-[26px] sm:h-[26px]"
+              className="w-[25px] h-[25px] sm:w-[27px] sm:h-[27px]"
               viewBox="450 250 1500 1250"
               fill="currentColor"
             >
@@ -483,10 +483,10 @@ export function ColophonSection() {
             rel="noopener noreferrer"
             title="MIT License"
             aria-label="MIT License"
-            className="text-zinc-600 dark:text-zinc-400 hover:text-[#6495ED] dark:hover:text-[#6495ED] transition-colors flex items-center justify-center shrink-0 p-0.5"
+            className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors flex items-center justify-center shrink-0 p-0.5"
           >
             <svg
-              className="w-[27px] h-[27px] sm:w-[30px] sm:h-[30px]"
+              className="w-[34px] h-[34px] sm:w-[38px] sm:h-[38px]"
               viewBox="0 0 14 14"
               fill="currentColor"
             >
