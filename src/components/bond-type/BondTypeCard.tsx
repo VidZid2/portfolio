@@ -9,13 +9,17 @@ export function BondTypeCard({
   bare = false,
   viewTransitionName,
   className = "",
+  onCycleComplete,
 }: {
   bare?: boolean;
   viewTransitionName?: string;
   className?: string;
+  onCycleComplete?: () => void;
 } = {}) {
   void bare;
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const cycleCbRef = useRef(onCycleComplete);
+  cycleCbRef.current = onCycleComplete;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -37,6 +41,9 @@ export function BondTypeCard({
       if (!canvasRef.current) return;
       engine = new BondType(canvas);
       if (!engine.ok) return;
+      engine.onCycleComplete = () => {
+        cycleCbRef.current?.();
+      };
       if (reduced) engine.renderStill();
       else sync();
 

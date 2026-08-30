@@ -106,6 +106,8 @@ export class BondType {
   private dust: DustParticle[] = [];
   private ripples: RippleShockwave[] = [];
 
+  public onCycleComplete?: () => void;
+
   readonly ok: boolean;
 
   constructor(
@@ -543,6 +545,7 @@ export class BondType {
       const t = ((now - this.t0) / 1000) * FPS;
 
       if (t >= this.cycleTicks) {
+        this.onCycleComplete?.();
         this.t0 = now;
         this.newCycle();
         this.lastTick = 0;
