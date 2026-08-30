@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { DrawUnderlineLink } from "@/components/sora-ui/texts/draw-underline-link";
 import { useTransition } from "@/components/TransitionProvider";
 import { playToastError, playSoftClick } from "@/lib/synth-sounds";
 import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 import { CornerMark } from "@/components/ui/corner-mark";
+import LogoTraceLoader from "@/components/ui/logo-trace-loader";
 
 const dashedMaskHorizontal = {
   maskImage:
@@ -52,6 +53,8 @@ const LABEL_CLASS =
 export function ColophonSection() {
   const [isXError, setIsXError] = useState(false);
   const { navigate } = useTransition();
+  const footerLogoRef = useRef<HTMLDivElement>(null);
+  const isFooterInView = useInView(footerLogoRef, { once: true, margin: "-10px" });
 
   const handleXClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -377,25 +380,15 @@ export function ColophonSection() {
 
       {/* Row 6: Bottom Copyright & Socials */}
       <div className="relative flex flex-col sm:flex-row items-center justify-between py-3.5 px-3 sm:px-4 gap-3 sm:gap-4">
-        {/* Left: Brand Monogram & Copyright */}
-        <div className="flex items-center gap-1.5 sm:gap-2 text-[12px] sm:text-[13px] font-mono text-zinc-600 dark:text-zinc-400">
-          <svg
-            className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#6495ED] shrink-0"
-            viewBox="250 250 1548 1548"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <g transform="translate(0,2048) scale(0.1,-0.1)">
-              <path d="M5930 14285 l1045 -1045 2385 0 c2535 0 2473 1 2715 -46 1138 -220 2073 -1102 2357 -2224 96 -381 119 -722 73 -1077 -64 -485 -213 -890 -470 -1279 -426 -643 -1081 -1110 -1809 -1289 -311 -76 -421 -87 -996 -94 l-485 -6 -21 -55 c-12 -30 -39 -100 -60 -155 -51 -132 -184 -400 -274 -550 -285 -477 -714 -931 -1157 -1223 -72 -48 -132 -90 -132 -95 -1 -10 2530 -7 2699 4 924 57 1784 341 2525 834 813 540 1474 1325 1854 2201 239 553 382 1132 422 1707 16 247 7 679 -20 907 -88 737 -305 1398 -661 2010 -542 931 -1397 1690 -2377 2109 -470 201 -887 312 -1438 383 l-170 22 -3525 3 -3525 3 1045 -1045z" />
-              <path d="M8160 10468 c0 -1757 -2 -2098 -14 -2178 -83 -550 -588 -960 -1141 -927 -540 33 -983 465 -1032 1007 l-8 84 -210 131 c-830 518 -1875 1165 -1880 1165 -9 0 -5 -1332 5 -1500 24 -379 97 -685 247 -1035 81 -191 164 -344 278 -515 135 -202 230 -317 424 -510 507 -505 1099 -804 1801 -911 137 -21 189 -24 445 -23 248 0 311 3 435 22 735 113 1370 450 1882 998 225 241 390 479 532 768 164 331 252 621 313 1026 16 106 17 293 20 2298 l4 2182 -1051 0 -1050 0 0 -2082z" />
-            </g>
-          </svg>
-          <span>2026 Josiah De Asis.</span>
-          <DrawUnderlineLink
-            className="text-[12px] sm:text-[13px] font-mono text-zinc-600 dark:text-zinc-400 hover:text-[#6495ED] dark:hover:text-[#6495ED] transition-colors"
-          >
-            Trademark
-          </DrawUnderlineLink>
+        {/* Left: Brand Monogram Animated Trace Logo */}
+        <div ref={footerLogoRef} className="flex items-center">
+          <LogoTraceLoader
+            loading={!isFooterInView}
+            isComplete={isFooterInView}
+            size={38}
+            strokeWidth={180}
+            className="text-[#6495ED] shrink-0"
+          />
         </div>
 
         {/* Right: Social Icons + DMCA Protected Badge */}
