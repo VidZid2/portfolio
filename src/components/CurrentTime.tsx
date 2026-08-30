@@ -5,9 +5,9 @@ import { NumberTicker } from "@/components/ui/number-ticker";
 
 function TwoDots() {
   return (
-    <div className="mx-0.5 sm:mx-1 flex flex-col gap-2 -translate-x-[2px] sm:-translate-x-[3px] drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-      <div className="w-[2px] h-[2px] bg-blue-600 dark:bg-[#6495ED]"></div>
-      <div className="w-[2px] h-[2px] bg-blue-600 dark:bg-[#6495ED]"></div>
+    <div className="mx-0.5 sm:mx-1 flex flex-col gap-2 -translate-x-[2px] sm:-translate-x-[3px]">
+      <div className="w-[2px] h-[2px] bg-[#6495ED]"></div>
+      <div className="w-[2px] h-[2px] bg-[#6495ED]"></div>
     </div>
   );
 }
@@ -28,7 +28,7 @@ export function CurrentTime() {
     return (
       <div className="flex items-center opacity-0">
         <div 
-          className="text-[20px] sm:text-[24px] tracking-[0.15em] text-blue-600 dark:text-[#6495ED]" 
+          className="text-[20px] sm:text-[24px] tracking-[0.15em] text-[#6495ED]" 
           style={{ fontFamily: 'var(--font-doto), monospace', fontWeight: 700 }}
         >
           00.00.00
@@ -46,7 +46,7 @@ export function CurrentTime() {
   return (
     <div className="flex items-center h-[24px]">
       <div 
-        className="text-[20px] sm:text-[24px] tracking-[0.15em] flex items-center h-full drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] text-blue-600 dark:text-[#6495ED]" 
+        className="text-[20px] sm:text-[24px] tracking-[0.15em] flex items-center h-full text-[#6495ED]" 
         style={{ fontFamily: 'var(--font-doto), monospace', fontWeight: 700 }}
       >
         <NumberTicker value={hours12} pad={2} />
