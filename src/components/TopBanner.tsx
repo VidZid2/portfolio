@@ -58,7 +58,7 @@ export function TopBanner() {
     >
       {/* 1. Base Wallpaper Layer (Light & Dark Torii Shrine) */}
       <div
-        className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${
+        className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out will-change-opacity transform-gpu ${
           view === "shrine" ? "opacity-100" : "opacity-0"
         }`}
       >
@@ -76,12 +76,13 @@ export function TopBanner() {
 
       {/* 2. Pixel Molecule Layer */}
       <div
-        className={`absolute inset-0 z-10 transition-opacity duration-1000 ease-in-out ${
+        className={`absolute inset-0 z-10 transition-opacity duration-1000 ease-in-out will-change-opacity transform-gpu ${
           view === "molecule" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       >
         <BondTypeCard
           className="h-full w-full"
+          active={view === "molecule"}
           onCycleComplete={handleMoleculeCycleComplete}
         />
       </div>

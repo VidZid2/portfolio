@@ -10,16 +10,25 @@ export function BondTypeCard({
   viewTransitionName,
   className = "",
   onCycleComplete,
+  active = true,
 }: {
   bare?: boolean;
   viewTransitionName?: string;
   className?: string;
   onCycleComplete?: () => void;
+  active?: boolean;
 } = {}) {
   void bare;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cycleCbRef = useRef(onCycleComplete);
   cycleCbRef.current = onCycleComplete;
+  const activeRef = useRef(active);
+  activeRef.current = active;
+  const syncRef = useRef<() => void>(() => {});
+
+  useEffect(() => {
+    syncRef.current();
+  }, [active]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -33,9 +42,10 @@ export function BondTypeCard({
 
     const sync = () => {
       if (!engine || reduced) return;
-      if (onScreen && !hidden && !inTransition) engine.start();
+      if (onScreen && !hidden && !inTransition && activeRef.current) engine.start();
       else engine.stop();
     };
+    syncRef.current = sync;
 
     const raf = requestAnimationFrame(() => {
       if (!canvasRef.current) return;

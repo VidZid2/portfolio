@@ -10,13 +10,11 @@ interface SakuraPetalsProps {
 interface Petal {
   x: number;
   y: number;
-  z: number;
   size: number;
   color: string;
   opacity: number;
   vx: number;
   vy: number;
-  vz: number;
   rotX: number;
   rotY: number;
   rotZ: number;
@@ -44,6 +42,22 @@ const DARK_SAKURA_COLORS = [
   "rgba(199, 210, 254, 0.88)", // Celestial Blue Petal (#c7d2fe)
 ];
 
+// Pre-compiled Path2D normalized petal shape for GPU-accelerated drawing
+let cachedPetalPath: Path2D | null = null;
+function getPetalPath(): Path2D {
+  if (!cachedPetalPath && typeof Path2D !== "undefined") {
+    const p = new Path2D();
+    p.moveTo(0, 0.55);
+    p.bezierCurveTo(-0.5, 0.25, -0.45, -0.35, -0.16, -0.52);
+    p.lineTo(0, -0.38);
+    p.lineTo(0.16, -0.52);
+    p.bezierCurveTo(0.45, -0.35, 0.5, 0.25, 0, 0.55);
+    p.closePath();
+    cachedPetalPath = p;
+  }
+  return cachedPetalPath!;
+}
+
 export function SakuraPetals({ className = "", burst = false }: SakuraPetalsProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const burstRef = useRef(burst);
@@ -52,7 +66,7 @@ export function SakuraPetals({ className = "", burst = false }: SakuraPetalsProp
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
     let rafId = 0;
@@ -60,6 +74,7 @@ export function SakuraPetals({ className = "", burst = false }: SakuraPetalsProp
     let height = 0;
     let dpr = 1;
     let isVisible = true;
+    let lastTime = performance.now();
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced) return;
@@ -75,38 +90,36 @@ export function SakuraPetals({ className = "", burst = false }: SakuraPetalsProp
     resize();
 
     const isDark = () => document.documentElement.classList.contains("dark");
-
     const getColors = () => (isDark() ? DARK_SAKURA_COLORS : LIGHT_SAKURA_COLORS);
 
+    const petalPath = getPetalPath();
+    const count = 26;
     const petals: Petal[] = [];
-    const count = 38;
 
     const createPetal = (spawnFromLeft = false): Petal => {
       const colors = getColors();
       const color = colors[Math.floor(Math.random() * colors.length)];
-      const size = (8 + Math.random() * 12) * dpr;
+      const size = (9 + Math.random() * 11) * dpr;
       const isBurst = burstRef.current;
 
       return {
         x: spawnFromLeft
-          ? -size * 2 - Math.random() * width * 0.3
+          ? -size * 2 - Math.random() * width * 0.25
           : Math.random() * (width + size * 2) - size,
         y: Math.random() * (height + size * 2) - size,
-        z: Math.random() * 100,
         size,
         color,
-        opacity: 0.65 + Math.random() * 0.35,
-        vx: (isBurst ? 3.5 + Math.random() * 5.0 : 0.8 + Math.random() * 1.8) * dpr,
-        vy: (isBurst ? 0.4 + Math.random() * 1.6 : 0.3 + Math.random() * 0.9) * dpr,
-        vz: (Math.random() - 0.5) * 0.5,
+        opacity: 0.7 + Math.random() * 0.3,
+        vx: (isBurst ? 3.2 + Math.random() * 4.2 : 0.75 + Math.random() * 1.5) * dpr,
+        vy: (isBurst ? 0.3 + Math.random() * 1.2 : 0.25 + Math.random() * 0.7) * dpr,
         rotX: Math.random() * Math.PI * 2,
         rotY: Math.random() * Math.PI * 2,
         rotZ: Math.random() * Math.PI * 2,
-        spinX: (Math.random() - 0.5) * 0.04,
-        spinY: (Math.random() - 0.5) * 0.05,
-        spinZ: (Math.random() - 0.5) * 0.03,
-        swaySpeed: 1.2 + Math.random() * 2.0,
-        swayAmp: (12 + Math.random() * 20) * dpr,
+        spinX: (Math.random() - 0.5) * 0.035,
+        spinY: (Math.random() - 0.5) * 0.045,
+        spinZ: (Math.random() - 0.5) * 0.025,
+        swaySpeed: 1.4 + Math.random() * 1.8,
+        swayAmp: (10 + Math.random() * 16) * dpr,
         seed: Math.random() * 100,
       };
     };
@@ -117,89 +130,78 @@ export function SakuraPetals({ className = "", burst = false }: SakuraPetalsProp
 
     let clock = 0;
 
-    const drawPetal = (p: Petal) => {
-      ctx.save();
-      ctx.translate(p.x, p.y);
-
-      // 3D pseudo-rotation transforms
-      const cosX = Math.cos(p.rotX);
-      const cosY = Math.cos(p.rotY);
-      const scaleX = cosY;
-      const scaleY = cosX;
-
-      ctx.rotate(p.rotZ);
-      ctx.scale(scaleX, scaleY);
-      ctx.globalAlpha = p.opacity;
-
-      const s = p.size;
-
-      // Authentic Japanese Cherry Blossom (Sakura) Petal with notched cleft tip
-      ctx.beginPath();
-      ctx.moveTo(0, s * 0.55);
-      ctx.bezierCurveTo(-s * 0.5, s * 0.25, -s * 0.45, -s * 0.35, -s * 0.16, -s * 0.52);
-      // Notched tip cleft:
-      ctx.lineTo(0, -s * 0.38);
-      ctx.lineTo(s * 0.16, -s * 0.52);
-      ctx.bezierCurveTo(s * 0.45, -s * 0.35, s * 0.5, s * 0.25, 0, s * 0.55);
-      ctx.closePath();
-
-      ctx.fillStyle = p.color;
-      ctx.fill();
-
-      // Subtle translucent vein highlight for crisp organic texture
-      ctx.strokeStyle = isDark()
-        ? "rgba(255, 255, 255, 0.35)"
-        : "rgba(255, 240, 245, 0.45)";
-      ctx.lineWidth = Math.max(0.6, 0.8 * dpr);
-      ctx.beginPath();
-      ctx.moveTo(0, s * 0.45);
-      ctx.quadraticCurveTo(0, 0, 0, -s * 0.32);
-      ctx.stroke();
-
-      ctx.restore();
-    };
-
-    const render = () => {
+    const render = (now: number) => {
       if (!isVisible) {
+        lastTime = now;
         rafId = requestAnimationFrame(render);
         return;
       }
 
-      clock += 0.016;
+      const dt = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
+      clock += dt;
+
       ctx.clearRect(0, 0, width, height);
 
       const isBurst = burstRef.current;
-      const speedMultiplier = isBurst ? 2.8 : 1.0;
+      const speedMultiplier = isBurst ? 2.5 : 1.0;
+      const timeScale = dt * 60;
 
       for (let i = 0; i < petals.length; i++) {
         const p = petals[i];
 
-        // Motion physics with natural wind gusts and harmonic sway
-        const sway = Math.sin(clock * p.swaySpeed + p.seed) * (0.4 * dpr);
-        p.x += (p.vx * speedMultiplier) + sway;
-        p.y += p.vy * speedMultiplier;
+        // Motion physics with natural harmonic air current sway
+        const sway = Math.sin(clock * p.swaySpeed + p.seed) * (0.35 * dpr);
+        p.x += (p.vx * speedMultiplier + sway) * timeScale;
+        p.y += (p.vy * speedMultiplier) * timeScale;
 
-        p.rotX += p.spinX * (isBurst ? 2.5 : 1.0);
-        p.rotY += p.spinY * (isBurst ? 2.5 : 1.0);
-        p.rotZ += p.spinZ * (isBurst ? 2.5 : 1.0);
+        p.rotX += p.spinX * speedMultiplier * timeScale;
+        p.rotY += p.spinY * speedMultiplier * timeScale;
+        p.rotZ += p.spinZ * speedMultiplier * timeScale;
 
-        // Respawn when offscreen
+        // Respawn smoothly when drifted offscreen
         if (p.x > width + p.size * 2 || p.y > height + p.size * 2) {
           petals[i] = createPetal(true);
         }
 
-        drawPetal(p);
+        // Draw with Path2D for peak GPU throughput
+        ctx.save();
+        ctx.translate(p.x, p.y);
+
+        const cosX = Math.cos(p.rotX);
+        const cosY = Math.cos(p.rotY);
+        ctx.rotate(p.rotZ);
+        ctx.scale(cosY * p.size, cosX * p.size);
+        ctx.globalAlpha = p.opacity;
+
+        ctx.fillStyle = p.color;
+        if (petalPath) {
+          ctx.fill(petalPath);
+        } else {
+          // Fallback if Path2D is unavailable
+          ctx.beginPath();
+          ctx.moveTo(0, 0.55);
+          ctx.bezierCurveTo(-0.5, 0.25, -0.45, -0.35, -0.16, -0.52);
+          ctx.lineTo(0, -0.38);
+          ctx.lineTo(0.16, -0.52);
+          ctx.bezierCurveTo(0.45, -0.35, 0.5, 0.25, 0, 0.55);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        ctx.restore();
       }
 
       rafId = requestAnimationFrame(render);
     };
 
+    lastTime = performance.now();
     rafId = requestAnimationFrame(render);
 
     const onResize = () => {
       resize();
     };
-    window.addEventListener("resize", onResize);
+    window.addEventListener("resize", onResize, { passive: true });
 
     const io = new IntersectionObserver(
       (entries) => {
@@ -219,7 +221,8 @@ export function SakuraPetals({ className = "", burst = false }: SakuraPetalsProp
   return (
     <canvas
       ref={canvasRef}
-      className={`pointer-events-none absolute inset-0 h-full w-full ${className}`}
+      className={`pointer-events-none absolute inset-0 h-full w-full will-change-transform ${className}`}
+      style={{ transform: "translateZ(0)" }}
     />
   );
 }
