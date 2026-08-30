@@ -379,7 +379,7 @@ export function ColophonSection() {
       </div>
 
       {/* Row 6: Bottom Copyright & Socials */}
-      <div className="relative flex flex-col sm:flex-row items-center justify-between py-3.5 px-3 sm:px-4 gap-3 sm:gap-4">
+      <div className="relative flex flex-col sm:flex-row items-center justify-between py-1 sm:py-1.5 px-3 sm:px-4 gap-2 sm:gap-4 min-h-[44px]">
         {/* Left: Brand Monogram Animated Trace Logo */}
         <div ref={footerLogoRef} className="flex items-center">
           <LogoTraceLoader
