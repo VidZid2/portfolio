@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { BondTypeCard } from "@/components/bond-type/BondTypeCard";
 import { SakuraPetals } from "@/components/SakuraPetals";
+import { CurrentTime } from "@/components/CurrentTime";
 import { DOT_MASK_VERTICAL } from "@/lib/blueprint";
 
 export function TopBanner() {
@@ -91,11 +92,11 @@ export function TopBanner() {
         <SakuraPetals burst={isBursting} />
       </div>
 
-      {/* 4. Subtle Edge Fades on all 4 perimeters */}
-      <div className="absolute inset-x-0 top-0 h-4 pointer-events-none z-[25] bg-gradient-to-b from-white to-transparent dark:from-black dark:to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 h-4 pointer-events-none z-[25] bg-gradient-to-t from-white to-transparent dark:from-black dark:to-transparent" />
-      <div className="absolute left-0 top-0 bottom-0 w-4 pointer-events-none z-[25] bg-gradient-to-r from-white to-transparent dark:from-black dark:to-transparent" />
-      <div className="absolute right-0 top-0 bottom-0 w-4 pointer-events-none z-[25] bg-gradient-to-l from-white to-transparent dark:from-black dark:to-transparent" />
+      {/* 4. Atmospheric Perimeter Edge & Corner Fades (matching Picture 2) */}
+      <div className="absolute inset-x-0 top-0 h-10 sm:h-12 pointer-events-none z-[25] bg-gradient-to-b from-white via-white/50 to-transparent dark:from-black dark:via-black/70 dark:to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-14 sm:h-16 pointer-events-none z-[25] bg-gradient-to-t from-white via-white/60 to-transparent dark:from-black dark:via-black/80 dark:to-transparent" />
+      <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-24 pointer-events-none z-[25] bg-gradient-to-r from-white via-white/50 to-transparent dark:from-black dark:via-black/75 dark:to-transparent" />
+      <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-24 pointer-events-none z-[25] bg-gradient-to-l from-white via-white/50 to-transparent dark:from-black dark:via-black/75 dark:to-transparent" />
 
       {/* 5. Vertical dotted margin lines on top of banner */}
       <div
@@ -106,6 +107,11 @@ export function TopBanner() {
         className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none z-30"
         style={DOT_MASK_VERTICAL}
       />
+
+      {/* 6. Live Digital Clock Widget */}
+      <div className="absolute bottom-3 right-2 z-30 pointer-events-auto">
+        <CurrentTime />
+      </div>
     </div>
   );
 }
