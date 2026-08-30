@@ -1,14 +1,13 @@
 <div align="center">
+  <a href="https://sync-portfolio-jd.vercel.app">
+    <img src="./public/PICTURE%201.jpeg" width="100%" alt="Josiah De Asis Portfolio" style="border-radius: 8px; border: 1px solid #27272a;" />
+  </a>
 
-# Project SYNC (Portfolio v2.0)
-**An interactive developer portfolio, technical blueprint UI system, and creative web platform.**
+  <br /><br />
 
-<br />
-
-<a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-18181b?style=flat-square" alt="License" /></a>
-&nbsp;
-<a href="https://sync-portfolio-jd.vercel.app"><img src="https://img.shields.io/badge/live_site-sync--portfolio--jd.vercel.app-6495ED?style=flat-square&logo=vercel&logoColor=white" alt="Live Site" /></a>
-
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-18181b?style=flat-square" alt="License" /></a>
+  &nbsp;
+  <a href="https://sync-portfolio-jd.vercel.app"><img src="https://img.shields.io/badge/live_site-sync--portfolio--jd.vercel.app-6495ED?style=flat-square&logo=vercel&logoColor=white" alt="Live Site" /></a>
 </div>
 
 <br />
