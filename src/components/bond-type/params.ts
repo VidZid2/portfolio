@@ -18,8 +18,9 @@ export const EASE_RETURN = [
 export const MOVE2_AT = 20;
 export const MOVE3_AT = 40;
 
-export const GREEN = "#f5333f";
-export const WHITE = "#fdfefd";
+export const CORNFLOWER_BLUE = "#6495ED";
+export const BG_LIGHT = "#ffffff";
+export const BG_DARK = "#000000";
 
 export const CAP_H = 56 / 304;
 

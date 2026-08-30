@@ -19,7 +19,9 @@ import {
   EASE_MOVE,
   EASE_RETURN,
   FPS,
-  GREEN,
+  BG_LIGHT,
+  BG_DARK,
+  CORNFLOWER_BLUE,
   HOLD_TICKS,
   LINES,
   LINE_PITCH,
@@ -28,7 +30,6 @@ import {
   RETURN_TICKS,
   SCATTERS_MAX,
   SCATTERS_MIN,
-  WHITE,
 } from "./params";
 
 interface Letter {
@@ -290,10 +291,16 @@ export class BondType {
     const H = this.canvas.height;
     const W = this.canvas.width;
 
-    ctx.fillStyle = GREEN;
+    const isDark =
+      typeof document !== "undefined" &&
+      document.documentElement.classList.contains("dark");
+    const bg = isDark ? BG_DARK : BG_LIGHT;
+    const fg = CORNFLOWER_BLUE;
+
+    ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
     ctx.font = this.font;
-    ctx.fillStyle = WHITE;
+    ctx.fillStyle = fg;
 
     const unrest = this.unrest(t);
     const off = this.letters.map((l, i) => {
@@ -317,7 +324,7 @@ export class BondType {
       l.y + (l.top + l.bottom) / 2 + off[i][1],
     ]);
 
-    ctx.fillStyle = WHITE;
+    ctx.fillStyle = fg;
     const cell = this.cell;
     for (const [ia, ib] of this.pairs) {
       const A = this.letters[ia];

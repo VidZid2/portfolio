@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { BondType } from "./engine";
 import { onTransitionChange } from "@/lib/view-transition";
-import { FONT_VAR, FONT_WEIGHT, GREEN } from "./params";
+import { FONT_VAR, FONT_WEIGHT } from "./params";
 
 export function BondTypeCard({
   bare = false,
@@ -78,6 +78,15 @@ export function BondTypeCard({
       sync();
     });
 
+    const themeObserver = new MutationObserver(() => {
+      if (engine && !engine.ok) return;
+      if (reduced) engine?.renderStill();
+    });
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
     let rt = 0;
     const onResize = () => {
       window.clearTimeout(rt);
@@ -88,6 +97,7 @@ export function BondTypeCard({
     return () => {
       cancelAnimationFrame(raf);
       io.disconnect();
+      themeObserver.disconnect();
       document.removeEventListener("visibilitychange", onVis);
       offTransition();
       window.removeEventListener("resize", onResize);
@@ -100,12 +110,9 @@ export function BondTypeCard({
     <div
       data-canvas-card
       role="img"
-      aria-label="The name Josiah De Asis in a white pixel typeface on bright red. The letters drift apart into a molecule diagram, fine stair-stepped runs of square pixels bonding each letter to the next within its word. The chain re-scatters through a few different shapes, then the letters glide back into the plain typeset name and it starts again with a new sequence."
-      style={{
-        backgroundColor: GREEN,
-        ...(viewTransitionName ? { viewTransitionName } : undefined),
-      }}
-      className={`relative select-none overflow-hidden ${className || "h-full w-full"}`}
+      aria-label="The name Josiah De Asis in a cornflower blue pixel typeface on white/black. The letters drift apart into a molecule diagram, fine stair-stepped runs of square pixels bonding each letter to the next within its word. The chain re-scatters through a few different shapes, then the letters glide back into the plain typeset name and it starts again with a new sequence."
+      style={viewTransitionName ? { viewTransitionName } : undefined}
+      className={`relative select-none overflow-hidden bg-white dark:bg-black ${className || "h-full w-full"}`}
     >
       <canvas ref={canvasRef} className="h-full w-full" />
     </div>
