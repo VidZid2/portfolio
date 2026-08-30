@@ -29,7 +29,7 @@ export default function LogoTraceLoader({
   loading,
   isComplete,
   size = 64,
-  strokeWidth = 90,
+  strokeWidth = 550,
   loopDurationSeconds = 2,
   fillFadeSeconds = 0.5,
   className = "",
@@ -179,7 +179,7 @@ export default function LogoTraceLoader({
         <g 
           style={{
             transition: `opacity ${fillFadeSeconds}s ease-out`,
-            opacity: phase === "ascii" || phase === "fadingFill" || phase === "done" ? 0 : 0.15,
+            opacity: phase === "ascii" || phase === "fadingFill" || phase === "done" ? 0 : 0.35,
           }}
         >
           {FILL_PATHS.map((path, index) => (
@@ -188,13 +188,13 @@ export default function LogoTraceLoader({
               d={path}
               fill="none"
               stroke="currentColor"
-              strokeWidth={Math.max(20, strokeWidth / 2)}
+              strokeWidth={Math.max(250, strokeWidth * 0.7)}
               strokeLinejoin="round"
             />
           ))}
         </g>
 
-        {/* Animated tracing path */}
+        {/* Animated tracing path with Cornflower Blue glow */}
         {FILL_PATHS.map((path, index) => (
           <path
             key={index}
@@ -206,13 +206,14 @@ export default function LogoTraceLoader({
             strokeLinejoin="round"
             pathLength={1}
             strokeDasharray={
-              phase === "ascii" || phase === "loop" ? "0.2 0.8" : "1 0"
+              phase === "ascii" || phase === "loop" ? "0.22 0.78" : "1 0"
             }
             style={{
               animation: `logo-trace-loader-loop ${loopDurationSeconds}s linear infinite`,
               animationPlayState: phase === "ascii" || phase === "loop" ? "running" : "paused",
               transition: `stroke-dasharray 1.2s cubic-bezier(0.4, 0, 0.2, 1), opacity ${fillFadeSeconds}s ease-out`,
               opacity: phase === "ascii" || phase === "fadingFill" || phase === "done" ? 0 : 1,
+              filter: "drop-shadow(0 0 16px rgba(100, 149, 237, 0.5))",
             }}
           />
         ))}
