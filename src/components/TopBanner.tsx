@@ -109,7 +109,7 @@ export function TopBanner() {
       />
 
       {/* 6. Live Digital Clock Widget */}
-      <div className="absolute bottom-3 right-2 z-30 pointer-events-auto">
+      <div className="absolute top-3 left-3 sm:top-3.5 sm:left-4 z-30 pointer-events-auto">
         <CurrentTime />
       </div>
     </div>
