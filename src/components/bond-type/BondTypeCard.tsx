@@ -94,6 +94,22 @@ export function BondTypeCard({
     };
     window.addEventListener("resize", onResize);
 
+    const onPointerMove = (e: PointerEvent) => {
+      engine?.setMouse(e.clientX, e.clientY);
+    };
+
+    const onPointerLeave = () => {
+      engine?.clearMouse();
+    };
+
+    const onPointerDown = (e: PointerEvent) => {
+      engine?.triggerImpulse(e.clientX, e.clientY);
+    };
+
+    canvas.addEventListener("pointermove", onPointerMove);
+    canvas.addEventListener("pointerleave", onPointerLeave);
+    canvas.addEventListener("pointerdown", onPointerDown);
+
     return () => {
       cancelAnimationFrame(raf);
       io.disconnect();
@@ -101,6 +117,9 @@ export function BondTypeCard({
       document.removeEventListener("visibilitychange", onVis);
       offTransition();
       window.removeEventListener("resize", onResize);
+      canvas.removeEventListener("pointermove", onPointerMove);
+      canvas.removeEventListener("pointerleave", onPointerLeave);
+      canvas.removeEventListener("pointerdown", onPointerDown);
       window.clearTimeout(rt);
       engine?.destroy();
     };
@@ -112,7 +131,7 @@ export function BondTypeCard({
       role="img"
       aria-label="The name Josiah De Asis in a cornflower blue pixel typeface on white/black. The letters drift apart into a molecule diagram, fine stair-stepped runs of square pixels bonding each letter to the next within its word. The chain re-scatters through a few different shapes, then the letters glide back into the plain typeset name and it starts again with a new sequence."
       style={viewTransitionName ? { viewTransitionName } : undefined}
-      className={`relative select-none overflow-hidden bg-white dark:bg-black ${className || "h-full w-full"}`}
+      className={`relative select-none overflow-hidden bg-white dark:bg-black cursor-pointer ${className || "h-full w-full"}`}
     >
       <canvas ref={canvasRef} className="h-full w-full" />
     </div>

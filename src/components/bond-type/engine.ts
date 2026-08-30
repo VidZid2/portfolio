@@ -46,6 +46,25 @@ interface Letter {
   slot: number;
 }
 
+interface DustParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  seed: number;
+  phase: number;
+}
+
+interface RippleShockwave {
+  x: number;
+  y: number;
+  radius: number;
+  maxRadius: number;
+  alpha: number;
+  born: number;
+}
+
 function edgeDist(hw: number, hh: number, ux: number, uy: number): number {
   const tx = ux !== 0 ? hw / Math.abs(ux) : Infinity;
   const ty = uy !== 0 ? hh / Math.abs(uy) : Infinity;
@@ -76,6 +95,17 @@ export class BondType {
   private cell = 1;
   private clock = 0;
 
+  // Interactive Cursor & Physics
+  private mouseX = -9999;
+  private mouseY = -9999;
+  private targetMouseX = -9999;
+  private targetMouseY = -9999;
+  private hasMouse = false;
+
+  // Ambient Micro-Dust & Ripples
+  private dust: DustParticle[] = [];
+  private ripples: RippleShockwave[] = [];
+
   readonly ok: boolean;
 
   constructor(
@@ -84,7 +114,56 @@ export class BondType {
   ) {
     this.ctx = canvas.getContext("2d");
     this.ok = !!this.ctx;
+    this.initDust();
     if (this.ok) this.resize();
+  }
+
+  private initDust() {
+    this.dust = [];
+    for (let i = 0; i < 28; i++) {
+      this.dust.push({
+        x: Math.random(),
+        y: Math.random(),
+        vx: (Math.random() - 0.5) * 0.02,
+        vy: (Math.random() - 0.5) * 0.015,
+        size: Math.random() > 0.6 ? 2 : 1,
+        seed: Math.random() * 100,
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
+  }
+
+  setMouse(clientX: number, clientY: number) {
+    const r = this.canvas.getBoundingClientRect();
+    this.targetMouseX = (clientX - r.left) * this.dpr;
+    this.targetMouseY = (clientY - r.top) * this.dpr;
+    this.hasMouse = true;
+  }
+
+  clearMouse() {
+    this.hasMouse = false;
+    this.targetMouseX = -9999;
+    this.targetMouseY = -9999;
+  }
+
+  triggerImpulse(clientX: number, clientY: number) {
+    const r = this.canvas.getBoundingClientRect();
+    const x = (clientX - r.left) * this.dpr;
+    const y = (clientY - r.top) * this.dpr;
+    this.ripples.push({
+      x,
+      y,
+      radius: 0,
+      maxRadius: Math.max(this.canvas.width, this.canvas.height) * 0.75,
+      alpha: 1.0,
+      born: this.clock,
+    });
+
+    // Advance to a fresh randomized scatter pose on click
+    if (this.running) {
+      this.t0 = performance.now();
+      this.newCycle();
+    }
   }
 
   resize() {
@@ -251,7 +330,11 @@ export class BondType {
     }
 
     const local = t - scatterEnd;
-    if (local >= RETURN_TICKS) return [0, 0];
+    if (local >= RETURN_TICKS) {
+      // Gentle harmonic breathing while at home rest
+      const breath = Math.sin(this.clock * 2.2 + i * 0.5) * (0.35 * this.cell);
+      return [0, breath];
+    }
     const p = sample(
       EASE_RETURN,
       (local / (1 + spread)) * (EASE_RETURN.length - 1) / RETURN_TICKS,
@@ -297,8 +380,55 @@ export class BondType {
     const bg = isDark ? BG_DARK : BG_LIGHT;
     const fg = CORNFLOWER_BLUE;
 
+    // Smooth cursor interpolation
+    if (this.hasMouse) {
+      this.mouseX += (this.targetMouseX - this.mouseX) * 0.2;
+      this.mouseY += (this.targetMouseY - this.mouseY) * 0.2;
+    } else {
+      this.mouseX += (-9999 - this.mouseX) * 0.1;
+      this.mouseY += (-9999 - this.mouseY) * 0.1;
+    }
+
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
+
+    // 1. Ambient Floating Quantum Micro-Dust
+    const dustAlpha = isDark ? 0.28 : 0.22;
+    ctx.fillStyle = fg;
+    for (const d of this.dust) {
+      d.x = (d.x + d.vx * 0.05 + 1) % 1;
+      d.y = (d.y + d.vy * 0.05 + 1) % 1;
+      const px = d.x * W;
+      const py = d.y * H;
+      const pulse = 0.5 + 0.5 * Math.sin(this.clock * 2 + d.seed);
+      ctx.globalAlpha = dustAlpha * pulse;
+      const sz = Math.max(1, Math.round(d.size * this.cell * 0.75));
+      ctx.fillRect(Math.round(px), Math.round(py), sz, sz);
+    }
+    ctx.globalAlpha = 1.0;
+
+    // 2. Interactive Expanding Quantum Ripples
+    for (let rIdx = this.ripples.length - 1; rIdx >= 0; rIdx--) {
+      const rip = this.ripples[rIdx];
+      rip.radius += 6 * this.dpr;
+      rip.alpha = Math.max(0, 1 - rip.radius / rip.maxRadius);
+      if (rip.alpha <= 0) {
+        this.ripples.splice(rIdx, 1);
+        continue;
+      }
+      ctx.strokeStyle = fg;
+      ctx.globalAlpha = rip.alpha * 0.35;
+      ctx.lineWidth = Math.max(1, Math.round(this.cell * 0.6));
+      ctx.strokeRect(
+        Math.round(rip.x - rip.radius),
+        Math.round(rip.y - rip.radius * 0.45),
+        Math.round(rip.radius * 2),
+        Math.round(rip.radius * 0.9),
+      );
+    }
+    ctx.globalAlpha = 1.0;
+
+    // 3. Letters Positioning with Magnetic Cursor Dynamics
     ctx.font = this.font;
     ctx.fillStyle = fg;
 
@@ -306,14 +436,34 @@ export class BondType {
     const off = this.letters.map((l, i) => {
       const [ox, oy] = this.offsetAt(l, i, t);
       const [jx, jy] = this.jitter(i, unrest);
-      return [ox + jx, oy + jy] as [number, number];
+
+      // Interactive cursor repulsion
+      let mxOff = 0;
+      let myOff = 0;
+      if (this.hasMouse) {
+        const lx = l.x + ox;
+        const ly = l.y + oy;
+        const dx = lx - this.mouseX;
+        const dy = ly - this.mouseY;
+        const dist = Math.hypot(dx, dy);
+        const repelRadius = 140 * this.dpr;
+        if (dist > 0 && dist < repelRadius) {
+          const power = Math.pow(1 - dist / repelRadius, 2) * 22 * this.dpr;
+          mxOff = (dx / dist) * power;
+          myOff = (dy / dist) * power;
+        }
+      }
+
+      return [ox + jx + mxOff, oy + jy + myOff] as [number, number];
     });
+
     this.letters.forEach((l, i) => {
       if (l.ch !== " ") {
         ctx.fillText(l.ch, l.x + off[i][0], l.y + off[i][1]);
       }
     });
 
+    // 4. Chemical Molecule Bonds with Valence Electron Pulses
     const on = BOND_ON_TICK;
     const offAt =
       this.seq.length * MOVE_TICKS + RETURN_TICKS - BOND_OFF_BEFORE_HOME;
@@ -324,7 +474,6 @@ export class BondType {
       l.y + (l.top + l.bottom) / 2 + off[i][1],
     ]);
 
-    ctx.fillStyle = fg;
     const cell = this.cell;
     for (const [ia, ib] of this.pairs) {
       const A = this.letters[ia];
@@ -353,14 +502,22 @@ export class BondType {
 
       const nx = -uy;
       const ny = ux;
+
+      // Traveling Valence Electron Pulse position
+      const electronK = Math.floor((this.clock * 9 + ia * 1.8) % (n + 2));
+
       for (let k = 0; k < n; k++) {
         const d = s0 + (k + 0.5) * cell;
-
         const e = n > 1 ? Math.sin((Math.PI * (k + 0.5)) / n) : 0;
         const px = cen[ia][0] + ux * d + nx * bow * e;
         const py = cen[ia][1] + uy * d + ny * bow * e;
 
-        const w = BOND_WEIGHT_CELLS * cell;
+        const isElectron = k === electronK;
+        const w = (isElectron ? BOND_WEIGHT_CELLS * 1.35 : BOND_WEIGHT_CELLS) * cell;
+
+        ctx.fillStyle = fg;
+        ctx.globalAlpha = isElectron ? 1.0 : 0.85;
+
         ctx.fillRect(
           Math.round((px - w / 2) / cell) * cell,
           Math.round((py - w / 2) / cell) * cell,
@@ -369,6 +526,7 @@ export class BondType {
         );
       }
     }
+    ctx.globalAlpha = 1.0;
   }
 
   start() {
