@@ -46,8 +46,8 @@ export function GlobalBootSequence({ children, skipIntro }: { children: React.Re
         >
           <LogoTraceLoader
             loading={loading}
-            size={80}
-            strokeWidth={14}
+            size={84}
+            strokeWidth={180}
             className={`shrink-0 transition-all duration-[800ms] ease-[cubic-bezier(0.4,0,0.2,1)] text-[#6495ED] ${
               logoFinished ? "w-16 h-16" : "w-20 h-20"
             }`}
