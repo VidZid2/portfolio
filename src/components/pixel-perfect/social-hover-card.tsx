@@ -47,7 +47,7 @@ export const socialProfiles: Record<string, SocialProfile> = {
   },
   LinkedIn: {
     name: "Josiah De Asis",
-    handle: "N/A",
+    handle: "josiah-deasis",
     avatar: "https://github.com/VidZid2.png?v=1",
     banner: defaultBanner,
     bio: "20 • Full-Stack Engineer / UI Architect",

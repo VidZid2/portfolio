@@ -45,7 +45,7 @@ const SOCIAL_LINKS = [
   {
     name: "LinkedIn",
     label: "LinkedIn",
-    href: "https://linkedin.com",
+    href: "https://www.linkedin.com/in/josiah-deasis/",
     disabled: false,
     isInternal: false,
     icon: (

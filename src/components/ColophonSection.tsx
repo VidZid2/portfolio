@@ -439,7 +439,7 @@ export function ColophonSection() {
 
           {/* LinkedIn */}
           <a
-            href="https://linkedin.com"
+            href="https://www.linkedin.com/in/josiah-deasis/"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="LinkedIn"
