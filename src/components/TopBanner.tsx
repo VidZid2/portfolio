@@ -59,7 +59,7 @@ export function TopBanner() {
     >
       {/* 1. Base Wallpaper Layer (Light & Dark Torii Shrine) */}
       <div
-        className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out will-change-opacity transform-gpu ${
+        className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${
           view === "shrine" ? "opacity-100" : "opacity-0"
         }`}
       >
@@ -83,7 +83,7 @@ export function TopBanner() {
 
       {/* 2. Pixel Molecule Layer */}
       <div
-        className={`absolute inset-0 z-10 transition-opacity duration-1000 ease-in-out will-change-opacity transform-gpu ${
+        className={`absolute inset-0 z-10 transition-opacity duration-1000 ease-in-out ${
           view === "molecule" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       >
@@ -94,9 +94,9 @@ export function TopBanner() {
         />
       </div>
 
-      {/* 3. Cinematic Sakura Petals (Drifts ambiently over shrine and bursts on transition) */}
+      {/* 3. Cinematic Sakura Petals (Active during burst transition and over shrine wallpaper) */}
       <div className="absolute inset-0 z-20 pointer-events-none">
-        <SakuraPetals burst={isBursting} />
+        <SakuraPetals burst={isBursting} active={view === "shrine" || isBursting} />
       </div>
 
       {/* 4. Atmospheric Perimeter Edge & Corner Fades (matching Picture 2) */}

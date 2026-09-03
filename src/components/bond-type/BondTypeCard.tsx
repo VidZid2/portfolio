@@ -36,7 +36,7 @@ export function BondTypeCard({
 
     let engine: BondType | null = null;
     let onScreen = false;
-    let hidden = false;
+    let hidden = typeof document !== "undefined" ? document.hidden : false;
     let inTransition = false;
 
     const sync = () => {

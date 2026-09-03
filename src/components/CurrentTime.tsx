@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { NumberTicker } from "@/components/ui/number-ticker";
 
 function TwoDots() {
   return (
@@ -43,17 +42,21 @@ export function CurrentTime() {
   const minutes = time.getMinutes();
   const seconds = time.getSeconds();
 
+  const hStr = String(hours12).padStart(2, "0");
+  const mStr = String(minutes).padStart(2, "0");
+  const sStr = String(seconds).padStart(2, "0");
+
   return (
-    <div className="flex items-center h-[26px] px-2 py-0.5 rounded-md bg-white/70 dark:bg-black/60 backdrop-blur-sm border border-black/5 dark:border-white/10 shadow-[0_1px_4px_rgba(0,0,0,0.04)] dark:shadow-[0_1px_6px_rgba(0,0,0,0.4)]">
+    <div className="flex items-center h-[26px] px-2 py-0.5 rounded-md bg-white/95 dark:bg-[#0a0a0a]/90 border border-black/10 dark:border-white/15 shadow-sm select-none">
       <div 
-        className="text-[18px] sm:text-[22px] tracking-[0.12em] flex items-center h-full text-blue-600 dark:text-[#6495ED] font-bold select-none" 
+        className="text-[18px] sm:text-[22px] tracking-[0.12em] flex items-center h-full text-blue-600 dark:text-[#6495ED] font-bold tabular-nums" 
         style={{ fontFamily: 'var(--font-doto), monospace', fontWeight: 700 }}
       >
-        <NumberTicker value={hours12} pad={2} fade={false} />
+        <span>{hStr}</span>
         <TwoDots />
-        <NumberTicker value={minutes} pad={2} fade={false} />
+        <span>{mStr}</span>
         <TwoDots />
-        <NumberTicker value={seconds} pad={2} fade={false} />
+        <span>{sStr}</span>
         <span className="ml-1.5 text-[11px] sm:text-[13px] tracking-normal font-semibold opacity-90">{ampm}</span>
       </div>
     </div>

@@ -5,6 +5,7 @@ import React, { useEffect, useRef } from "react";
 interface SakuraPetalsProps {
   className?: string;
   burst?: boolean;
+  active?: boolean;
 }
 
 interface Petal {
@@ -58,13 +59,20 @@ function getPetalPath(): Path2D {
   return cachedPetalPath!;
 }
 
-export function SakuraPetals({ className = "", burst = false }: SakuraPetalsProps) {
+export function SakuraPetals({ className = "", burst = false, active = true }: SakuraPetalsProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const burstRef = useRef(burst);
+  const activeRef = useRef(active);
+  const syncLoopRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     burstRef.current = burst;
   }, [burst]);
+
+  useEffect(() => {
+    activeRef.current = active;
+    syncLoopRef.current?.();
+  }, [active]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -77,6 +85,8 @@ export function SakuraPetals({ className = "", burst = false }: SakuraPetalsProp
     let height = 0;
     let dpr = 1;
     let isVisible = true;
+    let isHidden = typeof document !== "undefined" ? document.hidden : false;
+    let running = false;
     let lastTime = performance.now();
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -134,9 +144,9 @@ export function SakuraPetals({ className = "", burst = false }: SakuraPetalsProp
     let clock = 0;
 
     const render = (now: number) => {
-      if (!isVisible) {
-        lastTime = now;
-        rafId = requestAnimationFrame(render);
+      if (!running || !activeRef.current || !isVisible || isHidden) {
+        running = false;
+        rafId = 0;
         return;
       }
 
@@ -198,25 +208,57 @@ export function SakuraPetals({ className = "", burst = false }: SakuraPetalsProp
       rafId = requestAnimationFrame(render);
     };
 
-    lastTime = performance.now();
-    rafId = requestAnimationFrame(render);
+    const stopLoop = () => {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
+      running = false;
+      ctx.clearRect(0, 0, width, height);
+    };
+
+    const startLoop = () => {
+      if (running || !activeRef.current || !isVisible || isHidden) return;
+      running = true;
+      lastTime = performance.now();
+      rafId = requestAnimationFrame(render);
+    };
+
+    const syncLoop = () => {
+      if (activeRef.current && isVisible && !isHidden) {
+        startLoop();
+      } else {
+        stopLoop();
+      }
+    };
+    syncLoopRef.current = syncLoop;
+
+    syncLoop();
 
     const onResize = () => {
       resize();
     };
     window.addEventListener("resize", onResize, { passive: true });
 
+    const onVisibilityChange = () => {
+      isHidden = document.hidden;
+      syncLoop();
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
     const io = new IntersectionObserver(
       (entries) => {
         isVisible = entries[0]?.isIntersecting ?? false;
+        syncLoop();
       },
-      { threshold: 0.1 },
+      { threshold: 0.05 },
     );
     io.observe(canvas);
 
     return () => {
-      cancelAnimationFrame(rafId);
+      stopLoop();
       window.removeEventListener("resize", onResize);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       io.disconnect();
     };
   }, []);
@@ -224,8 +266,7 @@ export function SakuraPetals({ className = "", burst = false }: SakuraPetalsProp
   return (
     <canvas
       ref={canvasRef}
-      className={`pointer-events-none absolute inset-0 h-full w-full will-change-transform ${className}`}
-      style={{ transform: "translateZ(0)" }}
+      className={`pointer-events-none absolute inset-0 h-full w-full ${className}`}
     />
   );
 }

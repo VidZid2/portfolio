@@ -415,8 +415,18 @@ export function useSwirlStage(
       startLoop();
     }
 
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        stopLoop();
+      } else if (visible) {
+        startLoop();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
     return () => {
       stopLoop();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       ro?.disconnect();
       io?.disconnect();
       r.dispose();
