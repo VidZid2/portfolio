@@ -128,23 +128,14 @@ export function CommandMenu() {
         }
     };
 
-    // Aggressively prefetch Ask AI bundle when network is idle so opening is 0ms instant
+    // Eagerly prefetch Ask AI bundle on mount so opening is 0ms instant
     React.useEffect(() => {
         if (typeof window === "undefined") return;
         const prefetch = () => {
             import("@/components/prompt-box-preview");
         };
-        if ("requestIdleCallback" in window) {
-            const idleId = (window as unknown as { requestIdleCallback: (cb: () => void, opts: { timeout: number }) => number }).requestIdleCallback(prefetch, { timeout: 1500 });
-            return () => {
-                if ("cancelIdleCallback" in window) {
-                    (window as unknown as { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(idleId);
-                }
-            };
-        } else {
-            const timer = setTimeout(prefetch, 800);
-            return () => clearTimeout(timer);
-        }
+        const timer = setTimeout(prefetch, 250);
+        return () => clearTimeout(timer);
     }, []);
 
     React.useEffect(() => {

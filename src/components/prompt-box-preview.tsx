@@ -692,13 +692,6 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
   const [desktopHoveredAction, setDesktopHoveredAction] = useState<"download" | "close" | null>(null);
   const [mobileHoveredAction, setMobileHoveredAction] = useState<"download" | "close" | null>(null);
 
-  const customGreetings = [
-    { text: "Welcome." },
-    { text: "I'm Josiah De Asis." },
-    { text: "I engineered this AI for you." },
-    { text: "Curious about my work?" },
-    { text: "Just ask away." },
-  ];
 
   const chatContent = (
     <>
@@ -869,9 +862,8 @@ export function PromptBoxPreview({ onClose, initialQuery = "" }: { onClose?: () 
 
           <div className="flex flex-col h-full relative overflow-hidden z-10">
             <ArcRevealHero 
-              greetings={customGreetings}
-              greetingHold={1500}
-              storageKey="ask-ai-intro-seen"
+              skipIntro={true}
+              greetings={[]}
               contained
               className="w-full h-full"
               introClassName="text-white dark:text-zinc-950"
