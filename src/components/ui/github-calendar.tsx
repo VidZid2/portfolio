@@ -341,8 +341,52 @@ interface AnimOverlayCellProps {
   isDark: boolean;
 }
 
+// ─── Shared 60fps Scramble Animation Controller ──────────────────────────────
+
+type ScrambleSubscriber = {
+  element: SVGTextElement;
+  isActive: boolean;
+};
+
+const scrambleSubscribers = new Set<ScrambleSubscriber>();
+let sharedScrambleRafId = 0;
+let lastScrambleTime = 0;
+
+function runSharedScramble(now: number) {
+  if (scrambleSubscribers.size === 0) {
+    sharedScrambleRafId = 0;
+    return;
+  }
+
+  // Update glyphs at ~18 scrambles/sec (every 55ms) for crisp matrix effect
+  // while running inside a single unified requestAnimationFrame loop (0 timer thrashing)
+  if (now - lastScrambleTime >= 55) {
+    lastScrambleTime = now;
+    const len = ASCII_CHARS.length;
+    scrambleSubscribers.forEach((sub) => {
+      if (sub.isActive && sub.element) {
+        sub.element.textContent = ASCII_CHARS[Math.floor(Math.random() * len)];
+      }
+    });
+  }
+
+  sharedScrambleRafId = requestAnimationFrame(runSharedScramble);
+}
+
+function registerScrambleCell(sub: ScrambleSubscriber) {
+  scrambleSubscribers.add(sub);
+  if (!sharedScrambleRafId) {
+    lastScrambleTime = performance.now();
+    sharedScrambleRafId = requestAnimationFrame(runSharedScramble);
+  }
+}
+
+function unregisterScrambleCell(sub: ScrambleSubscriber) {
+  scrambleSubscribers.delete(sub);
+}
+
 function AnimOverlayCell({
-  wi: _wi,
+  wi,
   di: _di,
   x,
   y,
@@ -356,32 +400,43 @@ function AnimOverlayCell({
 }: AnimOverlayCellProps) {
   const textRef = useRef<SVGTextElement>(null);
   const [phase, setPhase] = useState<"ascii" | "solid">("ascii");
-
-  // Store a random disperse delay on mount so it doesn't change
   const disperseDelay = useRef(0);
 
   useEffect(() => {
     if (disperseDelay.current === 0) {
-      disperseDelay.current = 800 + Math.random() * 1800;
+      // Natural organic wave dispersal from left to right with stochastic scatter
+      disperseDelay.current = 700 + wi * 22 + Math.random() * 450;
     }
-    // Gradually disperse the ASCII effect based on the random delay
-    const timer = setTimeout(() => {
+
+    const sub: ScrambleSubscriber = {
+      element: textRef.current!,
+      isActive: true,
+    };
+
+    if (textRef.current) {
+      textRef.current.textContent = ASCII_CHARS[Math.floor(Math.random() * ASCII_CHARS.length)];
+      registerScrambleCell(sub);
+    }
+
+    // Gradually disperse the ASCII effect into solid block
+    const disperseTimer = setTimeout(() => {
+      sub.isActive = false;
       setPhase("solid");
     }, disperseDelay.current);
-    return () => clearTimeout(timer);
-  }, []);
 
-  useEffect(() => {
-    if (phase !== "ascii") return;
+    // Unregister completely after the smooth fade-out transition finishes (500ms)
+    const cleanupTimer = setTimeout(() => {
+      unregisterScrambleCell(sub);
+    }, disperseDelay.current + 500);
 
-    // Scramble on EVERY cell for the whole-grid matrix effect
-    const interval = setInterval(() => {
-      if (textRef.current) {
-        textRef.current.textContent = ASCII_CHARS[Math.floor(Math.random() * ASCII_CHARS.length)];
-      }
-    }, 50);
-    return () => clearInterval(interval);
-  }, [phase]);
+    return () => {
+      clearTimeout(disperseTimer);
+      clearTimeout(cleanupTimer);
+      unregisterScrambleCell(sub);
+    };
+  }, [wi]);
+
+  const isSolid = phase === "solid";
 
   return (
     <g>
@@ -392,27 +447,32 @@ function AnimOverlayCell({
         height={size}
         rx={rx}
         fill={defaultFill}
-        className={phase === "solid" ? animClass : ""}
+        className={isSolid ? animClass : ""}
         style={{
           animationDelay: animData?.delay,
           ...({ "--highlight": "#6495ED" } as React.CSSProperties),
         }}
       />
-      {phase === "ascii" && (
-        <text
-          ref={textRef}
-          x={x + size / 2}
-          y={y + size / 2 + 1}
-          fontSize={size * 0.9}
-          // Highlighted cells are blue, others are subtle gray
-          fill={isHighlighted ? "#6495ED" : (isDark ? "#3f3f46" : "#a1a1aa")}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fontFamily="monospace"
-          fontWeight="bold"
-          pointerEvents="none"
-        />
-      )}
+      <text
+        ref={textRef}
+        x={x + size / 2}
+        y={y + size / 2 + 1}
+        fontSize={size * 0.88}
+        // Highlighted cells are signature blue, others subtle monochrome
+        fill={isHighlighted ? "#6495ED" : (isDark ? "#52525b" : "#a1a1aa")}
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fontFamily="monospace"
+        fontWeight="bold"
+        pointerEvents="none"
+        style={{
+          opacity: isSolid ? 0 : 1,
+          transform: isSolid ? "scale(0.35)" : "scale(1)",
+          transformOrigin: `${x + size / 2}px ${y + size / 2 + 1}px`,
+          transition: "opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)",
+          willChange: "opacity, transform",
+        }}
+      />
     </g>
   );
 }
