@@ -6,17 +6,6 @@ import LogoTraceLoader, { SyncAsciiText } from "@/components/ui/logo-trace-loade
 
 function AutoReveal({ trigger, onReveal }: { trigger: boolean; onReveal: () => void }) {
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" || e.key === " " || e.key === "Enter") {
-        e.preventDefault();
-        onReveal();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onReveal]);
-
-  useEffect(() => {
     if (trigger) {
       // JOSIAH is displayed for 3 seconds before morphing to SYNC.
       // SYNC takes ~1 second to ripple-reveal.
@@ -78,17 +67,7 @@ export function GlobalBootSequence({ children, skipIntro }: { children: React.Re
       introClassName="text-[#FDFDFD] dark:text-[#0a0a0a]"
       revealClassName="h-full w-full"
       continueNode={(revealCb) => (
-        <>
-          <AutoReveal trigger={logoFinished} onReveal={revealCb} />
-          <button
-            type="button"
-            onClick={revealCb}
-            className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono tracking-wider text-zinc-400 hover:text-zinc-200 transition-colors uppercase cursor-pointer border border-white/10 hover:border-white/20 bg-black/40 backdrop-blur-sm shadow-sm select-none"
-            aria-label="Skip introduction animation"
-          >
-            <span>Skip [Esc]</span>
-          </button>
-        </>
+        <AutoReveal trigger={logoFinished} onReveal={revealCb} />
       )}
     >
       {children}
