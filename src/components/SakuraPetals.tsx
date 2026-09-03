@@ -9,22 +9,22 @@ interface SakuraPetalsProps {
 }
 
 interface Petal {
-  x: number;
-  y: number;
+  baseX: number;
+  baseY: number;
   size: number;
-  color: string;
   opacity: number;
   vx: number;
   vy: number;
-  rotX: number;
-  rotY: number;
-  rotZ: number;
-  spinX: number;
-  spinY: number;
-  spinZ: number;
+  swayPhase: number;
   swaySpeed: number;
   swayAmp: number;
-  seed: number;
+  pitch: number;
+  pitchSpeed: number;
+  roll: number;
+  rollSpeed: number;
+  yaw: number;
+  yawSpeed: number;
+  spriteIndex: number;
 }
 
 const LIGHT_SAKURA_COLORS = [
@@ -43,20 +43,43 @@ const DARK_SAKURA_COLORS = [
   "rgba(199, 210, 254, 0.88)", // Celestial Blue Petal (#c7d2fe)
 ];
 
-// Pre-compiled Path2D normalized petal shape for GPU-accelerated drawing
-let cachedPetalPath: Path2D | null = null;
-function getPetalPath(): Path2D {
-  if (!cachedPetalPath && typeof Path2D !== "undefined") {
-    const p = new Path2D();
-    p.moveTo(0, 0.55);
-    p.bezierCurveTo(-0.5, 0.25, -0.45, -0.35, -0.16, -0.52);
-    p.lineTo(0, -0.38);
-    p.lineTo(0.16, -0.52);
-    p.bezierCurveTo(0.45, -0.35, 0.5, 0.25, 0, 0.55);
-    p.closePath();
-    cachedPetalPath = p;
-  }
-  return cachedPetalPath!;
+/**
+ * Pre-renders an offscreen sprite for a single petal color.
+ * Using pre-rendered GPU textures eliminates CPU Path2D tessellation on every frame.
+ */
+function createPetalSprite(color: string, size = 64): HTMLCanvasElement {
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return canvas;
+
+  ctx.save();
+  ctx.translate(size / 2, size / 2);
+  const scale = (size * 0.46) / 0.55;
+  ctx.scale(scale, scale);
+
+  ctx.beginPath();
+  ctx.moveTo(0, 0.55);
+  ctx.bezierCurveTo(-0.5, 0.25, -0.45, -0.35, -0.16, -0.52);
+  ctx.lineTo(0, -0.38);
+  ctx.lineTo(0.16, -0.52);
+  ctx.bezierCurveTo(0.45, -0.35, 0.5, 0.25, 0, 0.55);
+  ctx.closePath();
+
+  ctx.fillStyle = color;
+  ctx.fill();
+
+  // Delicate petal vein highlight
+  ctx.beginPath();
+  ctx.moveTo(0, 0.45);
+  ctx.quadraticCurveTo(0.04, 0.05, 0, -0.32);
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.28)";
+  ctx.lineWidth = 0.04;
+  ctx.stroke();
+
+  ctx.restore();
+  return canvas;
 }
 
 export function SakuraPetals({ className = "", burst = false, active = true }: SakuraPetalsProps) {
@@ -88,6 +111,7 @@ export function SakuraPetals({ className = "", burst = false, active = true }: S
     let isHidden = typeof document !== "undefined" ? document.hidden : false;
     let running = false;
     let lastTime = performance.now();
+    let smoothDt = 1 / 60;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced) return;
@@ -103,45 +127,63 @@ export function SakuraPetals({ className = "", burst = false, active = true }: S
     resize();
 
     const isDark = () => document.documentElement.classList.contains("dark");
-    const getColors = () => (isDark() ? DARK_SAKURA_COLORS : LIGHT_SAKURA_COLORS);
+    
+    // Generate offscreen sprite textures for active theme
+    let lightSprites: HTMLCanvasElement[] = [];
+    let darkSprites: HTMLCanvasElement[] = [];
+    
+    try {
+      lightSprites = LIGHT_SAKURA_COLORS.map((c) => createPetalSprite(c, 64));
+      darkSprites = DARK_SAKURA_COLORS.map((c) => createPetalSprite(c, 64));
+    } catch {
+      // Fallback
+    }
 
-    const petalPath = getPetalPath();
-    const count = 26;
+    const getSprites = () => (isDark() ? darkSprites : lightSprites);
+
+    const count = 24;
     const petals: Petal[] = [];
 
-    const createPetal = (spawnFromLeft = false): Petal => {
-      const colors = getColors();
-      const color = colors[Math.floor(Math.random() * colors.length)];
-      const size = (9 + Math.random() * 11) * dpr;
+    const initPetal = (p: Petal, fromLeft = true) => {
       const isBurst = burstRef.current;
+      p.size = (10 + Math.random() * 11) * dpr;
+      
+      if (fromLeft) {
+        p.baseX = -p.size * 2 - Math.random() * (width * 0.3);
+        p.baseY = Math.random() * height;
+      } else {
+        p.baseX = Math.random() * width;
+        p.baseY = -p.size * 2 - Math.random() * (height * 0.3);
+      }
 
-      return {
-        x: spawnFromLeft
-          ? -size * 2 - Math.random() * width * 0.25
-          : Math.random() * (width + size * 2) - size,
-        y: Math.random() * (height + size * 2) - size,
-        size,
-        color,
-        opacity: 0.7 + Math.random() * 0.3,
-        vx: (isBurst ? 3.2 + Math.random() * 4.2 : 0.75 + Math.random() * 1.5) * dpr,
-        vy: (isBurst ? 0.3 + Math.random() * 1.2 : 0.25 + Math.random() * 0.7) * dpr,
-        rotX: Math.random() * Math.PI * 2,
-        rotY: Math.random() * Math.PI * 2,
-        rotZ: Math.random() * Math.PI * 2,
-        spinX: (Math.random() - 0.5) * 0.035,
-        spinY: (Math.random() - 0.5) * 0.045,
-        spinZ: (Math.random() - 0.5) * 0.025,
-        swaySpeed: 1.4 + Math.random() * 1.8,
-        swayAmp: (10 + Math.random() * 16) * dpr,
-        seed: Math.random() * 100,
-      };
+      p.vx = (isBurst ? 2.6 + Math.random() * 2.8 : 0.85 + Math.random() * 0.95) * dpr;
+      p.vy = (isBurst ? 0.4 + Math.random() * 0.9 : 0.3 + Math.random() * 0.55) * dpr;
+      
+      p.swayPhase = Math.random() * Math.PI * 2;
+      p.swaySpeed = 1.4 + Math.random() * 1.6;
+      p.swayAmp = (8 + Math.random() * 14) * dpr;
+
+      p.pitch = Math.random() * Math.PI * 2;
+      p.pitchSpeed = (0.8 + Math.random() * 1.2) * (Math.random() < 0.5 ? 1 : -1);
+
+      p.roll = Math.random() * Math.PI * 2;
+      p.rollSpeed = (1.0 + Math.random() * 1.4) * (Math.random() < 0.5 ? 1 : -1);
+
+      p.yaw = Math.random() * Math.PI * 2;
+      p.yawSpeed = (0.4 + Math.random() * 0.8) * (Math.random() < 0.5 ? 1 : -1);
+
+      p.opacity = 0.72 + Math.random() * 0.28;
+      p.spriteIndex = Math.floor(Math.random() * 5);
     };
 
     for (let i = 0; i < count; i++) {
-      petals.push(createPetal(false));
+      const p = {} as Petal;
+      initPetal(p, false);
+      // Stagger initial distribution evenly across the canvas
+      p.baseX = Math.random() * (width + p.size * 2) - p.size;
+      p.baseY = Math.random() * (height + p.size * 2) - p.size;
+      petals.push(p);
     }
-
-    let clock = 0;
 
     const render = (now: number) => {
       if (!running || !activeRef.current || !isVisible || isHidden) {
@@ -150,59 +192,64 @@ export function SakuraPetals({ className = "", burst = false, active = true }: S
         return;
       }
 
-      const dt = Math.min((now - lastTime) / 1000, 0.05);
+      // Exponential moving average for dt to iron out timer scheduler jitter
+      const rawDt = Math.min((now - lastTime) / 1000, 0.033);
       lastTime = now;
-      clock += dt;
+      smoothDt = smoothDt * 0.82 + rawDt * 0.18;
+      const dt = smoothDt;
 
       ctx.clearRect(0, 0, width, height);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
 
+      const sprites = getSprites();
       const isBurst = burstRef.current;
-      const speedMultiplier = isBurst ? 2.5 : 1.0;
-      const timeScale = dt * 60;
+      const speedMultiplier = isBurst ? 2.2 : 1.0;
 
       for (let i = 0; i < petals.length; i++) {
         const p = petals[i];
 
-        // Motion physics with natural harmonic air current sway
-        const sway = Math.sin(clock * p.swaySpeed + p.seed) * (0.35 * dpr);
-        p.x += (p.vx * speedMultiplier + sway) * timeScale;
-        p.y += (p.vy * speedMultiplier) * timeScale;
+        // 1. Smooth steady base advancement (no velocity staggering)
+        p.baseX += p.vx * speedMultiplier * (dt * 60);
+        p.baseY += p.vy * speedMultiplier * (dt * 60);
 
-        p.rotX += p.spinX * speedMultiplier * timeScale;
-        p.rotY += p.spinY * speedMultiplier * timeScale;
-        p.rotZ += p.spinZ * speedMultiplier * timeScale;
+        // 2. Harmonic Lissajous sway offset (smooth wave curve, zero jerks)
+        p.swayPhase += p.swaySpeed * dt;
+        const swayOffsetX = Math.sin(p.swayPhase) * p.swayAmp;
+        const swayOffsetY = Math.cos(p.swayPhase * 0.75) * (p.swayAmp * 0.2);
 
-        // Respawn smoothly when drifted offscreen
-        if (p.x > width + p.size * 2 || p.y > height + p.size * 2) {
-          petals[i] = createPetal(true);
+        const renderX = p.baseX + swayOffsetX;
+        const renderY = p.baseY + swayOffsetY;
+
+        // 3. Continuous 3D rotation angles
+        p.pitch += p.pitchSpeed * dt;
+        p.roll += p.rollSpeed * dt;
+        p.yaw += p.yawSpeed * dt;
+
+        // Respawn gracefully when drifted fully beyond edges
+        if (renderX > width + p.size * 2 || renderY > height + p.size * 2) {
+          initPetal(p, true);
+          continue;
         }
 
-        // Draw with Path2D for peak GPU throughput
-        ctx.save();
-        ctx.translate(p.x, p.y);
+        // 4. Non-inverting 3D foreshortening projection
+        // By taking the absolute cosine with a minimum base thickness,
+        // we prevent negative scale flips and 0-width singularities that cause jitter!
+        const scaleX = Math.abs(Math.cos(p.pitch)) * 0.75 + 0.25;
+        const scaleY = Math.abs(Math.cos(p.roll)) * 0.75 + 0.25;
+        const halfSize = (p.size * 0.5);
 
-        const cosX = Math.cos(p.rotX);
-        const cosY = Math.cos(p.rotY);
-        ctx.rotate(p.rotZ);
-        ctx.scale(cosY * p.size, cosX * p.size);
-        ctx.globalAlpha = p.opacity;
-
-        ctx.fillStyle = p.color;
-        if (petalPath) {
-          ctx.fill(petalPath);
-        } else {
-          // Fallback if Path2D is unavailable
-          ctx.beginPath();
-          ctx.moveTo(0, 0.55);
-          ctx.bezierCurveTo(-0.5, 0.25, -0.45, -0.35, -0.16, -0.52);
-          ctx.lineTo(0, -0.38);
-          ctx.lineTo(0.16, -0.52);
-          ctx.bezierCurveTo(0.45, -0.35, 0.5, 0.25, 0, 0.55);
-          ctx.closePath();
-          ctx.fill();
+        // 5. Blazing-fast GPU drawImage
+        const sprite = sprites[p.spriteIndex % sprites.length] || sprites[0];
+        if (sprite) {
+          ctx.save();
+          ctx.translate(renderX, renderY);
+          ctx.rotate(p.yaw);
+          ctx.scale(scaleX, scaleY);
+          ctx.globalAlpha = p.opacity;
+          ctx.drawImage(sprite, -halfSize, -halfSize, p.size, p.size);
+          ctx.restore();
         }
-
-        ctx.restore();
       }
 
       rafId = requestAnimationFrame(render);
@@ -221,6 +268,7 @@ export function SakuraPetals({ className = "", burst = false, active = true }: S
       if (running || !activeRef.current || !isVisible || isHidden) return;
       running = true;
       lastTime = performance.now();
+      smoothDt = 1 / 60;
       rafId = requestAnimationFrame(render);
     };
 
