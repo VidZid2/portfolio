@@ -79,7 +79,16 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
 
 
             <div
-              className="group/item flex flex-row items-center justify-between gap-2 sm:gap-4 py-3.5 px-4 -mx-4 hover:bg-zinc-50 dark:hover:bg-zinc-900/20 transition-colors cursor-pointer active:cursor-grabbing select-none relative z-20 rounded-lg sm:py-4 overflow-hidden"
+              role="button"
+              tabIndex={0}
+              aria-expanded={isOpen}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setOpenIdx(isOpen ? null : idx);
+                }
+              }}
+              className="group/item flex flex-row items-center justify-between gap-2 sm:gap-4 py-3.5 px-4 -mx-4 hover:bg-zinc-50 dark:hover:bg-zinc-900/20 transition-colors cursor-pointer active:cursor-grabbing select-none relative z-20 rounded-lg sm:py-4 overflow-hidden focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500/50"
               onClick={() => setOpenIdx(isOpen ? null : idx)}
             >
               {item.title === "STI eLMS 2.0" && (hoveredIdx === idx || isOpen) && (

@@ -113,30 +113,33 @@ const ScrambleText = forwardRef<ScrambleTextRef, ScrambleTextProps>(({
   return (
     <Tag
       className={cn("relative cursor-default w-fit", className)}
+      aria-label={text}
       onMouseEnter={(e: React.MouseEvent<HTMLElement>) => {
         const rect = e.currentTarget.getBoundingClientRect();
         play(e.clientX - rect.left < rect.width / 2);
       }}
     >
-      {cells.map((cell, i) => (
-        <motion.span
-          key={i}
-          animate={{
-            y: cell.locked ? 0 : 4,
-            scaleY: cell.locked ? 1 : 0.85,
-            opacity: cell.locked ? 1 : 0.35,
-          }}
-          transition={{
-            y: { type: "spring", stiffness: 500, damping: 20 },
-            scaleY: { type: "spring", stiffness: 600, damping: 24 },
-            opacity: { type: "spring", stiffness: 400, damping: 28 },
-          }}
-          className="inline-block"
-          style={{ transformOrigin: "center bottom" }}
-        >
-          {cell.char === " " ? "\u00A0" : cell.char}
-        </motion.span>
-      ))}
+      <span aria-hidden="true" className="contents">
+        {cells.map((cell, i) => (
+          <motion.span
+            key={i}
+            animate={{
+              y: cell.locked ? 0 : 4,
+              scaleY: cell.locked ? 1 : 0.85,
+              opacity: cell.locked ? 1 : 0.35,
+            }}
+            transition={{
+              y: { type: "spring", stiffness: 500, damping: 20 },
+              scaleY: { type: "spring", stiffness: 600, damping: 24 },
+              opacity: { type: "spring", stiffness: 400, damping: 28 },
+            }}
+            className="inline-block"
+            style={{ transformOrigin: "center bottom" }}
+          >
+            {cell.char === " " ? "\u00A0" : cell.char}
+          </motion.span>
+        ))}
+      </span>
     </Tag>
   );
 });
