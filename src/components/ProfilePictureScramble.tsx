@@ -69,9 +69,8 @@ export function ProfilePictureScramble() {
     };
   }, [phase, stopScramblingDelayed]);
 
-  // Determine if scramble overlay is visible
-  // It is visible before initial resolve, OR whenever user hovers over the avatar!
-  const showScramble = !initialResolved || isHovered;
+  // The ASCII overlay only shows during the initial boot/reveal sequence
+  const showScramble = !initialResolved;
 
   // Manage scrambling lifecycle based on visibility
   useEffect(() => {
@@ -97,8 +96,7 @@ export function ProfilePictureScramble() {
             : undefined,
         transition: "transform 0.1s ease-out",
       }}
-      className="relative p-[2.5px] sm:p-[3px] rounded-full border-[1.5px] border-black/30 dark:border-white/[0.2] shrink-0 group select-none cursor-pointer"
-      title="Hover to scramble avatar"
+      className="relative p-[2.5px] sm:p-[3px] rounded-full border-[1.5px] border-black/30 dark:border-white/[0.2] shrink-0 group select-none cursor-default"
     >
       {/* The inner image container */}
       <div className="relative w-16 h-16 min-[360px]:w-20 min-[360px]:h-20 sm:w-[92px] sm:h-[92px] rounded-full overflow-hidden bg-zinc-950 flex items-center justify-center">
