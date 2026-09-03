@@ -26,7 +26,7 @@ export function TimescaleRoot({
   className,
   orientation = "horizontal",
   showLeftFade = false,
-  showRightFade = false,
+  showRightFade = true,
   children,
   ...props
 }: TimescaleRootProps) {
@@ -56,11 +56,13 @@ export function TimescaleRoot({
             )}
           />
         )}
-        {/* Right Fade Gradient */}
+        {/* Right Fade Gradient & Dissolve Curtain */}
         {showRightFade && (
           <div
             className={cn(
-              "pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 z-20 bg-gradient-to-l from-white dark:from-black via-white/80 dark:via-black/80 to-transparent transition-opacity duration-300",
+              "pointer-events-none absolute right-0 top-0 bottom-0 z-20 transition-opacity duration-300",
+              "w-28 sm:w-44 md:w-60 lg:w-72",
+              "bg-gradient-to-l from-white via-white/95 via-white/40 to-transparent dark:from-black dark:via-black/95 dark:via-black/40 dark:to-transparent",
               canScrollRight ? "opacity-100" : "opacity-0"
             )}
           />
@@ -78,7 +80,7 @@ export function TimescaleViewport({
   children,
   ...props
 }: TimescaleViewportProps) {
-  const { setCanScrollLeft, setCanScrollRight } = React.useContext(TimescaleContext);
+  const { setCanScrollLeft, setCanScrollRight, canScrollRight } = React.useContext(TimescaleContext);
   const viewportRef = useRef<HTMLDivElement>(null);
   const isDown = useRef(false);
   const startX = useRef(0);
@@ -233,6 +235,15 @@ export function TimescaleViewport({
         "group-data-[orientation=horizontal]/timescale:flex group-data-[orientation=horizontal]/timescale:flex-1 group-data-[orientation=horizontal]/timescale:pl-20 sm:group-data-[orientation=horizontal]/timescale:pl-24 group-data-[orientation=horizontal]/timescale:pr-12 sm:group-data-[orientation=horizontal]/timescale:pr-16",
         className
       )}
+      style={{
+        maskImage: canScrollRight
+          ? "linear-gradient(to right, black 0%, black calc(100% - 160px), transparent 100%)"
+          : "linear-gradient(to right, black 0%, black 100%)",
+        WebkitMaskImage: canScrollRight
+          ? "linear-gradient(to right, black 0%, black calc(100% - 160px), transparent 100%)"
+          : "linear-gradient(to right, black 0%, black 100%)",
+        transition: "mask-image 0.3s ease, -webkit-mask-image 0.3s ease",
+      }}
       {...props}
     >
       {children}
