@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import Image from "next/image";
 import { BondTypeCard } from "@/components/bond-type/BondTypeCard";
 import { SakuraPetals } from "@/components/SakuraPetals";
 import { CurrentTime } from "@/components/CurrentTime";
@@ -62,15 +63,21 @@ export function TopBanner() {
           view === "shrine" ? "opacity-100" : "opacity-0"
         }`}
       >
-        <img
+        <Image
           src="/light-mode.png"
           alt="Torii Shrine Light Mode"
-          className="w-full h-full object-cover object-center dark:hidden pointer-events-none"
+          fill
+          priority
+          unoptimized
+          className="object-cover object-center dark:hidden pointer-events-none"
         />
-        <img
+        <Image
           src="/dark-mode.png"
           alt="Torii Shrine Dark Mode"
-          className="w-full h-full object-cover object-center hidden dark:block pointer-events-none"
+          fill
+          priority
+          unoptimized
+          className="hidden object-cover object-center dark:block pointer-events-none"
         />
       </div>
 

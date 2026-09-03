@@ -46,7 +46,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Josiah De Asis",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://josiahdeasis.com"
+  ),
+  title: {
+    default: "Josiah De Asis",
+    template: "%s | Josiah De Asis",
+  },
   description:
     "Full-Stack Front-End Engineer & UI Systems Architect. I design and build enterprise-scale web applications with obsessive attention to micro-interaction, gamification, and pixel-perfect design.",
   icons: {
@@ -61,6 +67,12 @@ export const metadata: Metadata = {
     description:
       "Full-Stack Front-End Engineer & UI Systems Architect.",
     type: "website",
+    siteName: "Josiah De Asis Portfolio",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Josiah De Asis",
+    description: "Full-Stack Front-End Engineer & UI Systems Architect.",
   },
 };
 

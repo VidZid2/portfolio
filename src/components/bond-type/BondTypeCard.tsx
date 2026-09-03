@@ -6,29 +6,28 @@ import { onTransitionChange } from "@/lib/view-transition";
 import { FONT_VAR, FONT_WEIGHT } from "./params";
 
 export function BondTypeCard({
-  bare = false,
+  _bare = false,
   viewTransitionName,
   className = "",
   onCycleComplete,
   active = true,
 }: {
-  bare?: boolean;
+  _bare?: boolean;
   viewTransitionName?: string;
   className?: string;
   onCycleComplete?: () => void;
   active?: boolean;
 } = {}) {
-  void bare;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cycleCbRef = useRef(onCycleComplete);
-  cycleCbRef.current = onCycleComplete;
   const activeRef = useRef(active);
-  activeRef.current = active;
   const syncRef = useRef<() => void>(() => {});
 
   useEffect(() => {
+    cycleCbRef.current = onCycleComplete;
+    activeRef.current = active;
     syncRef.current();
-  }, [active]);
+  }, [onCycleComplete, active]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

@@ -3,7 +3,6 @@
 import { BlueprintGrid } from "@/components/BlueprintGrid";
 import { SubpageHeader } from "@/components/SubpageHeader";
 import { GoalMilestoneList } from "@/components/GoalMilestoneList";
-import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 
 export default function AllMilestonesPage() {
   return (

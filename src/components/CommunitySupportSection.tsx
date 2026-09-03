@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { ArrowUpRightIcon, Mail, Check, Copy, ExternalLink, Gift } from "lucide-react";
 import { toast } from "sonner";
 
-import Image from "next/image";
 import { PaypalIcon, KofiIcon } from "@/components/icons/support-icons";
 import { useTransition } from "@/components/TransitionProvider";
 import ScrambleText from "@/components/ruixen/scramble-text";

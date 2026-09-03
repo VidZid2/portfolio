@@ -167,11 +167,10 @@ export function computeChanges(records: Record<string, DailyMetricRecord>) {
     }
   }
 
-  // 3. Fallback to realistic growth stats if cold-start
   return {
-    uniqueVisitors: uniqueVisitors ?? 6.2,
-    totalSessions: totalSessions ?? 7.9,
-    totalScreenViews: totalScreenViews ?? 24.2,
-    avgSessionDuration: avgSessionDuration ?? 0.6,
+    uniqueVisitors,
+    totalSessions,
+    totalScreenViews,
+    avgSessionDuration,
   };
 }

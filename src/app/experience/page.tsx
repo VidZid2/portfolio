@@ -32,7 +32,6 @@ export default function AllExperiencePage() {
           <div className="flex flex-col relative z-10 w-full">
             {experiences.map((item, idx) => {
               const isOpen = openIdx === idx;
-              const isLast = idx === experiences.length - 1;
 
               return (
                 <div key={idx} className="group relative">

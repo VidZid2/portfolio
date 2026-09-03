@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useTransition } from "@/components/TransitionProvider";
 import { motion, AnimatePresence } from "framer-motion";
@@ -38,7 +37,6 @@ export const ProjectCard = ({
 }) => {
   const [hoveredTech, setHoveredTech] = useState<string | null>(null);
   const [shouldLoadHoverImage, setShouldLoadHoverImage] = useState(false);
-  const { resolvedTheme } = useTheme();
   const { navigate } = useTransition();
   const [isMobile, setIsMobile] = useState(false);
 

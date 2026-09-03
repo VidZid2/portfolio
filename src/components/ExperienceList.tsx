@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef, useSyncExternalStore } from "react"
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
-import { useTheme } from "next-themes";
 import { FlickeringGrid } from "@/components/ui/flickering-grid";
 
 import { experiences } from "@/data/experienceData";
@@ -21,7 +20,6 @@ export function ExperienceList({ activeTab, carouselApi }: { activeTab?: string;
     () => true,
     () => false
   );
-  const { resolvedTheme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

@@ -6,7 +6,6 @@ import { MotionContainer } from "@/components/motion-container";
 import { DrawUnderlineLink } from "@/components/sora-ui/texts/draw-underline-link";
 import { playHoverTick, playSoftClick } from "@/lib/synth-sounds";
 import { cn } from "@/lib/utils";
-import { useSectionReveal } from "@/hooks/use-section-reveal";
 import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 import { CornerMark } from "@/components/ui/corner-mark";
 

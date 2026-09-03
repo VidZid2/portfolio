@@ -121,13 +121,6 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
     setTimeout(() => setXErrorGrid(false), 500);
   };
 
-  const dashedMask = {
-    maskImage:
-      DOT_MASK_HORIZONTAL.maskImage,
-    WebkitMaskImage:
-      DOT_MASK_HORIZONTAL.WebkitMaskImage,
-  };
-
   const dashedVerticalMask = {
     maskImage:
       DOT_MASK_VERTICAL.maskImage,

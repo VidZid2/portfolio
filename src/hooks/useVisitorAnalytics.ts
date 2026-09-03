@@ -68,17 +68,21 @@ export function useVisitorAnalytics() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    let isMounted = true;
+
     // Read cache immediately upon client mount (post-hydration) for instant zero-delay render
     const cached = getCachedInsights();
     if (cached) {
-      setInsights(cached);
-      setIsLoading(false);
+      queueMicrotask(() => {
+        if (isMounted) {
+          setInsights(cached);
+          setIsLoading(false);
+        }
+      });
     }
 
     const visitorId = getOrCreateId(localStorage, "portfolio_visitor_id", "v");
     const sessionId = getOrCreateId(sessionStorage, "portfolio_session_id", "s");
-
-    let isMounted = true;
 
     async function recordAndFetch() {
       try {

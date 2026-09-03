@@ -61,7 +61,10 @@ function getPetalPath(): Path2D {
 export function SakuraPetals({ className = "", burst = false }: SakuraPetalsProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const burstRef = useRef(burst);
-  burstRef.current = burst;
+
+  useEffect(() => {
+    burstRef.current = burst;
+  }, [burst]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

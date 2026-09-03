@@ -36,10 +36,11 @@ import dynamic from "next/dynamic"
 import { Swirling } from "@/components/loading-ui/swirling"
 
 function AiLoadingFallback() {
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   if (!mounted || typeof document === "undefined") return null;
 
