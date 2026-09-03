@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import NumberFlow from "@number-flow/react";
 import { cn } from "@/lib/utils";
@@ -47,13 +50,25 @@ export type MetricChangeProps = {
  */
 export function MetricChange({ value, fallbackValue }: MetricChangeProps) {
   const targetVal = value ?? fallbackValue;
-  if (targetVal === null || targetVal === undefined) {
+  const [animatedVal, setAnimatedVal] = useState<number>(0);
+
+  const percent = targetVal !== null && targetVal !== undefined ? Math.round(targetVal * 10) / 10 : null;
+  const isPositive = percent !== null && percent > 0;
+  const isNegative = percent !== null && percent < 0;
+
+  useEffect(() => {
+    if (percent === null) return;
+    // Animate from 0 to target percentage to play the signature NumberFlow tick roll
+    const timer = setTimeout(() => {
+      setAnimatedVal(Math.abs(percent) / 100);
+    }, 60);
+
+    return () => clearTimeout(timer);
+  }, [percent]);
+
+  if (targetVal === null || targetVal === undefined || percent === null) {
     return null;
   }
-
-  const percent = Math.round(targetVal * 10) / 10;
-  const isPositive = percent > 0;
-  const isNegative = percent < 0;
 
   return (
     <span
@@ -68,11 +83,19 @@ export function MetricChange({ value, fallbackValue }: MetricChangeProps) {
       {isPositive && <ArrowUpRight className="size-3.5 stroke-[2.2]" aria-hidden="true" />}
       {isNegative && <ArrowDownRight className="size-3.5 stroke-[2.2]" aria-hidden="true" />}
       <NumberFlow
-        value={Math.abs(percent) / 100}
+        value={animatedVal}
         format={{
           style: "percent",
           minimumFractionDigits: 1,
           maximumFractionDigits: 1,
+        }}
+        spinTiming={{
+          duration: 700,
+          easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+        }}
+        transformTiming={{
+          duration: 700,
+          easing: "cubic-bezier(0.16, 1, 0.3, 1)",
         }}
       />
       <span className="sr-only">
