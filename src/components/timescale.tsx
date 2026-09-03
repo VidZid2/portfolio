@@ -18,11 +18,15 @@ const TimescaleContext = React.createContext<{
 
 export type TimescaleRootProps = React.ComponentProps<"div"> & {
   orientation?: "horizontal" | "vertical";
+  showLeftFade?: boolean;
+  showRightFade?: boolean;
 };
 
 export function TimescaleRoot({
   className,
   orientation = "horizontal",
+  showLeftFade = false,
+  showRightFade = false,
   children,
   ...props
 }: TimescaleRootProps) {
@@ -43,20 +47,24 @@ export function TimescaleRoot({
         )}
         {...props}
       >
-        {/* Left Fade Gradient - Pure white in light mode, pitch black in dark mode matching site background */}
-        <div
-          className={cn(
-            "pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 z-20 bg-gradient-to-r from-white dark:from-black via-white/80 dark:via-black/80 to-transparent transition-opacity duration-300",
-            canScrollLeft ? "opacity-100" : "opacity-0"
-          )}
-        />
-        {/* Right Fade Gradient - Pure white in light mode, pitch black in dark mode matching site background */}
-        <div
-          className={cn(
-            "pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 z-20 bg-gradient-to-l from-white dark:from-black via-white/80 dark:via-black/80 to-transparent transition-opacity duration-300",
-            canScrollRight ? "opacity-100" : "opacity-0"
-          )}
-        />
+        {/* Left Fade Gradient - removed so left-to-right text is never obscured */}
+        {showLeftFade && (
+          <div
+            className={cn(
+              "pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 z-20 bg-gradient-to-r from-white dark:from-black via-white/80 dark:via-black/80 to-transparent transition-opacity duration-300",
+              canScrollLeft ? "opacity-100" : "opacity-0"
+            )}
+          />
+        )}
+        {/* Right Fade Gradient */}
+        {showRightFade && (
+          <div
+            className={cn(
+              "pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 z-20 bg-gradient-to-l from-white dark:from-black via-white/80 dark:via-black/80 to-transparent transition-opacity duration-300",
+              canScrollRight ? "opacity-100" : "opacity-0"
+            )}
+          />
+        )}
         {children}
       </div>
     </TimescaleContext.Provider>
