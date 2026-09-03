@@ -97,8 +97,8 @@ export function ColophonSection() {
           style={dashedMaskHorizontal}
         />
         {/* Left & Right Corner Intersection Node Dots */}
-        <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 left-0 bottom-0 -translate-x-1/2 translate-y-1/2" />
-        <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 right-0 bottom-0 translate-x-1/2 translate-y-1/2" />
+        <div className="absolute h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 left-0 bottom-0 -translate-x-1/2 translate-y-1/2" />
+        <div className="absolute h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 right-0 bottom-0 translate-x-1/2 translate-y-1/2" />
       </div>
 
       {/* Row 2: 4-Column Metadata Grid (Top Half) */}
@@ -229,8 +229,8 @@ export function ColophonSection() {
           style={dashedMaskHorizontal}
         />
         {/* Left & Right Corner Intersection Node Dots */}
-        <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 left-0 bottom-0 -translate-x-1/2 translate-y-1/2" />
-        <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 right-0 bottom-0 translate-x-1/2 translate-y-1/2" />
+        <div className="absolute h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 left-0 bottom-0 -translate-x-1/2 translate-y-1/2" />
+        <div className="absolute h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 right-0 bottom-0 translate-x-1/2 translate-y-1/2" />
       </div>
 
       {/* Row 3: 4-Column Metadata Grid (Bottom Half) */}
@@ -300,8 +300,8 @@ export function ColophonSection() {
           style={dashedMaskHorizontal}
         />
         {/* Left & Right Corner Intersection Node Dots */}
-        <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 left-0 bottom-0 -translate-x-1/2 translate-y-1/2" />
-        <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 right-0 bottom-0 translate-x-1/2 translate-y-1/2" />
+        <div className="absolute h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 left-0 bottom-0 -translate-x-1/2 translate-y-1/2" />
+        <div className="absolute h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 right-0 bottom-0 translate-x-1/2 translate-y-1/2" />
       </div>
 
       {/* Row 4: Analytics & Stack (2-Column Grid) */}
@@ -341,8 +341,8 @@ export function ColophonSection() {
           style={dashedMaskHorizontal}
         />
         {/* Left & Right Corner Intersection Node Dots */}
-        <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 left-0 bottom-0 -translate-x-1/2 translate-y-1/2" />
-        <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 right-0 bottom-0 translate-x-1/2 translate-y-1/2" />
+        <div className="absolute h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 left-0 bottom-0 -translate-x-1/2 translate-y-1/2" />
+        <div className="absolute h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 right-0 bottom-0 translate-x-1/2 translate-y-1/2" />
       </div>
 
       {/* Row 5: Inspired By */}
@@ -374,8 +374,8 @@ export function ColophonSection() {
           style={dashedMaskHorizontal}
         />
         {/* Left & Right Corner Intersection Node Dots */}
-        <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 left-0 bottom-0 -translate-x-1/2 translate-y-1/2" />
-        <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 right-0 bottom-0 translate-x-1/2 translate-y-1/2" />
+        <div className="absolute h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 left-0 bottom-0 -translate-x-1/2 translate-y-1/2" />
+        <div className="absolute h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 right-0 bottom-0 translate-x-1/2 translate-y-1/2" />
       </div>
 
       {/* Row 6: Bottom Copyright & Socials */}

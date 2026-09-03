@@ -437,8 +437,8 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
                 style={DOT_MASK_HORIZONTAL}
               />
               {/* Corner Intersection Node Dots on vertical guides */}
-              <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-20 left-[-16px] bottom-0 -translate-x-1/2 translate-y-1/2" />
-              <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-20 right-[-16px] bottom-0 translate-x-1/2 translate-y-1/2" />
+              <div className="absolute h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-20 -left-3 sm:-left-4 bottom-0 -translate-x-1/2 translate-y-1/2" />
+              <div className="absolute h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-20 -right-3 sm:-right-4 translate-x-1/2 translate-y-1/2" />
 
               <div
                 className={cn(

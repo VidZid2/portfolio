@@ -16,6 +16,7 @@ import { playHoverTick, playSoftClick, playToastError } from "@/lib/synth-sounds
 import { LetsConnect } from "@/components/LetsConnect";
 import { TransitionLink } from "@/components/TransitionLink";
 import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
+import { CornerMark } from "@/components/ui/corner-mark";
 
 const SOCIAL_LINKS = [
   {
@@ -137,18 +138,24 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
           className="md:hidden absolute top-1/3 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
           style={DOT_MASK_HORIZONTAL}
         />
+        <CornerMark position="top-left" flush className="md:hidden top-1/3" />
+        <CornerMark position="top-right" flush className="md:hidden top-1/3" />
 
         {/* Mobile Middle Horizontal Divider 2 (between row 2 and row 3) */}
         <div
           className="md:hidden absolute top-2/3 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
           style={DOT_MASK_HORIZONTAL}
         />
+        <CornerMark position="top-left" flush className="md:hidden top-2/3" />
+        <CornerMark position="top-right" flush className="md:hidden top-2/3" />
 
         {/* Desktop Middle Horizontal Divider (between row 1 and row 2) */}
         <div
           className="hidden md:block absolute top-1/2 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
           style={DOT_MASK_HORIZONTAL}
         />
+        <CornerMark position="top-left" flush className="hidden md:block top-1/2" />
+        <CornerMark position="top-right" flush className="hidden md:block top-1/2" />
 
         {/* Cell 1: Status */}
         <div
@@ -369,6 +376,8 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
           className="absolute top-0 left-0 right-0 h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
           style={DOT_MASK_HORIZONTAL}
         />
+        <CornerMark position="top-left" flush />
+        <CornerMark position="top-right" flush />
       </div>
 
       {/* Let's Connect Section (Between Info Grid and Socials) */}
@@ -382,6 +391,8 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
           className="absolute top-0 left-0 right-0 h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
           style={DOT_MASK_HORIZONTAL}
         />
+        <CornerMark position="top-left" flush />
+        <CornerMark position="top-right" flush />
       </div>
 
       {/* Socials Row (5-Column Mathematical Blueprint Grid) */}
@@ -481,6 +492,8 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
           className="absolute top-0 left-0 right-0 h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none"
           style={DOT_MASK_HORIZONTAL}
         />
+        <CornerMark position="top-left" flush />
+        <CornerMark position="top-right" flush />
       </div>
     </div>
   );

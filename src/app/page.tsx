@@ -54,10 +54,10 @@ function BlueprintSpacer() {
       <div className="absolute inset-0 border border-black/15 dark:border-white/10 pointer-events-none z-10" />
 
       {/* Corner dots at all 4 corners */}
-      <div className="absolute top-0 left-0 h-[2px] w-[2px] bg-black/40 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20 hidden sm:block" />
-      <div className="absolute top-0 right-0 h-[2px] w-[2px] bg-black/40 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20 hidden sm:block" />
-      <div className="absolute bottom-0 left-0 h-[2px] w-[2px] bg-black/40 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20 hidden sm:block" />
-      <div className="absolute bottom-0 right-0 h-[2px] w-[2px] bg-black/40 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20 hidden sm:block" />
+      <div className="absolute top-0 left-0 h-[2px] w-[2px] bg-black/40 dark:bg-white/[0.25] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+      <div className="absolute top-0 right-0 h-[2px] w-[2px] bg-black/40 dark:bg-white/[0.25] translate-x-1/2 -translate-y-1/2 pointer-events-none z-20" />
+      <div className="absolute bottom-0 left-0 h-[2px] w-[2px] bg-black/40 dark:bg-white/[0.25] -translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
+      <div className="absolute bottom-0 right-0 h-[2px] w-[2px] bg-black/40 dark:bg-white/[0.25] translate-x-1/2 translate-y-1/2 pointer-events-none z-20" />
     </div>
   );
 }
@@ -94,7 +94,7 @@ export default function Home() {
 
               {/* Vertical dotted divider */}
               <div
-                className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none hidden sm:block"
+                className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
                 style={DOT_MASK_VERTICAL}
               />
             </div>
@@ -111,7 +111,7 @@ export default function Home() {
                 </div>
                 {/* Horizontal dotted divider */}
                 <div
-                  className="absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none hidden sm:block"
+                  className="absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
                   style={DOT_MASK_HORIZONTAL}
                 />
               </div>
@@ -128,9 +128,15 @@ export default function Home() {
                     onClick={() => {
                       playSoftClick(0.04);
                       if (typeof window !== "undefined" && "speechSynthesis" in window) {
-                        const utterance = new SpeechSynthesisUtterance("Josiah De Asis");
-                        utterance.rate = 0.9;
-                        window.speechSynthesis.speak(utterance);
+                        try {
+                          window.speechSynthesis.cancel();
+                          const utterance = new SpeechSynthesisUtterance("Josiah De Asis");
+                          utterance.rate = 0.9;
+                          utterance.pitch = 1.0;
+                          window.speechSynthesis.speak(utterance);
+                        } catch {
+                          // Ignore
+                        }
                       }
                     }}
                     className="p-0.5 rounded text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors inline-flex items-center justify-center"
@@ -141,7 +147,7 @@ export default function Home() {
                 </div>
                 {/* Horizontal dotted divider */}
                 <div
-                  className="absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none hidden sm:block"
+                  className="absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
                   style={DOT_MASK_HORIZONTAL}
                 />
               </div>
@@ -225,8 +231,8 @@ export default function Home() {
             {/* Fading Grid Filler */}
             <div className="flex-grow w-[calc(100%+24px)] -mx-3 sm:w-[calc(100%+32px)] sm:-mx-4 h-[400px] relative mt-0 overflow-hidden">
               {/* Corner dots */}
-              <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-20 left-0 top-0 -translate-x-1/2 -translate-y-1/2" />
-              <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-20 right-0 top-0 translate-x-1/2 -translate-y-1/2" />
+              <div className="absolute h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-20 left-0 top-0 -translate-x-1/2 -translate-y-1/2" />
+              <div className="absolute h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-20 right-0 top-0 translate-x-1/2 -translate-y-1/2" />
 
               {/* Quote Footer */}
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0 select-none px-6 text-center">

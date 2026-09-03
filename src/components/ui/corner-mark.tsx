@@ -15,7 +15,7 @@ export const CornerMark = ({
   return (
     <div
       className={cn(
-        "absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-20",
+        "absolute h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-20",
         isTop ? "top-0 -translate-y-1/2" : "bottom-0 translate-y-1/2",
         flush
           ? isLeft

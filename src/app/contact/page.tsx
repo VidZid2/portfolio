@@ -192,8 +192,8 @@ export default function ContactPage() {
               style={DOT_MASK_HORIZONTAL}
             />
             {/* Left & Right Corner Intersection Node Dots */}
-            <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 left-0 top-0 -translate-x-1/2 -translate-y-1/2" />
-            <div className="absolute hidden sm:block h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 right-0 top-0 translate-x-1/2 -translate-y-1/2" />
+            <div className="absolute h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 left-0 top-0 -translate-x-1/2 -translate-y-1/2" />
+            <div className="absolute h-[2px] w-[2px] bg-black/50 dark:bg-white/[0.3] pointer-events-none z-30 right-0 top-0 translate-x-1/2 -translate-y-1/2" />
           </div>
 
           {/* Footer - Socials + Displacement Text */}
