@@ -391,7 +391,7 @@ export function CommunitySupportSection({
           snapPoints={["auto"]}
           title="Support & Send a Tip"
           description="Thank you for believing in my work. Your kindness and support directly empower me to keep building, experimenting, and sharing open-source tools with the community."
-          className="max-w-lg border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0a0a0a]"
+          className="max-w-lg border-0 border-none bg-white dark:bg-[#0a0a0a]"
         >
           <div className="px-4 pb-6">
             {renderSupportContent()}
@@ -401,7 +401,7 @@ export function CommunitySupportSection({
         <CenterMorphModal open={modalOpen} onOpenChange={setModalOpen}>
           <CenterMorphModalContent
             ariaLabel="Support & Send a Tip"
-            className="max-w-lg p-6 bg-white dark:bg-zinc-950 border border-zinc-200/80 dark:border-zinc-800/80 rounded-[28px] shadow-2xl z-[9999] max-h-[90vh] overflow-y-auto"
+            className="max-w-lg p-6 bg-white dark:bg-zinc-950 border-0 border-none outline-none ring-0 rounded-[28px] shadow-2xl z-[9999] max-h-[90vh] overflow-y-auto"
           >
             <div className="space-y-1.5 text-left pr-8 mb-4">
               <div className="flex items-center gap-2">
