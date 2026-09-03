@@ -9,11 +9,19 @@ const TimescaleContext = React.createContext<{
   canScrollRight: boolean;
   setCanScrollLeft: (v: boolean) => void;
   setCanScrollRight: (v: boolean) => void;
+  dragOffsetY: number;
+  setDragOffsetY: (v: number) => void;
+  isDragging: boolean;
+  setIsDragging: (v: boolean) => void;
 }>({
   canScrollLeft: false,
   canScrollRight: true,
   setCanScrollLeft: () => {},
   setCanScrollRight: () => {},
+  dragOffsetY: 0,
+  setDragOffsetY: () => {},
+  isDragging: false,
+  setIsDragging: () => {},
 });
 
 export type TimescaleRootProps = React.ComponentProps<"div"> & {
@@ -32,10 +40,21 @@ export function TimescaleRoot({
 }: TimescaleRootProps) {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [dragOffsetY, setDragOffsetY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
   return (
     <TimescaleContext.Provider
-      value={{ canScrollLeft, canScrollRight, setCanScrollLeft, setCanScrollRight }}
+      value={{
+        canScrollLeft,
+        canScrollRight,
+        setCanScrollLeft,
+        setCanScrollRight,
+        dragOffsetY,
+        setDragOffsetY,
+        isDragging,
+        setIsDragging,
+      }}
     >
       <div
         data-slot="timescale-root"
@@ -80,7 +99,7 @@ export function TimescaleViewport({
   children,
   ...props
 }: TimescaleViewportProps) {
-  const { setCanScrollLeft, setCanScrollRight, canScrollRight } = React.useContext(TimescaleContext);
+  const { setCanScrollLeft, setCanScrollRight, canScrollRight, setDragOffsetY, setIsDragging } = React.useContext(TimescaleContext);
   const viewportRef = useRef<HTMLDivElement>(null);
   const isDown = useRef(false);
   const startX = useRef(0);
@@ -127,6 +146,7 @@ export function TimescaleViewport({
     } catch {}
 
     setIsDraggingState(true);
+    setIsDragging(true);
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -147,6 +167,14 @@ export function TimescaleViewport({
       hasMoved.current = true;
     }
 
+    // Morph adaptive downward animation when dragging right to clear text headers
+    if (deltaX > 0) {
+      const adaptiveMorph = Math.min(14, Math.max(0, deltaX * 0.08));
+      setDragOffsetY(adaptiveMorph);
+    } else {
+      setDragOffsetY(0);
+    }
+
     exactScroll.current = startScrollLeft.current - deltaX;
     viewportRef.current.scrollLeft = exactScroll.current;
     updateScrollBounds();
@@ -156,6 +184,8 @@ export function TimescaleViewport({
     if (!isDown.current || !viewportRef.current) return;
     isDown.current = false;
     setIsDraggingState(false);
+    setIsDragging(false);
+    setDragOffsetY(0);
 
     try {
       if (e.currentTarget.hasPointerCapture(e.pointerId)) {
@@ -259,8 +289,9 @@ export function TimescaleHeader({ className, ...props }: TimescaleHeaderProps) {
       data-slot="timescale-header"
       aria-hidden="true"
       className={cn(
-        "z-10 select-none",
-        "group-data-[orientation=horizontal]/timescale:absolute group-data-[orientation=horizontal]/timescale:top-0 group-data-[orientation=horizontal]/timescale:left-0 group-data-[orientation=horizontal]/timescale:w-16 group-data-[orientation=horizontal]/timescale:shrink-0 group-data-[orientation=horizontal]/timescale:pr-2 group-data-[orientation=horizontal]/timescale:text-right group-data-[orientation=horizontal]/timescale:bg-transparent",
+        "z-20 select-none pointer-events-none",
+        "group-data-[orientation=horizontal]/timescale:absolute group-data-[orientation=horizontal]/timescale:top-0 group-data-[orientation=horizontal]/timescale:left-0 group-data-[orientation=horizontal]/timescale:w-16 sm:group-data-[orientation=horizontal]/timescale:w-20 group-data-[orientation=horizontal]/timescale:shrink-0 group-data-[orientation=horizontal]/timescale:pr-2 group-data-[orientation=horizontal]/timescale:text-right",
+        "group-data-[orientation=horizontal]/timescale:bg-gradient-to-r group-data-[orientation=horizontal]/timescale:from-white group-data-[orientation=horizontal]/timescale:via-white/95 group-data-[orientation=horizontal]/timescale:to-transparent dark:group-data-[orientation=horizontal]/timescale:from-black dark:group-data-[orientation=horizontal]/timescale:via-black/95 dark:group-data-[orientation=horizontal]/timescale:to-transparent group-data-[orientation=horizontal]/timescale:h-[var(--timescale-rail)]",
         "group-data-[orientation=vertical]/timescale:grid group-data-[orientation=vertical]/timescale:w-full group-data-[orientation=vertical]/timescale:grid-cols-[var(--timescale-rail)_1fr] group-data-[orientation=vertical]/timescale:gap-x-4 group-data-[orientation=vertical]/timescale:bg-white dark:group-data-[orientation=vertical]/timescale:bg-black",
         className
       )}
@@ -271,16 +302,23 @@ export function TimescaleHeader({ className, ...props }: TimescaleHeaderProps) {
 
 export type TimescaleTrackProps = React.ComponentProps<"div">;
 
-export function TimescaleTrack({ className, ...props }: TimescaleTrackProps) {
+export function TimescaleTrack({ className, style, ...props }: TimescaleTrackProps) {
+  const { dragOffsetY, isDragging } = React.useContext(TimescaleContext);
+
   return (
     <div
       data-slot="timescale-track"
       className={cn(
-        "relative flex",
+        "relative flex will-change-transform",
         "group-data-[orientation=horizontal]/timescale:w-max group-data-[orientation=horizontal]/timescale:items-start pb-8",
         "group-data-[orientation=vertical]/timescale:w-full group-data-[orientation=vertical]/timescale:flex-col group-data-[orientation=vertical]/timescale:pt-4",
         className
       )}
+      style={{
+        transform: `translateY(${dragOffsetY}px)`,
+        transition: isDragging ? "transform 0.08s ease-out" : "transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+        ...style,
+      }}
       {...props}
     />
   );
