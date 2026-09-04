@@ -96,18 +96,15 @@ export const goalMilestones: GoalMilestoneData[] = [
     description: "**The Legacy Problem:** Our school's original eLMS is a bit outdated—it breaks on mobile devices, navigation can be confusing, and it loads slowly. Important features like task submissions take too many clicks to find, and students often have to use external sites with ads just to scan or edit their documents.\n**The Modernized Solution:** For my case study, I wanted to see if I could build a better version of it from scratch as a Single Page Application (SPA). Using React 19 and Vite, I designed a responsive, glassmorphic UI. Since I wanted to include features like OCR text scanning and 3D graphics, I had to learn how to process all of that directly in the browser so it wouldn't crash the server.\n**Offline-First Approach:** One of my favorite features I added is offline support. I used Dexie.js to save data (like study streaks) locally in the browser so the app feels instantly responsive. Then, when the student connects back to the internet, it quietly syncs their progress to a Supabase PostgreSQL database in the background so they never lose their work.\n**Security & Performance:** To keep student data safe, I learned how to use crypto-js to encrypt sensitive information before it's sent to the database. I also set up Supabase Auth and reCAPTCHA to prevent spam. Since the dashboard needs to handle a lot of data, I learned how to use React Virtuoso to only render the items currently visible on the screen, keeping the app running fast without freezing the browser.",
   },
   {
-    title: "System Admin Dashboards",
-    role: "Enterprise Tools",
-    dates: "0% Complete",
-    location: "Career Goal",
+    title: "SYNC UI Component",
+    role: "UI Component Library",
+    dates: "26% Complete",
+    location: "Open-Source Library",
+    timeframe: "2026",
     src: "https://github.com/VidZid2.png?v=1",
     imageFit: "cover",
     hidePlaceholder: true,
     isDisabled: true,
-    metrics: [
-      { label: "Focus", value: "Complex Data Viz" },
-      { label: "Target", value: "Enterprise UX" },
-    ],
-    description: "**Scaling for B2B Tech Roles**\nTo maximize my hireability and stand out to top-tier tech companies, my next major milestone is building complex system administrator dashboards. This will force me to master complex state management, data-heavy visualizations (charts, tables), and enterprise-grade UI patterns.",
+    description: "",
   }
 ];

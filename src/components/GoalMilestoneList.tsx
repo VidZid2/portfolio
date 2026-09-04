@@ -9,11 +9,12 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { playHoverTick, playSoftClick } from "@/lib/synth-sounds";
 
 import { AsciiText } from "@/components/ui/ascii-text";
-import { AsciiGlitchBlock } from "@/components/ui/ascii-glitch-block";
 import { GlyphMatrix } from "@/components/ui/glyph-matrix";
 import { JapaneseAsciiText } from "@/components/ui/japanese-ascii-text";
 import { cn } from "@/lib/utils";
 import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
+import { SprayBurstCard } from "@/components/spray-burst";
+import { DotCutCard } from "@/components/dotcut";
 
 const BOUNCE_SPRING = {
   type: "spring",
@@ -327,14 +328,16 @@ const createPlaceholderImage = ({ title, startColor, endColor, accentColor }: Pl
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
 }
 
-function StatusBadge({ dates }: { dates: string }) {
-  const percentText = dates.split(" ")[0]; // "100%", "89%", "58%", "0%"
+function StatusBadge({ dates, isGray = false }: { dates: string; isGray?: boolean }) {
+  const percentText = dates.split(" ")[0]; // "100%", "89%", "58%", "26%", "0%"
+  const num = parseInt(percentText, 10);
   
   let statusText = "PLANNED";
-  if (percentText === "100%") statusText = "COMPLETE";
-  else if (percentText === "89%") statusText = "ALMOST";
-  else if (percentText === "58%") statusText = "MIDWAY";
-  else if (percentText === "0%") statusText = "NOT STARTED YET";
+  if (percentText === "100%" || num === 100) statusText = "COMPLETE";
+  else if (percentText === "89%" || (num >= 80 && num < 100)) statusText = "ALMOST";
+  else if (percentText === "58%" || (num >= 50 && num < 80)) statusText = "MIDWAY";
+  else if (percentText === "26%" || (num > 0 && num < 50)) statusText = "IN PROGRESS";
+  else if (percentText === "0%" || num === 0) statusText = "NOT STARTED YET";
 
   const isCompleted = percentText === "100%";
 
@@ -359,7 +362,10 @@ function StatusBadge({ dates }: { dates: string }) {
         )}
       >
         <span
-          className="flex items-center justify-center text-[#6495ED]"
+          className={cn(
+            "flex items-center justify-center",
+            isGray ? "text-zinc-500 dark:text-zinc-400" : "text-[#6495ED]"
+          )}
         >
           <AsciiText text={statusText} duration={500} className="font-mono" />
         </span>
@@ -368,7 +374,7 @@ function StatusBadge({ dates }: { dates: string }) {
   );
 }
 
-export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
+export function GoalMilestoneList({ showAll: _showAll = false }: { showAll?: boolean } = {}) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const { resolvedTheme } = useTheme();
@@ -402,9 +408,7 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
     setOpenIdx((prev) => (prev === idx ? null : idx));
   };
 
-  const filteredMilestones = showAll 
-    ? goalMilestones 
-    : goalMilestones.filter(item => item.title !== "System Admin Dashboards");
+  const filteredMilestones = goalMilestones;
 
   return (
     <div className="block w-full">
@@ -444,7 +448,7 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
                 className={cn(
                   "group/item flex flex-row items-center justify-between gap-2 sm:gap-4 py-3.5 px-4 -mx-4 transition-colors relative z-20 rounded-lg sm:py-4 overflow-hidden",
                   isEffectivelyDisabled 
-                    ? "opacity-40 grayscale pointer-events-none" 
+                    ? "opacity-50 grayscale cursor-default select-none" 
                     : "hover:bg-zinc-50 dark:hover:bg-zinc-900/20 cursor-pointer"
                 )}
                 onClick={() => !isEffectivelyDisabled && handleItemClick(idx)}
@@ -455,16 +459,20 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
                 <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 relative z-10">
                   {/* Logo Container styled like Experience Section */}
                   {item.title === "Project SYNC" ? (
-                    <div className="size-10 shrink-0 rounded-[10px] border border-black/10 bg-zinc-50 shadow-sm shadow-black/15 dark:border-zinc-800 dark:bg-[#111111] dark:shadow-md dark:shadow-black/50 overflow-hidden relative flex items-center justify-center">
-                      <AsciiGlitchBlock className="text-[#6495ED]" />
+                    <div className="size-10 shrink-0 rounded-[10px] border border-black/10 bg-zinc-50 shadow-sm shadow-black/15 dark:border-zinc-800 dark:bg-[#111111] dark:shadow-md dark:shadow-black/50 overflow-hidden relative">
+                      <DotCutCard
+                        symbol="JD"
+                        bare={true}
+                        className="size-full rounded-[9px] block"
+                      />
                     </div>
-                  ) : item.title === "System Admin Dashboards" ? (
-                    <div className="size-10 shrink-0 rounded-[10px] border border-black/10 bg-zinc-50 shadow-sm shadow-black/15 dark:border-zinc-800 dark:bg-[#111111] dark:shadow-md dark:shadow-black/50 overflow-hidden relative flex flex-col items-center justify-center gap-0.5">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-zinc-400 dark:text-zinc-500">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                      </svg>
-                      <span className="text-[7px] font-bold tracking-[0.15em] text-zinc-400 dark:text-zinc-500 uppercase">Soon</span>
+                  ) : item.title === "SYNC UI Component" || item.title === "SYNC UI component" ? (
+                    <div className="size-10 shrink-0 rounded-[10px] border border-black/10 bg-zinc-50 shadow-sm shadow-black/15 dark:border-zinc-800 dark:bg-[#111111] dark:shadow-md dark:shadow-black/50 overflow-hidden relative">
+                      <SprayBurstCard
+                        bare={true}
+                        gray={true}
+                        className="size-full rounded-[9px] block"
+                      />
                     </div>
                   ) : item.src.includes("github.com") || item.src.includes("Avatar") ? (
                     <div className="size-10 shrink-0 rounded-[10px] border border-black/10 bg-zinc-50 shadow-sm shadow-black/15 dark:border-zinc-800 dark:bg-[#111111] dark:shadow-md dark:shadow-black/50 overflow-hidden relative">
@@ -497,7 +505,7 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
 
                   <div className="flex flex-col gap-0.5 min-w-0 pr-2 sm:pr-4">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className={`text-[14px] font-bold leading-tight sm:text-[17px] ${isOpen ? "text-[#6495ED]" : "text-zinc-900 dark:text-zinc-100"} truncate`}>
+                      <span className={`text-[14px] font-bold leading-tight sm:text-[17px] ${isOpen ? "text-[#6495ED]" : isEffectivelyDisabled ? "text-zinc-500 dark:text-zinc-400" : "text-zinc-900 dark:text-zinc-100"} truncate`}>
                         {item.title === "Project SYNC" ? (
                           <>
                             <span className="sm:hidden inline-block">
@@ -558,17 +566,19 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
                   </div>
                   
                   <div className="flex items-center gap-3">
-                    <StatusBadge dates={item.dates} />
+                    <StatusBadge dates={item.dates} isGray={isEffectivelyDisabled} />
                     <div className="w-4 h-4 flex items-center justify-center relative">
-                      <svg
-                        viewBox="0 0 24 24"
-                        className={`w-3.5 h-3.5 text-zinc-500 transition-transform duration-300 ${isOpen ? "rotate-180 text-[#6495ED]" : ""}`}
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                      >
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                      </svg>
+                      {!isEffectivelyDisabled && (
+                        <svg
+                          viewBox="0 0 24 24"
+                          className={`w-3.5 h-3.5 text-zinc-500 transition-transform duration-300 ${isOpen ? "rotate-180 text-[#6495ED]" : ""}`}
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                        >
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -598,7 +608,7 @@ export function GoalMilestoneList({ showAll = false }: { showAll?: boolean }) {
                             <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15]" style={{ maskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage, WebkitMaskImage: DOT_MASK_HORIZONTAL.WebkitMaskImage }} />
                           </div>
                         )}
-                        {(item.title === "PRIMA" || item.title === "eLMS 2.0 Overhaul") && (
+                        {(item.title === "PRIMA" || item.title === "eLMS 2.0 Overhaul" || item.title === "SYNC UI Component" || item.title === "SYNC UI component") && (
                           <div className="mb-0 pt-6 pb-6 px-4 sm:px-6 flex flex-col items-center justify-center text-center gap-2 relative">
                             <h3 className="text-[12px] font-bold tracking-[0.2em] uppercase text-zinc-900 dark:text-zinc-100 flex items-center justify-center gap-2.5 w-full">
                               <JapaneseAsciiText text="TECHNICAL ARCHITECTURE" duration={3000} idleScramble={true} />

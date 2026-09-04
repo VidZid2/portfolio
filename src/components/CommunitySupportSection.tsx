@@ -240,13 +240,13 @@ export function CommunitySupportSection({
           <CornerMark position="bottom-right" />
         </motion.div>
 
-        {/* 2-Column Responsive Blueprint Grid */}
+        {/* 2-Column Responsive Blueprint Grid — Bled to Vertical Margin Guides */}
         <motion.div
           variants={{
             hidden: { opacity: 0, y: 10 },
             visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
           }}
-          className="grid grid-cols-1 sm:grid-cols-2 relative"
+          className="grid grid-cols-1 sm:grid-cols-2 relative -mx-3 sm:-mx-4 w-[calc(100%+1.5rem)] sm:w-[calc(100%+2rem)]"
         >
           {/* Vertical Center Line */}
           <div
@@ -287,6 +287,14 @@ export function CommunitySupportSection({
                       {SPONSORS[0].description || "Backer"}
                     </span>
                   </div>
+
+                  {/* Mobile Horizontal Divider between Card 1 and Card 2 */}
+                  <div
+                    className="sm:hidden absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+                    style={DOT_MASK_HORIZONTAL}
+                  />
+                  <CornerMark position="bottom-left" flush className="sm:hidden" />
+                  <CornerMark position="bottom-right" flush className="sm:hidden" />
                 </div>
 
                 {/* 2. Interactive Plus (+) Slot (Right) - Pure icon without outline */}
@@ -324,17 +332,13 @@ export function CommunitySupportSection({
                     Become the first community backer
                   </p>
 
-                  {/* Desktop Middle Vertical Divider */}
-                  <div
-                    className="hidden sm:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
-                    style={DOT_MASK_VERTICAL}
-                  />
-
                   {/* Mobile Horizontal Divider between Card 1 and Card 2 */}
                   <div
                     className="sm:hidden absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
                     style={DOT_MASK_HORIZONTAL}
                   />
+                  <CornerMark position="bottom-left" flush className="sm:hidden" />
+                  <CornerMark position="bottom-right" flush className="sm:hidden" />
                 </div>
 
                 {/* 2. Interactive Plus (+) Slot (Right) - Pure icon without outline */}
@@ -359,11 +363,11 @@ export function CommunitySupportSection({
 
           {/* Grid Bottom Line — spans between margin guides */}
           <div
-            className="absolute bottom-0 bleed-x h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
+            className="absolute bottom-0 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={DOT_MASK_HORIZONTAL}
           />
-          <CornerMark position="bottom-left" />
-          <CornerMark position="bottom-right" />
+          <CornerMark position="bottom-left" flush />
+          <CornerMark position="bottom-right" flush />
         </motion.div>
 
         {/* Bottom "Sponsor my work" Action Button */}

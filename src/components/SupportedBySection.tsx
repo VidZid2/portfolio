@@ -33,6 +33,7 @@ import { playSoftClick } from "@/lib/synth-sounds";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
 import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 import { CornerMark } from "@/components/ui/corner-mark";
+import { cn } from "@/lib/utils";
 
 /** How long each logo stays visible before cycling to the next one (ms). */
 const CYCLE_INTERVAL = 2600;
@@ -441,27 +442,64 @@ export function SupportedBySection({
   const [activeIdx, setActiveIdx] = useState(0);
   const [selectedBrand, setSelectedBrand] = useState<(typeof INSPIRATIONS)[0] | null>(null);
   const [visitingUrl, setVisitingUrl] = useState<string | null>(null);
-  const [hasSeenTip, setHasSeenTip] = useState(false);
-  const [isMobileOrTablet, setIsMobileOrTablet] = useState(false);
-  const shouldPlay = isInView || skip;
+  const [isTipVisible, setIsTipVisible] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(1200);
 
   useEffect(() => {
     const checkScreen = () => {
-      setIsMobileOrTablet(window.innerWidth < 1024);
+      setWindowWidth(window.innerWidth);
     };
     checkScreen();
     window.addEventListener("resize", checkScreen);
     return () => window.removeEventListener("resize", checkScreen);
   }, []);
 
+  const isMobile = windowWidth < 768;
+  const isTablet = windowWidth >= 768 && windowWidth < 1024;
+  const isMobileOrTablet = windowWidth < 1024;
+
+  const carouselConfig = isMobile
+    ? {
+        itemSize: 130,
+        visibleItems: 3,
+        minScale: 0.58,
+        arc: 16,
+        height: 190,
+        selectedOffset: 0,
+      }
+    : isTablet
+    ? {
+        itemSize: 160,
+        visibleItems: 4,
+        minScale: 0.54,
+        arc: 24,
+        height: 230,
+        selectedOffset: -170,
+      }
+    : {
+        itemSize: 200,
+        visibleItems: 5,
+        minScale: 0.52,
+        arc: 36,
+        height: 290,
+        selectedOffset: -210,
+      };
+
+  const shouldPlay = isInView || skip;
+
   useEffect(() => {
-    if (isDrawerOpen && !hasSeenTip) {
-      const timer = setTimeout(() => {
-        setHasSeenTip(true);
-      }, 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [isDrawerOpen, hasSeenTip]);
+    if (!isDrawerOpen) return;
+
+    // 1.8s entry delay: smoothly morphs and slides up if the user stays for 1.5 - 2 seconds
+    const timer = setTimeout(() => {
+      setIsTipVisible(true);
+    }, 1800);
+
+    return () => {
+      clearTimeout(timer);
+      setIsTipVisible(false);
+    };
+  }, [isDrawerOpen]);
 
   const handleSelectBrand = (item: (typeof INSPIRATIONS)[0]) => {
     if (selectedBrand?.id === item.id) {
@@ -502,7 +540,7 @@ export function SupportedBySection({
   }, [shouldPlay]);
 
   const renderGalleryContent = () => (
-    <div className="relative w-full h-full flex flex-col justify-between overflow-y-auto overscroll-contain bg-white dark:bg-black text-zinc-900 dark:text-zinc-100 p-0">
+    <div className="relative w-full h-full flex flex-col items-center justify-between overflow-y-auto overscroll-contain bg-white dark:bg-black text-zinc-900 dark:text-zinc-100 px-4 sm:px-8 pt-8 sm:pt-10 pb-8 sm:pb-10 select-none">
       {/* Floating Close Button */}
       <TooltipProvider delayDuration={200}>
         <Tooltip>
@@ -513,7 +551,7 @@ export function SupportedBySection({
                 playSoftClick(0.04);
                 setIsDrawerOpen(false);
               }}
-              className="absolute top-4 right-4 z-40 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/[0.05] text-muted-foreground transition-all duration-150 hover:bg-foreground/[0.08] hover:text-foreground active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer border-0 outline-none shadow-none"
+              className="absolute top-4 right-4 sm:top-5 sm:right-6 z-50 inline-flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-all duration-150 active:scale-95 focus-visible:outline-none cursor-pointer border border-zinc-200/50 dark:border-zinc-800/50 shadow-xs"
               aria-label="Close modal"
             >
               <X className="h-4 w-4" aria-hidden="true" />
@@ -531,18 +569,18 @@ export function SupportedBySection({
       </TooltipProvider>
 
       {/* Tribute & Credits Header (Concise & Horizontal SaaS Style) */}
-      <div className="pt-12 sm:pt-14 pb-2 px-6 sm:px-12 flex flex-col items-center text-center max-w-4xl mx-auto font-sans">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-normal tracking-tight text-zinc-900 dark:text-zinc-100 leading-tight">
+      <div className="w-full flex flex-col items-center text-center max-w-2xl mx-auto font-sans shrink-0">
+        <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-normal tracking-tight text-zinc-900 dark:text-zinc-100 leading-tight">
           Inspired by Extraordinary Creators
         </h2>
-        <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 mt-2.5 leading-relaxed max-w-2xl font-normal">
+        <p className="text-xs sm:text-sm md:text-base text-zinc-600 dark:text-zinc-400 mt-1.5 sm:mt-2 leading-relaxed max-w-xl font-normal line-clamp-2 sm:line-clamp-none">
           This portfolio was inspired by the innovative design engineers, UI libraries, and physics experiments below. Without their creativity and open-source contributions, building this wouldn&apos;t have been possible.
         </p>
       </div>
 
       {/* Inspirations Convex Cylinder Carousel & Detail View */}
       <div 
-        className="relative w-full h-[360px] flex items-center justify-center bg-white dark:bg-black overflow-hidden p-4 sm:p-6 touch-none overscroll-none select-none"
+        className="relative w-full flex-1 min-h-[220px] max-h-[340px] flex items-center justify-center bg-white dark:bg-black overflow-hidden my-auto"
         onWheel={(e) => {
           if (selectedBrand) {
             e.stopPropagation();
@@ -551,24 +589,29 @@ export function SupportedBySection({
       >
         {/* Seamless Edge Fade Overlays on Both Ends */}
         <div
-          className={`pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-white dark:from-black via-white/70 dark:via-black/70 to-transparent z-20 transition-opacity duration-300 ${
+          className={`pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-r from-white dark:from-black via-white/70 dark:via-black/70 to-transparent z-20 transition-opacity duration-300 ${
             selectedBrand ? "opacity-0" : "opacity-100"
           }`}
         />
         <div
-          className={`pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-white dark:from-black via-white/70 dark:via-black/70 to-transparent z-20 transition-opacity duration-300 ${
+          className={`pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-l from-white dark:from-black via-white/70 dark:via-black/70 to-transparent z-20 transition-opacity duration-300 ${
             selectedBrand ? "opacity-0" : "opacity-100"
           }`}
         />
 
-        {/* Carousel Base Layer: Real circle slides left on select, others fade out */}
-        <div className="w-full h-full flex items-center justify-center">
+        {/* Carousel Base Layer: Real circle slides left on select, others fade out. On mobile, fades out on select to give detail card full focus with zero overlap */}
+        <div
+          className={cn(
+            "w-full h-full flex items-center justify-center transition-opacity duration-300",
+            isMobile && selectedBrand ? "opacity-0 pointer-events-none" : "opacity-100"
+          )}
+        >
           <CylinderCarousel
-            itemSize={isMobileOrTablet ? 240 : 200}
-            visibleItems={isMobileOrTablet ? 2 : 5}
+            itemSize={carouselConfig.itemSize}
+            visibleItems={carouselConfig.visibleItems}
             variant="convex"
-            minScale={isMobileOrTablet ? 0.48 : 0.52}
-            arc={isMobileOrTablet ? 30 : 38}
+            minScale={carouselConfig.minScale}
+            arc={carouselConfig.arc}
             snap={true}
             autoRotate={false}
             defaultIndex={activeIdx}
@@ -578,8 +621,8 @@ export function SupportedBySection({
                 ? INSPIRATIONS.findIndex((i) => i.id === selectedBrand.id)
                 : null
             }
-            selectedOffset={isMobileOrTablet ? -130 : -210}
-            height={300}
+            selectedOffset={carouselConfig.selectedOffset}
+            height={carouselConfig.height}
             className="w-full"
           >
             {INSPIRATIONS.map((item) => (
@@ -587,7 +630,7 @@ export function SupportedBySection({
                 key={item.id}
                 type="button"
                 onClick={() => handleSelectBrand(item)}
-                className="w-full h-full rounded-full aspect-square bg-zinc-100 dark:bg-[#141416] flex items-center justify-center p-3 sm:p-4 transition-transform duration-200 group select-none relative overflow-hidden cursor-pointer outline-none focus:outline-none ring-0 border-0 shadow-none dark:shadow-md"
+                className="w-full h-full rounded-full aspect-square bg-zinc-100 dark:bg-[#141416] flex items-center justify-center p-2.5 sm:p-4 transition-transform duration-200 group select-none relative overflow-hidden cursor-pointer outline-none focus:outline-none ring-0 border-0 shadow-none dark:shadow-md"
               >
                 {item.darkSvgPath ? (
                   <>
@@ -597,7 +640,7 @@ export function SupportedBySection({
                       width={112}
                       height={80}
                       unoptimized
-                      className="h-16 sm:h-20 md:h-12 lg:h-14 w-auto max-w-[82%] object-contain dark:hidden pointer-events-none transition-transform duration-200 group-hover:scale-110"
+                      className="h-10 sm:h-12 md:h-12 lg:h-14 w-auto max-w-[76%] max-h-[70%] object-contain dark:hidden pointer-events-none transition-transform duration-200 group-hover:scale-110"
                       loading="lazy"
                     />
                     <Image
@@ -606,7 +649,7 @@ export function SupportedBySection({
                       width={112}
                       height={80}
                       unoptimized
-                      className="h-16 sm:h-20 md:h-12 lg:h-14 w-auto max-w-[82%] object-contain hidden dark:block pointer-events-none transition-transform duration-200 group-hover:scale-110"
+                      className="h-10 sm:h-12 md:h-12 lg:h-14 w-auto max-w-[76%] max-h-[70%] object-contain hidden dark:block pointer-events-none transition-transform duration-200 group-hover:scale-110"
                       loading="lazy"
                     />
                   </>
@@ -617,7 +660,7 @@ export function SupportedBySection({
                     width={112}
                     height={80}
                     unoptimized
-                    className={`h-16 sm:h-20 md:h-12 lg:h-14 w-auto max-w-[82%] object-contain pointer-events-none transition-transform duration-200 group-hover:scale-110 ${
+                    className={`h-10 sm:h-12 md:h-12 lg:h-14 w-auto max-w-[76%] max-h-[70%] object-contain pointer-events-none transition-transform duration-200 group-hover:scale-110 ${
                       item.invertInDark ? "dark:invert" : ""
                     }`}
                     loading="lazy"
@@ -637,76 +680,131 @@ export function SupportedBySection({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="absolute inset-0 flex items-center justify-center pointer-events-none z-30 p-4"
+              className="absolute inset-0 flex items-center justify-center pointer-events-none z-30 p-3 sm:p-4"
             >
-              <div className="relative w-full max-w-3xl h-full">
+              <div className="relative w-full max-w-3xl h-full flex items-center justify-center md:justify-start">
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.88, x: 20, filter: "blur(6px)" }}
-                  animate={{ opacity: 1, scale: 1, x: 0, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, scale: 0.92, x: 15, filter: "blur(4px)", transition: { duration: 0.15 } }}
+                  initial={{
+                    opacity: 0,
+                    scale: 0.9,
+                    x: isMobile ? 0 : 20,
+                    y: isMobile ? 12 : 0,
+                    filter: "blur(6px)",
+                  }}
+                  animate={{ opacity: 1, scale: 1, x: 0, y: 0, filter: "blur(0px)" }}
+                  exit={{
+                    opacity: 0,
+                    scale: 0.92,
+                    x: isMobile ? 0 : 15,
+                    y: isMobile ? 8 : 0,
+                    filter: "blur(4px)",
+                    transition: { duration: 0.15 },
+                  }}
                   transition={{
                     type: "spring",
                     stiffness: 340,
                     damping: 28,
-                    delay: 0.45,
+                    delay: isMobile ? 0.08 : 0.45,
                   }}
-                  className="absolute top-1/2 -translate-y-1/2 flex flex-col items-start text-left gap-3.5 w-[92%] sm:w-[380px] md:w-[420px] lg:w-[460px] max-w-[460px] p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-zinc-50 via-zinc-100/95 to-zinc-100/85 dark:from-[#18181b] dark:via-[#121214]/95 dark:to-[#09090b]/95 backdrop-blur-xl border-0 outline-none ring-0 shadow-none pointer-events-auto font-sans left-1/2 -translate-x-1/2 md:left-[calc(50%-60px)] md:translate-x-0 select-none"
+                  className="relative md:absolute md:top-1/2 md:-translate-y-1/2 flex flex-col items-start text-left gap-3 sm:gap-3.5 w-[92%] sm:w-[360px] md:w-[380px] lg:w-[440px] max-w-[440px] p-4 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-zinc-50 via-zinc-100/95 to-zinc-100/85 dark:from-[#18181b] dark:via-[#121214]/95 dark:to-[#09090b]/95 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 outline-none ring-0 shadow-xl pointer-events-auto font-sans md:left-[calc(50%-20px)] lg:left-[calc(50%-50px)] md:translate-x-0 select-none"
                 >
                   <motion.div
-                    initial={{ opacity: 0, x: 25, filter: "blur(4px)" }}
-                    animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                    exit={{ opacity: 0, x: 15, filter: "blur(4px)", transition: { duration: 0.15 } }}
+                    initial={{ opacity: 0, x: isMobile ? 0 : 25, y: isMobile ? 8 : 0, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, x: 0, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, x: isMobile ? 0 : 15, y: isMobile ? 6 : 0, filter: "blur(4px)", transition: { duration: 0.15 } }}
                     transition={{
                       duration: 0.35,
-                      delay: 0.54,
+                      delay: isMobile ? 0.12 : 0.54,
                       ease: [0.16, 1, 0.3, 1],
                     }}
                     className="flex flex-col gap-1 w-full"
                   >
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                      <h3 className="text-2xl sm:text-3xl font-normal font-sans tracking-tight text-zinc-900 dark:text-white leading-none">
-                        {selectedBrand.name}
-                      </h3>
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-zinc-200/70 dark:bg-zinc-800/70 text-zinc-700 dark:text-zinc-300 text-[12px] font-medium font-sans shadow-none select-none">
-                        {selectedBrand.category === "components"
-                          ? "Component Kit"
-                          : selectedBrand.category === "motion"
-                          ? "Motion & Physics"
-                          : selectedBrand.category === "systems"
-                          ? "Design System"
-                          : selectedBrand.category === "portfolios"
-                          ? "Creative Portfolio"
-                          : selectedBrand.category}
-                      </span>
+                    <div className="flex items-center gap-3 w-full">
+                      {/* Mobile Brand Circular Logo Avatar (hidden on tablet/desktop where carousel ball sits proudly on the left) */}
+                      <div className="md:hidden size-11 sm:size-12 rounded-full aspect-square bg-zinc-100 dark:bg-[#141416] p-2 flex items-center justify-center shrink-0 border border-zinc-200/60 dark:border-zinc-800 shadow-sm overflow-hidden">
+                        {selectedBrand.darkSvgPath ? (
+                          <>
+                            <Image
+                              src={selectedBrand.svgPath}
+                              alt={selectedBrand.name}
+                              width={36}
+                              height={36}
+                              unoptimized
+                              className="size-6 sm:size-7 object-contain dark:hidden pointer-events-none"
+                            />
+                            <Image
+                              src={selectedBrand.darkSvgPath}
+                              alt={selectedBrand.name}
+                              width={36}
+                              height={36}
+                              unoptimized
+                              className="size-6 sm:size-7 object-contain hidden dark:block pointer-events-none"
+                            />
+                          </>
+                        ) : (
+                          <Image
+                            src={selectedBrand.svgPath}
+                            alt={selectedBrand.name}
+                            width={36}
+                            height={36}
+                            unoptimized
+                            className={cn(
+                              "size-6 sm:size-7 object-contain pointer-events-none",
+                              selectedBrand.invertInDark && "dark:invert"
+                            )}
+                          />
+                        )}
+                      </div>
+
+                      <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-xl sm:text-2xl md:text-3xl font-normal font-sans tracking-tight text-zinc-900 dark:text-white leading-tight truncate">
+                            {selectedBrand.name}
+                          </h3>
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] bg-zinc-200/70 dark:bg-zinc-800/70 text-zinc-700 dark:text-zinc-300 text-[11px] sm:text-[12px] font-medium font-sans select-none shrink-0">
+                            {selectedBrand.category === "components"
+                              ? "Component Kit"
+                              : selectedBrand.category === "motion"
+                              ? "Motion & Physics"
+                              : selectedBrand.category === "systems"
+                              ? "Design System"
+                              : selectedBrand.category === "portfolios"
+                              ? "Creative Portfolio"
+                              : selectedBrand.category}
+                          </span>
+                        </div>
+                        {selectedBrand.url && (
+                          <span className="text-xs text-[#6495ED] font-mono hover:underline cursor-pointer truncate">
+                            {selectedBrand.url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <span className="text-xs text-[#6495ED] font-mono hover:underline cursor-pointer">
-                      {selectedBrand.url ? selectedBrand.url.replace(/^https?:\/\//, "").replace(/\/$/, "") : ""}
-                    </span>
                   </motion.div>
 
                   {selectedBrand.description && (
                     <motion.p
-                      initial={{ opacity: 0, x: 25, filter: "blur(4px)" }}
-                      animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                      exit={{ opacity: 0, x: 15, filter: "blur(4px)", transition: { duration: 0.15 } }}
+                      initial={{ opacity: 0, x: isMobile ? 0 : 25, y: isMobile ? 8 : 0, filter: "blur(4px)" }}
+                      animate={{ opacity: 1, x: 0, y: 0, filter: "blur(0px)" }}
+                      exit={{ opacity: 0, x: isMobile ? 0 : 15, y: isMobile ? 6 : 0, filter: "blur(4px)", transition: { duration: 0.15 } }}
                       transition={{
                         duration: 0.35,
-                        delay: 0.62,
+                        delay: isMobile ? 0.16 : 0.62,
                         ease: [0.16, 1, 0.3, 1],
                       }}
-                      className="text-xs sm:text-sm md:text-[15px] font-sans text-zinc-600 dark:text-zinc-300 leading-relaxed max-w-lg"
+                      className="text-xs sm:text-sm md:text-[15px] font-sans text-zinc-600 dark:text-zinc-300 leading-relaxed max-w-lg line-clamp-3 sm:line-clamp-none"
                     >
                       {selectedBrand.description}
                     </motion.p>
                   )}
 
                   <motion.div
-                    initial={{ opacity: 0, x: 25, filter: "blur(4px)" }}
-                    animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                    exit={{ opacity: 0, x: 15, filter: "blur(4px)", transition: { duration: 0.15 } }}
+                    initial={{ opacity: 0, x: isMobile ? 0 : 25, y: isMobile ? 8 : 0, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, x: 0, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, x: isMobile ? 0 : 15, y: isMobile ? 6 : 0, filter: "blur(4px)", transition: { duration: 0.15 } }}
                     transition={{
                       duration: 0.35,
-                      delay: 0.70,
+                      delay: isMobile ? 0.2 : 0.7,
                       ease: [0.16, 1, 0.3, 1],
                     }}
                     className="hidden sm:flex items-center gap-2 flex-wrap text-[11px] text-zinc-500 dark:text-zinc-400 font-mono"
@@ -723,12 +821,12 @@ export function SupportedBySection({
                   </motion.div>
 
                   <motion.div
-                    initial={{ opacity: 0, x: 25, filter: "blur(4px)" }}
-                    animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                    exit={{ opacity: 0, x: 15, filter: "blur(4px)", transition: { duration: 0.15 } }}
+                    initial={{ opacity: 0, x: isMobile ? 0 : 25, y: isMobile ? 8 : 0, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, x: 0, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, x: isMobile ? 0 : 15, y: isMobile ? 6 : 0, filter: "blur(4px)", transition: { duration: 0.15 } }}
                     transition={{
                       duration: 0.35,
-                      delay: 0.78,
+                      delay: isMobile ? 0.24 : 0.78,
                       ease: [0.16, 1, 0.3, 1],
                     }}
                     className="flex items-center gap-2.5 mt-1 w-full font-sans"
@@ -739,7 +837,7 @@ export function SupportedBySection({
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => handleVisitWebsite(e, selectedBrand.url)}
-                        className="flex-1 py-2.5 px-4 rounded-xl bg-zinc-900 dark:bg-[#6495ED] hover:bg-zinc-800 dark:hover:bg-[#5382dc] text-white dark:text-white text-xs font-medium font-sans flex items-center justify-center transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98] border-0 outline-none ring-0 shadow-none cursor-pointer text-center"
+                        className="flex-1 min-h-[38px] sm:min-h-[42px] py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl bg-zinc-900 dark:bg-[#6495ED] hover:bg-zinc-800 dark:hover:bg-[#5382dc] text-white text-xs sm:text-[13px] font-medium font-sans flex items-center justify-center transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98] border-0 outline-none ring-0 shadow-none cursor-pointer text-center select-none"
                       >
                         <span className="truncate">Visit {selectedBrand.name}</span>
                       </a>
@@ -747,7 +845,7 @@ export function SupportedBySection({
                     <button
                       type="button"
                       onClick={handleBack}
-                      className="flex-1 py-2.5 px-4 rounded-xl bg-zinc-200/80 dark:bg-zinc-800/90 hover:bg-zinc-300/80 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-medium font-sans flex items-center justify-center transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98] border-0 outline-none ring-0 shadow-none cursor-pointer text-center"
+                      className="flex-1 min-h-[38px] sm:min-h-[42px] py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl bg-zinc-200/80 dark:bg-zinc-800/90 hover:bg-zinc-300/80 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs sm:text-[13px] font-medium font-sans flex items-center justify-center transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98] border-0 outline-none ring-0 shadow-none cursor-pointer text-center select-none"
                     >
                       <span>Back</span>
                     </button>
@@ -760,45 +858,63 @@ export function SupportedBySection({
       </div>
 
       {/* Bottom Tip & Ask AI Action */}
-      <motion.div
-        initial={hasSeenTip ? false : { opacity: 0, y: 18, filter: "blur(5px)" }}
-        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-        transition={
-          hasSeenTip
-            ? { duration: 0.2 }
-            : { duration: 0.5, delay: 0.4, ease: [0.16, 1, 0.3, 1] }
-        }
-        className="pb-8 pt-3 px-6 flex items-center justify-center gap-3 text-xs text-zinc-500 dark:text-zinc-400 font-sans"
-      >
-        <button
-          type="button"
-          onClick={() => {
-            playSoftClick(0.04);
-            setIsDrawerOpen(false);
-            window.dispatchEvent(new CustomEvent("open-ai"));
+      <div className="w-full flex items-center justify-center shrink-0 pt-2 min-h-[44px] z-20">
+        <motion.div
+          initial={{ opacity: 0, y: 18, filter: "blur(6px)", scale: 0.96 }}
+          animate={
+            isTipVisible
+              ? { opacity: 1, y: 0, filter: "blur(0px)", scale: 1 }
+              : { opacity: 0, y: 18, filter: "blur(6px)", scale: 0.96 }
+          }
+          transition={{
+            duration: 0.75,
+            ease: [0.16, 1, 0.3, 1],
           }}
-          onMouseEnter={() => {
-            import("@/components/prompt-box-preview");
-          }}
-          onTouchStart={() => {
-            import("@/components/prompt-box-preview");
-          }}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white transition-colors cursor-pointer text-xs"
+          className={cn(
+            "flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 text-xs sm:text-[13px] text-zinc-500 dark:text-zinc-400 font-sans text-center px-4 max-w-sm sm:max-w-none mx-auto leading-normal",
+            !isTipVisible && "pointer-events-none"
+          )}
         >
-          <svg
-            className="w-3.5 h-3.5 text-[#6495ED]"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M8 1.5L9.5 5.5L13.5 7L9.5 8.5L8 12.5L6.5 8.5L2.5 7L6.5 5.5L8 1.5Z"
-              className="fill-[#6495ED]"
-            />
-          </svg>
-          <span className="animate-shimmer-text font-medium leading-none">Ask AI</span>
-        </button>
+          <span>If you need help finding what you needed</span>
+          <div className="inline-flex items-center gap-1.5">
+            <span>just</span>
+            <button
+              type="button"
+              onClick={() => {
+                playSoftClick(0.04);
+                setIsDrawerOpen(false);
+                window.dispatchEvent(new CustomEvent("open-ai"));
+              }}
+              onMouseEnter={() => {
+                import("@/components/prompt-box-preview");
+              }}
+              onTouchStart={() => {
+                import("@/components/prompt-box-preview");
+              }}
+              className="inline-flex items-center gap-1.5 font-medium cursor-pointer transition-all duration-200 hover:opacity-85 active:scale-95 border-0 bg-transparent p-0 outline-none select-none align-middle group"
+              title="Ask AI"
+              aria-label="Ask AI"
+            >
+            <svg
+              className="size-3.5 sm:size-4 shrink-0 transition-transform duration-200 group-hover:scale-110"
+              viewBox="0 0 18 18"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3.025,5.623c.068,.204,.26,.342,.475,.342s.406-.138,.475-.342l.421-1.263,1.263-.421c.204-.068,.342-.259,.342-.474s-.138-.406-.342-.474l-1.263-.421-.421-1.263c-.137-.408-.812-.408-.949,0l-.421,1.263-1.263,.421c-.204,.068-.342,.259-.342,.474s.138,.406,.342,.474l1.263,.421,.421,1.263Z"
+                className="fill-[#6495ED]"
+              />
+              <path
+                d="M16.525,8.803l-4.535-1.793-1.793-4.535c-.227-.572-1.168-.572-1.395,0l-1.793,4.535-4.535,1.793c-.286,.113-.475,.39-.475,.697s.188,.584,.475,.697l4.535,1.793,1.793,4.535c.113,.286,.39,.474,.697,.474s.584-.188,.697-.474l1.793-4.535,4.535-1.793c.286-.113,.475-.39,.475-.697s-.188-.584-.475-.697Z"
+                className="fill-[#6495ED]"
+              />
+            </svg>
+            <span className="animate-shimmer-text font-medium leading-none text-[#6495ED]">Ask AI</span>
+          </button>
+        </div>
       </motion.div>
+      </div>
     </div>
   );
 

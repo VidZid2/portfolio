@@ -7,7 +7,6 @@ export const ROUTES = [
   "/projects/sti-elms",
   "/experience",
   "/milestones",
-  "/changelog",
   "/pull-requests",
   "/contact",
   "/resume",

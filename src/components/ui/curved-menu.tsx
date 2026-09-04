@@ -69,7 +69,7 @@ export function CurvedMenu({ isOpen, onClose, children, className, onAnimationCo
               if (onAnimationComplete) onAnimationComplete();
             }}
             className={cn(
-              "fixed inset-x-0 bottom-0 z-[10000] h-[100dvh] w-full bg-white dark:bg-zinc-950 shadow-2xl flex flex-col overflow-hidden",
+              "fixed inset-x-0 bottom-0 z-[10000] h-[100dvh] w-full bg-white dark:bg-black shadow-2xl flex flex-col overflow-hidden",
               className
             )}
           >

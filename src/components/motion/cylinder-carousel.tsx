@@ -157,13 +157,13 @@ function CarouselBall({
   // deliberately unclamped: a ball keeps following the same curve as it
   // crosses the edge, so entries never pop.
   const y = useTransform(x, (px) => {
-    const t = px / halfWidth;
+    const t = Math.max(-1.3, Math.min(1.3, px / halfWidth));
     const valley = arc * (0.5 - t * t);
     return convex ? -valley : valley;
   });
   // Fully off-stage balls stop painting (matters for canvas/shader children).
   const visibility = useTransform(x, (px) =>
-    Math.abs(px) > halfWidth + itemSize ? "hidden" : "visible",
+    Math.abs(px) > halfWidth + itemSize * 0.2 ? "hidden" : "visible",
   );
   // Ensure the larger (front/center) balls are always stacked on top for clicking
   const zIndex = useTransform(scale, (s) => Math.round(s * 100));
@@ -184,8 +184,8 @@ function CarouselBall({
   // Natural edge fade so items dissolve seamlessly as they roll towards both ends
   const edgeOpacity = useTransform(x, (px) => {
     const dist = Math.abs(px);
-    const fadeStart = halfWidth - itemSize * 0.75;
-    const fadeEnd = halfWidth + itemSize * 0.2;
+    const fadeStart = halfWidth - itemSize * 0.6;
+    const fadeEnd = halfWidth + itemSize * 0.1;
     if (dist <= fadeStart) return 1;
     if (dist >= fadeEnd) return 0;
     return Math.max(0, 1 - (dist - fadeStart) / (fadeEnd - fadeStart));

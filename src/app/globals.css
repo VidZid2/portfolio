@@ -90,6 +90,23 @@
   }
 }
 
+@keyframes shimmer-text {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.animate-shimmer-text {
+  background: linear-gradient(90deg, #6495ED 0%, #B0C4DE 40%, #E6E6FA 50%, #B0C4DE 60%, #6495ED 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer-text 3s infinite linear;
+}
+
 @keyframes highlight {
   0%, 20% {
     background-color: transparent;
