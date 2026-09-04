@@ -156,7 +156,7 @@ export default function ChangelogPage() {
                 <TimescaleYear>DATE</TimescaleYear>
               </TimescaleHeader>
 
-              <TimescaleViewport>
+              <TimescaleViewport autoFollow={isAnimated} duration={3.2}>
                 <TimescaleTrack>
                   <TimescaleRail animated={isAnimated} duration={3.2} />
 

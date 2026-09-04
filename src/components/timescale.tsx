@@ -101,10 +101,50 @@ export function TimescaleRoot({
   );
 }
 
-export type TimescaleViewportProps = React.ComponentProps<"div">;
+// High-precision cubic-bezier solver matching Framer Motion's [0.72, 0, 0.24, 1]
+function solveCubicBezier(p1x: number, p1y: number, p2x: number, p2y: number) {
+  const cx = 3 * p1x;
+  const bx = 3 * (p2x - p1x) - cx;
+  const ax = 1 - cx - bx;
+
+  const cy = 3 * p1y;
+  const by = 3 * (p2y - p1y) - cy;
+  const ay = 1 - cy - by;
+
+  function sampleCurveX(t: number) {
+    return ((ax * t + bx) * t + cx) * t;
+  }
+  function sampleCurveY(t: number) {
+    return ((ay * t + by) * t + cy) * t;
+  }
+  function sampleCurveDerivativeX(t: number) {
+    return (3 * ax * t + 2 * bx) * t + cx;
+  }
+
+  return function (x: number) {
+    let t = x;
+    for (let i = 0; i < 8; i++) {
+      const currentX = sampleCurveX(t) - x;
+      if (Math.abs(currentX) < 1e-4) break;
+      const dX = sampleCurveDerivativeX(t);
+      if (Math.abs(dX) < 1e-6) break;
+      t -= currentX / dX;
+    }
+    return sampleCurveY(Math.max(0, Math.min(1, t)));
+  };
+}
+
+const timelineEase = solveCubicBezier(0.72, 0, 0.24, 1);
+
+export type TimescaleViewportProps = React.ComponentProps<"div"> & {
+  autoFollow?: boolean;
+  duration?: number;
+};
 
 export function TimescaleViewport({
   className,
+  autoFollow = true,
+  duration = 3.2,
   children,
   ...props
 }: TimescaleViewportProps) {
@@ -118,6 +158,8 @@ export function TimescaleViewport({
   const lastX = useRef(0);
   const lastTime = useRef(0);
   const animFrameId = useRef<number | null>(null);
+  const cameraAnimId = useRef<number | null>(null);
+  const userInterrupted = useRef(false);
   const hasMoved = useRef(false);
   const [isDraggingState, setIsDraggingState] = useState(false);
 
@@ -136,10 +178,23 @@ export function TimescaleViewport({
     }
   };
 
+  const stopCameraFollow = useCallback(() => {
+    if (cameraAnimId.current !== null) {
+      cancelAnimationFrame(cameraAnimId.current);
+      cameraAnimId.current = null;
+    }
+  }, []);
+
+  const interruptCamera = () => {
+    userInterrupted.current = true;
+    stopCameraFollow();
+  };
+
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!viewportRef.current) return;
     if (e.button !== 0) return; // Only primary mouse button
 
+    interruptCamera();
     stopMomentum();
     isDown.current = true;
     hasMoved.current = false;
@@ -243,6 +298,60 @@ export function TimescaleViewport({
     }
   };
 
+  // Synchronized camera/viewport auto-follow as the line draws
+  useEffect(() => {
+    if (!autoFollow) return;
+    const el = viewportRef.current;
+    if (!el) return;
+
+    userInterrupted.current = false;
+    stopCameraFollow();
+    el.scrollLeft = 0;
+    exactScroll.current = 0;
+
+    let startTimestamp: number | null = null;
+
+    // Small raf delay to ensure layout measurements are settled
+    const startFrame = requestAnimationFrame(() => {
+      const step = (timestamp: number) => {
+        if (userInterrupted.current || !viewportRef.current) return;
+        if (startTimestamp === null) startTimestamp = timestamp;
+
+        const elapsedSec = (timestamp - startTimestamp) / 1000;
+        const u = Math.min(1, Math.max(0, elapsedSec / duration));
+        const progress = timelineEase(u);
+
+        const currentEl = viewportRef.current;
+        const { scrollWidth, clientWidth } = currentEl;
+        const maxScroll = Math.max(0, scrollWidth - clientWidth);
+
+        if (maxScroll > 0) {
+          const tipX = progress * scrollWidth;
+          // Keep the drawing tip at ~55% of the visible viewport width
+          const desiredScroll = tipX - clientWidth * 0.55;
+          const clamped = Math.max(0, Math.min(maxScroll, desiredScroll));
+
+          currentEl.scrollLeft = clamped;
+          exactScroll.current = clamped;
+          updateScrollBounds();
+        }
+
+        if (u < 1) {
+          cameraAnimId.current = requestAnimationFrame(step);
+        } else {
+          cameraAnimId.current = null;
+        }
+      };
+
+      cameraAnimId.current = requestAnimationFrame(step);
+    });
+
+    return () => {
+      cancelAnimationFrame(startFrame);
+      stopCameraFollow();
+    };
+  }, [autoFollow, duration, stopCameraFollow, updateScrollBounds]);
+
   useEffect(() => {
     const el = viewportRef.current;
     if (!el) return;
@@ -251,10 +360,11 @@ export function TimescaleViewport({
     window.addEventListener("resize", updateScrollBounds);
     return () => {
       stopMomentum();
+      stopCameraFollow();
       el.removeEventListener("scroll", updateScrollBounds);
       window.removeEventListener("resize", updateScrollBounds);
     };
-  }, [updateScrollBounds]);
+  }, [updateScrollBounds, stopCameraFollow]);
 
   return (
     <div
@@ -268,6 +378,8 @@ export function TimescaleViewport({
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerCancel}
       onClickCapture={handleClickCapture}
+      onWheel={interruptCamera}
+      onTouchStart={interruptCamera}
       className={cn(
         "no-scrollbar w-full overflow-x-auto overscroll-x-contain select-none touch-pan-y",
         isDraggingState ? "cursor-grabbing" : "cursor-default",
