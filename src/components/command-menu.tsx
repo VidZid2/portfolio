@@ -34,6 +34,7 @@ import {
 import { createPortal } from "react-dom"
 import dynamic from "next/dynamic"
 import { Swirling } from "@/components/loading-ui/swirling"
+import { HandwritingText } from "@/components/ui/handwriting-text"
 
 function AiLoadingFallback() {
   const mounted = React.useSyncExternalStore(
@@ -301,11 +302,11 @@ export function CommandMenu() {
             </button>
 
             <div className="relative group/ai inline-flex items-center">
-                {/* Handwritten Annotation: talk to my AI / ask me anything pointing to Ask AI */}
-                <div className="absolute left-full ml-4 sm:ml-6 -top-16 sm:-top-18 hidden sm:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
-                    <div className="flex flex-col text-left font-caveat italic text-[16px] sm:text-[19px] leading-[1.05] font-medium text-zinc-600 dark:text-zinc-400 select-none -rotate-[6deg] tracking-wide ml-2">
-                        <span>talk to my AI</span>
-                        <span>ask me anything</span>
+                {/* Handwritten Annotation: talk to my AI / ask me anything pointing to Ask AI - PC only */}
+                <div className="absolute left-full ml-4 sm:ml-6 -top-16 sm:-top-18 hidden xl:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
+                    <div className="flex flex-col items-start text-left font-medium text-zinc-600 dark:text-zinc-400 select-none -rotate-[6deg] tracking-wide ml-2 gap-0.5">
+                        <HandwritingText text="talk to my AI" delay={0.2} duration={1.2} height="19px" />
+                        <HandwritingText text="ask me anything" delay={0.9} duration={1.3} height="19px" />
                     </div>
                     <svg
                         width="54"
@@ -316,18 +317,26 @@ export function CommandMenu() {
                         className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-2"
                     >
                         {/* Deep organic J/U-curve starting on right under anything and sweeping left into Ask AI button */}
-                        <path
+                        <motion.path
                             d="M 48 2 C 50 18, 22 32, -14 30"
                             stroke="currentColor"
                             strokeWidth="1.35"
                             strokeLinecap="round"
+                            initial={{ pathLength: 0, opacity: 0 }}
+                            whileInView={{ pathLength: 1, opacity: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.8, delay: 1.6, ease: "easeInOut" }}
                         />
-                        <path
+                        <motion.path
                             d="M -5 24 L -14 30 L -6 36"
                             stroke="currentColor"
                             strokeWidth="1.35"
                             strokeLinecap="round"
                             strokeLinejoin="round"
+                            initial={{ pathLength: 0, opacity: 0 }}
+                            whileInView={{ pathLength: 1, opacity: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.35, delay: 2.2, ease: "easeOut" }}
                         />
                     </svg>
                 </div>

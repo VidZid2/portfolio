@@ -17,6 +17,7 @@ import { LetsConnect } from "@/components/LetsConnect";
 import { TransitionLink } from "@/components/TransitionLink";
 import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 import { CornerMark } from "@/components/ui/corner-mark";
+import { HandwritingText } from "@/components/ui/handwriting-text";
 
 const SOCIAL_LINKS = [
   {
@@ -398,10 +399,10 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
       {/* Socials Row (5-Column Mathematical Blueprint Grid) */}
       <div className="relative flex items-center py-0 w-full">
         {/* Handwritten Annotation in Left Gutter outside the vertical line - PC/Desktop only */}
-        <div className="absolute right-full top-[-42px] sm:top-[-46px] pr-4 sm:pr-5 hidden md:flex flex-col items-end pointer-events-none select-none z-30 min-w-max">
-          <div className="flex flex-col text-right font-caveat italic text-[16px] sm:text-[19px] leading-[1.05] font-medium text-zinc-600 dark:text-zinc-400 select-none mr-2 -rotate-[6deg] tracking-wide">
-            <span>feel free to reach out</span>
-            <span>say hi or connect</span>
+        <div className="absolute right-full top-[-42px] sm:top-[-46px] pr-4 sm:pr-5 hidden xl:flex flex-col items-end pointer-events-none select-none z-30 min-w-max">
+          <div className="flex flex-col items-end text-right font-medium text-zinc-600 dark:text-zinc-400 select-none mr-2 -rotate-[6deg] tracking-wide gap-0.5">
+            <HandwritingText text="feel free to reach out" delay={0.2} duration={1.3} height="19px" />
+            <HandwritingText text="say hi or connect" delay={0.9} duration={1.2} height="19px" />
           </div>
           <svg
             width="36"
@@ -411,18 +412,26 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
             xmlns="http://www.w3.org/2000/svg"
             className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-1 translate-x-1.5"
           >
-            <path
+            <motion.path
               d="M 4 2 C 4 10, 16 18, 34 18"
               stroke="currentColor"
               strokeWidth="1.35"
               strokeLinecap="round"
+              initial={{ pathLength: 0, opacity: 0 }}
+              whileInView={{ pathLength: 1, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 1.6, ease: "easeInOut" }}
             />
-            <path
+            <motion.path
               d="M 26 12 L 34 18 L 27 24"
               stroke="currentColor"
               strokeWidth="1.35"
               strokeLinecap="round"
               strokeLinejoin="round"
+              initial={{ pathLength: 0, opacity: 0 }}
+              whileInView={{ pathLength: 1, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.35, delay: 2.2, ease: "easeOut" }}
             />
           </svg>
         </div>

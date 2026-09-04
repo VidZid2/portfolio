@@ -34,6 +34,7 @@ import { useSectionReveal } from "@/hooks/use-section-reveal";
 import { DOT_MASK_HORIZONTAL, DOT_MASK_VERTICAL } from "@/lib/blueprint";
 import { CornerMark } from "@/components/ui/corner-mark";
 import { cn } from "@/lib/utils";
+import { HandwritingText } from "@/components/ui/handwriting-text";
 
 /** How long each logo stays visible before cycling to the next one (ms). */
 const CYCLE_INTERVAL = 2600;
@@ -942,10 +943,10 @@ export function SupportedBySection({
         {/* Centered Header: SPECIAL THANKS & COMPONENT INSPIRATIONS */}
         <div className="relative h-[32px] sm:h-[36px] flex items-center justify-center px-8 sm:px-10 text-center">
           {/* Handwritten Annotation in Right Gutter: extraordinary creators ↙ - PC/Desktop only */}
-          <div className="absolute left-full top-[-16px] sm:top-[-18px] pl-5 sm:pl-6 hidden md:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
-            <span className="font-caveat italic text-[16px] sm:text-[18px] leading-none font-medium text-zinc-500 dark:text-zinc-400 rotate-[3deg] tracking-wide ml-1">
-              extraordinary creators
-            </span>
+          <div className="absolute left-full top-[-16px] sm:top-[-18px] pl-5 sm:pl-6 hidden xl:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
+            <div className="rotate-[3deg] ml-1 text-zinc-500 dark:text-zinc-400">
+              <HandwritingText text="extraordinary creators" delay={0.2} duration={1.3} height="19px" />
+            </div>
             <svg
               className="w-12 h-6 text-zinc-400 dark:text-zinc-500 overflow-visible mt-1 -ml-3"
               viewBox="0 0 46 24"
@@ -955,8 +956,20 @@ export function SupportedBySection({
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M42 4 C 30 9, 16 15, 3 17" />
-              <path d="m 11 12 -8 5 8 4" />
+              <motion.path
+                d="M42 4 C 30 9, 16 15, 3 17"
+                initial={{ pathLength: 0, opacity: 0 }}
+                whileInView={{ pathLength: 1, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 1.5, ease: "easeInOut" }}
+              />
+              <motion.path
+                d="m 11 12 -8 5 8 4"
+                initial={{ pathLength: 0, opacity: 0 }}
+                whileInView={{ pathLength: 1, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.35, delay: 2.1, ease: "easeOut" }}
+              />
             </svg>
           </div>
 

@@ -157,20 +157,49 @@ import {
   playUFOSound,
   playEMPNukeSound,
   playHoverTick,
+  playCritLaserSound,
+  playMegaBoomSound,
+  playCoinPickupSound,
+  playShieldDeflectSound,
+  playOverdriveFanfare,
+  playCometWhizSound,
+  playMissileLaunchSound,
 } from "@/lib/synth-sounds";
 
 function playSound(
-  type: "laser" | "explosion" | "hit" | "victory" | "superCombo" | "powerup" | "ufo" | "nuke",
+  type:
+    | "laser"
+    | "critLaser"
+    | "explosion"
+    | "megaBoom"
+    | "hit"
+    | "victory"
+    | "superCombo"
+    | "powerup"
+    | "ufo"
+    | "nuke"
+    | "coin"
+    | "shield"
+    | "overdrive"
+    | "comet"
+    | "missile",
   param: number = 0
 ) {
   if (type === "laser") playLaserSound(0.055);
+  else if (type === "critLaser") playCritLaserSound(0.07);
   else if (type === "explosion") playExplosionSound(0.07);
+  else if (type === "megaBoom") playMegaBoomSound(0.095);
   else if (type === "hit") playHitChime(param, 0.075);
   else if (type === "victory") playVictoryFanfare(0.09);
   else if (type === "superCombo") playSuperComboSound(param === 10 ? 10 : 5, 0.08);
   else if (type === "powerup") playPowerUpSound(0.085);
   else if (type === "ufo") playUFOSound(0.085);
   else if (type === "nuke") playEMPNukeSound(0.095);
+  else if (type === "coin") playCoinPickupSound(0.08);
+  else if (type === "shield") playShieldDeflectSound(0.075);
+  else if (type === "overdrive") playOverdriveFanfare(0.09);
+  else if (type === "comet") playCometWhizSound(0.075);
+  else if (type === "missile") playMissileLaunchSound(0.065);
 }
 
 // ─── API fetch ────────────────────────────────────────────────────────────────
@@ -866,8 +895,13 @@ export const GithubCalendar = memo(function GithubCalendar({
     let superLaserCharges = 0;
     let triBeamUntil = 0;
     let rapidFireUntil = 0;
+    let homingMissilesUntil = 0;
     let shieldActive = false;
+    let feverActive = false;
     let wave = 1;
+    let shipTilt = 0;
+    let shipVx = 0;
+    let screenFlash = { color: "#ffffff", alpha: 0 };
 
     // Load High Score from localStorage safely
     let highScore = 0;
@@ -895,10 +929,12 @@ export const GithubCalendar = memo(function GithubCalendar({
     // Device performance constraints
     const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
     const isTablet = typeof window !== "undefined" && window.innerWidth < 1024;
-    const MAX_PARTICLES = isMobile ? 32 : isTablet ? 48 : 72;
-    const MAX_SHOCKWAVES = 4;
-    const MAX_FLOAT_TEXTS = 6;
-    const STAR_COUNT = isMobile ? 30 : isTablet ? 55 : 85;
+    const MAX_PARTICLES = isMobile ? 45 : isTablet ? 70 : 105;
+    const MAX_SHOCKWAVES = 6;
+    const MAX_FLOAT_TEXTS = 8;
+    const MAX_ENERGY_ORBS = 12;
+    const MAX_MISSILES = 8;
+    const STAR_COUNT = isMobile ? 32 : isTablet ? 58 : 88;
 
     // Victory celebration state
     const victoryState = {
@@ -974,6 +1010,7 @@ export const GithubCalendar = memo(function GithubCalendar({
       userControlled: false,
       lastUserInteraction: 0,
     };
+    let prevPlayerX = player.x;
 
     // Golden Mystery UFO Boss
     const ufo = {
@@ -987,13 +1024,33 @@ export const GithubCalendar = memo(function GithubCalendar({
       nextSpawn: Date.now() + 12000,
     };
 
+    // Celestial Bonus Comet
+    type CelestialComet = {
+      active: boolean;
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      radius: number;
+      nextSpawn: number;
+    };
+    const comet: CelestialComet = {
+      active: false,
+      x: -40,
+      y: 20,
+      vx: 3.0,
+      vy: 0.7,
+      radius: 6.5,
+      nextSpawn: Date.now() + 14000,
+    };
+
     // Power-Up Drops
     type PowerUp = {
       x: number;
       y: number;
       vx: number;
       vy: number;
-      type: "tri" | "shield" | "nuke" | "rapid";
+      type: "tri" | "shield" | "nuke" | "rapid" | "missile";
       label: string;
       icon: string;
       color: string;
@@ -1002,6 +1059,42 @@ export const GithubCalendar = memo(function GithubCalendar({
       createdAt: number;
     };
     let powerUps: PowerUp[] = [];
+
+    // Homing Missiles
+    type HomingMissile = {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      speed: number;
+      angle: number;
+      life: number;
+      maxLife: number;
+    };
+    let missiles: HomingMissile[] = [];
+
+    // Magnetic Energy Orbs / Star Crystals
+    type EnergyOrb = {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      value: number;
+      color: string;
+      radius: number;
+      createdAt: number;
+    };
+    let energyOrbs: EnergyOrb[] = [];
+
+    // Muzzle Flashes
+    type MuzzleFlash = {
+      x: number;
+      y: number;
+      radius: number;
+      color: string;
+      alpha: number;
+    };
+    let muzzleFlashes: MuzzleFlash[] = [];
 
     // Mouse & Touch Controls
     const setTargetFromClientX = (clientX: number) => {
@@ -1070,6 +1163,12 @@ export const GithubCalendar = memo(function GithubCalendar({
         victoryState.targetAlpha = 0;
         gameplayAlpha = 1;
         superLaserCharges += 2;
+        missiles = [];
+        energyOrbs = [];
+        muzzleFlashes = [];
+        homingMissilesUntil = 0;
+        feverActive = false;
+        comet.active = false;
         resetCells();
       } else if (
         clickX >= exitBounds.left &&
@@ -1108,12 +1207,93 @@ export const GithubCalendar = memo(function GithubCalendar({
     let bullets: GameBullet[] = [];
     let lastShot = 0;
 
+    const addMuzzleFlash = (x: number, y: number, color: string, radius: number = 4.5) => {
+      muzzleFlashes.push({ x, y, radius, color, alpha: 0.95 });
+      if (muzzleFlashes.length > 8) muzzleFlashes.shift();
+    };
+
+    const spawnMissile = (x: number, y: number, angleOffset: number) => {
+      missiles.push({
+        x,
+        y,
+        vx: Math.sin(angleOffset) * 3.8,
+        vy: -Math.cos(angleOffset) * 3.8,
+        speed: 4.2,
+        angle: angleOffset,
+        life: 0,
+        maxLife: 95,
+      });
+      if (missiles.length > MAX_MISSILES) missiles.shift();
+    };
+
     const shoot = () => {
       shotCount++;
       const now = Date.now();
       const hasTriBeam = now < triBeamUntil || superLaserCharges > 0;
 
-      if (hasTriBeam) {
+      if (feverActive) {
+        // 5-Way Hyper Overdrive Plasma Spread
+        bullets.push({
+          x: player.x + player.width / 2 - 2,
+          y: player.y - 6,
+          vx: 0,
+          vy: -5.2,
+          width: 4.5,
+          height: 14,
+          color: "#38bdf8",
+          glowColor: "#0284c7",
+          isSpecial: true,
+        });
+        bullets.push({
+          x: player.x + 4,
+          y: player.y - 4,
+          vx: -0.85,
+          vy: -4.8,
+          width: 3.5,
+          height: 12,
+          color: "#e879f9",
+          glowColor: "#c084fc",
+          isSpecial: true,
+        });
+        bullets.push({
+          x: player.x + player.width - 7.5,
+          y: player.y - 4,
+          vx: 0.85,
+          vy: -4.8,
+          width: 3.5,
+          height: 12,
+          color: "#e879f9",
+          glowColor: "#c084fc",
+          isSpecial: true,
+        });
+        bullets.push({
+          x: player.x,
+          y: player.y - 2,
+          vx: -1.6,
+          vy: -4.4,
+          width: 3,
+          height: 10,
+          color: "#facc15",
+          glowColor: "#eab308",
+          isSpecial: true,
+        });
+        bullets.push({
+          x: player.x + player.width - 3,
+          y: player.y - 2,
+          vx: 1.6,
+          vy: -4.4,
+          width: 3,
+          height: 10,
+          color: "#facc15",
+          glowColor: "#eab308",
+          isSpecial: true,
+        });
+
+        addMuzzleFlash(player.x + player.width / 2, player.y - 6, "#38bdf8", 7);
+        addMuzzleFlash(player.x + 4, player.y - 4, "#e879f9", 5);
+        addMuzzleFlash(player.x + player.width - 4, player.y - 4, "#e879f9", 5);
+        playSound("critLaser");
+      } else if (hasTriBeam) {
         if (superLaserCharges > 0 && now >= triBeamUntil) {
           superLaserCharges--;
         }
@@ -1122,7 +1302,7 @@ export const GithubCalendar = memo(function GithubCalendar({
           x: player.x + 2,
           y: player.y - 2,
           vx: -0.65,
-          vy: -4.3,
+          vy: -4.4,
           width: 3.5,
           height: 11,
           color: "#facc15",
@@ -1133,9 +1313,9 @@ export const GithubCalendar = memo(function GithubCalendar({
           x: player.x + player.width / 2 - 1.75,
           y: player.y - 5,
           vx: 0,
-          vy: -4.6,
+          vy: -4.8,
           width: 4,
-          height: 12,
+          height: 13,
           color: "#e879f9",
           glowColor: "#c084fc",
           isSpecial: true,
@@ -1144,20 +1324,24 @@ export const GithubCalendar = memo(function GithubCalendar({
           x: player.x + player.width - 5.5,
           y: player.y - 2,
           vx: 0.65,
-          vy: -4.3,
+          vy: -4.4,
           width: 3.5,
           height: 11,
           color: "#facc15",
           glowColor: "#eab308",
           isSpecial: true,
         });
+        addMuzzleFlash(player.x + player.width / 2, player.y - 5, "#e879f9", 6);
+        addMuzzleFlash(player.x + 3, player.y - 2, "#facc15", 4.5);
+        addMuzzleFlash(player.x + player.width - 5, player.y - 2, "#facc15", 4.5);
+        playSound("critLaser");
       } else if (shotCount % 5 === 0) {
         // Dual Wing Laser Cannons
         bullets.push({
           x: player.x + 4,
           y: player.y - 2,
           vx: -0.2,
-          vy: -4.1,
+          vy: -4.2,
           width: 3.5,
           height: 10,
           color: "#38bdf8",
@@ -1168,30 +1352,41 @@ export const GithubCalendar = memo(function GithubCalendar({
           x: player.x + player.width - 7.5,
           y: player.y - 2,
           vx: 0.2,
-          vy: -4.1,
+          vy: -4.2,
           width: 3.5,
           height: 10,
           color: "#38bdf8",
           glowColor: "#0284c7",
           isSpecial: true,
         });
+        addMuzzleFlash(player.x + 5, player.y - 2, "#38bdf8", 5);
+        addMuzzleFlash(player.x + player.width - 6, player.y - 2, "#38bdf8", 5);
+        playSound("laser");
       } else {
         // Center Plasma Laser
         bullets.push({
           x: player.x + player.width / 2 - 1.5,
           y: player.y - 4,
           vx: 0,
-          vy: -4.1,
+          vy: -4.2,
           width: 3,
           height: 9,
           color: "#fbbf24",
           glowColor: "#f59e0b",
         });
+        addMuzzleFlash(player.x + player.width / 2, player.y - 4, "#fbbf24", 4.5);
+        playSound("laser");
       }
-      playSound("laser");
+
+      // Homing Missiles Launch
+      if (now < homingMissilesUntil && shotCount % 2 === 0) {
+        spawnMissile(player.x + 2, player.y - 2, -0.35);
+        spawnMissile(player.x + player.width - 2, player.y - 2, 0.35);
+        playSound("missile");
+      }
     };
 
-    // Stars background (Deep Space parallax effect)
+    // Stars background (Deep Space parallax effect with Warp Speed support)
     const stars = Array.from({ length: STAR_COUNT }).map(() => ({
       x: Math.random() * canvasWidth,
       y: Math.random() * canvasHeight,
@@ -1225,7 +1420,7 @@ export const GithubCalendar = memo(function GithubCalendar({
     };
     let shockwaves: Shockwave[] = [];
 
-    // Floating text popups (+100, COMBO x2)
+    // Floating text popups with spring scale & glowing crits
     type FloatText = {
       x: number;
       y: number;
@@ -1233,6 +1428,9 @@ export const GithubCalendar = memo(function GithubCalendar({
       color: string;
       alpha: number;
       vy: number;
+      scale: number;
+      targetScale: number;
+      isCrit?: boolean;
     };
     let floatTexts: FloatText[] = [];
 
@@ -1250,22 +1448,60 @@ export const GithubCalendar = memo(function GithubCalendar({
       }
     };
 
-    const addFloatText = (t: FloatText) => {
-      floatTexts.push(t);
+    const addFloatText = (t: {
+      x: number;
+      y: number;
+      text: string;
+      color: string;
+      alpha?: number;
+      vy?: number;
+      scale?: number;
+      targetScale?: number;
+      isCrit?: boolean;
+    }) => {
+      floatTexts.push({
+        x: t.x,
+        y: t.y,
+        text: t.text,
+        color: t.color,
+        alpha: t.alpha ?? 1,
+        vy: t.vy ?? -0.6,
+        scale: t.scale ?? 1.5,
+        targetScale: t.targetScale ?? 1.0,
+        isCrit: t.isCrit ?? false,
+      });
       if (floatTexts.length > MAX_FLOAT_TEXTS) {
         floatTexts.shift();
+      }
+    };
+
+    const spawnEnergyOrbs = (x: number, y: number, count: number, valuePerOrb: number = 50) => {
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
+        const speed = Math.random() * 1.8 + 0.8;
+        energyOrbs.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 0.8,
+          value: valuePerOrb,
+          color: "#facc15",
+          radius: 4,
+          createdAt: Date.now(),
+        });
+        if (energyOrbs.length > MAX_ENERGY_ORBS) energyOrbs.shift();
       }
     };
 
     const explode = (x: number, y: number, color: string, isFullDestroy: boolean) => {
       if (isFullDestroy) {
         playSound("explosion");
-        screenShake = 3;
+        screenShake = 3.5;
         addShockwave({
           x,
           y,
           radius: 2,
-          maxRadius: 22,
+          maxRadius: 24,
           color,
           alpha: 0.9,
         });
@@ -1274,33 +1510,53 @@ export const GithubCalendar = memo(function GithubCalendar({
       }
 
       // Shard Debris Particles
-      const count = isFullDestroy ? (isMobile ? 7 : 12) : isMobile ? 3 : 5;
+      const count = isFullDestroy ? (isMobile ? 8 : 14) : isMobile ? 3 : 6;
       for (let i = 0; i < count; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = isFullDestroy ? Math.random() * 2.5 + 1.0 : Math.random() * 1.4 + 0.6;
+        const speed = isFullDestroy ? Math.random() * 2.8 + 1.2 : Math.random() * 1.5 + 0.6;
         addParticle({
           x,
           y,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
           color,
-          size: Math.random() * 2.2 + 1.0,
+          size: Math.random() * 2.4 + 1.0,
           alpha: 1,
           life: 0,
           maxLife: Math.random() * 16 + 16,
         });
+      }
+
+      // Bright spark flash in center
+      if (isFullDestroy) {
+        for (let j = 0; j < 4; j++) {
+          const sparkAngle = Math.random() * Math.PI * 2;
+          const sparkSpeed = Math.random() * 3.5 + 1.5;
+          addParticle({
+            x,
+            y,
+            vx: Math.cos(sparkAngle) * sparkSpeed,
+            vy: Math.sin(sparkAngle) * sparkSpeed,
+            color: "#ffffff",
+            size: Math.random() * 1.8 + 1.0,
+            alpha: 1,
+            life: 0,
+            maxLife: 10,
+          });
+        }
       }
     };
 
     // Quantum EMP Nuke detonation
     const triggerEMPNuke = (originX: number) => {
       playSound("nuke");
-      screenShake = 6;
+      screenShake = 7;
+      screenFlash = { color: "#60a5fa", alpha: 0.38 };
       addShockwave({
         x: originX,
         y: logicalHeight / 2,
         radius: 4,
-        maxRadius: 120,
+        maxRadius: 130,
         color: "#60a5fa",
         alpha: 1,
       });
@@ -1333,6 +1589,9 @@ export const GithubCalendar = memo(function GithubCalendar({
         color: "#60a5fa",
         alpha: 1,
         vy: -0.5,
+        scale: 1.8,
+        targetScale: 1.0,
+        isCrit: true,
       });
       saveHighScore(score);
     };
@@ -1344,6 +1603,7 @@ export const GithubCalendar = memo(function GithubCalendar({
       if (now - lastHitTime > 1600) {
         combo = 0;
         comboDisplay.targetAlpha = 0;
+        feverActive = false;
       }
 
       // Smooth spring interpolation for combo display
@@ -1391,34 +1651,41 @@ export const GithubCalendar = memo(function GithubCalendar({
 
       player.x = Math.max(minX, Math.min(maxX, player.x));
 
+      // Ship velocity & banking tilt
+      shipVx = player.x - prevPlayerX;
+      const targetTilt = Math.max(-0.25, Math.min(0.25, shipVx * 0.045));
+      shipTilt += (targetTilt - shipTilt) * 0.18;
+      prevPlayerX = player.x;
+
       // ── Thruster Exhaust Plasma Particles ──────────────────────────────────
-      if (!victoryState.active && Math.random() < (isMobile ? 0.4 : 0.6)) {
+      if (!victoryState.active && Math.random() < (isMobile ? 0.45 : 0.7)) {
         addParticle({
-          x: player.x + player.width / 2 + (Math.random() * 6 - 3),
-          y: player.y + player.height * 0.8,
-          vx: (Math.random() - 0.5) * 0.8,
-          vy: Math.random() * 1.6 + 1.1,
-          color:
-            now < triBeamUntil
-              ? "#e879f9"
-              : now < rapidFireUntil
-              ? "#f97316"
-              : combo >= 10
-              ? "#e879f9"
-              : combo >= 5
-              ? "#facc15"
-              : Math.random() > 0.4
-              ? "#38bdf8"
-              : "#f59e0b",
-          size: Math.random() * 2 + 1,
-          alpha: 0.8,
+          x: player.x + player.width / 2 + (Math.random() * 8 - 4),
+          y: player.y + player.height * 0.85,
+          vx: (Math.random() - 0.5) * 0.9 - shipVx * 0.1,
+          vy: Math.random() * 1.8 + 1.2,
+          color: feverActive
+            ? "#e879f9"
+            : now < triBeamUntil
+            ? "#e879f9"
+            : now < rapidFireUntil
+            ? "#f97316"
+            : combo >= 10
+            ? "#e879f9"
+            : combo >= 5
+            ? "#facc15"
+            : Math.random() > 0.4
+            ? "#38bdf8"
+            : "#f59e0b",
+          size: Math.random() * 2.2 + 1,
+          alpha: 0.85,
           life: 0,
           maxLife: 14,
         });
       }
 
-      // ── Shooting Logic (Adapts with Rapid Fire Overclock) ─────────────────
-      const cooldown = now < rapidFireUntil ? 170 : 360;
+      // ── Shooting Logic (Adapts with Fever Overdrive & Rapid Fire) ─────────
+      const cooldown = feverActive ? 140 : now < rapidFireUntil ? 170 : 360;
       if (!victoryState.active && now - lastShot >= cooldown) {
         shoot();
         lastShot = now;
@@ -1455,6 +1722,280 @@ export const GithubCalendar = memo(function GithubCalendar({
         }
       }
 
+      // ── Celestial Bonus Comet Spawning & Movement ──────────────────────────
+      if (!comet.active && now >= comet.nextSpawn && !victoryState.active) {
+        comet.active = true;
+        const fromLeft = Math.random() > 0.5;
+        comet.x = fromLeft ? -20 : logicalWidth + 20;
+        comet.y = Math.random() * (logicalHeight * 0.35) + 8;
+        comet.vx = fromLeft ? 2.8 : -2.8;
+        comet.vy = 0.55;
+        comet.nextSpawn = now + Math.random() * 12000 + 18000;
+        playSound("comet");
+      }
+
+      if (comet.active) {
+        comet.x += comet.vx;
+        comet.y += comet.vy;
+
+        // Star sparkle trail behind comet
+        for (let k = 0; k < 2; k++) {
+          addParticle({
+            x: comet.x - comet.vx * (k * 0.4),
+            y: comet.y - comet.vy * (k * 0.4),
+            vx: -comet.vx * 0.15 + (Math.random() - 0.5) * 0.5,
+            vy: (Math.random() - 0.5) * 0.5,
+            color: ["#facc15", "#e879f9", "#38bdf8", "#34d399", "#f43f5e"][Math.floor(Math.random() * 5)]!,
+            size: Math.random() * 2.2 + 1,
+            alpha: 0.9,
+            life: 0,
+            maxLife: 14,
+          });
+        }
+
+        if (comet.x < -50 || comet.x > logicalWidth + 50 || comet.y > logicalHeight + 30) {
+          comet.active = false;
+        }
+      }
+
+      // ── Update Homing Missiles ─────────────────────────────────────────────
+      missiles = missiles.filter((m) => {
+        m.life++;
+        if (m.life >= m.maxLife) return false;
+
+        // Find nearest valid target among active cells, UFO, or comet
+        let bestTargetX = -1;
+        let bestTargetY = -1;
+        let minDist = Infinity;
+
+        // Target UFO if active
+        if (ufo.active) {
+          const dist = Math.hypot(ufo.x + ufo.width / 2 - m.x, ufo.y + ufo.height / 2 - m.y);
+          if (dist < minDist) {
+            minDist = dist;
+            bestTargetX = ufo.x + ufo.width / 2;
+            bestTargetY = ufo.y + ufo.height / 2;
+          }
+        }
+
+        // Target Comet if active
+        if (comet.active) {
+          const dist = Math.hypot(comet.x - m.x, comet.y - m.y);
+          if (dist < minDist) {
+            minDist = dist;
+            bestTargetX = comet.x;
+            bestTargetY = comet.y;
+          }
+        }
+
+        // Target cells
+        weeks.forEach((week, wi) => {
+          week.forEach((date, di) => {
+            if (!date) return;
+            if ((cellLevels.get(date) ?? 0) > 0) {
+              const cx = leftMargin + wi * step + cellSize / 2;
+              const cy = monthLabelHeight + di * step + cellSize / 2;
+              const dist = Math.hypot(cx - m.x, cy - m.y);
+              if (dist < minDist) {
+                minDist = dist;
+                bestTargetX = cx;
+                bestTargetY = cy;
+              }
+            }
+          });
+        });
+
+        if (bestTargetX >= 0 && bestTargetY >= 0) {
+          const desiredAngle = Math.atan2(bestTargetX - m.x, -(bestTargetY - m.y));
+          let diff = desiredAngle - m.angle;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          m.angle += diff * 0.14;
+        }
+
+        m.vx = Math.sin(m.angle) * m.speed;
+        m.vy = -Math.cos(m.angle) * m.speed;
+        m.x += m.vx;
+        m.y += m.vy;
+
+        // Smoke & spark trail
+        if (Math.random() < 0.65) {
+          addParticle({
+            x: m.x - m.vx * 0.4,
+            y: m.y - m.vy * 0.4,
+            vx: (Math.random() - 0.5) * 0.5,
+            vy: (Math.random() - 0.5) * 0.5,
+            color: Math.random() > 0.4 ? "#f43f5e" : "#fbbf24",
+            size: Math.random() * 2 + 1,
+            alpha: 0.8,
+            life: 0,
+            maxLife: 10,
+          });
+        }
+
+        // Check collision with UFO
+        if (ufo.active) {
+          if (
+            m.x >= ufo.x &&
+            m.x <= ufo.x + ufo.width &&
+            m.y >= ufo.y &&
+            m.y <= ufo.y + ufo.height
+          ) {
+            ufo.health = 0;
+            ufo.active = false;
+            playSound("megaBoom");
+            screenShake = 5;
+            score += 500;
+            saveHighScore(score);
+            explode(ufo.x + ufo.width / 2, ufo.y + ufo.height / 2, "#facc15", true);
+            spawnEnergyOrbs(ufo.x + ufo.width / 2, ufo.y + ufo.height / 2, 3, 75);
+            addFloatText({
+              x: ufo.x + ufo.width / 2,
+              y: ufo.y - 10,
+              text: "🚀 +500 MISSILE UFO HIT! 🛸",
+              color: "#facc15",
+              scale: 1.6,
+              targetScale: 1.0,
+            });
+            return false;
+          }
+        }
+
+        // Check collision with Comet
+        if (comet.active) {
+          if (Math.hypot(comet.x - m.x, comet.y - m.y) < comet.radius + 6) {
+            comet.active = false;
+            playSound("megaBoom");
+            screenShake = 6;
+            screenFlash = { color: "#facc15", alpha: 0.35 };
+            score += 1000;
+            saveHighScore(score);
+            superLaserCharges += 4;
+            explode(comet.x, comet.y, "#facc15", true);
+            spawnEnergyOrbs(comet.x, comet.y, 4, 100);
+            addFloatText({
+              x: comet.x,
+              y: comet.y - 12,
+              text: "⭐ +1000 COMET STRIKE! ⭐",
+              color: "#facc15",
+              scale: 1.8,
+              targetScale: 1.0,
+              isCrit: true,
+            });
+            return false;
+          }
+        }
+
+        // Check collision with cells
+        let hitCell = false;
+        weeks.forEach((week, wi) => {
+          if (hitCell) return;
+          week.forEach((date, di) => {
+            if (hitCell || !date) return;
+            const currentLevel = cellLevels.get(date) ?? 0;
+            if (currentLevel === 0) return;
+
+            const cellX = leftMargin + wi * step;
+            const cellY = monthLabelHeight + di * step;
+
+            if (
+              m.x >= cellX &&
+              m.x <= cellX + cellSize &&
+              m.y >= cellY &&
+              m.y <= cellY + cellSize
+            ) {
+              hitCell = true;
+              const newLevel = currentLevel - 1;
+              cellLevels.set(date, newLevel);
+              lastHitTime = now;
+              combo++;
+              comboDisplay.targetAlpha = 1;
+              comboDisplay.scale = 1.4;
+              const points = (newLevel === 0 ? 150 : 50) * Math.min(combo, 10);
+              score += points;
+              saveHighScore(score);
+
+              const rect = document.getElementById(`cell-${id}-${date}`);
+              if (rect) {
+                if (newLevel === 0) {
+                  rect.style.opacity = "0";
+                  rect.style.pointerEvents = "none";
+                } else {
+                  const newColor =
+                    activeColors[`level${newLevel}` as keyof ThemeColors] ||
+                    activeColors.level0;
+                  rect.setAttribute("fill", newColor);
+                }
+              }
+
+              const hitColor =
+                activeColors[`level${currentLevel}` as keyof ThemeColors] ||
+                activeColors.level0;
+              explode(cellX + cellSize / 2, cellY + cellSize / 2, hitColor, newLevel === 0);
+              addFloatText({
+                x: cellX + cellSize / 2,
+                y: cellY - 4,
+                text: `🚀 +${points}`,
+                color: "#f43f5e",
+                scale: 1.5,
+                targetScale: 1.0,
+              });
+            }
+          });
+        });
+
+        if (hitCell) return false;
+
+        return m.y > 0 && m.x > 0 && m.x < logicalWidth;
+      });
+
+      // ── Update Magnetic Energy Orbs ────────────────────────────────────────
+      energyOrbs = energyOrbs.filter((orb) => {
+        orb.y += orb.vy;
+        orb.x += orb.vx;
+        orb.vx *= 0.96;
+        orb.vy = Math.min(1.4, orb.vy + 0.035);
+
+        // Magnetic attraction toward player
+        const playerCenterX = player.x + player.width / 2;
+        const playerCenterY = player.y + player.height / 2;
+        const dx = playerCenterX - orb.x;
+        const dy = playerCenterY - orb.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist < 90) {
+          const pull = ((90 - dist) / 90) * 0.65;
+          orb.vx += (dx / dist) * pull;
+          orb.vy += (dy / dist) * pull;
+        }
+
+        // Collision with player
+        if (dist < player.width / 2 + orb.radius + 6) {
+          playSound("coin");
+          score += orb.value;
+          saveHighScore(score);
+          addShockwave({
+            x: orb.x,
+            y: orb.y,
+            radius: 2,
+            maxRadius: 20,
+            color: "#facc15",
+            alpha: 0.9,
+          });
+          addFloatText({
+            x: orb.x,
+            y: orb.y - 6,
+            text: `+${orb.value} ★`,
+            color: "#facc15",
+            scale: 1.4,
+            targetScale: 1.0,
+          });
+          return false;
+        }
+
+        return orb.y < logicalHeight + 20;
+      });
+
       // ── Update Power-Up Capsules & Player Collision ────────────────────────
       powerUps = powerUps.filter((p) => {
         p.y += p.vy;
@@ -1479,13 +2020,16 @@ export const GithubCalendar = memo(function GithubCalendar({
 
           if (p.type === "tri") {
             triBeamUntil = now + 10000;
-            addFloatText({ x: p.x, y: p.y - 10, text: "⚡ TRI-BEAM PLASMA! ⚡", color: p.color, alpha: 1, vy: -0.5 });
+            addFloatText({ x: p.x, y: p.y - 10, text: "⚡ TRI-BEAM PLASMA! ⚡", color: p.color, alpha: 1, vy: -0.5, scale: 1.6, targetScale: 1.0 });
           } else if (p.type === "rapid") {
             rapidFireUntil = now + 7000;
-            addFloatText({ x: p.x, y: p.y - 10, text: "🔥 OVERCLOCK RAPID! 🔥", color: p.color, alpha: 1, vy: -0.5 });
+            addFloatText({ x: p.x, y: p.y - 10, text: "🔥 OVERCLOCK RAPID! 🔥", color: p.color, alpha: 1, vy: -0.5, scale: 1.6, targetScale: 1.0 });
+          } else if (p.type === "missile") {
+            homingMissilesUntil = now + 9000;
+            addFloatText({ x: p.x, y: p.y - 10, text: "🚀 HOMING MISSILES! 🚀", color: p.color, alpha: 1, vy: -0.5, scale: 1.6, targetScale: 1.0 });
           } else if (p.type === "shield") {
             shieldActive = true;
-            addFloatText({ x: p.x, y: p.y - 10, text: "🛡️ SHIELD BARRIER! 🛡️", color: p.color, alpha: 1, vy: -0.5 });
+            addFloatText({ x: p.x, y: p.y - 10, text: "🛡️ SHIELD BARRIER! 🛡️", color: p.color, alpha: 1, vy: -0.5, scale: 1.6, targetScale: 1.0 });
           } else if (p.type === "nuke") {
             triggerEMPNuke(p.x);
           }
@@ -1546,11 +2090,12 @@ export const GithubCalendar = memo(function GithubCalendar({
         });
       }
 
-      // ── Update Stars ───────────────────────────────────────────────────────
+      // ── Update Stars (With Warp Speed Multiplier in Fever) ─────────────────
+      const starSpeedMult = feverActive ? 3.5 : 1.0;
       for (let i = 0; i < stars.length; i++) {
         const s = stars[i];
         if (s) {
-          s.y += s.speed;
+          s.y += s.speed * starSpeedMult;
           if (s.y > canvasHeight - 4) {
             s.y = -4;
             s.x = Math.random() * canvasWidth;
@@ -1562,6 +2107,21 @@ export const GithubCalendar = memo(function GithubCalendar({
       bullets = bullets.filter((b) => {
         b.x += b.vx;
         b.y += b.vy;
+
+        // Bullet Spark Trail for special or fever shots
+        if ((b.isSpecial || feverActive) && Math.random() < 0.45) {
+          addParticle({
+            x: b.x + b.width / 2,
+            y: b.y + b.height,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: Math.random() * 0.8 + 0.2,
+            color: b.glowColor,
+            size: Math.random() * 1.6 + 0.8,
+            alpha: 0.8,
+            life: 0,
+            maxLife: 8,
+          });
+        }
 
         // Check UFO Collision
         if (ufo.active && !victoryState.active) {
@@ -1578,6 +2138,7 @@ export const GithubCalendar = memo(function GithubCalendar({
               screenShake = 4.5;
               score += 500;
               saveHighScore(score);
+              spawnEnergyOrbs(ufo.x + ufo.width / 2, ufo.y + ufo.height / 2, 3, 75);
               addShockwave({
                 x: ufo.x + ufo.width / 2,
                 y: ufo.y + ufo.height / 2,
@@ -1608,11 +2169,38 @@ export const GithubCalendar = memo(function GithubCalendar({
                 color: "#facc15",
                 alpha: 1,
                 vy: -0.5,
+                scale: 1.6,
+                targetScale: 1.0,
               });
             } else {
               playSound("hit", 4);
               explode(ufo.x + ufo.width / 2, ufo.y + ufo.height / 2, "#facc15", false);
             }
+            return false;
+          }
+        }
+
+        // Check Comet Collision
+        if (comet.active && !victoryState.active) {
+          if (Math.hypot(comet.x - (b.x + b.width / 2), comet.y - (b.y + b.height / 2)) < comet.radius + 6) {
+            comet.active = false;
+            playSound("megaBoom");
+            screenShake = 6;
+            screenFlash = { color: "#facc15", alpha: 0.35 };
+            score += 1000;
+            saveHighScore(score);
+            superLaserCharges += 4;
+            explode(comet.x, comet.y, "#facc15", true);
+            spawnEnergyOrbs(comet.x, comet.y, 4, 100);
+            addFloatText({
+              x: comet.x,
+              y: comet.y - 12,
+              text: "⭐ +1000 CELESTIAL COMET! ⭐",
+              color: "#facc15",
+              scale: 1.8,
+              targetScale: 1.0,
+              isCrit: true,
+            });
             return false;
           }
         }
@@ -1642,15 +2230,29 @@ export const GithubCalendar = memo(function GithubCalendar({
       }
       shockwaves = shockwaves.filter((s) => s.radius < s.maxRadius);
 
-      // ── Update Floating Text ───────────────────────────────────────────────
+      // ── Update Floating Text (With Spring Scale Pop) ────────────────────────
       for (let i = 0; i < floatTexts.length; i++) {
         const t = floatTexts[i];
         if (t) {
           t.y += t.vy;
+          t.scale += (t.targetScale - t.scale) * 0.18;
           t.alpha -= 0.02;
         }
       }
       floatTexts = floatTexts.filter((t) => t.alpha > 0);
+
+      // ── Update Muzzle Flashes ──────────────────────────────────────────────
+      for (let i = 0; i < muzzleFlashes.length; i++) {
+        const m = muzzleFlashes[i];
+        if (m) {
+          m.radius += 0.8;
+          m.alpha -= 0.18;
+        }
+      }
+      muzzleFlashes = muzzleFlashes.filter((m) => m.alpha > 0);
+
+      // Decay screen flash
+      if (screenFlash.alpha > 0) screenFlash.alpha = Math.max(0, screenFlash.alpha - 0.03);
 
       // Decay screen shake
       if (screenShake > 0) screenShake -= 0.4;
@@ -1685,7 +2287,37 @@ export const GithubCalendar = memo(function GithubCalendar({
               comboDisplay.targetAlpha = 1;
               comboDisplay.scale = 1.35;
 
-              if (combo >= 10) {
+              // Fever Overdrive Activation Check
+              if (combo >= 15) {
+                if (!feverActive) {
+                  feverActive = true;
+                  playSound("overdrive");
+                  screenShake = 6;
+                  screenFlash = { color: "#e879f9", alpha: 0.35 };
+                  addShockwave({
+                    x: logicalWidth / 2,
+                    y: logicalHeight / 2 - 20,
+                    radius: 4,
+                    maxRadius: 65,
+                    color: "#e879f9",
+                    alpha: 1,
+                  });
+                  addFloatText({
+                    x: logicalWidth / 2,
+                    y: logicalHeight / 2 - 25,
+                    text: "⚡ HYPER FEVER OVERDRIVE! ⚡",
+                    color: "#e879f9",
+                    scale: 1.8,
+                    targetScale: 1.0,
+                    isCrit: true,
+                  });
+                }
+              }
+
+              if (combo >= 15) {
+                comboDisplay.text = `⚡ FEVER OVERDRIVE x${combo}! ⚡`;
+                comboDisplay.color = "#f43f5e";
+              } else if (combo >= 10) {
                 comboDisplay.text = `🔥 HYPER COMBO x${combo}! 🔥`;
                 comboDisplay.color = "#e879f9";
               } else if (combo >= 5) {
@@ -1716,6 +2348,8 @@ export const GithubCalendar = memo(function GithubCalendar({
                   color: "#facc15",
                   alpha: 1,
                   vy: -0.45,
+                  scale: 1.6,
+                  targetScale: 1.0,
                 });
               }
 
@@ -1739,22 +2373,27 @@ export const GithubCalendar = memo(function GithubCalendar({
                   color: "#e879f9",
                   alpha: 1,
                   vy: -0.45,
+                  scale: 1.7,
+                  targetScale: 1.0,
+                  isCrit: true,
                 });
               }
 
-              const points = newLevel === 0 ? 150 * Math.min(combo, 10) : 50 * Math.min(combo, 10);
+              const basePoints = newLevel === 0 ? 150 * Math.min(combo, 10) : 50 * Math.min(combo, 10);
+              const points = feverActive ? basePoints * 2 : basePoints;
               score += points;
               saveHighScore(score);
 
               // ── Chance to Spawn Power-Up Capsule from Level 3/4 cells ──────
               if (newLevel === 0 && currentLevel >= 3 && Math.random() < 0.45) {
-                const types: ("tri" | "shield" | "nuke" | "rapid")[] = ["tri", "rapid", "shield", "nuke"];
+                const types: ("tri" | "shield" | "nuke" | "rapid" | "missile")[] = ["tri", "rapid", "shield", "nuke", "missile"];
                 const pType = types[Math.floor(Math.random() * types.length)] || "tri";
                 const pColors = {
                   tri: { color: "#facc15", glow: "#eab308", icon: "⚡", label: "TRI-BEAM" },
                   rapid: { color: "#f97316", glow: "#ea580c", icon: "🔥", label: "RAPID" },
                   shield: { color: "#38bdf8", glow: "#0284c7", icon: "🛡️", label: "SHIELD" },
                   nuke: { color: "#60a5fa", glow: "#3b82f6", icon: "💣", label: "EMP" },
+                  missile: { color: "#f43f5e", glow: "#e11d48", icon: "🚀", label: "MISSILE" },
                 }[pType];
 
                 powerUps.push({
@@ -1772,14 +2411,22 @@ export const GithubCalendar = memo(function GithubCalendar({
                 });
               }
 
+              // Spawn magnetic energy orb on destruction
+              if (newLevel === 0 && (currentLevel >= 3 || Math.random() < 0.28)) {
+                spawnEnergyOrbs(cellX + cellSize / 2, cellY + cellSize / 2, 1, 50);
+              }
+
               // Spawn floating score popup
               addFloatText({
                 x: cellX + cellSize / 2,
                 y: cellY - 4,
                 text: newLevel === 0 ? `+${points}${combo > 1 ? ` (x${combo})` : ""}` : `+${points}`,
-                color: combo >= 10 ? "#e879f9" : combo >= 5 ? "#facc15" : newLevel === 0 ? "#60a5fa" : "#fbbf24",
+                color: feverActive ? "#f43f5e" : combo >= 10 ? "#e879f9" : combo >= 5 ? "#facc15" : newLevel === 0 ? "#60a5fa" : "#fbbf24",
                 alpha: 1,
                 vy: -0.6,
+                scale: 1.45,
+                targetScale: 1.0,
+                isCrit: feverActive || combo >= 10,
               });
 
               // Instantly update cell in SVG DOM
@@ -1816,13 +2463,31 @@ export const GithubCalendar = memo(function GithubCalendar({
 
       ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-      // 1. Starry Space Background
+      // Screen Flash pulse on big events
+      if (screenFlash.alpha > 0.01) {
+        ctx.save();
+        ctx.fillStyle = screenFlash.color;
+        ctx.globalAlpha = screenFlash.alpha;
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+        ctx.restore();
+      }
+
+      // 1. Starry Space Background (With Warp Speed in Fever Mode)
       ctx.fillStyle = isDark ? "#ffffff" : "#94a3b8";
       for (let i = 0; i < stars.length; i++) {
         const s = stars[i];
         if (s) {
           ctx.globalAlpha = s.alpha;
-          ctx.fillRect(s.x, s.y, s.size, s.size);
+          if (feverActive) {
+            ctx.strokeStyle = isDark ? "#e0f2fe" : "#64748b";
+            ctx.lineWidth = s.size * 0.8;
+            ctx.beginPath();
+            ctx.moveTo(s.x, s.y);
+            ctx.lineTo(s.x, s.y + s.size * 4.5);
+            ctx.stroke();
+          } else {
+            ctx.fillRect(s.x, s.y, s.size, s.size);
+          }
         }
       }
       ctx.globalAlpha = 1.0;
@@ -1833,7 +2498,7 @@ export const GithubCalendar = memo(function GithubCalendar({
         if (s) {
           ctx.save();
           ctx.strokeStyle = s.color;
-          ctx.lineWidth = 1.5;
+          ctx.lineWidth = 1.6;
           ctx.globalAlpha = s.alpha;
           ctx.beginPath();
           ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
@@ -1860,7 +2525,26 @@ export const GithubCalendar = memo(function GithubCalendar({
         ctx.restore();
       });
 
-      // 4. Mystery Golden UFO Drone
+      // 4. Magnetic Energy Orbs / Star Crystals
+      energyOrbs.forEach((orb) => {
+        ctx.save();
+        ctx.translate(orb.x, orb.y);
+        ctx.fillStyle = orb.color;
+        ctx.shadowColor = orb.color;
+        ctx.shadowBlur = 9;
+        ctx.beginPath();
+        ctx.arc(0, 0, orb.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = '700 7px var(--font-geist-mono), "Geist Mono", monospace';
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("★", 0, 0.5);
+        ctx.restore();
+      });
+
+      // 5. Mystery Golden UFO Drone
       if (ufo.active) {
         ctx.save();
         ctx.fillStyle = "#facc15";
@@ -1878,7 +2562,26 @@ export const GithubCalendar = memo(function GithubCalendar({
         ctx.restore();
       }
 
-      // 5. Bullets
+      // 6. Celestial Bonus Comet
+      if (comet.active) {
+        ctx.save();
+        ctx.translate(comet.x, comet.y);
+        ctx.fillStyle = "#facc15";
+        ctx.shadowColor = "#f59e0b";
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.arc(0, 0, comet.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // White sparkling nucleus
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(0, 0, comet.radius * 0.55, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // 7. Bullets
       bullets.forEach((b) => {
         ctx.save();
         ctx.shadowColor = b.glowColor;
@@ -1888,7 +2591,43 @@ export const GithubCalendar = memo(function GithubCalendar({
         ctx.restore();
       });
 
-      // 6. Particles
+      // 8. Homing Missiles
+      missiles.forEach((m) => {
+        ctx.save();
+        ctx.translate(m.x, m.y);
+        ctx.rotate(m.angle);
+        ctx.fillStyle = "#f43f5e";
+        ctx.shadowColor = "#f43f5e";
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.moveTo(0, -6);
+        ctx.lineTo(2.5, 4);
+        ctx.lineTo(-2.5, 4);
+        ctx.closePath();
+        ctx.fill();
+
+        // Rocket nose tip
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(0, -5, 1.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      // 9. Muzzle Flashes
+      muzzleFlashes.forEach((m) => {
+        ctx.save();
+        ctx.fillStyle = m.color;
+        ctx.shadowColor = m.color;
+        ctx.shadowBlur = 10;
+        ctx.globalAlpha = m.alpha;
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      // 10. Particles
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
         if (p) {
@@ -1899,18 +2638,22 @@ export const GithubCalendar = memo(function GithubCalendar({
       }
       ctx.globalAlpha = 1.0;
 
-      // 7. Floating Text Popups (Crisp Geist Mono font)
+      // 11. Floating Text Popups (Crisp Geist Mono font with bouncy scale)
       floatTexts.forEach((t) => {
         ctx.save();
+        ctx.translate(t.x, t.y);
+        ctx.scale(t.scale, t.scale);
         ctx.font = '700 10.5px var(--font-geist-mono), "Geist Mono", monospace';
         ctx.fillStyle = t.color;
+        ctx.shadowColor = t.color;
+        ctx.shadowBlur = t.isCrit ? 10 : 5;
         ctx.globalAlpha = t.alpha;
         ctx.textAlign = "center";
-        ctx.fillText(t.text, t.x, t.y);
+        ctx.fillText(t.text, 0, 0);
         ctx.restore();
       });
 
-      // 8. In-Game HUD (SCORE, HIGH SCORE, COMBO, ACTIVE BUFFS)
+      // 12. In-Game HUD (SCORE, HIGH SCORE, COMBO, ACTIVE BUFFS)
       if (gameplayAlpha > 0.01) {
         ctx.save();
         ctx.globalAlpha = gameplayAlpha;
@@ -1921,7 +2664,7 @@ export const GithubCalendar = memo(function GithubCalendar({
         const scoreLabelWidth = ctx.measureText("SCORE: ").width;
 
         ctx.font = '700 11px var(--font-geist-mono), "Geist Mono", monospace';
-        ctx.fillStyle = isDark ? "#f4f4f5" : "#18181b";
+        ctx.fillStyle = feverActive ? "#f43f5e" : isDark ? "#f4f4f5" : "#18181b";
         ctx.fillText(score.toLocaleString(), 4 + scoreLabelWidth, 12);
 
         // High Score display on top right
@@ -1932,13 +2675,15 @@ export const GithubCalendar = memo(function GithubCalendar({
 
         // Active Buff Indicators
         const buffs: string[] = [];
+        if (feverActive) buffs.push("⚡ FEVER 2X");
         if (now < triBeamUntil) buffs.push("⚡ TRI-BEAM");
         if (now < rapidFireUntil) buffs.push("🔥 OVERCLOCK");
+        if (now < homingMissilesUntil) buffs.push("🚀 MISSILES");
         if (shieldActive) buffs.push("🛡️ SHIELD");
 
         if (buffs.length > 0) {
           ctx.font = '700 9px var(--font-geist-mono), "Geist Mono", monospace';
-          ctx.fillStyle = "#38bdf8";
+          ctx.fillStyle = feverActive ? "#f43f5e" : "#38bdf8";
           ctx.textAlign = "left";
           ctx.fillText(buffs.join("  "), 4, 24);
         }
@@ -1961,10 +2706,59 @@ export const GithubCalendar = memo(function GithubCalendar({
         ctx.restore();
       }
 
-      // 9. Player Spaceship & Shield
+      // 13. Player Spaceship & Thruster Jet Flames
       if (gameplayAlpha > 0.01) {
         ctx.save();
         ctx.globalAlpha = gameplayAlpha;
+
+        const playerCenterX = player.x + player.width / 2;
+        const playerCenterY = player.y + player.height / 2;
+
+        // Apply Bank Tilt Rotation
+        ctx.translate(playerCenterX, playerCenterY);
+        ctx.rotate(shipTilt);
+        ctx.translate(-playerCenterX, -playerCenterY);
+
+        // Dynamic Animated Dual Thruster Jet Flames
+        const vxAbs = Math.abs(shipVx);
+        const flameStretch = 6 + vxAbs * 1.8 + Math.sin(now * 0.04) * 2.5;
+
+        // Left Thruster Jet
+        ctx.save();
+        ctx.fillStyle = feverActive ? "#e879f9" : "#38bdf8";
+        ctx.shadowColor = ctx.fillStyle;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.moveTo(player.x + 6, player.y + player.height - 2);
+        ctx.lineTo(player.x + 9, player.y + player.height - 2);
+        ctx.lineTo(player.x + 7.5, player.y + player.height + flameStretch);
+        ctx.closePath();
+        ctx.fill();
+
+        // Right Thruster Jet
+        ctx.beginPath();
+        ctx.moveTo(player.x + player.width - 9, player.y + player.height - 2);
+        ctx.lineTo(player.x + player.width - 6, player.y + player.height - 2);
+        ctx.lineTo(player.x + player.width - 7.5, player.y + player.height + flameStretch);
+        ctx.closePath();
+        ctx.fill();
+
+        // White-hot inner core
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.moveTo(player.x + 7, player.y + player.height - 2);
+        ctx.lineTo(player.x + 8, player.y + player.height - 2);
+        ctx.lineTo(player.x + 7.5, player.y + player.height + flameStretch * 0.55);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(player.x + player.width - 8, player.y + player.height - 2);
+        ctx.lineTo(player.x + player.width - 7, player.y + player.height - 2);
+        ctx.lineTo(player.x + player.width - 7.5, player.y + player.height + flameStretch * 0.55);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
 
         // Protective Orbital Shield Ring
         if (shieldActive) {
@@ -1972,25 +2766,51 @@ export const GithubCalendar = memo(function GithubCalendar({
           ctx.strokeStyle = "#38bdf8";
           ctx.lineWidth = 1.8;
           ctx.shadowColor = "#38bdf8";
-          ctx.shadowBlur = 10;
+          ctx.shadowBlur = 12;
           ctx.beginPath();
-          ctx.arc(player.x + player.width / 2, player.y + player.height / 2, player.width / 2 + 6, 0, Math.PI * 2);
+          ctx.arc(playerCenterX, playerCenterY, player.width / 2 + 7, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Orbital revolving energy bead
+          const shieldAngle = now * 0.005;
+          const orbX = playerCenterX + Math.cos(shieldAngle) * (player.width / 2 + 7);
+          const orbY = playerCenterY + Math.sin(shieldAngle) * (player.width / 2 + 7);
+          ctx.fillStyle = "#ffffff";
+          ctx.beginPath();
+          ctx.arc(orbX, orbY, 2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // Fever Mode Chromatic Aura
+        if (feverActive) {
+          ctx.save();
+          ctx.strokeStyle = "#e879f9";
+          ctx.lineWidth = 1.4;
+          ctx.shadowColor = "#e879f9";
+          ctx.shadowBlur = 12;
+          ctx.beginPath();
+          ctx.arc(playerCenterX, playerCenterY, player.width / 2 + 3, 0, Math.PI * 2);
           ctx.stroke();
           ctx.restore();
         }
 
-        ctx.fillStyle =
-          now < triBeamUntil
-            ? "#e879f9"
-            : now < rapidFireUntil
-            ? "#f97316"
-            : combo >= 10
-            ? "#e879f9"
-            : combo >= 5
-            ? "#facc15"
-            : player.color;
+        // Ship Hull
+        ctx.fillStyle = feverActive
+          ? "#f43f5e"
+          : now < triBeamUntil
+          ? "#e879f9"
+          : now < rapidFireUntil
+          ? "#f97316"
+          : now < homingMissilesUntil
+          ? "#f43f5e"
+          : combo >= 10
+          ? "#e879f9"
+          : combo >= 5
+          ? "#facc15"
+          : player.color;
         ctx.shadowColor = ctx.fillStyle;
-        ctx.shadowBlur = combo >= 5 ? 12 : 8;
+        ctx.shadowBlur = combo >= 5 || feverActive ? 12 : 8;
         ctx.beginPath();
         ctx.moveTo(player.x + player.width / 2, player.y);
         ctx.lineTo(player.x + player.width, player.y + player.height);
@@ -2008,7 +2828,7 @@ export const GithubCalendar = memo(function GithubCalendar({
         ctx.restore();
       }
 
-      // 10. Interactive Winner Overlay Banner (With Clickable Play Again & Exit Buttons)
+      // 14. Interactive Winner Overlay Banner (With Clickable Play Again & Exit Buttons)
       if (victoryState.active && victoryState.alpha > 0.01) {
         ctx.save();
         ctx.globalAlpha = Math.min(1, Math.max(0, victoryState.alpha));

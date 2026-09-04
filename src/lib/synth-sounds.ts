@@ -1639,5 +1639,290 @@ export function playEMPNukeSound(volume: number = 0.09) {
   }
 }
 
+/**
+ * Arcade Critical / Plasma Laser:
+ * High-tech dual frequency chirp with razor transient.
+ */
+export function playCritLaserSound(volume: number = 0.07) {
+  if (!getSoundEnabled()) return;
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === "suspended") ctx.resume().catch(() => {});
 
+    const t = ctx.currentTime;
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const filter = ctx.createBiquadFilter();
+    const gain = ctx.createGain();
 
+    osc1.type = "sawtooth";
+    osc1.frequency.setValueAtTime(840, t);
+    osc1.frequency.exponentialRampToValueAtTime(220, t + 0.08);
+
+    osc2.type = "sine";
+    osc2.frequency.setValueAtTime(1260, t);
+    osc2.frequency.exponentialRampToValueAtTime(310, t + 0.07);
+
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(1600, t);
+    filter.Q.setValueAtTime(2.5, t);
+
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(volume, t + 0.002);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.085);
+
+    osc1.connect(filter);
+    osc2.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc1.start(t);
+    osc2.start(t);
+    osc1.stop(t + 0.09);
+    osc2.stop(t + 0.09);
+  } catch {
+    // Ignore audio errors
+  }
+}
+
+/**
+ * Arcade Seismic Mega Boom:
+ * Multi-harmonic sub-bass rumble explosion with distortion-style warmth.
+ */
+export function playMegaBoomSound(volume: number = 0.1) {
+  if (!getSoundEnabled()) return;
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === "suspended") ctx.resume().catch(() => {});
+
+    const t = ctx.currentTime;
+    // Sub-oscillator
+    const sub = ctx.createOscillator();
+    const subGain = ctx.createGain();
+    sub.type = "sine";
+    sub.frequency.setValueAtTime(160, t);
+    sub.frequency.exponentialRampToValueAtTime(28, t + 0.45);
+
+    subGain.gain.setValueAtTime(0, t);
+    subGain.gain.linearRampToValueAtTime(volume, t + 0.005);
+    subGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.48);
+
+    sub.connect(subGain);
+    subGain.connect(ctx.destination);
+
+    // Crunch noise transient
+    const mid = ctx.createOscillator();
+    const midFilter = ctx.createBiquadFilter();
+    const midGain = ctx.createGain();
+    mid.type = "sawtooth";
+    mid.frequency.setValueAtTime(95, t);
+    mid.frequency.exponentialRampToValueAtTime(32, t + 0.22);
+
+    midFilter.type = "lowpass";
+    midFilter.frequency.setValueAtTime(280, t);
+
+    midGain.gain.setValueAtTime(0, t);
+    midGain.gain.linearRampToValueAtTime(volume * 0.7, t + 0.003);
+    midGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+
+    mid.connect(midFilter);
+    midFilter.connect(midGain);
+    midGain.connect(ctx.destination);
+
+    sub.start(t);
+    mid.start(t);
+    sub.stop(t + 0.5);
+    mid.stop(t + 0.27);
+  } catch {
+    // Ignore audio errors
+  }
+}
+
+/**
+ * Arcade Energy Orb / Coin Pickup:
+ * Classic retro 8-bit crystal arpeggio ping (B5 -> E6).
+ */
+export function playCoinPickupSound(volume: number = 0.08) {
+  if (!getSoundEnabled()) return;
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === "suspended") ctx.resume().catch(() => {});
+
+    const t = ctx.currentTime;
+    const notes = [987.77, 1318.51]; // B5 -> E6
+
+    notes.forEach((freq, idx) => {
+      const start = t + idx * 0.04;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, start);
+
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(volume, start + 0.003);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.12);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(start);
+      osc.stop(start + 0.13);
+    });
+  } catch {
+    // Ignore audio errors
+  }
+}
+
+/**
+ * Arcade Shield Deflect / Energy Bubble:
+ * Ethereal glassy ping with acoustic damping.
+ */
+export function playShieldDeflectSound(volume: number = 0.075) {
+  if (!getSoundEnabled()) return;
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === "suspended") ctx.resume().catch(() => {});
+
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const filter = ctx.createBiquadFilter();
+    const gain = ctx.createGain();
+
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(620, t);
+    osc.frequency.exponentialRampToValueAtTime(1100, t + 0.04);
+    osc.frequency.exponentialRampToValueAtTime(540, t + 0.18);
+
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(800, t);
+    filter.Q.setValueAtTime(3.0, t);
+
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(volume, t + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.19);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.2);
+  } catch {
+    // Ignore audio errors
+  }
+}
+
+/**
+ * Arcade Overdrive / Fever Mode Fanfare:
+ * Euphoric ascending synth fanfare (D5 -> G5 -> B5 -> D6 -> G6).
+ */
+export function playOverdriveFanfare(volume: number = 0.09) {
+  if (!getSoundEnabled()) return;
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === "suspended") ctx.resume().catch(() => {});
+
+    const t = ctx.currentTime;
+    const notes = [587.33, 783.99, 987.77, 1174.66, 1567.98]; // D5, G5, B5, D6, G6
+
+    notes.forEach((freq, idx) => {
+      const start = t + idx * 0.045;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, start);
+
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(volume * (0.8 + idx * 0.08), start + 0.004);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.26);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(start);
+      osc.stop(start + 0.28);
+    });
+  } catch {
+    // Ignore audio errors
+  }
+}
+
+/**
+ * Celestial Comet Flyby Whoosh:
+ * High-speed doppler filter sweep through pink-like noise/sine harmonics.
+ */
+export function playCometWhizSound(volume: number = 0.075) {
+  if (!getSoundEnabled()) return;
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === "suspended") ctx.resume().catch(() => {});
+
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const filter = ctx.createBiquadFilter();
+    const gain = ctx.createGain();
+
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(320, t);
+    osc.frequency.exponentialRampToValueAtTime(1400, t + 0.12);
+    osc.frequency.exponentialRampToValueAtTime(260, t + 0.35);
+
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(800, t);
+    filter.frequency.exponentialRampToValueAtTime(3200, t + 0.12);
+    filter.frequency.exponentialRampToValueAtTime(400, t + 0.35);
+
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(volume, t + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.38);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.4);
+  } catch {
+    // Ignore audio errors
+  }
+}
+
+/**
+ * Arcade Homing Rocket Launch:
+ * Rocket engine ignition hiss and pitch climb.
+ */
+export function playMissileLaunchSound(volume: number = 0.065) {
+  if (!getSoundEnabled()) return;
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === "suspended") ctx.resume().catch(() => {});
+
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const filter = ctx.createBiquadFilter();
+    const gain = ctx.createGain();
+
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(180, t);
+    osc.frequency.exponentialRampToValueAtTime(620, t + 0.09);
+
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(550, t);
+    filter.Q.setValueAtTime(2.0, t);
+
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(volume, t + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.11);
+  } catch {
+    // Ignore audio errors
+  }
+}
