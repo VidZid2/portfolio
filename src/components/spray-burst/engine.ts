@@ -108,6 +108,122 @@ const table = (name: string, vals: readonly number[]) => {
   return `float ${name}(int i) { return ${chain}${f(vals[vals.length - 1])}; }`;
 };
 
+const SYNC_PATH1 =
+  "M9515 15593 c-396 -395 -1487 -1480 -2423 -2412 l-1704 -1696 204 -199 c111 -109 339 -334 505 -499 l302 -301 380 385 379 384 -121 122 -121 122 1659 1653 c912 909 1661 1653 1665 1653 4 0 515 -506 1135 -1124 l1128 -1124 -271 -270 -271 -271 -253 250 c-139 137 -533 525 -876 863 l-622 614 -377 -378 -376 -377 174 -172 c96 -94 320 -315 499 -491 179 -176 662 -653 1073 -1059 l748 -739 47 44 c96 90 350 337 800 778 l463 454 156 -155 155 -155 -338 -334 c-550 -543 -1632 -1608 -2157 -2124 -268 -263 -486 -483 -484 -489 2 -5 170 -173 374 -373 l370 -363 364 357 c200 196 614 602 919 902 697 686 2337 2290 2408 2355 28 27 52 54 52 61 0 7 -807 815 -1792 1796 -986 981 -2073 2062 -2416 2404 -342 341 -626 621 -630 622 -4 1 -331 -320 -727 -714z";
+
+const SYNC_PATH2 =
+  "M8997 12524 c-208 -203 -611 -598 -947 -929 -162 -160 -491 -482 -730 -715 -967 -944 -1398 -1366 -1647 -1613 -143 -143 -267 -263 -275 -268 -9 -6 258 -279 982 -1002 1596 -1592 3842 -3818 3859 -3825 4 -1 515 505 1136 1126 622 621 1712 1706 2423 2412 l1292 1284 -252 254 c-139 139 -365 362 -501 494 l-248 242 -225 -225 c-124 -123 -293 -295 -376 -382 l-152 -158 116 -116 116 -116 -1654 -1661 c-911 -914 -1660 -1661 -1665 -1661 -5 0 -516 508 -1137 1128 l-1128 1128 268 267 c148 147 274 269 279 271 6 2 138 -122 293 -276 268 -266 1168 -1149 1364 -1338 l93 -89 374 374 374 375 -217 210 c-337 325 -1539 1501 -1923 1882 -190 189 -349 343 -354 343 -11 0 -86 -72 -748 -724 -307 -302 -559 -547 -560 -544 -1 2 -71 73 -155 159 l-152 155 297 294 c314 311 441 436 1820 1795 l863 849 -371 365 c-205 201 -376 368 -381 370 -5 1 -73 -59 -151 -135z";
+
+function edt1d(
+  f: Float32Array,
+  n: number,
+  d: Float32Array,
+  v: Int32Array,
+  z: Float32Array,
+) {
+  let k = 0;
+  v[0] = 0;
+  z[0] = -1e20;
+  z[1] = 1e20;
+  for (let q = 1; q < n; q++) {
+    let s = (f[q] + q * q - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
+    while (s <= z[k]) {
+      k--;
+      s = (f[q] + q * q - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
+    }
+    k++;
+    v[k] = q;
+    z[k] = s;
+    z[k + 1] = 1e20;
+  }
+  k = 0;
+  for (let q = 0; q < n; q++) {
+    while (z[k + 1] < q) k++;
+    d[q] = (q - v[k]) * (q - v[k]) + f[v[k]];
+  }
+}
+
+function edt2d(grid: Float32Array, w: number, h: number): Float32Array {
+  const f = new Float32Array(Math.max(w, h));
+  const d = new Float32Array(Math.max(w, h));
+  const v = new Int32Array(Math.max(w, h));
+  const z = new Float32Array(Math.max(w, h) + 1);
+  const dist = new Float32Array(w * h);
+
+  for (let x = 0; x < w; x++) {
+    for (let y = 0; y < h; y++) {
+      f[y] = grid[y * w + x];
+    }
+    edt1d(f, h, d, v, z);
+    for (let y = 0; y < h; y++) {
+      dist[y * w + x] = d[y];
+    }
+  }
+
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      f[x] = dist[y * w + x];
+    }
+    edt1d(f, w, d, v, z);
+    for (let x = 0; x < w; x++) {
+      dist[y * w + x] = Math.sqrt(d[x]);
+    }
+  }
+  return dist;
+}
+
+let cachedSdfData: Uint8Array | null = null;
+
+function getSyncLogoSdfData(): Uint8Array {
+  if (cachedSdfData) return cachedSdfData;
+  if (typeof document === "undefined") {
+    return new Uint8Array(256 * 256);
+  }
+  const canvas = document.createElement("canvas");
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new Uint8Array(256 * 256);
+
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(0, 0, 256, 256);
+
+  // Map 2048x2048 SVG paths to 256x256 canvas
+  ctx.save();
+  ctx.scale(256 / 2048, 256 / 2048);
+  ctx.translate(0, 2048);
+  ctx.scale(0.1, -0.1);
+  ctx.fillStyle = "#ffffff";
+  ctx.fill(new Path2D(SYNC_PATH1));
+  ctx.fill(new Path2D(SYNC_PATH2));
+  ctx.restore();
+
+  const imgData = ctx.getImageData(0, 0, 256, 256);
+  const data = imgData.data;
+  const N = 256 * 256;
+  const inside = new Float32Array(N);
+  const outside = new Float32Array(N);
+
+  for (let i = 0; i < N; i++) {
+    const filled = data[i * 4] > 128;
+    inside[i] = filled ? 0 : 1e10;
+    outside[i] = filled ? 1e10 : 0;
+  }
+
+  const dIn = edt2d(inside, 256, 256);
+  const dOut = edt2d(outside, 256, 256);
+
+  const SPREAD = 48.0;
+  const out = new Uint8Array(N);
+  for (let i = 0; i < N; i++) {
+    const sd = dIn[i] - dOut[i];
+    const norm = Math.max(0, Math.min(255, Math.round((sd / SPREAD) * 127.5 + 127.5)));
+    out[i] = norm;
+  }
+  cachedSdfData = out;
+  return out;
+}
+
 const VERT = `
 attribute vec2 aPos;
 void main() { gl_Position = vec4(aPos, 0.0, 1.0); }
@@ -279,6 +395,49 @@ float wavesDist_${tag}(vec2 p) {
   return max(d, sdBox(p, rc, rh));
 }
 
+float syncLogoDist_${tag}(vec2 p) {
+  vec2 q = p - ${C};
+  float rot = ${A}[0];
+  float floatY = ${A}[1];
+  float size = ${A}[2];
+  float wave0 = ${A}[3];
+  float wave1 = ${A}[4];
+  float morph = ${A}[5];
+  float pulse = ${A}[6];
+
+  float cR = cos(rot), sR = sin(rot);
+  vec2 lq = q - vec2(0.0, floatY);
+  vec2 rq = vec2(lq.x * cR - lq.y * sR, lq.x * sR + lq.y * cR);
+
+  vec2 uv = (rq / size) + 0.5;
+  vec2 clUv = clamp(uv, vec2(0.002), vec2(0.998));
+  float val = texture2D(uSyncTex, clUv).r;
+  float sdInPixels = (val - 0.5) * 2.0 * 48.0 * (size / 256.0);
+  vec2 boxDist = max(abs(rq) - vec2(size * 0.5), vec2(0.0));
+  float outsideDist = length(boxDist);
+  float d = sdInPixels + outsideDist;
+
+  // Concentric diamond pulse morph echoes
+  float rDiamond = (abs(rq.x) + abs(rq.y)) * 0.70710678;
+  float rCircle = length(rq);
+  // As it expands, subtly softens corners for organic harmonic tension
+  float rShape = mix(rDiamond, rDiamond * 0.86 + rCircle * 0.14, morph);
+
+  // Inner echo ring: expands from 0.56 to 0.80 * size, then morphs smoothly back
+  float r0 = mix(0.56, 0.80, wave0) * size;
+  float w0 = (0.017 + 0.006 * wave0) * uUnit * (1.0 + 0.25 * pulse);
+  float d0 = abs(rShape - r0) - w0;
+  d = min(d, d0);
+
+  // Outer echo ring: expands further out from 0.82 to 1.22 * size, then morphs smoothly back
+  float r1 = mix(0.82, 1.22, wave1) * size;
+  float w1 = (0.015 + 0.008 * wave1) * uUnit * (1.0 + 0.3 * pulse);
+  float d1 = abs(rShape - r1) - w1;
+  d = min(d, d1);
+
+  return d;
+}
+
 float evalScene_${tag}(vec2 p, int sc) {
   if (sc == 0) return starDist_${tag}(p);
   if (sc == 1) return ringsDist_${tag}(p);
@@ -289,7 +448,8 @@ float evalScene_${tag}(vec2 p, int sc) {
   if (sc == 6) return diamondsDist_${tag}(p);
   if (sc == 7) return crossesDist_${tag}(p);
   if (sc == 8) return hexMazeDist_${tag}(p);
-  return wavesDist_${tag}(p);
+  if (sc == 9) return wavesDist_${tag}(p);
+  return syncLogoDist_${tag}(p);
 }
 `;
 }
@@ -306,6 +466,7 @@ uniform vec3  uPlate;
 uniform vec3  uInk;
 uniform vec3  uGrain;
 uniform vec3  uCursor;
+uniform sampler2D uSyncTex;
 
 // Scene A uniforms
 uniform int   uSceneA;
@@ -531,6 +692,7 @@ export class SprayBurst {
   private gl: WebGLRenderingContext | null = null;
   private prog: WebGLProgram | null = null;
   private quad: WebGLBuffer | null = null;
+  private syncTex: WebGLTexture | null = null;
   private u: Record<string, WebGLUniformLocation | null> = {};
 
   private raf = 0;
@@ -606,6 +768,7 @@ export class SprayBurst {
       "uPaper", "uPlate", "uInk", "uGrain", "uCursor",
       "uSceneA", "uSceneB", "uFade",
       "uCA", "uCB", "uSprayIA", "uSprayIB",
+      "uSyncTex",
     ]) {
       this.u[n] = gl.getUniformLocation(prog, n);
     }
@@ -613,6 +776,28 @@ export class SprayBurst {
     this.u.uT = gl.getUniformLocation(prog, "uT[0]");
     this.u.uB = gl.getUniformLocation(prog, "uB[0]");
     this.u.uTB = gl.getUniformLocation(prog, "uTB[0]");
+
+    const syncTex = gl.createTexture();
+    if (syncTex) {
+      this.syncTex = syncTex;
+      const sdfData = getSyncLogoSdfData();
+      gl.bindTexture(gl.TEXTURE_2D, syncTex);
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.LUMINANCE,
+        256,
+        256,
+        0,
+        gl.LUMINANCE,
+        gl.UNSIGNED_BYTE,
+        sdfData,
+      );
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    }
 
     this.ok = true;
     this.resize();
@@ -867,6 +1052,43 @@ export class SprayBurst {
       angles[0] = u * 2.0 * TAU;
       angles[1] = 3.2 / this.unit;
       angles[2] = amt;
+    } else if (scene === 10) {
+      // SYNC Monogram with idle breathing, floating levitation, micro-rotation tilt, radiating echoes, and cursor reactivity
+      cy = this.rect.y0 + (this.rect.y1 - this.rect.y0) * 0.44;
+
+      const beatU = (k % SCENE_FRAMES) / SCENE_FRAMES;
+
+      // 1. Organic gentle breathing scale (loops seamlessly)
+      const breath = 1.0 + 0.035 * Math.sin(beatU * TAU * 2.0);
+      const size = 1.34 * this.unit * breath;
+
+      // 2. Gentle floating levitation (loops seamlessly)
+      const floatY = Math.sin(beatU * TAU * 1.0) * (0.024 * this.unit);
+
+      // 3. Subtle micro-rotation wobble (loops seamlessly)
+      let rot = Math.sin(beatU * TAU * 1.0 + 0.4) * 0.02;
+
+      // 4. Smooth harmonic wave expansion & return morph (100% seamless zero-velocity loop)
+      const wave0 = 0.5 - 0.5 * Math.cos(beatU * TAU * 1.0);
+      const wave1 = 0.5 - 0.5 * Math.cos(beatU * TAU * 1.0 - 0.35);
+      const morph = 0.5 - 0.5 * Math.cos(beatU * TAU * 1.0);
+
+      // 5. Cursor interactivity: subtle tilt and lean towards pointer
+      if (amt > 0) {
+        const toCur = Math.atan2(this.py - cy, this.px - cx);
+        rot += amt * 0.04 * Math.sin(toCur);
+        cx += (this.px - cx) * 0.05 * amt;
+        cy += (this.py - cy) * 0.05 * amt;
+      }
+
+      angles[0] = rot;
+      angles[1] = floatY;
+      angles[2] = size;
+      angles[3] = wave0;
+      angles[4] = wave1;
+      angles[5] = morph;
+      angles[6] = amt;
+      angles[7] = 0;
     }
 
     return { cx, cy };
@@ -964,6 +1186,14 @@ export class SprayBurst {
     // Fade factor upload
     gl.uniform1f(this.u.uFade!, uFade);
 
+    if (this.syncTex) {
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this.syncTex);
+      if (this.u.uSyncTex) {
+        gl.uniform1i(this.u.uSyncTex, 0);
+      }
+    }
+
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
@@ -1033,6 +1263,10 @@ export class SprayBurst {
     this.stop();
     const gl = this.gl;
     if (gl) {
+      if (this.syncTex) {
+        gl.deleteTexture(this.syncTex);
+        this.syncTex = null;
+      }
       if (this.quad) gl.deleteBuffer(this.quad);
       if (this.prog) gl.deleteProgram(this.prog);
       gl.getExtension("WEBGL_lose_context")?.loseContext();

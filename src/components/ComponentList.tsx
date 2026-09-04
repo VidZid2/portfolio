@@ -25,7 +25,7 @@ export function ComponentList() {
             <SprayBurstCard
               bare={true}
               gray={false}
-              fixedScene={1}
+              fixedScene={10}
               className="size-full"
             />
           </div>

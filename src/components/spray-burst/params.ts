@@ -4,14 +4,14 @@ export const BEAT = 24;
 
 export const SCENE_MS = 3000;
 export const SCENE_FRAMES = (SCENE_MS / 1000) * FPS;
-export const SCENE_COUNT = 10;
+export const SCENE_COUNT = 11;
 export const FADE_FRAMES = 18;
 
 export const TOTAL = SCENE_FRAMES * SCENE_COUNT;
 
 export const STAR_STATIONS = 3;
 
-export const ORDER = [1, 6, 4, 7, 0, 9, 5, 8, 2, 3];
+export const ORDER = [10, 1, 6, 4, 7, 0, 9, 5, 8, 2, 3];
 
 export const TRANSIT = [
   0.022, 0.055, 0.1, 0.187, 0.679, 0.882, 0.937, 0.97, 0.987, 1.0,
@@ -76,9 +76,10 @@ export const SPRAY_SCALE = [
   1.1,
   0.8,
   1.25,
+  0.85,
 ];
 
-export const GRAIN_SCALE = [1.0, 0.9, 1.35, 1.1, 0.8, 0.6, 0.95, 1.15, 0.85, 1.05];
+export const GRAIN_SCALE = [1.0, 0.9, 1.35, 1.1, 0.8, 0.6, 0.95, 1.15, 0.85, 1.05, 1.0];
 
 export const SPATTER = 0.02;
 export const SPATTER_DECAY = 0.056;
@@ -128,6 +129,8 @@ export const DARK_PALETTES: Palette[] = [
   { paper: DARK_BLACK, plate: CORNFLOWER_BLUE, ink: WHITE },
   // Slot 9 (waves): Cornflower blue harmonic waves on white plate, black paper
   { paper: DARK_BLACK, plate: WHITE, ink: CORNFLOWER_BLUE },
+  // Slot 10 (SYNC logo): Cornflower blue SYNC monogram on dark plate, black paper
+  { paper: DARK_BLACK, plate: DARK_PLATE, ink: CORNFLOWER_BLUE },
 ];
 
 export const LIGHT_PALETTES: Palette[] = [
@@ -150,6 +153,8 @@ export const LIGHT_PALETTES: Palette[] = [
   // Slot 8 (hex maze): Black nested hexagons on cornflower blue plate, white paper
   { paper: WHITE, plate: CORNFLOWER_BLUE, ink: DARK_BLACK },
   // Slot 9 (waves): Cornflower blue harmonic waves on soft plate, white paper
+  { paper: WHITE, plate: LIGHT_PLATE, ink: CORNFLOWER_BLUE },
+  // Slot 10 (SYNC logo): Cornflower blue SYNC monogram on soft plate, white paper
   { paper: WHITE, plate: LIGHT_PLATE, ink: CORNFLOWER_BLUE },
 ];
 
@@ -174,6 +179,8 @@ export const GRAY_DARK_PALETTES: Palette[] = [
   { paper: DARK_BLACK, plate: [42, 42, 48], ink: WHITE },
   // Slot 9 (waves): Silver waves on charcoal plate, black paper
   { paper: DARK_BLACK, plate: [30, 30, 34], ink: [160, 160, 170] },
+  // Slot 10 (SYNC logo): Silver SYNC monogram on charcoal plate, black paper
+  { paper: DARK_BLACK, plate: [26, 26, 30], ink: [160, 160, 170] },
 ];
 
 export const GRAY_LIGHT_PALETTES: Palette[] = [
@@ -197,6 +204,8 @@ export const GRAY_LIGHT_PALETTES: Palette[] = [
   { paper: WHITE, plate: [235, 235, 240], ink: [38, 38, 45] },
   // Slot 9 (waves): Medium gray waves on soft plate, white paper
   { paper: WHITE, plate: [230, 230, 236], ink: [85, 85, 95] },
+  // Slot 10 (SYNC logo): Medium gray SYNC monogram on soft light plate, white paper
+  { paper: WHITE, plate: [230, 230, 236], ink: [90, 90, 100] },
 ];
 
 export const PALETTES: Palette[] = DARK_PALETTES;
@@ -285,9 +294,10 @@ export const CURSOR_GESTURE: Gesture[] = [
   "reach",
   "aim",
   "drag",
+  "reach",
 ];
 
-export const CURSOR_AMOUNT = [0.55, 0.7, 0.45, 0.5, 0.6, 0.8, 0.65, 0.5, 0.6, 0.7];
+export const CURSOR_AMOUNT = [0.55, 0.7, 0.45, 0.5, 0.6, 0.8, 0.65, 0.5, 0.6, 0.7, 0.6];
 
 export const CURSOR_LOCAL_R = 1.1;
 
