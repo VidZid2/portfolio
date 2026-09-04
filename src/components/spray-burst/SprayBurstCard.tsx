@@ -11,6 +11,7 @@ interface SprayBurstCardProps {
   viewTransitionName?: string;
   className?: string;
   gray?: boolean;
+  fixedScene?: number;
 }
 
 export function SprayBurstCard({
@@ -18,6 +19,7 @@ export function SprayBurstCard({
   viewTransitionName,
   className,
   gray = false,
+  fixedScene,
 }: SprayBurstCardProps = {}) {
   void bare;
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -45,6 +47,13 @@ export function SprayBurstCard({
     }
   }, [bare]);
 
+  // Synchronize fixedScene changes
+  useEffect(() => {
+    if (engineRef.current) {
+      engineRef.current.setFixedScene(fixedScene ?? null);
+    }
+  }, [fixedScene]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -64,7 +73,13 @@ export function SprayBurstCard({
 
     const raf = requestAnimationFrame(() => {
       if (!canvasRef.current) return;
-      engine = new SprayBurst(canvas, isDark, Boolean(gray), Boolean(bare));
+      engine = new SprayBurst(
+        canvas,
+        isDark,
+        Boolean(gray),
+        Boolean(bare),
+        fixedScene ?? null,
+      );
       engineRef.current = engine;
       if (!engine.ok) return;
       if (reduced) engine.renderStill();
@@ -124,7 +139,7 @@ export function SprayBurstCard({
       engine?.destroy();
       engineRef.current = null;
     };
-  }, [resolvedTheme, gray, bare]);
+  }, [resolvedTheme, gray, bare, fixedScene]);
 
   return (
     <div

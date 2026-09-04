@@ -502,9 +502,10 @@ function samplePaletteWithTransition(
   palettes: Palette[],
   slot: number,
   k: number,
+  isFixed = false,
 ): { paper: RGB; plate: [number, number, number]; ink: [number, number, number] } {
   const curr = palettes[slot];
-  if (k < SCENE_FRAMES - FADE_FRAMES) {
+  if (isFixed || k < SCENE_FRAMES - FADE_FRAMES) {
     return {
       paper: curr.paper,
       plate: [curr.plate[0], curr.plate[1], curr.plate[2]],
@@ -556,13 +557,21 @@ export class SprayBurst {
   private isDark = true;
   private isGray = false;
   private bare = false;
+  private fixedScene: number | null = null;
   private themeProgress = 1.0; // 0.0 = full light, 1.0 = full dark
 
-  constructor(canvas: HTMLCanvasElement, isDark = true, isGray = false, bare = false) {
+  constructor(
+    canvas: HTMLCanvasElement,
+    isDark = true,
+    isGray = false,
+    bare = false,
+    fixedScene: number | null = null,
+  ) {
     this.canvas = canvas;
     this.isDark = isDark;
     this.isGray = isGray;
     this.bare = bare;
+    this.fixedScene = fixedScene;
     this.themeProgress = isDark ? 1.0 : 0.0;
 
     const gl =
@@ -628,6 +637,13 @@ export class SprayBurst {
     if (this.bare !== bare) {
       this.bare = bare;
       this.resize();
+      if (!this.running) this.renderStill();
+    }
+  }
+
+  setFixedScene(scene: number | null) {
+    if (this.fixedScene !== scene) {
+      this.fixedScene = scene;
       if (!this.running) this.renderStill();
     }
   }
@@ -860,8 +876,11 @@ export class SprayBurst {
     const gl = this.gl;
     if (!gl || !this.prog || gl.isContextLost()) return;
 
-    const slotA = Math.floor(frame / SCENE_FRAMES) % SCENE_COUNT;
-    const sceneA = ORDER[slotA];
+    const isFixed = this.fixedScene !== null;
+    const slotA = isFixed
+      ? (ORDER.indexOf(this.fixedScene!) >= 0 ? ORDER.indexOf(this.fixedScene!) : 0)
+      : Math.floor(frame / SCENE_FRAMES) % SCENE_COUNT;
+    const sceneA = isFixed ? this.fixedScene! : ORDER[slotA];
     const k = frame % SCENE_FRAMES;
     const u = k / SCENE_FRAMES;
 
@@ -869,7 +888,7 @@ export class SprayBurst {
     let slotB = slotA;
     let sceneB = sceneA;
 
-    if (k >= SCENE_FRAMES - FADE_FRAMES) {
+    if (!isFixed && k >= SCENE_FRAMES - FADE_FRAMES) {
       slotB = (slotA + 1) % SCENE_COUNT;
       sceneB = ORDER[slotB];
       const progress = (k - (SCENE_FRAMES - FADE_FRAMES) + 1) / (FADE_FRAMES + 1);
@@ -879,8 +898,8 @@ export class SprayBurst {
     // Smooth inter-scene palette gliding and dual-theme interpolation
     const darkPalettes = this.isGray ? GRAY_DARK_PALETTES : DARK_PALETTES;
     const lightPalettes = this.isGray ? GRAY_LIGHT_PALETTES : LIGHT_PALETTES;
-    const darkSample = samplePaletteWithTransition(darkPalettes, slotA, k);
-    const lightSample = samplePaletteWithTransition(lightPalettes, slotA, k);
+    const darkSample = samplePaletteWithTransition(darkPalettes, slotA, k, isFixed);
+    const lightSample = samplePaletteWithTransition(lightPalettes, slotA, k, isFixed);
 
     const tp = this.themeProgress;
     const palPaper = lerpRGB(lightSample.paper, darkSample.paper, tp);
@@ -1000,8 +1019,14 @@ export class SprayBurst {
 
   renderStill() {
     if (!this.ok) return;
-    this.lastFrame = STILL_FRAME;
-    this.render(STILL_FRAME);
+    const still =
+      this.fixedScene !== null
+        ? (ORDER.indexOf(this.fixedScene) >= 0
+            ? ORDER.indexOf(this.fixedScene) * SCENE_FRAMES + 6
+            : 6)
+        : STILL_FRAME;
+    this.lastFrame = still;
+    this.render(still);
   }
 
   destroy() {
