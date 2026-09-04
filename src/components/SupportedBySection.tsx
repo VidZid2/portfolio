@@ -943,28 +943,28 @@ export function SupportedBySection({
         {/* Centered Header: SPECIAL THANKS & COMPONENT INSPIRATIONS */}
         <div className="relative h-[32px] sm:h-[36px] flex items-center justify-center px-8 sm:px-10 text-center">
           {/* Handwritten Annotation in Right Gutter: extraordinary creators ↙ - PC/Desktop only */}
-          <div className="absolute left-full top-[-30px] sm:top-[-32px] pl-5 sm:pl-6 hidden xl:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
+          <div className="absolute left-full top-[-22px] sm:top-[-24px] pl-5 sm:pl-6 hidden xl:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
             <div className="rotate-[3deg] ml-1 text-zinc-700 dark:text-zinc-300">
               <HandwritingText text="extraordinary creators" delay={0.2} duration={1.3} height="30px" strokeWidth={2.0} />
             </div>
             <svg
-              className="w-16 h-8 text-zinc-500 dark:text-zinc-400 overflow-visible mt-1.5 -ml-3"
-              viewBox="0 0 46 24"
+              className="w-8 h-4 text-zinc-500 dark:text-zinc-400 overflow-visible mt-1 -ml-1"
+              viewBox="0 0 28 14"
               fill="none"
               stroke="currentColor"
-              strokeWidth="1.8"
+              strokeWidth="1.4"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
               <motion.path
-                d="M42 4 C 30 9, 16 15, 3 17"
+                d="M 25 2 C 18 4, 10 7, 2 8"
                 initial={{ pathLength: 0, opacity: 0 }}
                 whileInView={{ pathLength: 1, opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, delay: 1.5, ease: "easeInOut" }}
               />
               <motion.path
-                d="m 11 12 -8 5 8 4"
+                d="m 7 5 -5 3 5 3"
                 initial={{ pathLength: 0, opacity: 0 }}
                 whileInView={{ pathLength: 1, opacity: 1 }}
                 viewport={{ once: true }}

@@ -303,24 +303,24 @@ export function CommandMenu() {
 
             <div className="relative group/ai inline-flex items-center">
                 {/* Handwritten Annotation: talk to my AI / ask me anything pointing to Ask AI - PC only */}
-                <div className="absolute left-full ml-5 sm:ml-6 -top-[96px] hidden xl:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
+                <div className="absolute left-full ml-4 sm:ml-5 -top-[74px] hidden xl:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
                     <div className="flex flex-col items-start text-left font-medium text-zinc-700 dark:text-zinc-300 select-none -rotate-[6deg] tracking-wide ml-2 gap-1">
                         <HandwritingText text="talk to my AI" delay={0.2} duration={1.2} height="30px" strokeWidth={2.0} />
                         <HandwritingText text="ask me anything" delay={0.9} duration={1.3} height="30px" strokeWidth={2.0} />
                     </div>
                     <svg
-                        width="70"
-                        height="48"
-                        viewBox="0 0 54 38"
+                        width="32"
+                        height="20"
+                        viewBox="0 0 32 20"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
-                        className="text-zinc-500 dark:text-zinc-400 overflow-visible mt-1.5 ml-1"
+                        className="text-zinc-500 dark:text-zinc-400 overflow-visible mt-1 ml-1"
                     >
-                        {/* Deep organic J/U-curve starting on right under anything and sweeping left into Ask AI button */}
+                        {/* Compact sleek curve starting under text and pointing left into Ask AI button */}
                         <motion.path
-                            d="M 48 2 C 50 18, 22 32, -14 30"
+                            d="M 28 2 C 25 10, 14 16, 2 15"
                             stroke="currentColor"
-                            strokeWidth="1.8"
+                            strokeWidth="1.4"
                             strokeLinecap="round"
                             initial={{ pathLength: 0, opacity: 0 }}
                             whileInView={{ pathLength: 1, opacity: 1 }}
@@ -328,9 +328,9 @@ export function CommandMenu() {
                             transition={{ duration: 0.8, delay: 1.6, ease: "easeInOut" }}
                         />
                         <motion.path
-                            d="M -5 24 L -14 30 L -6 36"
+                            d="M 8 11 L 2 15 L 7 19"
                             stroke="currentColor"
-                            strokeWidth="1.8"
+                            strokeWidth="1.4"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             initial={{ pathLength: 0, opacity: 0 }}

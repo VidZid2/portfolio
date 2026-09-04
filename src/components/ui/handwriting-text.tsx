@@ -28,8 +28,9 @@ import { cn } from "@/lib/utils";
 const LOCAL_OPENTYPE = "/scripts/opentype.min.js";
 const OPENTYPE_CDN = "https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js";
 
-const LOCAL_FONT_URL = "/fonts/patrick-hand.ttf";
-const DEFAULT_FONT_URL = "/fonts/handwriting.ttf";
+const LOCAL_FONT_URL = "/fonts/handwriting.ttf";
+const DEFAULT_FONT_URL =
+  "https://cdn.21st.dev/assets/mirror/13/1347863151acdc00fa281daaba1a3543dbce5870b55f9cf7479a15bb84007681.ttf";
 
 export interface HandwritingTextProps {
   /** A single phrase to write. Ignored when `words` is given. */

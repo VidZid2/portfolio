@@ -399,23 +399,23 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
       {/* Socials Row (5-Column Mathematical Blueprint Grid) */}
       <div className="relative flex items-center py-0 w-full">
         {/* Handwritten Annotation in Left Gutter outside the vertical line - PC/Desktop only */}
-        <div className="absolute right-full top-[-70px] sm:top-[-72px] pr-4 sm:pr-5 hidden xl:flex flex-col items-end pointer-events-none select-none z-30 min-w-max">
+        <div className="absolute right-full top-[-54px] sm:top-[-56px] pr-4 sm:pr-5 hidden xl:flex flex-col items-end pointer-events-none select-none z-30 min-w-max">
           <div className="flex flex-col items-end text-right font-medium text-zinc-700 dark:text-zinc-300 select-none mr-2 -rotate-[6deg] tracking-wide gap-1">
             <HandwritingText text="feel free to reach out" delay={0.2} duration={1.3} height="30px" strokeWidth={2.0} />
             <HandwritingText text="say hi or connect" delay={0.9} duration={1.2} height="30px" strokeWidth={2.0} />
           </div>
           <svg
-            width="50"
-            height="38"
-            viewBox="0 0 36 26"
+            width="26"
+            height="18"
+            viewBox="0 0 26 18"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="text-zinc-500 dark:text-zinc-400 overflow-visible mt-1.5 translate-x-1.5"
+            className="text-zinc-500 dark:text-zinc-400 overflow-visible mt-1 translate-x-1"
           >
             <motion.path
-              d="M 4 2 C 4 10, 16 18, 34 18"
+              d="M 3 2 C 3 7, 10 12, 23 12"
               stroke="currentColor"
-              strokeWidth="1.8"
+              strokeWidth="1.4"
               strokeLinecap="round"
               initial={{ pathLength: 0, opacity: 0 }}
               whileInView={{ pathLength: 1, opacity: 1 }}
@@ -423,9 +423,9 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
               transition={{ duration: 0.8, delay: 1.6, ease: "easeInOut" }}
             />
             <motion.path
-              d="M 26 12 L 34 18 L 27 24"
+              d="M 17 8 L 23 12 L 17 16"
               stroke="currentColor"
-              strokeWidth="1.8"
+              strokeWidth="1.4"
               strokeLinecap="round"
               strokeLinejoin="round"
               initial={{ pathLength: 0, opacity: 0 }}
