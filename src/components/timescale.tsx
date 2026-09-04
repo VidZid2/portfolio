@@ -2,7 +2,16 @@
 
 // Inspired by Evil Rabbit's Lifeline & Chánh Đại Timescale
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+
+const TimescaleItemContext = React.createContext<{
+  delay: number;
+  animated: boolean;
+}>({
+  delay: 0,
+  animated: false,
+});
 
 const TimescaleContext = React.createContext<{
   canScrollLeft: boolean;
@@ -324,58 +333,134 @@ export function TimescaleTrack({ className, style, ...props }: TimescaleTrackPro
   );
 }
 
-export type TimescaleRailProps = React.ComponentProps<"div">;
+export type TimescaleRailProps = React.ComponentProps<"div"> & {
+  animated?: boolean;
+  duration?: number;
+};
 
-export function TimescaleRail({ className, ...props }: TimescaleRailProps) {
+export function TimescaleRail({
+  className,
+  animated = true,
+  duration = 3.2,
+  ...props
+}: TimescaleRailProps) {
   return (
     <div
       data-slot="timescale-rail"
       aria-hidden="true"
       className={cn(
-        "pointer-events-none absolute border-dashed border-black/20 dark:border-white/20",
-        "group-data-[orientation=horizontal]/timescale:inset-x-0 group-data-[orientation=horizontal]/timescale:top-[var(--timescale-rail)] group-data-[orientation=horizontal]/timescale:h-px group-data-[orientation=horizontal]/timescale:border-t",
-        "group-data-[orientation=vertical]/timescale:inset-y-0 group-data-[orientation=vertical]/timescale:left-[var(--timescale-rail)] group-data-[orientation=vertical]/timescale:w-px group-data-[orientation=vertical]/timescale:border-l",
+        "pointer-events-none absolute",
+        "group-data-[orientation=horizontal]/timescale:inset-x-0 group-data-[orientation=horizontal]/timescale:top-[var(--timescale-rail)] group-data-[orientation=horizontal]/timescale:h-px",
+        "group-data-[orientation=vertical]/timescale:inset-y-0 group-data-[orientation=vertical]/timescale:left-[var(--timescale-rail)] group-data-[orientation=vertical]/timescale:w-px group-data-[orientation=vertical]/timescale:border-l border-dashed border-black/20 dark:border-white/20",
         className
       )}
       {...props}
-    />
+    >
+      {/* Background ultra-faint guide track */}
+      <div className="absolute inset-0 border-t border-dashed border-black/10 dark:border-white/10 group-data-[orientation=vertical]/timescale:hidden" />
+
+      {/* Animated Drawing Line */}
+      {animated ? (
+        <motion.div
+          initial={{ width: "0%" }}
+          animate={{ width: "100%" }}
+          transition={{
+            duration,
+            ease: [0.72, 0, 0.24, 1], // Smooth S-curve: very slow at first, accelerates through middle, decelerates smoothly as it nears the end
+          }}
+          className="absolute inset-0 border-t border-dashed border-black/40 dark:border-white/30 group-data-[orientation=vertical]/timescale:hidden overflow-visible"
+        >
+          {/* Luminous Leading Laser Head / Drawing Node */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{
+              opacity: [0, 1, 1, 0.85, 0],
+              scale: [0.4, 1.4, 1.2, 1, 0],
+            }}
+            transition={{
+              duration: duration + 0.15,
+              times: [0, 0.05, 0.88, 0.97, 1],
+              ease: [0.72, 0, 0.24, 1],
+            }}
+            className="absolute right-0 top-0 -translate-y-1/2 translate-x-1/2 w-2 h-2 rounded-full bg-[#6495ED] shadow-[0_0_12px_#6495ED,0_0_4px_#ffffff] pointer-events-none"
+          />
+        </motion.div>
+      ) : (
+        <div className="absolute inset-0 border-t border-dashed border-black/20 dark:border-white/20 group-data-[orientation=vertical]/timescale:hidden" />
+      )}
+    </div>
   );
 }
 
 export type TimescaleItemProps = React.ComponentProps<"div"> & {
   isActive?: boolean;
+  delay?: number;
+  animated?: boolean;
 };
 
 export function TimescaleItem({
   className,
   isActive = false,
+  delay = 0,
+  animated = true,
+  children,
   ...props
 }: TimescaleItemProps) {
   return (
-    <div
-      data-slot="timescale-item"
-      data-active={isActive ? "true" : undefined}
-      className={cn(
-        "group/item relative transition-opacity duration-200",
-        "opacity-60 hover:opacity-100 data-[active=true]:opacity-100",
-        "group-data-[orientation=horizontal]/timescale:w-20 group-data-[orientation=horizontal]/timescale:shrink-0 group-data-[orientation=horizontal]/timescale:not-last:pr-4 group-data-[orientation=horizontal]/timescale:has-[[data-slot=timescale-content]]:w-80",
-        "group-data-[orientation=vertical]/timescale:grid group-data-[orientation=vertical]/timescale:w-full group-data-[orientation=vertical]/timescale:grid-cols-[var(--timescale-rail)_1fr] group-data-[orientation=vertical]/timescale:gap-x-4 group-data-[orientation=vertical]/timescale:not-last:pb-4",
-        className
-      )}
-      {...props}
-    />
+    <TimescaleItemContext.Provider value={{ delay, animated }}>
+      <div
+        data-slot="timescale-item"
+        data-active={isActive ? "true" : undefined}
+        className={cn(
+          "group/item relative transition-opacity duration-200",
+          "opacity-60 hover:opacity-100 data-[active=true]:opacity-100",
+          "group-data-[orientation=horizontal]/timescale:w-20 group-data-[orientation=horizontal]/timescale:shrink-0 group-data-[orientation=horizontal]/timescale:not-last:pr-4 group-data-[orientation=horizontal]/timescale:has-[[data-slot=timescale-content]]:w-80",
+          "group-data-[orientation=vertical]/timescale:grid group-data-[orientation=vertical]/timescale:w-full group-data-[orientation=vertical]/timescale:grid-cols-[var(--timescale-rail)_1fr] group-data-[orientation=vertical]/timescale:gap-x-4 group-data-[orientation=vertical]/timescale:not-last:pb-4",
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </div>
+    </TimescaleItemContext.Provider>
   );
 }
 
 export type TimescaleTickProps = React.ComponentProps<"span">;
 
 export function TimescaleTick({ className, ...props }: TimescaleTickProps) {
+  const { delay, animated } = React.useContext(TimescaleItemContext);
+
+  if (!animated) {
+    return (
+      <span
+        data-slot="timescale-tick"
+        aria-hidden="true"
+        className={cn(
+          "absolute z-10 transition-colors duration-200",
+          "bg-black/30 dark:bg-white/30 group-hover/item:bg-[#6495ED] dark:group-hover/item:bg-white group-data-[active=true]/item:bg-[#6495ED] dark:group-data-[active=true]/item:bg-white",
+          "group-data-[orientation=horizontal]/timescale:top-[var(--timescale-rail)] group-data-[orientation=horizontal]/timescale:left-0 group-data-[orientation=horizontal]/timescale:h-3 group-hover/item:group-data-[orientation=horizontal]/timescale:h-4.5 group-data-[active=true]/item:group-data-[orientation=horizontal]/timescale:h-4.5 group-data-[orientation=horizontal]/timescale:w-[1.5px] group-data-[orientation=horizontal]/timescale:-translate-y-1/2",
+          "group-data-[orientation=vertical]/timescale:top-2.5 group-data-[orientation=vertical]/timescale:left-[var(--timescale-rail)] group-data-[orientation=vertical]/timescale:h-[1.5px] group-data-[orientation=vertical]/timescale:w-3 group-hover/item:group-data-[orientation=vertical]/timescale:w-4.5 group-data-[active=true]/item:group-data-[orientation=vertical]/timescale:w-4.5 group-data-[orientation=vertical]/timescale:-translate-x-1/2",
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+
   return (
-    <span
+    <motion.span
       data-slot="timescale-tick"
       aria-hidden="true"
+      initial={{ scaleY: 0, opacity: 0 }}
+      animate={{ scaleY: 1, opacity: 1 }}
+      transition={{
+        delay,
+        duration: 0.4,
+        ease: [0.34, 1.56, 0.64, 1], // morph elastic spring pop
+      }}
       className={cn(
-        "absolute z-10 transition-colors duration-200",
+        "absolute z-10 transition-colors duration-200 origin-center",
         "bg-black/30 dark:bg-white/30 group-hover/item:bg-[#6495ED] dark:group-hover/item:bg-white group-data-[active=true]/item:bg-[#6495ED] dark:group-data-[active=true]/item:bg-white",
         "group-data-[orientation=horizontal]/timescale:top-[var(--timescale-rail)] group-data-[orientation=horizontal]/timescale:left-0 group-data-[orientation=horizontal]/timescale:h-3 group-hover/item:group-data-[orientation=horizontal]/timescale:h-4.5 group-data-[active=true]/item:group-data-[orientation=horizontal]/timescale:h-4.5 group-data-[orientation=horizontal]/timescale:w-[1.5px] group-data-[orientation=horizontal]/timescale:-translate-y-1/2",
         "group-data-[orientation=vertical]/timescale:top-2.5 group-data-[orientation=vertical]/timescale:left-[var(--timescale-rail)] group-data-[orientation=vertical]/timescale:h-[1.5px] group-data-[orientation=vertical]/timescale:w-3 group-hover/item:group-data-[orientation=vertical]/timescale:w-4.5 group-data-[active=true]/item:group-data-[orientation=vertical]/timescale:w-4.5 group-data-[orientation=vertical]/timescale:-translate-x-1/2",
@@ -389,9 +474,34 @@ export function TimescaleTick({ className, ...props }: TimescaleTickProps) {
 export type TimescaleAgeProps = React.ComponentProps<"p">;
 
 export function TimescaleAge({ className, ...props }: TimescaleAgeProps) {
+  const { delay, animated } = React.useContext(TimescaleItemContext);
+
+  if (!animated) {
+    return (
+      <p
+        data-slot="timescale-age"
+        className={cn(
+          "text-xs sm:text-[13px] leading-5 font-sans font-medium transition-colors duration-200 tabular-nums select-none",
+          "text-muted-foreground group-hover/item:text-zinc-800 dark:group-hover/item:text-zinc-200 group-data-[active=true]/item:text-zinc-800 dark:group-data-[active=true]/item:text-zinc-200",
+          "in-[[data-slot=timescale-header]]:tracking-wider in-[[data-slot=timescale-header]]:uppercase",
+          "group-data-[orientation=vertical]/timescale:col-start-1 group-data-[orientation=vertical]/timescale:row-start-1 group-data-[orientation=vertical]/timescale:pr-4 group-data-[orientation=vertical]/timescale:text-right",
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+
   return (
-    <p
+    <motion.p
       data-slot="timescale-age"
+      initial={{ opacity: 0, y: -8, filter: "blur(5px)" }}
+      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      transition={{
+        delay: delay + 0.04,
+        duration: 0.5,
+        ease: [0.16, 1, 0.3, 1],
+      }}
       className={cn(
         "text-xs sm:text-[13px] leading-5 font-sans font-medium transition-colors duration-200 tabular-nums select-none",
         "text-muted-foreground group-hover/item:text-zinc-800 dark:group-hover/item:text-zinc-200 group-data-[active=true]/item:text-zinc-800 dark:group-data-[active=true]/item:text-zinc-200",
@@ -407,9 +517,34 @@ export function TimescaleAge({ className, ...props }: TimescaleAgeProps) {
 export type TimescaleYearProps = React.ComponentProps<"p">;
 
 export function TimescaleYear({ className, ...props }: TimescaleYearProps) {
+  const { delay, animated } = React.useContext(TimescaleItemContext);
+
+  if (!animated) {
+    return (
+      <p
+        data-slot="timescale-year"
+        className={cn(
+          "text-xs sm:text-[13px] leading-5 font-sans font-semibold transition-all duration-200 tabular-nums select-none",
+          "text-zinc-600 dark:text-zinc-400 group-hover/item:text-zinc-950 dark:group-hover/item:text-white group-data-[active=true]/item:text-zinc-950 dark:group-data-[active=true]/item:text-white group-hover/item:font-bold group-data-[active=true]/item:font-bold",
+          "in-[[data-slot=timescale-header]]:tracking-wider in-[[data-slot=timescale-header]]:uppercase in-[[data-slot=timescale-header]]:text-muted-foreground",
+          "group-data-[orientation=vertical]/timescale:col-start-2 group-data-[orientation=vertical]/timescale:row-start-1",
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+
   return (
-    <p
+    <motion.p
       data-slot="timescale-year"
+      initial={{ opacity: 0, y: -8, filter: "blur(5px)" }}
+      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      transition={{
+        delay: delay + 0.07,
+        duration: 0.5,
+        ease: [0.16, 1, 0.3, 1],
+      }}
       className={cn(
         "text-xs sm:text-[13px] leading-5 font-sans font-semibold transition-all duration-200 tabular-nums select-none",
         "text-zinc-600 dark:text-zinc-400 group-hover/item:text-zinc-950 dark:group-hover/item:text-white group-data-[active=true]/item:text-zinc-950 dark:group-data-[active=true]/item:text-white group-hover/item:font-bold group-data-[active=true]/item:font-bold",
@@ -428,9 +563,33 @@ export function TimescaleContent({
   className,
   ...props
 }: TimescaleContentProps) {
+  const { delay, animated } = React.useContext(TimescaleItemContext);
+
+  if (!animated) {
+    return (
+      <div
+        data-slot="timescale-content"
+        className={cn(
+          "w-full py-4 text-left font-sans text-xs sm:text-[13px] leading-relaxed transition-colors duration-200 text-zinc-600 dark:text-zinc-400 group-hover/item:text-zinc-800 dark:group-hover/item:text-zinc-200 group-data-[active=true]/item:text-zinc-800 dark:group-data-[active=true]/item:text-zinc-200 [&_a]:text-[#6495ED] [&_a]:underline [&_a]:underline-offset-2 [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:space-y-1.5 [&_p]:mb-2 [&_p:last-child]:mb-0 [&_strong]:text-zinc-900 dark:[&_strong]:text-zinc-50 [&_h3]:font-bold [&_h3]:text-sm sm:[&_h3]:text-[14px] [&_h3]:text-zinc-900 dark:[&_h3]:text-zinc-50 [&_h3]:mb-1.5",
+          "group-data-[orientation=horizontal]/timescale:mt-4",
+          "group-data-[orientation=vertical]/timescale:col-start-2 group-data-[orientation=vertical]/timescale:row-start-2",
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+
   return (
-    <div
+    <motion.div
       data-slot="timescale-content"
+      initial={{ opacity: 0, y: 22, scale: 0.95, filter: "blur(8px)" }}
+      animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+      transition={{
+        delay: delay + 0.1,
+        duration: 0.7,
+        ease: [0.16, 1, 0.3, 1], // fluid morph entrance
+      }}
       className={cn(
         "w-full py-4 text-left font-sans text-xs sm:text-[13px] leading-relaxed transition-colors duration-200 text-zinc-600 dark:text-zinc-400 group-hover/item:text-zinc-800 dark:group-hover/item:text-zinc-200 group-data-[active=true]/item:text-zinc-800 dark:group-data-[active=true]/item:text-zinc-200 [&_a]:text-[#6495ED] [&_a]:underline [&_a]:underline-offset-2 [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:space-y-1.5 [&_p]:mb-2 [&_p:last-child]:mb-0 [&_strong]:text-zinc-900 dark:[&_strong]:text-zinc-50 [&_h3]:font-bold [&_h3]:text-sm sm:[&_h3]:text-[14px] [&_h3]:text-zinc-900 dark:[&_h3]:text-zinc-50 [&_h3]:mb-1.5",
         "group-data-[orientation=horizontal]/timescale:mt-4",

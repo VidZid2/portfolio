@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Markdown from "react-markdown";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { RotateCcw } from "lucide-react";
 import { BlueprintGrid } from "@/components/BlueprintGrid";
 import { SubpageHeader } from "@/components/SubpageHeader";
 import {
@@ -19,6 +20,10 @@ import {
   TimescaleYear,
 } from "@/components/timescale";
 import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
+import { playSoftClick } from "@/lib/synth-sounds";
+
+// S-curve timeline arrival delays (seconds) matching ease [0.72, 0, 0.24, 1] over 3.2s
+const TIMELINE_DELAYS = [0.35, 1.45, 1.68, 1.92, 2.22, 2.60, 3.05];
 
 type Milestone = {
   version: string;
@@ -105,6 +110,15 @@ A hardening pass across the whole codebase — no visual redesign, every change 
 ];
 
 export default function ChangelogPage() {
+  const [animKey, setAnimKey] = useState(0);
+  const prefersReduced = useReducedMotion();
+  const isAnimated = !prefersReduced;
+
+  const handleReplay = () => {
+    playSoftClick(0.05);
+    setAnimKey((k) => k + 1);
+  };
+
   return (
     <BlueprintGrid
       expandContentMargins
@@ -113,10 +127,22 @@ export default function ChangelogPage() {
           title="Portfolio Changelog"
           subtitle="From 0.1 Start to 0.2.1 (Now) — Evolution & Milestones"
           backHref="/"
+          extraControls={
+            <button
+              type="button"
+              onClick={handleReplay}
+              className="group flex items-center gap-1.5 px-2.5 py-1 text-[11px] sm:text-xs font-mono text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 bg-zinc-100/80 dark:bg-zinc-900/80 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded border border-zinc-200/50 dark:border-zinc-800/50 transition-all cursor-pointer select-none"
+              title="Replay timeline draw animation"
+            >
+              <RotateCcw className="w-3 h-3 transition-transform duration-300 group-hover:-rotate-90 text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-200" />
+              <span className="hidden sm:inline">Replay</span>
+            </button>
+          }
         />
       }
     >
       <motion.div
+        key={animKey}
         initial={{ opacity: 0, filter: "blur(4px)", y: 12 }}
         animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
@@ -132,12 +158,14 @@ export default function ChangelogPage() {
 
               <TimescaleViewport>
                 <TimescaleTrack>
-                  <TimescaleRail />
+                  <TimescaleRail animated={isAnimated} duration={3.2} />
 
-                  {MILESTONES.map((milestone) => (
+                  {MILESTONES.map((milestone, idx) => (
                     <TimescaleItem
                       key={milestone.version}
                       isActive={milestone.version === "0.2"}
+                      delay={TIMELINE_DELAYS[idx] ?? 0}
+                      animated={isAnimated}
                     >
                       <TimescaleTick />
 
