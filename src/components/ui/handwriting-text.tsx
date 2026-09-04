@@ -28,9 +28,8 @@ import { cn } from "@/lib/utils";
 const LOCAL_OPENTYPE = "/scripts/opentype.min.js";
 const OPENTYPE_CDN = "https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js";
 
-const LOCAL_FONT_URL = "/fonts/handwriting.ttf";
-const DEFAULT_FONT_URL =
-  "https://cdn.21st.dev/assets/mirror/13/1347863151acdc00fa281daaba1a3543dbce5870b55f9cf7479a15bb84007681.ttf";
+const LOCAL_FONT_URL = "/fonts/patrick-hand.ttf";
+const DEFAULT_FONT_URL = "/fonts/handwriting.ttf";
 
 export interface HandwritingTextProps {
   /** A single phrase to write. Ignored when `words` is given. */
@@ -191,16 +190,30 @@ export function HandwritingText({
     try {
       const path = font.getPath(current, 0, EM, EM);
       const box = path.getBoundingBox();
-      const pad = EM * 0.12; // room for the stroke and any descenders
       const full = path.toPathData(2);
+
+      // Standardize vertical metrics to the font's EM baseline & line-height.
+      // This guarantees that every letter across all annotations renders at the EXACT same scale,
+      // preventing phrases without descenders from blowing up larger than phrases with descenders.
+      const scale = font.unitsPerEm ? EM / font.unitsPerEm : 1;
+      const ascent = (font.ascender || 1000) * scale;
+      const descent = Math.abs(font.descender || 300) * scale;
+      const padY = EM * 0.14;
+      const padX = EM * 0.12;
+
+      const y = EM - ascent - padY;
+      const h = ascent + descent + padY * 2;
+      const x = box.x1 - padX;
+      const w = (box.x2 - box.x1) + padX * 2;
+
       return {
         full,
         // Split on the moveto that opens each contour, keeping the M with its segment.
         contours: full.split(/(?=M)/).filter((d: string) => d.trim().length > 1),
-        x: box.x1 - pad,
-        y: box.y1 - pad,
-        w: box.x2 - box.x1 + pad * 2,
-        h: box.y2 - box.y1 + pad * 2,
+        x,
+        y,
+        w,
+        h,
       };
     } catch {
       return null;
