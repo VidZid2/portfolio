@@ -943,16 +943,16 @@ export function SupportedBySection({
         {/* Centered Header: SPECIAL THANKS & COMPONENT INSPIRATIONS */}
         <div className="relative h-[32px] sm:h-[36px] flex items-center justify-center px-8 sm:px-10 text-center">
           {/* Handwritten Annotation in Right Gutter: extraordinary creators ↙ - PC/Desktop only */}
-          <div className="absolute left-full top-[-16px] sm:top-[-18px] pl-5 sm:pl-6 hidden xl:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
-            <div className="rotate-[3deg] ml-1 text-zinc-500 dark:text-zinc-400">
-              <HandwritingText text="extraordinary creators" delay={0.2} duration={1.3} height="19px" />
+          <div className="absolute left-full top-[-24px] sm:top-[-26px] pl-5 sm:pl-6 hidden xl:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
+            <div className="rotate-[3deg] ml-1 text-zinc-700 dark:text-zinc-300">
+              <HandwritingText text="extraordinary creators" delay={0.2} duration={1.3} height="24px" strokeWidth={1.85} />
             </div>
             <svg
-              className="w-12 h-6 text-zinc-400 dark:text-zinc-500 overflow-visible mt-1 -ml-3"
+              className="w-14 h-7 text-zinc-500 dark:text-zinc-400 overflow-visible mt-1.5 -ml-3"
               viewBox="0 0 46 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="1.3"
+              strokeWidth="1.6"
               strokeLinecap="round"
               strokeLinejoin="round"
             >

@@ -399,23 +399,23 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
       {/* Socials Row (5-Column Mathematical Blueprint Grid) */}
       <div className="relative flex items-center py-0 w-full">
         {/* Handwritten Annotation in Left Gutter outside the vertical line - PC/Desktop only */}
-        <div className="absolute right-full top-[-42px] sm:top-[-46px] pr-4 sm:pr-5 hidden xl:flex flex-col items-end pointer-events-none select-none z-30 min-w-max">
-          <div className="flex flex-col items-end text-right font-medium text-zinc-600 dark:text-zinc-400 select-none mr-2 -rotate-[6deg] tracking-wide gap-0.5">
-            <HandwritingText text="feel free to reach out" delay={0.2} duration={1.3} height="19px" />
-            <HandwritingText text="say hi or connect" delay={0.9} duration={1.2} height="19px" />
+        <div className="absolute right-full top-[-56px] sm:top-[-60px] pr-4 sm:pr-5 hidden xl:flex flex-col items-end pointer-events-none select-none z-30 min-w-max">
+          <div className="flex flex-col items-end text-right font-medium text-zinc-700 dark:text-zinc-300 select-none mr-2 -rotate-[6deg] tracking-wide gap-1">
+            <HandwritingText text="feel free to reach out" delay={0.2} duration={1.3} height="24px" strokeWidth={1.85} />
+            <HandwritingText text="say hi or connect" delay={0.9} duration={1.2} height="24px" strokeWidth={1.85} />
           </div>
           <svg
-            width="36"
-            height="26"
+            width="46"
+            height="34"
             viewBox="0 0 36 26"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-1 translate-x-1.5"
+            className="text-zinc-500 dark:text-zinc-400 overflow-visible mt-1.5 translate-x-1.5"
           >
             <motion.path
               d="M 4 2 C 4 10, 16 18, 34 18"
               stroke="currentColor"
-              strokeWidth="1.35"
+              strokeWidth="1.6"
               strokeLinecap="round"
               initial={{ pathLength: 0, opacity: 0 }}
               whileInView={{ pathLength: 1, opacity: 1 }}
@@ -425,7 +425,7 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
             <motion.path
               d="M 26 12 L 34 18 L 27 24"
               stroke="currentColor"
-              strokeWidth="1.35"
+              strokeWidth="1.6"
               strokeLinecap="round"
               strokeLinejoin="round"
               initial={{ pathLength: 0, opacity: 0 }}

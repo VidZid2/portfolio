@@ -303,24 +303,24 @@ export function CommandMenu() {
 
             <div className="relative group/ai inline-flex items-center">
                 {/* Handwritten Annotation: talk to my AI / ask me anything pointing to Ask AI - PC only */}
-                <div className="absolute left-full ml-4 sm:ml-6 -top-16 sm:-top-18 hidden xl:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
-                    <div className="flex flex-col items-start text-left font-medium text-zinc-600 dark:text-zinc-400 select-none -rotate-[6deg] tracking-wide ml-2 gap-0.5">
-                        <HandwritingText text="talk to my AI" delay={0.2} duration={1.2} height="19px" />
-                        <HandwritingText text="ask me anything" delay={0.9} duration={1.3} height="19px" />
+                <div className="absolute left-full ml-5 sm:ml-6 -top-[82px] hidden xl:flex flex-col items-start pointer-events-none select-none z-30 min-w-max">
+                    <div className="flex flex-col items-start text-left font-medium text-zinc-700 dark:text-zinc-300 select-none -rotate-[6deg] tracking-wide ml-2 gap-1">
+                        <HandwritingText text="talk to my AI" delay={0.2} duration={1.2} height="24px" strokeWidth={1.85} />
+                        <HandwritingText text="ask me anything" delay={0.9} duration={1.3} height="24px" strokeWidth={1.85} />
                     </div>
                     <svg
-                        width="54"
-                        height="38"
+                        width="64"
+                        height="44"
                         viewBox="0 0 54 38"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
-                        className="text-zinc-400 dark:text-zinc-500 overflow-visible mt-2"
+                        className="text-zinc-500 dark:text-zinc-400 overflow-visible mt-1.5 ml-1"
                     >
                         {/* Deep organic J/U-curve starting on right under anything and sweeping left into Ask AI button */}
                         <motion.path
                             d="M 48 2 C 50 18, 22 32, -14 30"
                             stroke="currentColor"
-                            strokeWidth="1.35"
+                            strokeWidth="1.6"
                             strokeLinecap="round"
                             initial={{ pathLength: 0, opacity: 0 }}
                             whileInView={{ pathLength: 1, opacity: 1 }}
@@ -330,7 +330,7 @@ export function CommandMenu() {
                         <motion.path
                             d="M -5 24 L -14 30 L -6 36"
                             stroke="currentColor"
-                            strokeWidth="1.35"
+                            strokeWidth="1.6"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             initial={{ pathLength: 0, opacity: 0 }}
