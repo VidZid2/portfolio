@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useInView } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 /**
@@ -140,35 +141,22 @@ export function HandwritingText({
   const cycle = Boolean(words && words.length > 0);
   const [index, setIndex] = useState(0);
   const current = cycle ? words![index % words!.length] : text ?? "";
-
   const [font, setFont] = useState<any>(null);
   const [drawn, setDrawn] = useState(false);
   const [lengths, setLengths] = useState<number[]>([]);
-  const [inView, setInView] = useState(
-    () => !triggerOnView || typeof window === "undefined" || typeof IntersectionObserver === "undefined"
-  );
-  const containerRef = useRef<SVGSVGElement | null>(null);
+  const [fontFailed, setFontFailed] = useState(false);
+
+  // Outer container ref observed by Framer Motion's useInView
+  const containerRef = useRef<HTMLSpanElement | null>(null);
   const pathRefs = useRef<(SVGPathElement | null)[]>([]);
 
-  // Viewport intersection detection so animation triggers only when visible on PC screen
-  useEffect(() => {
-    if (!triggerOnView || inView) return;
-    const el = containerRef.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
+  // Framer Motion viewport detection
+  const isInView = useInView(containerRef, {
+    once: true,
+    amount: 0.1,
+  });
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) {
-          setInView(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [triggerOnView, inView]);
+  const shouldAnimate = !triggerOnView || isInView;
 
   useEffect(() => {
     if (!cycle) return undefined;
@@ -189,7 +177,7 @@ export function HandwritingText({
             if (!cancelled) setFont(f);
           })
           .catch(() => {
-            /* falls back to plain text */
+            if (!cancelled) setFontFailed(true);
           });
       });
     return () => {
@@ -220,31 +208,46 @@ export function HandwritingText({
   }, [font, current]);
 
   useEffect(() => {
-    if (!geom || !inView) return undefined;
-    let cancelSecond = false;
+    if (!geom || !shouldAnimate) return undefined;
+
+    let cancel = false;
     let id2 = 0;
+
     const id1 = requestAnimationFrame(() => {
-      if (cancelSecond) return;
-      setLengths(
-        pathRefs.current
-          .slice(0, geom.contours.length)
-          .map((el) => (el ? el.getTotalLength() : 0)),
-      );
+      if (cancel) return;
+
+      setDrawn(false);
+      const measured = pathRefs.current
+        .slice(0, geom.contours.length)
+        .map((el) => (el ? el.getTotalLength() : 0));
+
+      setLengths(measured);
+
       id2 = requestAnimationFrame(() => {
-        if (!cancelSecond) setDrawn(true);
+        if (!cancel) setDrawn(true);
       });
     });
+
     return () => {
-      cancelSecond = true;
+      cancel = true;
       cancelAnimationFrame(id1);
       cancelAnimationFrame(id2);
     };
-  }, [geom, inView]);
+  }, [geom, shouldAnimate, current]);
+
+  if (fontFailed) {
+    return (
+      <span ref={containerRef} className={cn("inline-block font-caveat italic", className)}>
+        {current}
+      </span>
+    );
+  }
 
   const count = Math.max(1, geom?.contours.length ?? 1);
 
   return (
     <span
+      ref={containerRef}
       className={cn("inline-flex items-center leading-none select-none relative", className)}
       style={{ verticalAlign: "middle" }}
     >
@@ -255,7 +258,6 @@ export function HandwritingText({
         </span>
       ) : (
         <svg
-          ref={containerRef}
           key={current}
           viewBox={`${geom.x} ${geom.y} ${geom.w} ${geom.h}`}
           role="img"
@@ -265,6 +267,8 @@ export function HandwritingText({
             height,
             width: `calc(${height} * ${(geom.w / geom.h).toFixed(4)})`,
             overflow: "visible",
+            opacity: shouldAnimate && lengths.length > 0 ? 1 : 0,
+            transition: "opacity 0.25s ease-out",
           }}
         >
           <title>{current}</title>
