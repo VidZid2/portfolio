@@ -41,20 +41,22 @@ export function ComponentList() {
           </div>
         </div>
         
-        {/* Bottom Release Date & Countdown Area: Clean, prominent, and visible below the fade */}
-        <div className="relative z-10 flex flex-col items-center text-center max-w-md px-4 pb-8 pt-1 sm:pt-3 pointer-events-auto">
-          {/* Heading */}
-          <h3 className="text-[17px] sm:text-[20px] font-bold text-zinc-900 dark:text-zinc-100 mb-1.5 tracking-tight">
-            SYNC UI Component System
-          </h3>
+        {/* Bottom Release Date & Countdown Area: Minimalistic Horizontal Layout */}
+        <div className="relative z-10 w-full flex flex-col lg:flex-row items-center justify-between gap-3.5 lg:gap-6 px-5 sm:px-8 pb-6 pt-2 pointer-events-auto">
+          {/* Info (Left) */}
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-left min-w-0">
+            <h3 className="text-[16px] sm:text-[18px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
+              SYNC UI Component System
+            </h3>
+            <p className="text-[12px] sm:text-[13px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+              The official SYNC UI component library drops on October 1st.
+            </p>
+          </div>
 
-          {/* Description */}
-          <p className="text-[13px] sm:text-[14px] text-zinc-500 dark:text-zinc-400 leading-relaxed max-w-sm sm:max-w-md mb-5">
-            The official SYNC UI component library drops on October 1st. Featuring physics-based micro-interactions, accessible primitives, and production-ready React animations.
-          </p>
-
-          {/* Live Countdown Ticker with Tick Animation */}
-          <ReleaseCountdown />
+          {/* Live Horizontal Countdown Ticker (Right) */}
+          <div className="shrink-0">
+            <ReleaseCountdown />
+          </div>
         </div>
       </motion.div>
     );
