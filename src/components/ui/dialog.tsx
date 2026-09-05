@@ -5,11 +5,26 @@ import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { XIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { playModalOpen, playModalClose } from "@/lib/synth-sounds"
 
 function Dialog({
+  onOpenChange,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Root>) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+  return (
+    <DialogPrimitive.Root
+      data-slot="dialog"
+      onOpenChange={(open) => {
+        if (open) {
+          playModalOpen(0.075);
+        } else {
+          playModalClose(0.06);
+        }
+        onOpenChange?.(open);
+      }}
+      {...props}
+    />
+  )
 }
 
 function DialogTrigger({
@@ -27,7 +42,7 @@ function DialogPortal({
 function DialogClose({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Close>) {
-  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />
+  return <DialogPrimitive.Close data-slot="dialog-close" data-sound-click="none" {...props} />
 }
 
 function DialogOverlay({
@@ -69,6 +84,7 @@ function DialogContent({
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
+            data-sound-click="none"
             className="ring-offset-white dark:ring-offset-[#0a0a0a] focus:ring-zinc-400 dark:focus:ring-zinc-600 data-[state=open]:bg-zinc-100 dark:data-[state=open]:bg-zinc-800 data-[state=open]:text-zinc-500 dark:data-[state=open]:text-zinc-400 absolute top-4 right-4 rounded-md opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 text-zinc-500 dark:text-zinc-400"
           >
             <XIcon />

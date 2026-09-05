@@ -17,8 +17,8 @@ const PDFViewer = dynamic(
 );
 import { PresenceGate } from "@/lib/presence-gate";
 import { EASE_OUT } from "@/lib/ease";
-import { playSoftClick } from "@/lib/synth-sounds";
 import { cn } from "@/lib/utils";
+import { playModalOpen, playModalClose, playTabSelect, playSoftClick } from "@/lib/synth-sounds";
 import { Button } from "@/components/ui/button";
 import {
   Popover as MotionPopover,
@@ -97,9 +97,12 @@ function FormatSwitchToggle({
 
       <button
         type="button"
+        role="tab"
+        aria-selected={viewMode === "pdf"}
+        data-sound-custom="true"
         onClick={() => {
           if (viewMode !== "pdf") {
-            playSoftClick(0.04);
+            playTabSelect(0.08);
             onToggle("pdf");
           }
         }}
@@ -116,9 +119,12 @@ function FormatSwitchToggle({
 
       <button
         type="button"
+        role="tab"
+        aria-selected={viewMode === "image"}
+        data-sound-custom="true"
         onClick={() => {
           if (viewMode !== "image") {
-            playSoftClick(0.04);
+            playTabSelect(0.08);
             onToggle("image");
           }
         }}
@@ -170,11 +176,22 @@ export function CertificateViewerModal({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const prevOpenRef = useRef(isOpen);
+  useEffect(() => {
+    if (prevOpenRef.current !== isOpen) {
+      if (isOpen) {
+        playModalOpen(0.075);
+      } else {
+        playModalClose(0.06);
+      }
+      prevOpenRef.current = isOpen;
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        playSoftClick(0.04);
         onClose();
       }
     };
@@ -239,10 +256,7 @@ export function CertificateViewerModal({
                   duration: reduce ? 0.1 : 0.28,
                   ease: EASE_OUT,
                 }}
-                onClick={() => {
-                  playSoftClick(0.04);
-                  onClose();
-                }}
+                onClick={onClose}
                 className="pointer-events-auto fixed inset-0 z-[100] h-full w-full cursor-default bg-black/75 backdrop-blur-sm transform-gpu"
               />
 
@@ -369,6 +383,7 @@ export function CertificateViewerModal({
                                       <button
                                         type="button"
                                         aria-label="More options"
+                                        data-sound-custom="true"
                                         onClick={() => playSoftClick(0.04)}
                                         className="relative flex items-center justify-center size-7 rounded-[8px] bg-neutral-200/80 dark:bg-neutral-800/90 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors duration-150 border-0 outline-none select-none cursor-pointer shadow-none p-0"
                                       >
@@ -384,6 +399,7 @@ export function CertificateViewerModal({
                                   <a
                                     href={downloadUrl}
                                     download={downloadFileName}
+                                    data-sound-custom="true"
                                     onClick={() => playSoftClick(0.04)}
                                     className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white transition-colors duration-150 select-none cursor-pointer outline-none border-0 bg-transparent rounded-[8px]"
                                   >
@@ -402,10 +418,8 @@ export function CertificateViewerModal({
                                 variant="ghost"
                                 size="icon-sm"
                                 aria-label="Close"
-                                onClick={() => {
-                                  playSoftClick(0.04);
-                                  onClose();
-                                }}
+                                data-sound-click="none"
+                                onClick={onClose}
                                 className="hover:bg-red-500/20 hover:text-red-400 dark:hover:bg-red-500/20 dark:hover:text-red-400 text-neutral-600 dark:text-neutral-400 transition-colors"
                               >
                                 <X className="size-4" />

@@ -1,46 +1,69 @@
-import { getAudioContext } from "./sound-engine";
+import { getAudioContext, getMasterBus } from "./sound-engine";
 import { getSoundEnabled } from "@/hooks/use-sound";
 
 // Debounce trackers to prevent audio fatigue and spam
 let lastHoverTime = 0;
+let lastClickTime = 0;
+let lastTabTime = 0;
+let lastKeyTickTime = 0;
+let lastModalTime = 0;
+let lastToastOutTime = 0;
+let lastAccordionTime = 0;
+
+// Organic micro-pitch round-robin variations to prevent machine-gun ear fatigue
+let hoverPitchIndex = 0;
+const HOVER_PITCH_RATIOS = [1.0, 1.028, 0.975, 1.036, 0.985];
+
+let clickPitchIndex = 0;
+const CLICK_PITCH_RATIOS = [1.0, 0.985, 1.018, 0.992];
+
+let keyPitchIndex = 0;
+const KEY_PITCH_RATIOS = [1.0, 0.97, 1.03];
 
 /**
  * Ultra-smooth, satisfying tactile haptic hover tick.
- * Multi-layer acoustic physics: crisp micro-transient mechanical click layered over a velvety sub-surface body.
+ * Multi-layer acoustic physics:
+ * 1. Crisp micro-transient mechanical stem click (12ms exponential ramp through bandpass filter).
+ * 2. Warm velvety sub-body resonator (gives physical mass and depth).
+ * 3. High-precision silk air impulse (gives spatial tactile presence without harshness).
+ * 4. Micro-pitch round-robin eliminates ear fatigue when rapidly scrubbing menus and lists.
  */
-export function playHoverTick(volume: number = 0.06) {
+export function playHoverTick(volume: number = 0.055) {
   if (!getSoundEnabled()) return;
 
   const now = Date.now();
-  if (now - lastHoverTime < 38) return; // 38ms limiter for silky smooth scrubbing
+  if (now - lastHoverTime < 36) return; // 36ms limiter for silky smooth scrubbing
   lastHoverTime = now;
 
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
+
+    const ratio = HOVER_PITCH_RATIOS[hoverPitchIndex % HOVER_PITCH_RATIOS.length];
+    hoverPitchIndex++;
 
     // 1. High-precision tactile micro-transient (stem click)
     const osc1 = ctx.createOscillator();
     const filter1 = ctx.createBiquadFilter();
     const gain1 = ctx.createGain();
 
-    osc1.type = "sine";
-    osc1.frequency.setValueAtTime(440, t);
-    osc1.frequency.exponentialRampToValueAtTime(180, t + 0.016);
+    osc1.type = "triangle";
+    osc1.frequency.setValueAtTime(580 * ratio, t);
+    osc1.frequency.exponentialRampToValueAtTime(220 * ratio, t + 0.012);
 
     filter1.type = "bandpass";
-    filter1.frequency.setValueAtTime(1200, t);
-    filter1.Q.setValueAtTime(1.6, t);
+    filter1.frequency.setValueAtTime(1800, t);
+    filter1.Q.setValueAtTime(1.8, t);
 
     gain1.gain.setValueAtTime(0, t);
-    gain1.gain.linearRampToValueAtTime(volume * 0.95, t + 0.0015);
-    gain1.gain.exponentialRampToValueAtTime(0.0001, t + 0.016);
+    gain1.gain.linearRampToValueAtTime(volume * 0.9, t + 0.001);
+    gain1.gain.exponentialRampToValueAtTime(0.0001, t + 0.014);
 
     osc1.connect(filter1);
     filter1.connect(gain1);
-    gain1.connect(ctx.destination);
+    gain1.connect(dest);
 
     // 2. Warm velvety sub-body resonator (gives physical mass)
     const osc2 = ctx.createOscillator();
@@ -48,24 +71,46 @@ export function playHoverTick(volume: number = 0.06) {
     const gain2 = ctx.createGain();
 
     osc2.type = "sine";
-    osc2.frequency.setValueAtTime(180, t);
-    osc2.frequency.exponentialRampToValueAtTime(75, t + 0.02);
+    osc2.frequency.setValueAtTime(160 * ratio, t);
+    osc2.frequency.exponentialRampToValueAtTime(65, t + 0.016);
 
     filter2.type = "lowpass";
-    filter2.frequency.setValueAtTime(450, t);
+    filter2.frequency.setValueAtTime(380, t);
 
     gain2.gain.setValueAtTime(0, t);
-    gain2.gain.linearRampToValueAtTime(volume * 0.45, t + 0.001);
-    gain2.gain.exponentialRampToValueAtTime(0.0001, t + 0.02);
+    gain2.gain.linearRampToValueAtTime(volume * 0.4, t + 0.001);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, t + 0.018);
 
     osc2.connect(filter2);
     filter2.connect(gain2);
-    gain2.connect(ctx.destination);
+    gain2.connect(dest);
+
+    // 3. Delicate silk air micro-impulse (spatial presence)
+    const osc3 = ctx.createOscillator();
+    const filter3 = ctx.createBiquadFilter();
+    const gain3 = ctx.createGain();
+
+    osc3.type = "sine";
+    osc3.frequency.setValueAtTime(3200 * ratio, t);
+
+    filter3.type = "bandpass";
+    filter3.frequency.setValueAtTime(3200, t);
+    filter3.Q.setValueAtTime(2.5, t);
+
+    gain3.gain.setValueAtTime(0, t);
+    gain3.gain.linearRampToValueAtTime(volume * 0.18, t + 0.0008);
+    gain3.gain.exponentialRampToValueAtTime(0.0001, t + 0.006);
+
+    osc3.connect(filter3);
+    filter3.connect(gain3);
+    gain3.connect(dest);
 
     osc1.start(t);
     osc2.start(t);
-    osc1.stop(t + 0.022);
-    osc2.stop(t + 0.022);
+    osc3.start(t);
+    osc1.stop(t + 0.018);
+    osc2.stop(t + 0.02);
+    osc3.stop(t + 0.008);
   } catch {
     // Ignore audio errors
   }
@@ -73,84 +118,307 @@ export function playHoverTick(volume: number = 0.06) {
 
 /**
  * Deeply satisfying, creamy mechanical keyboard "thock" / luxury tactile button pop.
- * Triple-harmonic architecture: sub-fundamental thump + wooden housing resonance + transient tactile strike.
+ * Quad-layer acoustic physics:
+ * 1. Primary sub-bass bottom-out thump (weight and physical presence).
+ * 2. PBT keycap/wooden switch housing resonance (hollow, tactile "thock" body).
+ * 3. Tactile contact transient snap (crisp stem impact).
+ * 4. Micro-rebound leaf spring release at +11ms (tactile realism).
+ * Includes 38ms debounce to prevent mousedown/click double-triggers.
  */
-export function playSoftClick(volume: number = 0.11) {
+export function playSoftClick(volume: number = 0.1) {
   if (!getSoundEnabled()) return;
+
+  const now = Date.now();
+  if (now - lastClickTime < 75) return; // Debounce to prevent rapid double-triggers
+  lastClickTime = now;
 
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
 
-    // 1. Primary sub-bass bottom-out thump (creamy low-end)
+    const ratio = CLICK_PITCH_RATIOS[clickPitchIndex % CLICK_PITCH_RATIOS.length];
+    clickPitchIndex++;
+
+    // 1. Primary sub-bass bottom-out thump (creamy low-end weight)
     const osc1 = ctx.createOscillator();
     const gain1 = ctx.createGain();
     const filter1 = ctx.createBiquadFilter();
 
     osc1.type = "sine";
-    osc1.frequency.setValueAtTime(170, t);
-    osc1.frequency.exponentialRampToValueAtTime(48, t + 0.036);
+    osc1.frequency.setValueAtTime(155 * ratio, t);
+    osc1.frequency.exponentialRampToValueAtTime(44, t + 0.034);
 
     filter1.type = "lowpass";
-    filter1.frequency.setValueAtTime(320, t);
+    filter1.frequency.setValueAtTime(280, t);
 
     gain1.gain.setValueAtTime(0, t);
-    gain1.gain.linearRampToValueAtTime(volume, t + 0.002);
-    gain1.gain.exponentialRampToValueAtTime(0.0001, t + 0.038);
+    gain1.gain.linearRampToValueAtTime(volume * 0.95, t + 0.0018);
+    gain1.gain.exponentialRampToValueAtTime(0.0001, t + 0.036);
 
     osc1.connect(filter1);
     filter1.connect(gain1);
-    gain1.connect(ctx.destination);
+    gain1.connect(dest);
 
-    // 2. Soft mechanical stem housing resonance (gives tactile "thock" body)
+    // 2. Mechanical switch housing resonance (wooden/PBT tactile "thock" acoustic body)
     const osc2 = ctx.createOscillator();
     const gain2 = ctx.createGain();
     const filter2 = ctx.createBiquadFilter();
 
     osc2.type = "triangle";
-    osc2.frequency.setValueAtTime(360, t);
-    osc2.frequency.exponentialRampToValueAtTime(95, t + 0.028);
+    osc2.frequency.setValueAtTime(340 * ratio, t);
+    osc2.frequency.exponentialRampToValueAtTime(105, t + 0.026);
 
-    filter2.type = "lowpass";
+    filter2.type = "bandpass";
     filter2.frequency.setValueAtTime(650, t);
+    filter2.Q.setValueAtTime(1.4, t);
 
     gain2.gain.setValueAtTime(0, t);
-    gain2.gain.linearRampToValueAtTime(volume * 0.5, t + 0.0015);
-    gain2.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
+    gain2.gain.linearRampToValueAtTime(volume * 0.55, t + 0.0012);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, t + 0.028);
 
     osc2.connect(filter2);
     filter2.connect(gain2);
-    gain2.connect(ctx.destination);
+    gain2.connect(dest);
 
-    // 3. Ultra-short tactile contact transient
+    // 3. Tactile contact transient snap (stem impact)
     const osc3 = ctx.createOscillator();
     const gain3 = ctx.createGain();
     const filter3 = ctx.createBiquadFilter();
 
-    osc3.type = "sine";
-    osc3.frequency.setValueAtTime(820, t);
-    osc3.frequency.exponentialRampToValueAtTime(240, t + 0.008);
+    osc3.type = "triangle";
+    osc3.frequency.setValueAtTime(860 * ratio, t);
+    osc3.frequency.exponentialRampToValueAtTime(240, t + 0.007);
 
     filter3.type = "bandpass";
-    filter3.frequency.setValueAtTime(900, t);
-    filter3.Q.setValueAtTime(1.2, t);
+    filter3.frequency.setValueAtTime(1200, t);
+    filter3.Q.setValueAtTime(1.6, t);
 
     gain3.gain.setValueAtTime(0, t);
-    gain3.gain.linearRampToValueAtTime(volume * 0.35, t + 0.001);
-    gain3.gain.exponentialRampToValueAtTime(0.0001, t + 0.009);
+    gain3.gain.linearRampToValueAtTime(volume * 0.35, t + 0.0008);
+    gain3.gain.exponentialRampToValueAtTime(0.0001, t + 0.008);
 
     osc3.connect(filter3);
     filter3.connect(gain3);
-    gain3.connect(ctx.destination);
+    gain3.connect(dest);
+
+    // 4. Secondary micro-rebound (subtle mechanical switch leaf release bounce at +11ms)
+    const osc4 = ctx.createOscillator();
+    const gain4 = ctx.createGain();
+    const filter4 = ctx.createBiquadFilter();
+
+    osc4.type = "sine";
+    osc4.frequency.setValueAtTime(420 * ratio, t + 0.011);
+    osc4.frequency.exponentialRampToValueAtTime(160, t + 0.022);
+
+    filter4.type = "lowpass";
+    filter4.frequency.setValueAtTime(800, t + 0.011);
+
+    gain4.gain.setValueAtTime(0, t + 0.011);
+    gain4.gain.linearRampToValueAtTime(volume * 0.18, t + 0.0125);
+    gain4.gain.exponentialRampToValueAtTime(0.0001, t + 0.024);
+
+    osc4.connect(filter4);
+    filter4.connect(gain4);
+    gain4.connect(dest);
 
     osc1.start(t);
     osc2.start(t);
     osc3.start(t);
-    osc1.stop(t + 0.045);
-    osc2.stop(t + 0.045);
-    osc3.stop(t + 0.045);
+    osc4.start(t + 0.011);
+
+    osc1.stop(t + 0.04);
+    osc2.stop(t + 0.035);
+    osc3.stop(t + 0.01);
+    osc4.stop(t + 0.028);
+  } catch {
+    // Ignore
+  }
+}
+
+/**
+ * Crisp, snappy tactile tab switch sound.
+ * Optimized for tabs, segmented controls, and category filters.
+ */
+export function playTabSelect(volume: number = 0.08) {
+  if (!getSoundEnabled()) return;
+
+  const now = Date.now();
+  if (now - lastTabTime < 75) return;
+  lastTabTime = now;
+
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === "suspended") ctx.resume().catch(() => {});
+    const dest = getMasterBus(ctx);
+    const t = ctx.currentTime;
+
+    // Crisp tactile tab tick + subtle harmonic sliding pop
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    const filter1 = ctx.createBiquadFilter();
+
+    osc1.type = "triangle";
+    osc1.frequency.setValueAtTime(480, t);
+    osc1.frequency.exponentialRampToValueAtTime(240, t + 0.022);
+
+    filter1.type = "bandpass";
+    filter1.frequency.setValueAtTime(1400, t);
+    filter1.Q.setValueAtTime(2.0, t);
+
+    gain1.gain.setValueAtTime(0, t);
+    gain1.gain.linearRampToValueAtTime(volume, t + 0.001);
+    gain1.gain.exponentialRampToValueAtTime(0.0001, t + 0.025);
+
+    osc1.connect(filter1);
+    filter1.connect(gain1);
+    gain1.connect(dest);
+
+    // Warm sub-click
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = "sine";
+    osc2.frequency.setValueAtTime(180, t);
+    osc2.frequency.exponentialRampToValueAtTime(90, t + 0.02);
+
+    gain2.gain.setValueAtTime(0, t);
+    gain2.gain.linearRampToValueAtTime(volume * 0.4, t + 0.001);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, t + 0.022);
+
+    osc2.connect(gain2);
+    gain2.connect(dest);
+
+    osc1.start(t);
+    osc2.start(t);
+    osc1.stop(t + 0.03);
+    osc2.stop(t + 0.025);
+  } catch {
+    // Ignore
+  }
+}
+
+/**
+ * Bright, bubbly button pop for pill badges, pills, and interactive chips.
+ */
+export function playPopClick(volume: number = 0.09) {
+  if (!getSoundEnabled()) return;
+
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === "suspended") ctx.resume().catch(() => {});
+    const dest = getMasterBus(ctx);
+    const t = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    const filter = ctx.createBiquadFilter();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(440, t);
+    osc.frequency.exponentialRampToValueAtTime(190, t + 0.025);
+
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(1200, t);
+    filter.Q.setValueAtTime(1.8, t);
+
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(volume, t + 0.0015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.028);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(dest);
+
+    osc.start(t);
+    osc.stop(t + 0.03);
+  } catch {
+    // Ignore
+  }
+}
+
+/**
+ * Smooth atmospheric swell when opening a modal, dialog, or drawer.
+ */
+export function playModalOpen(volume: number = 0.075) {
+  if (!getSoundEnabled()) return;
+  const now = Date.now();
+  if (now - lastModalTime < 80) return;
+  lastModalTime = now;
+
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === "suspended") ctx.resume().catch(() => {});
+    const dest = getMasterBus(ctx);
+    const t = ctx.currentTime;
+
+    // Atmospheric warm swell (C5 -> G5)
+    const notes = [523.25, 783.99];
+    notes.forEach((freq, i) => {
+      const start = t + i * 0.035;
+      const osc = ctx.createOscillator();
+      const filter = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq * 0.9, start);
+      osc.frequency.exponentialRampToValueAtTime(freq, start + 0.12);
+
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(1800, start);
+
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(volume * (0.8 + i * 0.2), start + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.2);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(dest);
+
+      osc.start(start);
+      osc.stop(start + 0.22);
+    });
+  } catch {
+    // Ignore
+  }
+}
+
+/**
+ * Soft acoustic tuck-away pop when closing a modal, dialog, or drawer.
+ */
+export function playModalClose(volume: number = 0.06) {
+  if (!getSoundEnabled()) return;
+  const now = Date.now();
+  if (now - lastModalTime < 80) return;
+  lastModalTime = now;
+
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === "suspended") ctx.resume().catch(() => {});
+    const dest = getMasterBus(ctx);
+    const t = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    const filter = ctx.createBiquadFilter();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(320, t);
+    osc.frequency.exponentialRampToValueAtTime(120, t + 0.05);
+
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(500, t);
+
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(volume, t + 0.002);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.055);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(dest);
+
+    osc.start(t);
+    osc.stop(t + 0.06);
   } catch {
     // Ignore
   }
@@ -159,52 +427,13 @@ export function playSoftClick(volume: number = 0.11) {
 /**
  * Crystalline, uplifting 3-tone celestial Kalimba arpeggio when enabling audio (E5 -> G#5 -> B5).
  */
-export function playToggleOn(volume: number = 0.09) {
+export function playToggleOn(volume: number = 0.085) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const notes = [659.25, 830.61, 987.77]; // E5 -> G#5 -> B5 (E Major Triad)
-
-    notes.forEach((freq, i) => {
-      const start = t + i * 0.048;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      const filter = ctx.createBiquadFilter();
-
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(freq, start);
-
-      filter.type = "lowpass";
-      filter.frequency.setValueAtTime(2400, start);
-
-      gain.gain.setValueAtTime(0, start);
-      gain.gain.linearRampToValueAtTime(volume * (0.85 + i * 0.1), start + 0.004);
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.22);
-
-      osc.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.start(start);
-      osc.stop(start + 0.23);
-    });
-  } catch {
-    // Ignore
-  }
-}
-
-/**
- * Gentle, warm descending chime when muting audio (B5 -> G#5 -> E5).
- */
-export function playToggleOff(volume: number = 0.075) {
-  try {
-    const ctx = getAudioContext();
-    if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
-    const t = ctx.currentTime;
-    const notes = [987.77, 830.61, 659.25]; // B5 -> G#5 -> E5
 
     notes.forEach((freq, i) => {
       const start = t + i * 0.042;
@@ -216,22 +445,84 @@ export function playToggleOff(volume: number = 0.075) {
       osc.frequency.setValueAtTime(freq, start);
 
       filter.type = "lowpass";
-      filter.frequency.setValueAtTime(1800, start);
+      filter.frequency.setValueAtTime(2600, start);
 
       gain.gain.setValueAtTime(0, start);
-      gain.gain.linearRampToValueAtTime(volume * (1.0 - i * 0.15), start + 0.003);
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.16);
+      gain.gain.linearRampToValueAtTime(volume * (0.85 + i * 0.12), start + 0.004);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.24);
 
       osc.connect(filter);
       filter.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(start);
-      osc.stop(start + 0.17);
+      osc.stop(start + 0.25);
     });
   } catch {
     // Ignore
   }
+}
+
+/**
+ * Gentle, warm descending chime when muting audio (B5 -> G#5 -> E5).
+ */
+export function playToggleOff(volume: number = 0.07) {
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === "suspended") ctx.resume().catch(() => {});
+    const dest = getMasterBus(ctx);
+    const t = ctx.currentTime;
+    const notes = [987.77, 830.61, 659.25]; // B5 -> G#5 -> E5
+
+    notes.forEach((freq, i) => {
+      const start = t + i * 0.038;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, start);
+
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(1900, start);
+
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(volume * (1.0 - i * 0.12), start + 0.003);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.18);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(dest);
+
+      osc.start(start);
+      osc.stop(start + 0.19);
+    });
+  } catch {
+    // Ignore
+  }
+}
+
+let pinkNoiseCache: AudioBuffer | null = null;
+let pinkNoiseCacheSampleRate = 0;
+
+function getPinkNoiseBuffer(ctx: AudioContext, duration: number): AudioBuffer {
+  const bufferSize = Math.floor(ctx.sampleRate * duration);
+  if (pinkNoiseCache && pinkNoiseCacheSampleRate === ctx.sampleRate && pinkNoiseCache.length >= bufferSize) {
+    return pinkNoiseCache;
+  }
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  let b0 = 0, b1 = 0, b2 = 0;
+  for (let i = 0; i < bufferSize; i++) {
+    const white = Math.random() * 2 - 1;
+    b0 = 0.99886 * b0 + white * 0.0555179;
+    b1 = 0.99332 * b1 + white * 0.0750759;
+    b2 = 0.96900 * b2 + white * 0.153852;
+    data[i] = (b0 + b1 + b2) * 0.22;
+  }
+  pinkNoiseCache = buffer;
+  pinkNoiseCacheSampleRate = ctx.sampleRate;
+  return buffer;
 }
 
 /**
@@ -245,25 +536,13 @@ export function playThemeSwoosh(isDark: boolean, volume: number = 0.12) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const duration = 0.28;
 
-    // 1. Velvet Pink Air Noise Buffer
-    const bufferSize = Math.floor(ctx.sampleRate * duration);
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    let b0 = 0, b1 = 0, b2 = 0;
-    for (let i = 0; i < bufferSize; i++) {
-      const white = Math.random() * 2 - 1;
-      b0 = 0.99886 * b0 + white * 0.0555179;
-      b1 = 0.99332 * b1 + white * 0.0750759;
-      b2 = 0.96900 * b2 + white * 0.1538520;
-      data[i] = (b0 + b1 + b2) * 0.22;
-    }
-
+    // 1. Velvet Pink Air Noise Buffer (cached)
     const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
+    noise.buffer = getPinkNoiseBuffer(ctx, duration);
 
     // Dual-stage filter for silky swoosh movement
     const filter = ctx.createBiquadFilter();
@@ -287,7 +566,7 @@ export function playThemeSwoosh(isDark: boolean, volume: number = 0.12) {
 
     noise.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     noise.start(t);
     noise.stop(t + duration);
@@ -315,7 +594,7 @@ export function playThemeSwoosh(isDark: boolean, volume: number = 0.12) {
 
     breath.connect(breathFilter);
     breathFilter.connect(breathGain);
-    breathGain.connect(ctx.destination);
+    breathGain.connect(dest);
 
     breath.start(t);
     breath.stop(t + duration);
@@ -333,7 +612,7 @@ export function playLaserSound(volume: number = 0.055) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
@@ -352,7 +631,7 @@ export function playLaserSound(volume: number = 0.055) {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.065);
@@ -370,7 +649,7 @@ export function playExplosionSound(volume: number = 0.07) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
@@ -389,7 +668,7 @@ export function playExplosionSound(volume: number = 0.07) {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.13);
@@ -407,9 +686,8 @@ export function playHitChime(pitchIndex: number = 0, volume: number = 0.075) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
-    // Soothing pentatonic scale (D5, E5, G5, A5, C6, D6)
     const pitches = [587.33, 659.25, 783.99, 880.0, 1046.5, 1174.66];
     const freq = pitches[pitchIndex % pitches.length] ?? 659.25;
 
@@ -431,7 +709,7 @@ export function playHitChime(pitchIndex: number = 0, volume: number = 0.075) {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     // 2. Wooden body harmonic
     const wood = ctx.createOscillator();
@@ -450,7 +728,7 @@ export function playHitChime(pitchIndex: number = 0, volume: number = 0.075) {
 
     wood.connect(woodFilter);
     woodFilter.connect(woodGain);
-    woodGain.connect(ctx.destination);
+    woodGain.connect(dest);
 
     osc.start(t);
     wood.start(t);
@@ -470,7 +748,7 @@ export function playVictoryFanfare(volume: number = 0.09) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const notes = [523.25, 659.25, 783.99, 987.77, 1174.66]; // C5, E5, G5, B5, D6 (C Major 9)
 
@@ -493,7 +771,7 @@ export function playVictoryFanfare(volume: number = 0.09) {
 
       osc.connect(filter);
       filter.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(start);
       osc.stop(start + 0.42);
@@ -512,7 +790,7 @@ export function playSuperComboSound(tier: 5 | 10, volume: number = 0.08) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const notes =
       tier === 5
@@ -532,7 +810,7 @@ export function playSuperComboSound(tier: 5 | 10, volume: number = 0.08) {
       gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.22);
 
       osc.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(start);
       osc.stop(start + 0.23);
@@ -543,71 +821,80 @@ export function playSuperComboSound(tier: 5 | 10, volume: number = 0.08) {
 }
 
 /**
- * Ultra-subtle, soft tactile haptic droplet pop when a notification toast appears.
- * Multi-layer acoustic tap with gentle water-droplet transient.
+ * Luminous water-crystal droplet greeting when a notification appears.
+ * Two-tone melodic interval (D5 -> A5) with warm wooden sub-foundation.
  */
-export function playToastIn(volume: number = 0.065) {
+export function playToastIn(volume: number = 0.07) {
   if (!getSoundEnabled()) return;
 
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
-    
-    // 1. Primary droplet body
-    const osc = ctx.createOscillator();
-    const filter = ctx.createBiquadFilter();
-    const gain = ctx.createGain();
 
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(290, t);
-    osc.frequency.exponentialRampToValueAtTime(120, t + 0.024);
+    // 1. Water-droplet tactile pulse (warm tactile entry)
+    const drop = ctx.createOscillator();
+    const dropFilter = ctx.createBiquadFilter();
+    const dropGain = ctx.createGain();
 
-    filter.type = "lowpass";
-    filter.frequency.setValueAtTime(1100, t);
+    drop.type = "sine";
+    drop.frequency.setValueAtTime(460, t);
+    drop.frequency.exponentialRampToValueAtTime(180, t + 0.032);
 
-    gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(volume, t + 0.0018);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.024);
+    dropFilter.type = "lowpass";
+    dropFilter.frequency.setValueAtTime(900, t);
 
-    osc.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
+    dropGain.gain.setValueAtTime(0, t);
+    dropGain.gain.linearRampToValueAtTime(volume * 0.8, t + 0.002);
+    dropGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.035);
 
-    // 2. Delicate droplet sheen overtone
-    const sheen = ctx.createOscillator();
-    const sheenGain = ctx.createGain();
-    const sheenFilter = ctx.createBiquadFilter();
+    drop.connect(dropFilter);
+    dropFilter.connect(dropGain);
+    dropGain.connect(dest);
 
-    sheen.type = "triangle";
-    sheen.frequency.setValueAtTime(620, t);
-    sheen.frequency.exponentialRampToValueAtTime(280, t + 0.015);
+    // 2. Crystalline two-tone greeting (D5 -> A5)
+    const tones = [
+      { freq: 587.33, delay: 0.008, dur: 0.16, amp: 0.85 }, // D5
+      { freq: 880.0, delay: 0.045, dur: 0.24, amp: 1.0 },  // A5
+    ];
 
-    sheenFilter.type = "bandpass";
-    sheenFilter.frequency.setValueAtTime(600, t);
-    sheenFilter.Q.setValueAtTime(1.5, t);
+    tones.forEach(({ freq, delay, dur, amp }) => {
+      const start = t + delay;
+      const osc = ctx.createOscillator();
+      const filter = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
 
-    sheenGain.gain.setValueAtTime(0, t);
-    sheenGain.gain.linearRampToValueAtTime(volume * 0.35, t + 0.001);
-    sheenGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.016);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, start);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.98, start + dur);
 
-    sheen.connect(sheenFilter);
-    sheenFilter.connect(sheenGain);
-    sheenGain.connect(ctx.destination);
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(2600, start);
 
-    osc.start(t);
-    sheen.start(t);
-    osc.stop(t + 0.028);
-    sheen.stop(t + 0.028);
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(volume * amp, start + 0.004);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(dest);
+
+      osc.start(start);
+      osc.stop(start + dur + 0.01);
+    });
+
+    drop.start(t);
+    drop.stop(t + 0.04);
   } catch {
     // Ignore
   }
 }
 
 /**
- * Satisfying, warm tactile confirmation double-pop (Apple iOS / Linear haptic standard).
- * Low-frequency, deeply soothing, tactile mechanical double-thock.
+ * Ultra-rewarding, glorious success chime!
+ * 3-tone ascending C-major harmonic sparkle (G5 -> C6 -> E6)
+ * backed by an instantaneous tactile confirmation thump and crystal shimmer tail.
  */
 export function playToastSuccess(volume: number = 0.085) {
   if (!getSoundEnabled()) return;
@@ -615,14 +902,109 @@ export function playToastSuccess(volume: number = 0.085) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
-    const pulses = [
-      { time: 0, freqStart: 170, freqEnd: 70, vol: volume * 0.75, dur: 0.026 },
-      { time: 0.032, freqStart: 260, freqEnd: 110, vol: volume, dur: 0.034 },
+
+    // 1. Tactile sub confirmation pop (immediate physical haptic feedback)
+    const haptic = ctx.createOscillator();
+    const hapticFilter = ctx.createBiquadFilter();
+    const hapticGain = ctx.createGain();
+
+    haptic.type = "sine";
+    haptic.frequency.setValueAtTime(190, t);
+    haptic.frequency.exponentialRampToValueAtTime(65, t + 0.038);
+
+    hapticFilter.type = "lowpass";
+    hapticFilter.frequency.setValueAtTime(450, t);
+
+    hapticGain.gain.setValueAtTime(0, t);
+    hapticGain.gain.linearRampToValueAtTime(volume * 0.75, t + 0.002);
+    hapticGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
+
+    haptic.connect(hapticFilter);
+    hapticFilter.connect(hapticGain);
+    hapticGain.connect(dest);
+
+    // 2. Ascending 3-tone crystalline chime: G5 -> C6 -> E6 (Major triad)
+    const notes = [
+      { freq: 783.99, delay: 0.006, dur: 0.18, amp: 0.8 },  // G5
+      { freq: 1046.5, delay: 0.042, dur: 0.24, amp: 0.95 }, // C6
+      { freq: 1318.51, delay: 0.078, dur: 0.35, amp: 1.1 }, // E6 (Sparkling peak)
     ];
 
-    pulses.forEach(({ time, freqStart, freqEnd, vol, dur }) => {
+    notes.forEach(({ freq, delay, dur, amp }, idx) => {
+      const start = t + delay;
+      const osc = ctx.createOscillator();
+      const filter = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+
+      osc.type = idx === notes.length - 1 ? "triangle" : "sine";
+      osc.frequency.setValueAtTime(freq, start);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.99, start + dur);
+
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(3200, start);
+
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(volume * amp, start + 0.005);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(dest);
+
+      osc.start(start);
+      osc.stop(start + dur + 0.015);
+    });
+
+    // 3. Delicate crystal overtone shimmer
+    const shimmer = ctx.createOscillator();
+    const shimmerGain = ctx.createGain();
+    const shimmerFilter = ctx.createBiquadFilter();
+
+    shimmer.type = "sine";
+    shimmer.frequency.setValueAtTime(2637.0, t + 0.082); // E7
+
+    shimmerFilter.type = "bandpass";
+    shimmerFilter.frequency.setValueAtTime(2637.0, t + 0.082);
+    shimmerFilter.Q.setValueAtTime(2.5, t + 0.082);
+
+    shimmerGain.gain.setValueAtTime(0, t + 0.082);
+    shimmerGain.gain.linearRampToValueAtTime(volume * 0.22, t + 0.09);
+    shimmerGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+
+    shimmer.connect(shimmerFilter);
+    shimmerFilter.connect(shimmerGain);
+    shimmerGain.connect(dest);
+
+    haptic.start(t);
+    shimmer.start(t + 0.082);
+    haptic.stop(t + 0.045);
+    shimmer.stop(t + 0.32);
+  } catch {
+    // Ignore
+  }
+}
+
+/**
+ * Soft, gentle acoustic double-tap rubber bumper when an action fails or is blocked.
+ * Completely non-fatiguing, never harsh or jarring!
+ */
+export function playToastError(volume: number = 0.075) {
+  if (!getSoundEnabled()) return;
+
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === "suspended") ctx.resume().catch(() => {});
+    const dest = getMasterBus(ctx);
+    const t = ctx.currentTime;
+
+    const pulses = [
+      { time: 0, freqStart: 175, freqEnd: 85, dur: 0.034, amp: 0.9 },
+      { time: 0.048, freqStart: 135, freqEnd: 60, dur: 0.038, amp: 0.75 },
+    ];
+
+    pulses.forEach(({ time, freqStart, freqEnd, dur, amp }) => {
       const start = t + time;
       const osc = ctx.createOscillator();
       const filter = ctx.createBiquadFilter();
@@ -633,15 +1015,15 @@ export function playToastSuccess(volume: number = 0.085) {
       osc.frequency.exponentialRampToValueAtTime(freqEnd, start + dur);
 
       filter.type = "lowpass";
-      filter.frequency.setValueAtTime(850, start);
+      filter.frequency.setValueAtTime(280, start);
 
       gain.gain.setValueAtTime(0, start);
-      gain.gain.linearRampToValueAtTime(vol, start + 0.002);
+      gain.gain.linearRampToValueAtTime(volume * amp, start + 0.002);
       gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
 
       osc.connect(filter);
       filter.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(start);
       osc.stop(start + dur + 0.005);
@@ -652,44 +1034,45 @@ export function playToastSuccess(volume: number = 0.085) {
 }
 
 /**
- * Soft, muted low double-thud with gentle rubber damping when an action fails or is blocked.
+ * Warm amber marimba double-chime for alerts and warnings (A5 -> F#5).
  */
-export function playToastError(volume: number = 0.075) {
+export function playToastWarning(volume: number = 0.075) {
   if (!getSoundEnabled()) return;
 
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
-    const pulses = [
-      { time: 0, freqStart: 130, freqEnd: 55, dur: 0.028 },
-      { time: 0.036, freqStart: 95, freqEnd: 40, dur: 0.032 },
+
+    const notes = [
+      { freq: 880.0, delay: 0, dur: 0.16, amp: 0.9 },     // A5
+      { freq: 739.99, delay: 0.042, dur: 0.22, amp: 0.8 }, // F#5
     ];
 
-    pulses.forEach(({ time, freqStart, freqEnd, dur }) => {
-      const start = t + time;
+    notes.forEach(({ freq, delay, dur, amp }) => {
+      const start = t + delay;
       const osc = ctx.createOscillator();
       const filter = ctx.createBiquadFilter();
       const gain = ctx.createGain();
 
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(freqStart, start);
-      osc.frequency.exponentialRampToValueAtTime(freqEnd, start + dur);
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, start);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.98, start + dur);
 
       filter.type = "lowpass";
-      filter.frequency.setValueAtTime(220, start);
+      filter.frequency.setValueAtTime(1400, start);
 
       gain.gain.setValueAtTime(0, start);
-      gain.gain.linearRampToValueAtTime(volume, start + 0.002);
+      gain.gain.linearRampToValueAtTime(volume * amp, start + 0.004);
       gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
 
       osc.connect(filter);
       filter.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(start);
-      osc.stop(start + dur + 0.005);
+      osc.stop(start + dur + 0.01);
     });
   } catch {
     // Ignore
@@ -699,35 +1082,40 @@ export function playToastError(volume: number = 0.075) {
 /**
  * Ultra-smooth, soft acoustic whoosh-drop when a toast expires or dismisses.
  */
-export function playToastOut(volume: number = 0.055) {
+export function playToastOut(volume: number = 0.05) {
   if (!getSoundEnabled()) return;
+
+  const now = Date.now();
+  if (now - lastToastOutTime < 80) return;
+  lastToastOutTime = now;
 
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
+
     const osc = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
     const gain = ctx.createGain();
 
     osc.type = "sine";
-    osc.frequency.setValueAtTime(340, t);
-    osc.frequency.exponentialRampToValueAtTime(90, t + 0.038);
+    osc.frequency.setValueAtTime(320, t);
+    osc.frequency.exponentialRampToValueAtTime(75, t + 0.035);
 
     filter.type = "lowpass";
-    filter.frequency.setValueAtTime(850, t);
+    filter.frequency.setValueAtTime(600, t);
 
     gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(volume, t + 0.0025);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.038);
+    gain.gain.linearRampToValueAtTime(volume, t + 0.002);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.035);
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
-    osc.stop(t + 0.042);
+    osc.stop(t + 0.04);
   } catch {
     // Ignore
   }
@@ -742,8 +1130,9 @@ export function playChatSend(volume: number = 0.085) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
+
     const osc = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
     const gain = ctx.createGain();
@@ -761,7 +1150,7 @@ export function playChatSend(volume: number = 0.085) {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.04);
@@ -779,8 +1168,9 @@ export function playChatReceive(volume: number = 0.065) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
+
     const osc = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
     const gain = ctx.createGain();
@@ -798,7 +1188,7 @@ export function playChatReceive(volume: number = 0.065) {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.028);
@@ -816,7 +1206,7 @@ export function playChatDone(volume: number = 0.075) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const notes = [587.33, 783.99]; // D5 -> G5
 
@@ -833,7 +1223,7 @@ export function playChatDone(volume: number = 0.075) {
       gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.12);
 
       osc.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(start);
       osc.stop(start + 0.13);
@@ -852,8 +1242,9 @@ export function playChatOpen(volume: number = 0.08) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
+
     const osc = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
     const gain = ctx.createGain();
@@ -871,7 +1262,7 @@ export function playChatOpen(volume: number = 0.08) {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.16);
@@ -889,8 +1280,9 @@ export function playChatClose(volume: number = 0.06) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
+
     const osc = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
     const gain = ctx.createGain();
@@ -908,7 +1300,7 @@ export function playChatClose(volume: number = 0.06) {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.11);
@@ -917,32 +1309,33 @@ export function playChatClose(volume: number = 0.06) {
   }
 }
 
-// Debounce for prompt keystroke ticks
-let lastKeyTickTime = 0;
-
 /**
  * Ultra-subtle, velvety tactile keystroke micro-tick when typing in the prompt box.
+ * Includes micro-pitch variation and a 35ms rate limiter for silky smooth typing rhythm.
  */
 export function playKeyTick(volume: number = 0.035) {
   if (!getSoundEnabled()) return;
 
   const now = Date.now();
-  if (now - lastKeyTickTime < 40) return; // 40ms limiter for silky smooth typing rhythm
+  if (now - lastKeyTickTime < 35) return;
   lastKeyTickTime = now;
 
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
+
+    const ratio = KEY_PITCH_RATIOS[keyPitchIndex % KEY_PITCH_RATIOS.length];
+    keyPitchIndex++;
+
     const osc = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
     const gain = ctx.createGain();
 
-    // Subtle pitch drop from 280Hz to 140Hz
     osc.type = "sine";
-    osc.frequency.setValueAtTime(280, t);
-    osc.frequency.exponentialRampToValueAtTime(140, t + 0.012);
+    osc.frequency.setValueAtTime(280 * ratio, t);
+    osc.frequency.exponentialRampToValueAtTime(140 * ratio, t + 0.012);
 
     filter.type = "lowpass";
     filter.frequency.setValueAtTime(1200, t);
@@ -953,7 +1346,7 @@ export function playKeyTick(volume: number = 0.035) {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.015);
@@ -971,7 +1364,7 @@ export function playAttachmentSound(volume: number = 0.08) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const notes = [
       { freq: 680, endFreq: 240, delay: 0, dur: 0.022 },
@@ -997,7 +1390,7 @@ export function playAttachmentSound(volume: number = 0.08) {
 
       osc.connect(filter);
       filter.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(start);
       osc.stop(start + dur + 0.005);
@@ -1016,7 +1409,7 @@ export function playCopySuccess(volume: number = 0.085) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const notes = [
       { freq: 587.33, delay: 0, dur: 0.09, vol: volume * 0.8 },      // D5
@@ -1043,7 +1436,7 @@ export function playCopySuccess(volume: number = 0.085) {
 
       osc.connect(filter);
       filter.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(start);
       osc.stop(start + dur + 0.01);
@@ -1054,15 +1447,19 @@ export function playCopySuccess(volume: number = 0.085) {
 }
 
 /**
- * Soft, pleasant accordion paper-fold whoosh when toggling chain-of-thought / reasoning steps.
+ * Soft, pleasant accordion paper-fold whoosh when toggling chain-of-thought or collapsible items.
  */
 export function playAccordionToggle(isOpen: boolean, volume: number = 0.065) {
   if (!getSoundEnabled()) return;
 
+  const now = Date.now();
+  if (now - lastAccordionTime < 35) return;
+  lastAccordionTime = now;
+
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
@@ -1086,7 +1483,7 @@ export function playAccordionToggle(isOpen: boolean, volume: number = 0.065) {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.045);
@@ -1104,7 +1501,7 @@ export function playCommandMenuOpen(volume: number = 0.085) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const notes = [
       { freq: 440.0, delay: 0, dur: 0.14, vol: volume * 0.8 },      // A4
@@ -1131,7 +1528,7 @@ export function playCommandMenuOpen(volume: number = 0.085) {
 
       osc.connect(filter);
       filter.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(start);
       osc.stop(start + dur + 0.01);
@@ -1150,7 +1547,7 @@ export function playCommandMenuClose(volume: number = 0.06) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
@@ -1169,7 +1566,7 @@ export function playCommandMenuClose(volume: number = 0.06) {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.05);
@@ -1195,10 +1592,9 @@ export function playReasoningLow(volume: number = 0.055) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
-    
-    // Fundamental soft sub-tap
+
     const osc = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
     const gain = ctx.createGain();
@@ -1215,7 +1611,6 @@ export function playReasoningLow(volume: number = 0.055) {
     gain.gain.linearRampToValueAtTime(volume, t + 0.002);
     gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.038);
 
-    // Warm body harmonic
     const body = ctx.createOscillator();
     const bodyGain = ctx.createGain();
     body.type = "triangle";
@@ -1228,7 +1623,7 @@ export function playReasoningLow(volume: number = 0.055) {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     body.connect(filter);
 
@@ -1251,7 +1646,7 @@ export function playReasoningMedium(volume: number = 0.06) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
 
     [
@@ -1276,7 +1671,7 @@ export function playReasoningMedium(volume: number = 0.06) {
 
       osc.connect(filter);
       filter.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(start);
       osc.stop(start + 0.055);
@@ -1296,10 +1691,9 @@ export function playReasoningHigh(volume: number = 0.07) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
 
-    // 1. Crystal bell attack
     const notes = [
       { freq: 440, delay: 0, duration: 0.07, amp: 0.7 },
       { freq: 659.25, delay: 0.016, duration: 0.09, amp: 1.0 },
@@ -1324,13 +1718,12 @@ export function playReasoningHigh(volume: number = 0.07) {
 
       osc.connect(filter);
       filter.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(start);
       osc.stop(start + duration + 0.01);
     });
 
-    // 2. Gentle glass overtone
     const glass = ctx.createOscillator();
     const glassGain = ctx.createGain();
     glass.type = "triangle";
@@ -1341,7 +1734,7 @@ export function playReasoningHigh(volume: number = 0.07) {
     glassGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
 
     glass.connect(glassGain);
-    glassGain.connect(ctx.destination);
+    glassGain.connect(dest);
 
     glass.start(t + 0.016);
     glass.stop(t + 0.09);
@@ -1353,7 +1746,6 @@ export function playReasoningHigh(volume: number = 0.07) {
 /**
  * Reasoning Level 4: Max (The Ultimate Flagship)
  * Celestial harmonic crystal harp ripple with sub-bass bloom & shimmering sparkle.
- * The best, most deeply satisfying and magical audio reward in the suite.
  */
 export function playReasoningMax(volume: number = 0.08) {
   if (!getSoundEnabled()) return;
@@ -1361,7 +1753,7 @@ export function playReasoningMax(volume: number = 0.08) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
 
     // 1. Sub-bass velvet bloom (warm, deep foundation)
@@ -1382,20 +1774,20 @@ export function playReasoningMax(volume: number = 0.08) {
 
     sub.connect(subFilter);
     subFilter.connect(subGain);
-    subGain.connect(ctx.destination);
+    subGain.connect(dest);
 
     sub.start(t);
     sub.stop(t + 0.19);
 
     // 2. Ascending 4-tone celestial crystal chord (D Major 9: D4 -> F#4 -> A4 -> E5)
     const arpeggio = [
-      { freq: 293.66, delay: 0, dur: 0.12, amp: 0.65 },      // D4
-      { freq: 369.99, delay: 0.018, dur: 0.14, amp: 0.85 },  // F#4
-      { freq: 440.0, delay: 0.038, dur: 0.16, amp: 0.95 },   // A4
-      { freq: 659.25, delay: 0.060, dur: 0.22, amp: 1.15 },  // E5 (Sparkling peak)
+      { freq: 293.66, delay: 0, dur: 0.12, amp: 0.65 },
+      { freq: 369.99, delay: 0.018, dur: 0.14, amp: 0.85 },
+      { freq: 440.0, delay: 0.038, dur: 0.16, amp: 0.95 },
+      { freq: 659.25, delay: 0.060, dur: 0.22, amp: 1.15 },
     ];
 
-    notes: arpeggio.forEach(({ freq, delay, dur, amp }, idx) => {
+    arpeggio.forEach(({ freq, delay, dur, amp }, idx) => {
       const start = t + delay;
       const osc = ctx.createOscillator();
       const filter = ctx.createBiquadFilter();
@@ -1415,7 +1807,7 @@ export function playReasoningMax(volume: number = 0.08) {
 
       osc.connect(filter);
       filter.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(start);
       osc.stop(start + dur + 0.02);
@@ -1439,7 +1831,7 @@ export function playReasoningMax(volume: number = 0.08) {
 
     shimmer.connect(shimmerFilter);
     shimmerFilter.connect(shimmerGain);
-    shimmerGain.connect(ctx.destination);
+    shimmerGain.connect(dest);
 
     shimmer.start(t + 0.065);
     shimmer.stop(t + 0.27);
@@ -1475,8 +1867,7 @@ let popNoteIndex = 0;
 const POP_PENTATONIC = [523.25, 587.33, 659.25, 783.99, 880.0, 1046.5]; // C5, D5, E5, G5, A5, C6
 
 /**
- * Delightful, organic bubbly "pop" sound effect for the interactive cursor follower.
- * Cycles sequentially through a melodic pentatonic scale with velvety tactile attack.
+ * Organic bubbly "pop" sound effect for the interactive cursor follower.
  */
 export function playCursorFollowSound(volume: number = 0.09) {
   if (!getSoundEnabled()) return;
@@ -1484,12 +1875,11 @@ export function playCursorFollowSound(volume: number = 0.09) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const baseFreq = POP_PENTATONIC[popNoteIndex % POP_PENTATONIC.length];
     popNoteIndex++;
 
-    // 1. Primary melodic bell-bubble oscillator
     const osc = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
     const gain = ctx.createGain();
@@ -1508,12 +1898,11 @@ export function playCursorFollowSound(volume: number = 0.09) {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.13);
 
-    // 2. Subtle soft tactile click transient underneath
     const clickOsc = ctx.createOscillator();
     const clickGain = ctx.createGain();
     clickOsc.type = "triangle";
@@ -1524,7 +1913,7 @@ export function playCursorFollowSound(volume: number = 0.09) {
     clickGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.018);
 
     clickOsc.connect(clickGain);
-    clickGain.connect(ctx.destination);
+    clickGain.connect(dest);
 
     clickOsc.start(t);
     clickOsc.stop(t + 0.02);
@@ -1542,9 +1931,9 @@ export function playPowerUpSound(volume: number = 0.085) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
-    const notes = [659.25, 830.61, 987.77, 1318.51]; // E5, G#5, B5, E6
+    const notes = [659.25, 830.61, 987.77, 1318.51];
 
     notes.forEach((freq, idx) => {
       const osc = ctx.createOscillator();
@@ -1558,7 +1947,7 @@ export function playPowerUpSound(volume: number = 0.085) {
       gain.gain.exponentialRampToValueAtTime(0.0001, t + idx * 0.045 + 0.16);
 
       osc.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(t + idx * 0.045);
       osc.stop(t + idx * 0.045 + 0.17);
@@ -1577,7 +1966,7 @@ export function playUFOSound(volume: number = 0.08) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
@@ -1598,7 +1987,7 @@ export function playUFOSound(volume: number = 0.08) {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.25);
@@ -1616,7 +2005,7 @@ export function playEMPNukeSound(volume: number = 0.09) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -1630,7 +2019,7 @@ export function playEMPNukeSound(volume: number = 0.09) {
     gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
 
     osc.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.42);
@@ -1648,7 +2037,7 @@ export function playCritLaserSound(volume: number = 0.07) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const osc1 = ctx.createOscillator();
     const osc2 = ctx.createOscillator();
@@ -1674,7 +2063,7 @@ export function playCritLaserSound(volume: number = 0.07) {
     osc1.connect(filter);
     osc2.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc1.start(t);
     osc2.start(t);
@@ -1694,9 +2083,8 @@ export function playMegaBoomSound(volume: number = 0.1) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
-    // Sub-oscillator
     const sub = ctx.createOscillator();
     const subGain = ctx.createGain();
     sub.type = "sine";
@@ -1708,9 +2096,8 @@ export function playMegaBoomSound(volume: number = 0.1) {
     subGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.48);
 
     sub.connect(subGain);
-    subGain.connect(ctx.destination);
+    subGain.connect(dest);
 
-    // Crunch noise transient
     const mid = ctx.createOscillator();
     const midFilter = ctx.createBiquadFilter();
     const midGain = ctx.createGain();
@@ -1727,7 +2114,7 @@ export function playMegaBoomSound(volume: number = 0.1) {
 
     mid.connect(midFilter);
     midFilter.connect(midGain);
-    midGain.connect(ctx.destination);
+    midGain.connect(dest);
 
     sub.start(t);
     mid.start(t);
@@ -1747,9 +2134,9 @@ export function playCoinPickupSound(volume: number = 0.08) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
-    const notes = [987.77, 1318.51]; // B5 -> E6
+    const notes = [987.77, 1318.51];
 
     notes.forEach((freq, idx) => {
       const start = t + idx * 0.04;
@@ -1764,7 +2151,7 @@ export function playCoinPickupSound(volume: number = 0.08) {
       gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.12);
 
       osc.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(start);
       osc.stop(start + 0.13);
@@ -1783,7 +2170,7 @@ export function playShieldDeflectSound(volume: number = 0.075) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
@@ -1804,7 +2191,7 @@ export function playShieldDeflectSound(volume: number = 0.075) {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.2);
@@ -1822,9 +2209,9 @@ export function playOverdriveFanfare(volume: number = 0.09) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
-    const notes = [587.33, 783.99, 987.77, 1174.66, 1567.98]; // D5, G5, B5, D6, G6
+    const notes = [587.33, 783.99, 987.77, 1174.66, 1567.98];
 
     notes.forEach((freq, idx) => {
       const start = t + idx * 0.045;
@@ -1839,7 +2226,7 @@ export function playOverdriveFanfare(volume: number = 0.09) {
       gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.26);
 
       osc.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(start);
       osc.stop(start + 0.28);
@@ -1858,7 +2245,7 @@ export function playCometWhizSound(volume: number = 0.075) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
@@ -1880,7 +2267,7 @@ export function playCometWhizSound(volume: number = 0.075) {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.4);
@@ -1898,7 +2285,7 @@ export function playMissileLaunchSound(volume: number = 0.065) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
-
+    const dest = getMasterBus(ctx);
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
@@ -1918,7 +2305,7 @@ export function playMissileLaunchSound(volume: number = 0.065) {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.11);

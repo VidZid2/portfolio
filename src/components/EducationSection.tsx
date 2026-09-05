@@ -14,7 +14,7 @@ import {
 import { type UseEmblaCarouselType } from "embla-carousel-react";
 import AutoHeight from "embla-carousel-auto-height";
 
-import { playSoftClick, playHoverTick } from "@/lib/synth-sounds";
+import { playTabSelect, playHoverTick } from "@/lib/synth-sounds";
 import { CornerMark } from "@/components/ui/corner-mark";
 import { DOT_MASK_HORIZONTAL } from "@/lib/blueprint";
 import { useSectionReveal } from "@/hooks/use-section-reveal";
@@ -47,7 +47,7 @@ export function EducationSection({ hasSeenScrollAnimations = false }: { hasSeenS
 
   const handleTabSwitch = (tab: "education" | "certs") => {
     if (tab !== activeTab) {
-      playSoftClick(0.1);
+      playTabSelect(0.08);
       const index = tab === "education" ? 0 : 1;
       api?.scrollTo(index);
     }
@@ -92,10 +92,13 @@ export function EducationSection({ hasSeenScrollAnimations = false }: { hasSeenS
             
             {/* Buttons */}
             <button
+              role="tab"
+              aria-selected={activeTab === "education"}
+              data-sound-custom="true"
               onClick={() => handleTabSwitch("education")}
               onMouseEnter={() => playHoverTick(0.055)}
               aria-label="Education"
-              className={`z-10 relative flex items-center justify-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-center transition-colors duration-200 ${
+              className={`z-10 relative flex items-center justify-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-center transition-colors duration-200 cursor-pointer ${
                 activeTab === "education"
                   ? "text-zinc-900 dark:text-zinc-100"
                   : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
@@ -105,10 +108,13 @@ export function EducationSection({ hasSeenScrollAnimations = false }: { hasSeenS
               <span className="hidden sm:inline">Education</span>
             </button>
             <button
+              role="tab"
+              aria-selected={activeTab === "certs"}
+              data-sound-custom="true"
               onClick={() => handleTabSwitch("certs")}
               onMouseEnter={() => playHoverTick(0.055)}
               aria-label="Certifications & Honors"
-              className={`z-10 relative flex items-center justify-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-center transition-colors duration-200 ${
+              className={`z-10 relative flex items-center justify-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-center transition-colors duration-200 cursor-pointer ${
                 activeTab === "certs"
                   ? "text-zinc-900 dark:text-zinc-100"
                   : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"

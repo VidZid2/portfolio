@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRightIcon, Mail, Check, Copy, ExternalLink, Gift } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 
 import { PaypalIcon, KofiIcon } from "@/components/icons/support-icons";
 import { useTransition } from "@/components/TransitionProvider";
@@ -45,7 +45,6 @@ export function CommunitySupportSection({
   const kofiUrl = "https://ko-fi.com/josiahdeasis";
 
   const handleCopyEmail = () => {
-    playSoftClick();
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(email);
       setCopiedEmail(true);
@@ -73,7 +72,6 @@ export function CommunitySupportSection({
         href={paypalUrl}
         target="_blank"
         rel="noopener noreferrer"
-        onClick={() => playSoftClick()}
         className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group cursor-pointer active:scale-[0.99] select-none outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6495ED]/50"
       >
         <div className="flex items-center gap-3 min-w-0">
@@ -102,7 +100,6 @@ export function CommunitySupportSection({
         href={kofiUrl}
         target="_blank"
         rel="noopener noreferrer"
-        onClick={() => playSoftClick()}
         className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors group cursor-pointer active:scale-[0.99] select-none outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6495ED]/50"
       >
         <div className="flex items-center gap-3 min-w-0">
@@ -172,7 +169,6 @@ export function CommunitySupportSection({
           </button>
           <a
             href={`mailto:${email}?subject=[Open Source Support] Tip & Sponsorship`}
-            onClick={() => playSoftClick()}
             className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-zinc-200/80 dark:bg-zinc-800 hover:bg-zinc-300/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-[11px] font-medium transition-colors outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6495ED]/50"
             title="Send Email directly"
           >

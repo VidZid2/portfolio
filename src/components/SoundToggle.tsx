@@ -13,6 +13,7 @@ export function SoundToggle({ className }: { className?: string }) {
   return (
     <button
       type="button"
+      data-sound-custom="true"
       onClick={() => {
         if (soundEnabled) {
           playToggleOff(0.075);

@@ -66,7 +66,8 @@ const preloadPromptBox = () => {
 };
 import { useArcReveal } from "@/components/ruixen/arc-reveal-hero"
 import { JapaneseAsciiText } from "@/components/ui/japanese-ascii-text"
-import { playCommandMenuOpen, playListSelect } from "@/lib/synth-sounds"
+import { playCommandMenuOpen, playCommandMenuClose, playListSelect } from "@/lib/synth-sounds"
+import { toast } from "@/components/ui/toast"
 
 declare global {
   interface WindowEventMap {
@@ -108,12 +109,6 @@ function PaletteCommandItem({
 
 export function CommandMenu() {
     const [open, setOpen] = React.useState(false)
-
-    React.useEffect(() => {
-        if (open) {
-            playCommandMenuOpen(0.035);
-        }
-    }, [open]);
     const [aiOpen, setAiOpen] = React.useState(false)
     const [initialAiQuery, setInitialAiQuery] = React.useState("")
     const [showTooltip, setShowTooltip] = React.useState(false)
@@ -187,11 +182,26 @@ export function CommandMenu() {
         return () => document.removeEventListener("keydown", down)
     }, [])
 
+    const isCommandRunningRef = React.useRef(false);
+    const prevOpenRef = React.useRef(open);
+    React.useEffect(() => {
+        if (prevOpenRef.current !== open) {
+            if (open) {
+                isCommandRunningRef.current = false;
+                playCommandMenuOpen(0.08);
+            } else if (!isCommandRunningRef.current) {
+                playCommandMenuClose(0.06);
+            }
+            prevOpenRef.current = open;
+        }
+    }, [open]);
+
     const runCommand = React.useCallback((command: () => unknown) => {
-        playListSelect(0.04)
-        setOpen(false)
-        command()
-    }, [])
+        isCommandRunningRef.current = true;
+        playListSelect(0.07);
+        setOpen(false);
+        command();
+    }, []);
 
     // Palette entries — one config object per row. The render skeleton lives in
     // <PaletteCommandItem>; only value/icon/label/shortcut/action vary.
@@ -207,7 +217,16 @@ export function CommandMenu() {
     ]
 
     const GENERAL_COMMANDS: PaletteCommandConfig[] = [
-        { value: "copylink", icon: Copy, label: "Copy Link", shortcut: "shift + C", action: () => navigator.clipboard.writeText(window.location.href) },
+        {
+            value: "copylink",
+            icon: Copy,
+            label: "Copy Link",
+            shortcut: "shift + C",
+            action: () => {
+                navigator.clipboard.writeText(window.location.href);
+                toast.success("Portfolio link copied to clipboard!");
+            },
+        },
     ]
 
     const THEME_COMMANDS: PaletteCommandConfig[] = [
@@ -255,7 +274,10 @@ export function CommandMenu() {
                 // General
                 else if (key === 'c') {
                     e.preventDefault()
-                    runCommand(() => navigator.clipboard.writeText(window.location.href))
+                    runCommand(() => {
+                        navigator.clipboard.writeText(window.location.href);
+                        toast.success("Portfolio link copied to clipboard!");
+                    })
                 }
 
                 // Theme

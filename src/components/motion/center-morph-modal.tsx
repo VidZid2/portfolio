@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/tooltip";
 import { EASE_OUT } from "@/lib/ease";
 import { cn } from "@/lib/utils";
+import { playModalOpen, playModalClose } from "@/lib/synth-sounds";
 
 type CenterMorphModalContextValue = {
   open: boolean;
@@ -74,6 +75,19 @@ export function CenterMorphModal({
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
   const controlled = controlledOpen !== undefined;
   const open = controlled ? controlledOpen : internalOpen;
+
+  const isFirstMountRef = useRef(true);
+  useEffect(() => {
+    if (isFirstMountRef.current) {
+      isFirstMountRef.current = false;
+      return;
+    }
+    if (open) {
+      playModalOpen(0.075);
+    } else {
+      playModalClose(0.06);
+    }
+  }, [open]);
 
   const setOpen = useCallback(
     (next: boolean) => {

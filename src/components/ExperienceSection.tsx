@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/carousel";
 import AutoHeight from "embla-carousel-auto-height";
 import { Briefcase, AlertTriangle } from "lucide-react";
-import { playHoverTick, playSoftClick } from "@/lib/synth-sounds";
+import { playHoverTick, playTabSelect } from "@/lib/synth-sounds";
 import { TransitionLink } from "@/components/TransitionLink";
 
 import { CornerMark } from "@/components/ui/corner-mark";
@@ -31,7 +31,7 @@ export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeen
 
   const handleTabSwitch = (tab: 'experiences' | 'lessons') => {
     if (tab === activeTab) return;
-    playSoftClick();
+    playTabSelect(0.08);
     setActiveTab(tab);
     if (api) {
       api.scrollTo(tab === 'experiences' ? 0 : 1);
@@ -77,10 +77,13 @@ export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeen
             
             {/* Buttons */}
             <button
+              role="tab"
+              aria-selected={activeTab === 'experiences'}
+              data-sound-custom="true"
               onClick={() => handleTabSwitch('experiences')}
               onMouseEnter={() => playHoverTick(0.055)}
               aria-label="Experiences"
-              className={`z-10 relative flex items-center justify-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-center transition-colors duration-200 ${
+              className={`z-10 relative flex items-center justify-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-center transition-colors duration-200 cursor-pointer ${
                 activeTab === 'experiences'
                   ? 'text-zinc-900 dark:text-zinc-100'
                   : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
@@ -90,10 +93,13 @@ export function ExperienceSection({ hasSeenScrollAnimations = false }: { hasSeen
               <span className="hidden sm:inline">Experiences</span>
             </button>
             <button
+              role="tab"
+              aria-selected={activeTab === 'lessons'}
+              data-sound-custom="true"
               onClick={() => handleTabSwitch('lessons')}
               onMouseEnter={() => playHoverTick(0.055)}
               aria-label="Lessons Learned"
-              className={`z-10 relative flex items-center justify-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-center transition-colors duration-200 ${
+              className={`z-10 relative flex items-center justify-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-center transition-colors duration-200 cursor-pointer ${
                 activeTab === 'lessons'
                   ? 'text-zinc-900 dark:text-zinc-100'
                   : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'

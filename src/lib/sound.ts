@@ -1,9 +1,9 @@
-import { getAudioContext } from "./sound-engine";
+import { getAudioContext, getMasterBus } from "./sound-engine";
 import { getSoundEnabled } from "@/hooks/use-sound";
 import { playHoverTick, playSoftClick } from "./synth-sounds";
 
 export function hoverLink() {
-  playHoverTick(0.06);
+  playHoverTick(0.055);
 }
 
 export function swirlFormation() {
@@ -11,6 +11,7 @@ export function swirlFormation() {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
+    const dest = getMasterBus(ctx);
 
     const t = ctx.currentTime;
     // Crystalline celestial chime (F#5, A#5, C#6)
@@ -28,7 +29,7 @@ export function swirlFormation() {
       gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.18);
 
       osc.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(start);
       osc.stop(start + 0.19);
@@ -39,7 +40,7 @@ export function swirlFormation() {
 }
 
 export function swirlClick() {
-  playSoftClick(0.11);
+  playSoftClick(0.1);
 }
 
 let lastMoveTime = 0;
@@ -52,6 +53,7 @@ export function swirlMove(speed: number) {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
+    const dest = getMasterBus(ctx);
 
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
@@ -72,7 +74,7 @@ export function swirlMove(speed: number) {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.028);
@@ -88,6 +90,7 @@ export function swirlChurn(): { stop: () => void } {
   try {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
+    const dest = getMasterBus(ctx);
     
     // Create a very warm, soothing low ambient drone
     const osc = ctx.createOscillator();
@@ -109,7 +112,7 @@ export function swirlChurn(): { stop: () => void } {
     osc.connect(filter);
     osc2.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
     
     osc.start(0);
     osc2.start(0);

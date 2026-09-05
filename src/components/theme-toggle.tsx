@@ -144,6 +144,7 @@ export function ThemeToggle({ className }: { className?: string }) {
     <div className="flex items-center gap-2.5 sm:gap-3 mx-1 sm:mx-0">
       <button
         type="button"
+        data-sound-custom="true"
         onClick={toggleTheme}
         onMouseEnter={() => playHoverTick(0.06)}
         className={cn(

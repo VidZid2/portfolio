@@ -18,11 +18,17 @@ export type ToastPromiseCallbacks<T> = {
   finally?: () => void;
 };
 
-import { playToastIn, playToastSuccess, playToastError, playToastOut } from "@/lib/synth-sounds";
+import {
+  playToastIn,
+  playToastSuccess,
+  playToastError,
+  playToastWarning,
+  playToastOut,
+} from "@/lib/synth-sounds";
 
 export const toastManager = {
   promise<T>(promise: Promise<T> | (() => Promise<T>), callbacks: ToastPromiseCallbacks<T>) {
-    playToastIn(0.04);
+    playToastIn(0.07);
     return sonnerToast.promise(promise, {
       loading: typeof callbacks.loading === "object" ? (
         <div className="flex flex-col gap-0.5 text-left">
@@ -31,7 +37,7 @@ export const toastManager = {
         </div>
       ) : callbacks.loading,
       success: (data: T) => {
-        playToastSuccess(0.045);
+        playToastSuccess(0.085);
         const resolved = typeof callbacks.success === "function" ? callbacks.success(data) : callbacks.success;
         if (typeof resolved === "object" && resolved !== null) {
           return (
@@ -44,7 +50,7 @@ export const toastManager = {
         return resolved;
       },
       error: (err: unknown) => {
-        playToastError(0.04);
+        playToastError(0.075);
         const resolved = typeof callbacks.error === "function" ? callbacks.error(err) : callbacks.error;
         if (typeof resolved === "object" && resolved !== null) {
           return (
@@ -57,56 +63,58 @@ export const toastManager = {
         return resolved;
       },
       finally: callbacks.finally,
+      onAutoClose: () => playToastOut(0.05),
+      onDismiss: () => playToastOut(0.05),
     });
   },
 
   message(title: React.ReactNode, options?: { description?: React.ReactNode }) {
-    playToastIn(0.04);
+    playToastIn(0.07);
     return sonnerToast(title, {
       ...options,
-      onAutoClose: () => playToastOut(0.03),
-      onDismiss: () => playToastOut(0.03),
+      onAutoClose: () => playToastOut(0.05),
+      onDismiss: () => playToastOut(0.05),
     });
   },
 
   success(title: React.ReactNode, options?: { description?: React.ReactNode }) {
-    playToastSuccess(0.045);
+    playToastSuccess(0.085);
     return sonnerToast.success(title, {
       ...options,
-      onAutoClose: () => playToastOut(0.03),
-      onDismiss: () => playToastOut(0.03),
+      onAutoClose: () => playToastOut(0.05),
+      onDismiss: () => playToastOut(0.05),
     });
   },
 
   error(title: React.ReactNode, options?: { description?: React.ReactNode }) {
-    playToastError(0.04);
+    playToastError(0.075);
     return sonnerToast.error(title, {
       ...options,
-      onAutoClose: () => playToastOut(0.03),
-      onDismiss: () => playToastOut(0.03),
+      onAutoClose: () => playToastOut(0.05),
+      onDismiss: () => playToastOut(0.05),
     });
   },
 
   info(title: React.ReactNode, options?: { description?: React.ReactNode }) {
-    playToastIn(0.04);
+    playToastIn(0.07);
     return sonnerToast.info(title, {
       ...options,
-      onAutoClose: () => playToastOut(0.03),
-      onDismiss: () => playToastOut(0.03),
+      onAutoClose: () => playToastOut(0.05),
+      onDismiss: () => playToastOut(0.05),
     });
   },
 
   warning(title: React.ReactNode, options?: { description?: React.ReactNode }) {
-    playToastIn(0.04);
+    playToastWarning(0.075);
     return sonnerToast.warning(title, {
       ...options,
-      onAutoClose: () => playToastOut(0.03),
-      onDismiss: () => playToastOut(0.03),
+      onAutoClose: () => playToastOut(0.05),
+      onDismiss: () => playToastOut(0.05),
     });
   },
 
   dismiss(toastId?: string | number) {
-    playToastOut(0.03);
+    playToastOut(0.05);
     return sonnerToast.dismiss(toastId);
   },
 };
@@ -216,9 +224,9 @@ export function Toaster() {
 
     const observer = new MutationObserver((mutations) => {
       for (const m of mutations) {
-        if (m.type === "attributes" && (m.attributeName === "data-removed" || m.attributeName === "data-mounted")) {
+        if (m.type === "attributes" && m.attributeName === "data-removed") {
           const el = m.target as HTMLElement;
-          if (el.getAttribute("data-removed") === "true" || el.getAttribute("data-mounted") === "false") {
+          if (el.getAttribute("data-removed") === "true") {
             playOutDebounced();
           }
         }
@@ -240,7 +248,7 @@ export function Toaster() {
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ["data-removed", "data-mounted"],
+      attributeFilter: ["data-removed"],
     });
 
     return () => observer.disconnect();
@@ -281,5 +289,11 @@ export function Toaster() {
   );
 }
 
-export { sonnerToast as toast };
+const toast = Object.assign(
+  (title: React.ReactNode, options?: { description?: React.ReactNode }) =>
+    toastManager.message(title, options),
+  toastManager
+);
+
+export { toast };
 export default toastManager;
