@@ -82,13 +82,17 @@ function TimeUnitBox({ value, label, isSeconds }: TimeUnitBoxProps) {
   const digits = padded.split("");
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center" suppressHydrationWarning>
       <motion.div
         animate={isSeconds ? { scale: [1, 1.04, 1] } : undefined}
         transition={isSeconds ? { duration: 0.25, ease: "easeOut" } : undefined}
         className="flex items-center justify-center bg-white/90 dark:bg-zinc-900/90 border border-black/10 dark:border-white/10 rounded-lg shadow-xs px-2 sm:px-3 py-1 sm:py-1.5 min-w-[50px] sm:min-w-[62px] backdrop-blur-xs"
+        suppressHydrationWarning
       >
-        <span className="flex items-center text-[16px] sm:text-[20px] font-bold text-zinc-900 dark:text-zinc-100 font-mono tracking-tight">
+        <span
+          className="flex items-center text-[16px] sm:text-[20px] font-bold text-zinc-900 dark:text-zinc-100 font-mono tracking-tight"
+          suppressHydrationWarning
+        >
           {digits.map((d, i) => (
             <TickerDigit key={i} value={d} />
           ))}
@@ -101,7 +105,7 @@ function TimeUnitBox({ value, label, isSeconds }: TimeUnitBoxProps) {
   );
 }
 
-function ColonSeparator() {
+export function ColonSeparator() {
   return (
     <span
       aria-hidden="true"
@@ -109,6 +113,60 @@ function ColonSeparator() {
     >
       :
     </span>
+  );
+}
+
+export function ReleaseCountdownSkeleton() {
+  return (
+    <div
+      role="timer"
+      aria-hidden="true"
+      className="flex items-center justify-center gap-1 sm:gap-2 select-none"
+    >
+      <div className="flex flex-col items-center">
+        <div className="flex items-center justify-center bg-white/90 dark:bg-zinc-900/90 border border-black/10 dark:border-white/10 rounded-lg shadow-xs px-2 sm:px-3 py-1 sm:py-1.5 min-w-[50px] sm:min-w-[62px] backdrop-blur-xs">
+          <span className="flex items-center text-[16px] sm:text-[20px] font-bold text-zinc-400 dark:text-zinc-600 font-mono tracking-tight h-6 sm:h-7 leading-none">
+            --
+          </span>
+        </div>
+        <span className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mt-1">
+          Days
+        </span>
+      </div>
+      <ColonSeparator />
+      <div className="flex flex-col items-center">
+        <div className="flex items-center justify-center bg-white/90 dark:bg-zinc-900/90 border border-black/10 dark:border-white/10 rounded-lg shadow-xs px-2 sm:px-3 py-1 sm:py-1.5 min-w-[50px] sm:min-w-[62px] backdrop-blur-xs">
+          <span className="flex items-center text-[16px] sm:text-[20px] font-bold text-zinc-400 dark:text-zinc-600 font-mono tracking-tight h-6 sm:h-7 leading-none">
+            --
+          </span>
+        </div>
+        <span className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mt-1">
+          Hours
+        </span>
+      </div>
+      <ColonSeparator />
+      <div className="flex flex-col items-center">
+        <div className="flex items-center justify-center bg-white/90 dark:bg-zinc-900/90 border border-black/10 dark:border-white/10 rounded-lg shadow-xs px-2 sm:px-3 py-1 sm:py-1.5 min-w-[50px] sm:min-w-[62px] backdrop-blur-xs">
+          <span className="flex items-center text-[16px] sm:text-[20px] font-bold text-zinc-400 dark:text-zinc-600 font-mono tracking-tight h-6 sm:h-7 leading-none">
+            --
+          </span>
+        </div>
+        <span className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mt-1">
+          Mins
+        </span>
+      </div>
+      <ColonSeparator />
+      <div className="flex flex-col items-center">
+        <div className="flex items-center justify-center bg-white/90 dark:bg-zinc-900/90 border border-black/10 dark:border-white/10 rounded-lg shadow-xs px-2 sm:px-3 py-1 sm:py-1.5 min-w-[50px] sm:min-w-[62px] backdrop-blur-xs">
+          <span className="flex items-center text-[16px] sm:text-[20px] font-bold text-zinc-400 dark:text-zinc-600 font-mono tracking-tight h-6 sm:h-7 leading-none">
+            --
+          </span>
+        </div>
+        <span className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mt-1">
+          Secs
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -133,6 +191,7 @@ export function ReleaseCountdown({ targetDate }: { targetDate?: number }) {
       aria-live="polite"
       aria-label={`Countdown to release: ${display.days} days, ${display.hours} hours, ${display.minutes} minutes, and ${display.seconds} seconds`}
       className="flex items-center justify-center gap-1 sm:gap-2 select-none"
+      suppressHydrationWarning
     >
       <TimeUnitBox value={display.days} label="Days" />
       <ColonSeparator />
@@ -144,3 +203,5 @@ export function ReleaseCountdown({ targetDate }: { targetDate?: number }) {
     </div>
   );
 }
+
+export default ReleaseCountdown;

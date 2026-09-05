@@ -1,4 +1,4 @@
-﻿import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "vitest";
 import { getOctoberFirstTarget, calculateTimeRemaining } from "@/components/ReleaseCountdown";
 
 describe("ReleaseCountdown calculations", () => {
@@ -46,4 +46,12 @@ describe("ReleaseCountdown calculations", () => {
     expect(remaining.seconds).toBe(0);
     expect(remaining.total).toBe(0);
   });
+
+  it("exports ReleaseCountdownSkeleton and ColonSeparator components", async () => {
+    const mod = await import("@/components/ReleaseCountdown");
+    expect(typeof mod.ReleaseCountdownSkeleton).toBe("function");
+    expect(typeof mod.ColonSeparator).toBe("function");
+    expect(typeof mod.ReleaseCountdown).toBe("function");
+  });
 });
+

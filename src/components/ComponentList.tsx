@@ -1,9 +1,18 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { componentsData } from "@/data/componentsData";
 import { SprayBurstCard } from "@/components/spray-burst";
-import { ReleaseCountdown } from "@/components/ReleaseCountdown";
+import { ReleaseCountdownSkeleton } from "@/components/ReleaseCountdown";
+
+const ReleaseCountdown = dynamic(
+  () => import("@/components/ReleaseCountdown").then((mod) => mod.ReleaseCountdown),
+  {
+    ssr: false,
+    loading: () => <ReleaseCountdownSkeleton />,
+  }
+);
 
 export function ComponentList() {
   if (componentsData.length === 0) {
