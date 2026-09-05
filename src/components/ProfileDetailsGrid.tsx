@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Briefcase,
   Clock,
+  Code2,
   FileText,
   GraduationCap,
   MapPin,
@@ -133,46 +133,46 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
   return (
     <div className="flex flex-col w-[calc(100%+1.5rem)] sm:w-[calc(100%+2rem)] -mx-3 sm:-mx-4 relative">
       {/* Upper Grid (6-Box Dashboard) */}
-      <div className="grid grid-cols-2 md:grid-cols-3 w-full relative">
-        {/* Mobile Middle Horizontal Divider 1 (between row 1 and row 2) */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 w-full relative">
+        {/* Mobile/Tablet Middle Horizontal Divider 1 (between row 1 and row 2) */}
         <div
-          className="md:hidden absolute top-1/3 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
+          className="lg:hidden absolute top-1/3 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
           style={DOT_MASK_HORIZONTAL}
         />
-        <CornerMark position="top-left" flush className="md:hidden top-1/3" />
-        <CornerMark position="top-right" flush className="md:hidden top-1/3" />
+        <CornerMark position="top-left" flush className="lg:hidden top-1/3" />
+        <CornerMark position="top-right" flush className="lg:hidden top-1/3" />
 
-        {/* Mobile Middle Horizontal Divider 2 (between row 2 and row 3) */}
+        {/* Mobile/Tablet Middle Horizontal Divider 2 (between row 2 and row 3) */}
         <div
-          className="md:hidden absolute top-2/3 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
+          className="lg:hidden absolute top-2/3 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
           style={DOT_MASK_HORIZONTAL}
         />
-        <CornerMark position="top-left" flush className="md:hidden top-2/3" />
-        <CornerMark position="top-right" flush className="md:hidden top-2/3" />
+        <CornerMark position="top-left" flush className="lg:hidden top-2/3" />
+        <CornerMark position="top-right" flush className="lg:hidden top-2/3" />
 
         {/* Desktop Middle Horizontal Divider (between row 1 and row 2) */}
         <div
-          className="hidden md:block absolute top-1/2 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
+          className="hidden lg:block absolute top-1/2 left-0 right-0 h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
           style={DOT_MASK_HORIZONTAL}
         />
-        <CornerMark position="top-left" flush className="hidden md:block top-1/2" />
-        <CornerMark position="top-right" flush className="hidden md:block top-1/2" />
+        <CornerMark position="top-left" flush className="hidden lg:block top-1/2" />
+        <CornerMark position="top-right" flush className="hidden lg:block top-1/2" />
 
         {/* Cell 1: Status */}
         <div
           onMouseEnter={() => playHoverTick(0.055)}
-          className="group relative flex flex-col justify-between p-3 sm:p-4 min-h-[96px] sm:min-h-[105px] hover:bg-zinc-50/50 dark:hover:bg-zinc-900/25 transition-colors duration-200 cursor-default"
+          className="group relative flex flex-col justify-between p-2.5 min-[360px]:p-3 sm:p-4 min-h-[96px] sm:min-h-[105px] hover:bg-zinc-50/50 dark:hover:bg-zinc-900/25 transition-colors duration-200 cursor-default"
         >
           <div className="flex items-center justify-between gap-1.5 sm:gap-2">
             <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors min-w-0">
               <span className="p-1 rounded-md bg-zinc-100 dark:bg-zinc-800/60 text-emerald-500 shrink-0">
                 <Sparkles className="w-3 h-3" />
               </span>
-              <span className="text-[11px] sm:text-[12px] font-mono tracking-tight select-none truncate">
+              <span className="text-[10.5px] min-[360px]:text-[11px] sm:text-[12px] font-mono tracking-tight select-none truncate">
                 Status
               </span>
             </div>
-            <span className="text-[9.5px] sm:text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium select-none whitespace-nowrap shrink-0">
+            <span className="text-[9px] min-[360px]:text-[9.5px] sm:text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium select-none whitespace-nowrap shrink-0">
               Active
             </span>
           </div>
@@ -190,36 +190,37 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
               Internships · Freelance · Clients
             </span>
           </div>
-          {/* Right vertical dashed border for mobile (col 1) and desktop (col 1) */}
+          {/* Right vertical dashed border (col 1 in both 2-col and 3-col) */}
           <div
             className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={dashedVerticalMask}
           />
         </div>
 
-        {/* Cell 2: Experience */}
+        {/* Cell 2: Building */}
         <div
           onMouseEnter={() => playHoverTick(0.055)}
-          className="group relative flex flex-col justify-between p-3 sm:p-4 min-h-[96px] sm:min-h-[105px] hover:bg-zinc-50/50 dark:hover:bg-zinc-900/25 transition-colors duration-200 cursor-default"
+          className="group relative flex flex-col justify-between p-2.5 min-[360px]:p-3 sm:p-4 min-h-[96px] sm:min-h-[105px] hover:bg-zinc-50/50 dark:hover:bg-zinc-900/25 transition-colors duration-200 cursor-default"
         >
           <div className="flex items-center justify-between gap-1.5 sm:gap-2">
             <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors min-w-0">
               <span className="p-1 rounded-md bg-zinc-100 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-300 shrink-0">
-                <Briefcase className="w-3 h-3" />
+                <Code2 className="w-3 h-3" />
               </span>
-              <span className="text-[11px] sm:text-[12px] font-mono tracking-tight select-none truncate">
-                Experience
+              <span className="text-[10.5px] min-[360px]:text-[11px] sm:text-[12px] font-mono tracking-tight select-none truncate">
+                Building
               </span>
             </div>
-            <span className="text-[9.5px] sm:text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 select-none whitespace-nowrap shrink-0">
+            <span className="text-[9px] min-[360px]:text-[9.5px] sm:text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 select-none whitespace-nowrap shrink-0">
               <span className="hidden sm:inline">2023 — Now</span>
-              <span className="sm:hidden">2023–Now</span>
+              <span className="hidden min-[360px]:inline sm:hidden">2023–Now</span>
+              <span className="min-[360px]:hidden">&apos;23–Now</span>
             </span>
           </div>
           <div className="flex flex-col mt-auto leading-tight">
             <div className="flex items-baseline gap-1">
               <span className="text-[14px] sm:text-[15px] font-mono font-bold text-zinc-900 dark:text-zinc-100">
-                2
+                2+
               </span>
               <span className="text-[12px] sm:text-[13px] font-mono text-zinc-600 dark:text-zinc-400">
                 Years
@@ -229,9 +230,9 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
               Frontend & Full-Stack
             </span>
           </div>
-          {/* Right vertical dashed line (Desktop col 2 only) */}
+          {/* Right vertical dashed line (Desktop 3-col only; in 2-col it is the rightmost column) */}
           <div
-            className="hidden md:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
+            className="hidden lg:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={dashedVerticalMask}
           />
         </div>
@@ -239,18 +240,18 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
         {/* Cell 3: Location */}
         <div
           onMouseEnter={() => playHoverTick(0.055)}
-          className="group relative flex flex-col justify-between p-3 sm:p-4 min-h-[96px] sm:min-h-[105px] hover:bg-zinc-50/50 dark:hover:bg-zinc-900/25 transition-colors duration-200 cursor-default"
+          className="group relative flex flex-col justify-between p-2.5 min-[360px]:p-3 sm:p-4 min-h-[96px] sm:min-h-[105px] hover:bg-zinc-50/50 dark:hover:bg-zinc-900/25 transition-colors duration-200 cursor-default"
         >
           <div className="flex items-center justify-between gap-1.5 sm:gap-2">
             <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors min-w-0">
               <span className="p-1 rounded-md bg-zinc-100 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-300 shrink-0">
                 <MapPin className="w-3 h-3" />
               </span>
-              <span className="text-[11px] sm:text-[12px] font-mono tracking-tight select-none truncate">
+              <span className="text-[10.5px] min-[360px]:text-[11px] sm:text-[12px] font-mono tracking-tight select-none truncate">
                 Location
               </span>
             </div>
-            <span className="text-[9.5px] sm:text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 select-none whitespace-nowrap shrink-0">
+            <span className="text-[9px] min-[360px]:text-[9.5px] sm:text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 select-none whitespace-nowrap shrink-0">
               UTC+8
             </span>
           </div>
@@ -264,9 +265,9 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
               Open to Global Remote
             </span>
           </div>
-          {/* Mobile Right Border (for Cell 3 in 2-col layout) */}
+          {/* Mobile/Tablet Right Border (col 1 in 2-col layout) */}
           <div
-            className="md:hidden absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
+            className="lg:hidden absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={dashedVerticalMask}
           />
         </div>
@@ -274,20 +275,17 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
         {/* Cell 4: Local Time */}
         <div
           onMouseEnter={() => playHoverTick(0.055)}
-          className="group relative flex flex-col justify-between p-3 sm:p-4 min-h-[96px] sm:min-h-[105px] hover:bg-zinc-50/50 dark:hover:bg-zinc-900/25 transition-colors duration-200 cursor-default"
+          className="group relative flex flex-col justify-between p-2.5 min-[360px]:p-3 sm:p-4 min-h-[96px] sm:min-h-[105px] hover:bg-zinc-50/50 dark:hover:bg-zinc-900/25 transition-colors duration-200 cursor-default"
         >
           <div className="flex items-center justify-between gap-1.5 sm:gap-2">
             <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors min-w-0">
               <span className="p-1 rounded-md bg-zinc-100 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-300 shrink-0">
                 <Clock className="w-3 h-3" />
               </span>
-              <span className="text-[11px] sm:text-[12px] font-mono tracking-tight select-none truncate">
+              <span className="text-[10.5px] min-[360px]:text-[11px] sm:text-[12px] font-mono tracking-tight select-none truncate">
                 Local Time
               </span>
             </div>
-            <span className="text-[9.5px] sm:text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 select-none whitespace-nowrap shrink-0">
-              Asia/Manila
-            </span>
           </div>
           <div className="flex flex-col mt-auto leading-tight">
             <span className="text-[13px] sm:text-[14px] font-mono font-bold text-zinc-900 dark:text-zinc-100">
@@ -297,9 +295,9 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
               PHT ({timeInfo.diff})
             </span>
           </div>
-          {/* Desktop Right Border (Col 1) */}
+          {/* Desktop Right Border (Col 1 in 3-col) */}
           <div
-            className="hidden md:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
+            className="hidden lg:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={dashedVerticalMask}
           />
         </div>
@@ -307,20 +305,17 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
         {/* Cell 5: Focus */}
         <div
           onMouseEnter={() => playHoverTick(0.055)}
-          className="group relative flex flex-col justify-between p-3 sm:p-4 min-h-[96px] sm:min-h-[105px] hover:bg-zinc-50/50 dark:hover:bg-zinc-900/25 transition-colors duration-200 cursor-default"
+          className="group relative flex flex-col justify-between p-2.5 min-[360px]:p-3 sm:p-4 min-h-[96px] sm:min-h-[105px] hover:bg-zinc-50/50 dark:hover:bg-zinc-900/25 transition-colors duration-200 cursor-default"
         >
           <div className="flex items-center justify-between gap-1.5 sm:gap-2">
             <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors min-w-0">
               <span className="p-1 rounded-md bg-zinc-100 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-300 shrink-0">
                 <Terminal className="w-3 h-3" />
               </span>
-              <span className="text-[11px] sm:text-[12px] font-mono tracking-tight select-none truncate">
+              <span className="text-[10.5px] min-[360px]:text-[11px] sm:text-[12px] font-mono tracking-tight select-none truncate">
                 Focus
               </span>
             </div>
-            <span className="text-[9.5px] sm:text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 select-none whitespace-nowrap shrink-0">
-              Stack
-            </span>
           </div>
           <div className="flex flex-col mt-auto leading-tight">
             <span className="text-[13px] sm:text-[14px] font-mono font-bold text-zinc-900 dark:text-zinc-100">
@@ -330,14 +325,9 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
               React, Next.js, TS & Systems
             </span>
           </div>
-          {/* Mobile Right Border */}
+          {/* Right vertical dashed border (col 1 in 2-col; col 2 in 3-col) */}
           <div
-            className="md:hidden absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
-            style={dashedVerticalMask}
-          />
-          {/* Desktop Right Border (Col 2) */}
-          <div
-            className="hidden md:block absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
+            className="absolute top-0 bottom-0 right-0 w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none"
             style={dashedVerticalMask}
           />
         </div>
@@ -345,20 +335,17 @@ export function ProfileDetailsGrid({ hasSeenScrollAnimations = false }: { hasSee
         {/* Cell 6: Education */}
         <div
           onMouseEnter={() => playHoverTick(0.055)}
-          className="group relative flex flex-col justify-between p-3 sm:p-4 min-h-[96px] sm:min-h-[105px] hover:bg-zinc-50/50 dark:hover:bg-zinc-900/25 transition-colors duration-200 cursor-default"
+          className="group relative flex flex-col justify-between p-2.5 min-[360px]:p-3 sm:p-4 min-h-[96px] sm:min-h-[105px] hover:bg-zinc-50/50 dark:hover:bg-zinc-900/25 transition-colors duration-200 cursor-default"
         >
           <div className="flex items-center justify-between gap-1.5 sm:gap-2">
             <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors min-w-0">
               <span className="p-1 rounded-md bg-zinc-100 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-300 shrink-0">
                 <GraduationCap className="w-3 h-3" />
               </span>
-              <span className="text-[11px] sm:text-[12px] font-mono tracking-tight select-none truncate">
+              <span className="text-[10.5px] min-[360px]:text-[11px] sm:text-[12px] font-mono tracking-tight select-none truncate">
                 Education
               </span>
             </div>
-            <span className="text-[9.5px] sm:text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 select-none whitespace-nowrap shrink-0">
-              BSIT
-            </span>
           </div>
           <div className="flex flex-col mt-auto leading-tight">
             <span className="text-[13px] sm:text-[14px] font-mono font-bold text-zinc-900 dark:text-zinc-100 truncate">
