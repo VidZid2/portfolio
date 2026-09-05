@@ -3374,7 +3374,7 @@ export const GithubCalendar = memo(function GithubCalendar({
         <motion.div 
           layout
           transition={{ type: "spring", stiffness: 240, damping: 28 }}
-          className="relative w-full h-0 mt-4 mb-7"
+          className="relative w-full h-0 mt-3 sm:mt-4 mb-5 sm:mb-7"
         >
           <div 
             className="absolute bleed-x top-0 h-0 border-b border-black/30 dark:border-white/[0.15]" 
@@ -3385,28 +3385,34 @@ export const GithubCalendar = memo(function GithubCalendar({
         <motion.div 
           layout
           transition={{ type: "spring", stiffness: 240, damping: 28 }}
-          className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 px-3"
+          className="flex flex-wrap items-center justify-center gap-y-2.5 gap-x-6 sm:gap-x-8 px-2 sm:px-3 text-center"
         >
           {/* legend (left) */}
           {showLegend && (
-            <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground shrink-0">
-              <div className="flex items-center gap-1.5">
-                <span>Less</span>
+            <div className="flex items-center gap-2 min-[360px]:gap-3 sm:gap-4 text-[11px] min-[360px]:text-xs text-muted-foreground shrink-0 select-none">
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <span className="shrink-0">Less</span>
                 {([0, 1, 2, 3, 4] as ContributionLevel[]).map((level) => (
-                  <svg key={level} width={cellSize} height={cellSize}>
+                  <svg
+                    key={level}
+                    width={11}
+                    height={11}
+                    viewBox="0 0 11 11"
+                    className="w-2.5 h-2.5 sm:w-[11px] sm:h-[11px] shrink-0"
+                  >
                     <rect
-                      width={cellSize}
-                      height={cellSize}
-                      rx={cellRx}
+                      width={11}
+                      height={11}
+                      rx={cellShape === "circle" ? 5.5 : 2.2}
                       fill={activeColors[`level${level}`]}
                     />
                   </svg>
                 ))}
-                <span>More</span>
+                <span className="shrink-0">More</span>
               </div>
 
               {/* Game Mode Switch */}
-              <div className="flex items-center border-l border-neutral-300 dark:border-neutral-800 pl-3 sm:pl-4">
+              <div className="flex items-center border-l border-neutral-300 dark:border-neutral-800 pl-2.5 sm:pl-3.5">
                 <button
                   type="button"
                   onClick={() => {
@@ -3420,7 +3426,7 @@ export const GithubCalendar = memo(function GithubCalendar({
                   aria-label="Toggle Game Mode"
                   title={gameActive ? "Disable Game Mode" : "Enable Game Mode (Space Invaders)"}
                   className={cn(
-                    "group flex items-center gap-1.5 px-2 py-1 rounded-[6px] text-[11px] font-mono transition-all duration-150 select-none cursor-pointer outline-none border-0 ring-0",
+                    "group flex items-center gap-1.5 px-1.5 min-[360px]:px-2 py-0.5 sm:py-1 rounded-[6px] text-[10.5px] min-[360px]:text-[11px] font-mono transition-all duration-150 select-none cursor-pointer outline-none border-0 ring-0",
                     gameActive
                       ? "text-[#6495ED] dark:text-[#6495ED] bg-[#6495ED]/10 font-medium"
                       : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60",
@@ -3429,7 +3435,7 @@ export const GithubCalendar = memo(function GithubCalendar({
                   )}
                 >
                   <svg
-                    className="w-3.5 h-3.5 shrink-0 transition-transform duration-200 group-hover:scale-105"
+                    className="w-3 h-3 min-[360px]:w-3.5 min-[360px]:h-3.5 shrink-0 transition-transform duration-200 group-hover:scale-105"
                     viewBox="0 0 18 18"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -3456,10 +3462,10 @@ export const GithubCalendar = memo(function GithubCalendar({
                     <circle cx="12.5" cy="11.25" r="0.7" fill="white" />
                     <circle cx="10.75" cy="9.5" r="0.7" fill="white" />
                   </svg>
-                  <span>Game Mode</span>
+                  <span className="shrink-0">Game Mode</span>
                   <span
                     className={cn(
-                      "size-1.5 rounded-full transition-colors duration-200",
+                      "size-1.5 rounded-full shrink-0 transition-colors duration-200",
                       gameActive ? "bg-[#6495ED]" : "bg-zinc-300 dark:bg-zinc-600"
                     )}
                   />
@@ -3470,22 +3476,22 @@ export const GithubCalendar = memo(function GithubCalendar({
 
           {/* stats line (right) */}
           {showStats && (
-            <div className="flex flex-wrap justify-center text-sm font-sans tracking-wide">
+            <div className="flex items-center justify-center text-center">
               <a
                 href={`https://github.com/${username}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-x-1 text-neutral-600 dark:text-neutral-400 select-none"
+                className="inline-flex items-center justify-center flex-nowrap gap-x-1 text-[11px] min-[360px]:text-xs sm:text-sm font-sans tracking-tight min-[360px]:tracking-normal sm:tracking-wide text-neutral-600 dark:text-neutral-400 select-none whitespace-nowrap group/link"
               >
-                <span className="font-semibold text-blue-600 dark:text-[#6495ED]">
+                <span className="font-semibold text-blue-600 dark:text-[#6495ED] shrink-0">
                   {username}
                 </span>
-                <span>contributed</span>
-                <span className="font-bold text-blue-600 dark:text-[#6495ED]">
+                <span className="shrink-0">contributed</span>
+                <span className="font-bold text-blue-600 dark:text-[#6495ED] shrink-0">
                   {stats.total.toLocaleString()}
                 </span>
-                <span>this year on</span>
-                <DrawUnderlineLink className="font-semibold text-black dark:text-neutral-200 hover:text-[#6495ED] dark:hover:text-[#6495ED] transition-colors">
+                <span className="shrink-0">this year on</span>
+                <DrawUnderlineLink className="font-semibold text-black dark:text-neutral-200 group-hover/link:text-[#6495ED] dark:group-hover/link:text-[#6495ED] transition-colors shrink-0">
                   GitHub
                 </DrawUnderlineLink>
               </a>
